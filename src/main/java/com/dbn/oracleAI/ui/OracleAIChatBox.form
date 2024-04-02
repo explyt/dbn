@@ -57,7 +57,7 @@
               <toolTipText resource-bundle="Messages" key="companion.chat.questio .tooltip"/>
             </properties>
           </component>
-          <scrollpane id="c0d7e" binding="companionConversationPan" custom-create="true">
+          <scrollpane id="c0d7e" binding="companionConversationPan">
             <constraints border-constraint="Center"/>
             <properties/>
             <border type="none"/>
@@ -74,10 +74,4 @@
       </grid>
     </children>
   </grid>
-  <buttonGroups>
-    <group name="buttonGroup1">
-      <member id="6eeff"/>
-      <member id="3297e"/>
-    </group>
-  </buttonGroups>
 </form>

@@ -54,7 +54,6 @@ public class OracleAIChatBox extends JPanel {
 
     ResourceBundle actions = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
-    narrateCheckbox.setText(actions.getString("narrate.action"));
     explainSQLCheckbox.setText(actions.getString("explainSql.action"));
 
     profileComboBox.addActionListener(e -> {
