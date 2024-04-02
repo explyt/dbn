@@ -51,7 +51,8 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
   }
 
   public void switchToConnection(ConnectionId connectionId) {
-    if (currConnection != null && oracleAIChatBox != null) {
+    assert oracleAIChatBox != null: "oracleAIChatBox not initialize";
+    if (currConnection != null) {
       chatBoxStates.put(currConnection.getConnectionId(), oracleAIChatBox.captureState(currConnection.getConnectionId().toString()));
     }
 
