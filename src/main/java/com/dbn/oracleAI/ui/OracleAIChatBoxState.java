@@ -1,37 +1,19 @@
 package com.dbn.oracleAI.ui;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.jdom.Element;
 
-import java.util.Objects;
+import java.util.List;
 
-@Setter
-@Getter
-public class OracleAIChatBoxState {
-  private String selectedOption = "showsql";
-  private String inputText;
-  private String displayText;
-  private String currConnection;
-
-  public OracleAIChatBoxState(String connection) {
-    setCurrConnection(connection);
-  }
-
-  public Element toElement() {
-    Element stateElement = new Element("OracleAIChatBoxState");
-    stateElement.addContent(new Element("currConnection").setText(Objects.toString(currConnection, "")));
-    stateElement.addContent(new Element("selectedOption").setText(Objects.toString(selectedOption, "")));
-    stateElement.addContent(new Element("inputText").setText(Objects.toString(inputText, "")));
-    stateElement.addContent(new Element("displayText").setText(Objects.toString(displayText, "")));
-    return stateElement;
-  }
-
-  public static OracleAIChatBoxState fromElement(Element stateElement) {
-    OracleAIChatBoxState state = new OracleAIChatBoxState(stateElement.getChildText("currConnection"));
-    state.setSelectedOption(stateElement.getChildText("selectedOption"));
-    state.setInputText(stateElement.getChildText("inputText"));
-    state.setDisplayText(stateElement.getChildText("displayText"));
-    return state;
-  }
+@Setter @Getter @Builder @ToString
+public class OracleAIChatBoxState extends Element {
+  //TODO : why we are also an Element ? if we have to why we need OracleAIChatBoxState subclass ?
+  private List<OracleAIChatBox.AIProfileItem> profiles;
+  private OracleAIChatBox.AIProfileItem selectedProfile;
+  private String currentQuestionText;
+  private List<String> questionHistory;
+  private String aiAnswers;
 }

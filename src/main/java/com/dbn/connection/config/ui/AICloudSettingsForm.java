@@ -7,8 +7,6 @@ import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.openapi.options.ConfigurationException;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -43,22 +41,22 @@ public class AICloudSettingsForm extends ConfigurationEditorForm<AICloudSettings
 
 
 
-    intro.setText(messages.getString("permissions1.message"));
-    intro2.setText(messages.getString("permissions2.message"));
-
-    grantTextField.setText( String.format(messages.getString("permissions3.message"), userName) );
-
-    grantTextArea.setText( String.format(messages.getString("permissions4.message"), userName, userName) );
-
-    networkAllow.setText(messages.getString("permissions5.message"));
-
-    aclTextArea.setText( String.format(messages.getString("permissions6.message"), hostname.getAction().toLowerCase(), userName) );
-
-    providerComboBox.addActionListener (e -> {
-      hostname = (ProviderType) providerComboBox.getSelectedItem();
-      aclTextArea.setText( String.format(messages.getString("permissions6.message"), hostname.getAction().toLowerCase(), userName) );
-
-    });
+//    intro.setText(messages.getString("permissions1.message"));
+//    intro2.setText(messages.getString("permissions2.message"));
+//
+//    grantTextField.setText( String.format(messages.getString("permissions3.message"), userName) );
+//
+//    grantTextArea.setText( String.format(messages.getString("permissions4.message"), userName, userName) );
+//
+//    networkAllow.setText(messages.getString("permissions5.message"));
+//
+//    aclTextArea.setText( String.format(messages.getString("permissions6.message"), hostname.getAction().toLowerCase(), userName) );
+//
+//    providerComboBox.addActionListener (e -> {
+//      hostname = (ProviderType) providerComboBox.getSelectedItem();
+//      aclTextArea.setText( String.format(messages.getString("permissions6.message"), hostname.getAction().toLowerCase(), userName) );
+//
+//    });
   }
 
   @Override

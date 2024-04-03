@@ -1,147 +1,117 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.oracleAI.ui.OracleAIChatBox">
-  <grid id="27dc6" binding="panel1" default-binding="true" layout-manager="BorderLayout" hgap="0" vgap="0">
+  <grid id="27dc6" binding="chatBoxMainPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="728" height="667"/>
     </constraints>
-    <properties/>
-    <border type="empty"/>
+    <properties>
+      <opaque value="true"/>
+    </properties>
+    <border type="empty">
+      <size top="5" left="5" bottom="5" right="5"/>
+    </border>
     <children>
-      <grid id="5a9ba" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="5a9ba" binding="companionCommandPanel" layout-manager="GridLayoutManager" row-count="4" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="0" left="0" bottom="0" right="0"/>
         <constraints border-constraint="North"/>
         <properties/>
         <border type="none"/>
         <children>
-          <grid id="e6147" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
-            <constraints border-constraint="South"/>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="9c819" class="javax.swing.JCheckBox" binding="explainSQLCheckbox">
-                <constraints/>
-                <properties>
-                  <text value="Explain SQL"/>
-                </properties>
-              </component>
-              <component id="12e7c" class="javax.swing.JCheckBox" binding="narrateCheckbox">
-                <constraints/>
-                <properties>
-                  <text value="Narrate"/>
-                </properties>
-              </component>
-            </children>
-          </grid>
-          <grid id="19532" layout-manager="BorderLayout" hgap="0" vgap="0">
-            <constraints border-constraint="North"/>
-            <properties/>
-            <border type="empty">
-              <size top="10" left="20" bottom="10" right="20"/>
-            </border>
-            <children>
-              <grid id="19e56" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="0" bottom="0" right="0"/>
-                <constraints border-constraint="East"/>
-                <properties/>
-                <border type="empty">
-                  <size top="0" left="0" bottom="5" right="0"/>
-                </border>
-                <children>
-                  <component id="ef610" class="javax.swing.JSlider" binding="temperatureSlider">
-                    <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                  </component>
-                  <component id="bcc9b" class="javax.swing.JLabel">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text value="Temperature"/>
-                    </properties>
-                  </component>
-                </children>
+          <component id="135be" class="javax.swing.JComboBox" binding="AIModelComboBox">
+            <constraints>
+              <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <toolTipText resource-bundle="Messages" key="companion.chat.model.tooltip"/>
+            </properties>
+          </component>
+          <component id="e55fc" class="javax.swing.JComboBox" binding="profileComboBox">
+            <constraints>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="5" hsize-policy="5" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <editable value="false"/>
+              <toolTipText resource-bundle="Messages" key="companion.chat.profile.tooltip"/>
+            </properties>
+          </component>
+          <vspacer id="8cce3">
+            <constraints>
+              <grid row="2" column="0" row-span="1" col-span="2" vsize-policy="4" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false">
+                <minimum-size width="-1" height="10"/>
               </grid>
-              <grid id="be9ab" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-                <margin top="0" left="0" bottom="0" right="0"/>
-                <constraints border-constraint="West"/>
-                <properties/>
-                <border type="empty">
-                  <size top="0" left="0" bottom="5" right="0"/>
-                </border>
-                <children>
-                  <component id="b78f7" class="javax.swing.JLabel">
-                    <constraints>
-                      <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties>
-                      <text value="Profiles"/>
-                    </properties>
-                  </component>
-                  <component id="e55fc" class="javax.swing.JComboBox" binding="optionsComboBox">
-                    <constraints>
-                      <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-                    </constraints>
-                    <properties/>
-                  </component>
-                </children>
-              </grid>
-            </children>
-          </grid>
-          <grid id="1902e" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="1">
-            <constraints border-constraint="Center"/>
-            <properties/>
-            <border type="none"/>
-            <children>
-              <component id="6eeff" class="javax.swing.JRadioButton" binding="showRequestButton">
-                <constraints/>
-                <properties>
-                  <selected value="true"/>
-                  <text value="Show Request"/>
-                </properties>
-              </component>
-              <component id="3297e" class="javax.swing.JRadioButton" binding="executeRequestButton">
-                <constraints/>
-                <properties>
-                  <text value="Execute Request"/>
-                </properties>
-              </component>
-            </children>
-          </grid>
+            </constraints>
+          </vspacer>
+          <component id="e82ed" class="javax.swing.JProgressBar" binding="activityProgress">
+            <constraints>
+              <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="1" hsize-policy="0" anchor="1" fill="1" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <enabled value="true"/>
+              <focusCycleRoot value="false"/>
+              <indeterminate value="true"/>
+              <maximum value="100"/>
+              <visible value="true"/>
+            </properties>
+          </component>
         </children>
       </grid>
-      <grid id="709e" layout-manager="BorderLayout" hgap="0" vgap="0">
+      <grid id="709e" binding="companionConversationPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="Center"/>
-        <properties/>
-        <border type="empty">
+        <properties>
+          <autoscrolls value="false"/>
+        </properties>
+        <border type="none">
           <size top="10" left="20" bottom="10" right="20"/>
         </border>
         <children>
-          <component id="12869" class="javax.swing.JComboBox" binding="comboBox">
+          <grid id="4f983" binding="companionConversationPanelTop" layout-manager="GridLayoutManager" row-count="2" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+            <margin top="0" left="0" bottom="0" right="0"/>
             <constraints border-constraint="North"/>
-            <properties>
-              <editable value="true"/>
-            </properties>
-          </component>
-          <scrollpane id="c0d7e">
+            <properties/>
+            <border type="none"/>
+            <children>
+              <component id="12869" class="javax.swing.JComboBox" binding="companionConversationQuestion">
+                <constraints>
+                  <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="7" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <editable value="true"/>
+                  <toolTipText resource-bundle="Messages" key="companion.chat.question.enabled.tooltip"/>
+                </properties>
+              </component>
+              <component id="9c819" class="javax.swing.JCheckBox" binding="explainSQLCheckbox">
+                <constraints>
+                  <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties>
+                  <text resource-bundle="Messages" key="companion.explainsql.checkbox"/>
+                  <toolTipText resource-bundle="Messages" key="companion.explainsql.tooltip"/>
+                </properties>
+              </component>
+            </children>
+          </grid>
+          <scrollpane id="c0d7e" binding="companionConversationPan">
             <constraints border-constraint="Center"/>
             <properties/>
             <border type="none"/>
             <children>
-              <component id="55163" class="javax.swing.JTextPane" binding="displayTextPane">
+              <component id="55163" class="javax.swing.JTextPane" binding="companionConversationAnswersText">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <margin top="0" left="0" bottom="0" right="0"/>
+                  <text value=""/>
+                </properties>
               </component>
             </children>
           </scrollpane>
         </children>
       </grid>
+      <component id="bb839" class="javax.swing.JTextField" binding="chatBoxNotificationMessage">
+        <constraints border-constraint="South"/>
+        <properties>
+          <editable value="false"/>
+        </properties>
+      </component>
     </children>
   </grid>
-  <buttonGroups>
-    <group name="buttonGroup1">
-      <member id="6eeff"/>
-      <member id="3297e"/>
-    </group>
-  </buttonGroups>
 </form>

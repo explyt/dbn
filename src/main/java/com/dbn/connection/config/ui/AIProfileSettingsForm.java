@@ -79,6 +79,7 @@ public class AIProfileSettingsForm extends ConfigurationEditorForm<com.dbn.conne
                                 String profileName,
                                 String provider,
                                 String credentialName){
+    assert provider != null: "provider cannot be null";
 
     Profile profileAttributes = Profile.builder()
           .profileName(profileName)
