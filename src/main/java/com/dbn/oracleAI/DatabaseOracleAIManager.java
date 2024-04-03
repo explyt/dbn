@@ -9,6 +9,7 @@ import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.OracleAISettingsOpenAction;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
@@ -71,6 +72,8 @@ import java.util.concurrent.ConcurrentHashMap;
     OracleAIChatBoxState newState = chatBoxStates.get(connectionId);
     if (newState != null) {
       oracleAIChatBox.restoreState(newState);
+    } else {
+      oracleAIChatBox.initState();
     }
   }
 
@@ -123,16 +126,15 @@ import java.util.concurrent.ConcurrentHashMap;
    * fetch all profiles
    * @return the list of profiles, can be empty not null
    */
-  public List<Profile> fetchProfiles() {
+  public List<Profile> fetchProfiles()
+    throws SQLException, DatabaseOperationException {
     List<Profile> profiles = new ArrayList<>();
     if (currConnection != null) {
       DBNConnection mainConnection;
-      try {
+
         mainConnection = currConnection.getConnection(SessionId.ORACLE_AI);
         profiles = currConnection.getOracleAIInterface().listProfiles(mainConnection);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
+
     }
       return profiles;
   }

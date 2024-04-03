@@ -22,12 +22,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class OracleAIChatBox extends JPanel {
   /**
    * Holder class for profile combox box
-   * TODO : is that class creatae for each windows ?
+   * TODO : is that class create for each windows ?
    */
   static final class AIProfileItem {
     /**
@@ -74,8 +75,8 @@ public class OracleAIChatBox extends JPanel {
     private String label;
 
     /**
-     * Checks that this is effectoive/usable profile
-     * basci example is that the 'New profile...' is not
+     * Checks that this is effective/usable profile
+     * basic example is that the 'New profile...' is not
      */
     private boolean effective;
 
@@ -126,6 +127,8 @@ public class OracleAIChatBox extends JPanel {
 
   private JComboBox AIModelComboBox;
   private JPanel companionConversationPanelTop;
+  private JProgressBar activityProgress;
+  private JTextField chatBoxNotificationMessage;
   private JCheckBox checkBox1;
 
   public DatabaseOracleAIManager currManager;
@@ -154,6 +157,7 @@ public class OracleAIChatBox extends JPanel {
     return instance;
   }
 
+
   private void initializeUI() {
     initializeTextStyles();
     createTextFieldsPanel();
@@ -161,31 +165,11 @@ public class OracleAIChatBox extends JPanel {
 
     explainSQLCheckbox.setText(messages.getString("companion.explainSql.action"));
 
-    updateProfiles();
-
     profileComboBox.setModel(profileListModel);
     profileComboBox.addActionListener(e -> {
       if (profileComboBox.getSelectedItem().equals(ADD_PROFILE_COMBO_ITEM))
         currManager.openSettings();
     });
-
-    // if there is no profile for this connection
-    // we do not allow the user to enter a question
-    if (profileListModel.getUsableProfiles().size() == 0) {
-      companionConversationQuestion.setEnabled(false);
-      companionConversationQuestion.setToolTipText(
-        messages.getString("companion.chat.no_profile_yet.tooltip"));
-      explainSQLCheckbox.setEnabled(false);
-      explainSQLCheckbox.setToolTipText(
-        messages.getString("companion.chat.no_profile_yet.tooltip"));
-    } else {
-      companionConversationQuestion.setEnabled(true);
-      companionConversationQuestion.setToolTipText(
-        messages.getString("companion.chat.question.enabled.tooltip"));
-      explainSQLCheckbox.setEnabled(true);
-      explainSQLCheckbox.setToolTipText(
-        messages.getString("companion.explainsql.tooltip"));
-    }
 
     profileComboBox.setRenderer(new ProfileComboBoxRenderer());
 
@@ -249,6 +233,7 @@ public class OracleAIChatBox extends JPanel {
   }
 
   private void submitText() {
+    startActivityNotifier("Submitting.. (we need a key in messages)");
     ApplicationManager.getApplication()
                       .executeOnPooledThread(
                         () -> processQuery(selectedAction()));
@@ -281,8 +266,9 @@ public class OracleAIChatBox extends JPanel {
       String output =
         currManager.queryOracleAI(question, actionType, item.getLabel());
       ApplicationManager.getApplication()
-                        .invokeLater(() -> setDisplayTextPane(output));
+                        .invokeLater(() -> {setDisplayTextPane(output);stopActivityNotifier();});
     }
+
   }
 
   public void setDisplayTextPane(String s) {
@@ -322,17 +308,15 @@ public class OracleAIChatBox extends JPanel {
    * Updates profile combox box model by fetching
    * list of available profiles for the current connection
    */
-  public void updateProfiles() {
-    ApplicationManager.getApplication().executeOnPooledThread(() -> {
-      List<Profile> fetchedProfiles = currManager.fetchProfiles();
-      ApplicationManager.getApplication().invokeLater(() -> {
-        profileListModel.removeAllElements();
-        fetchedProfiles.forEach(p -> {
-          profileListModel.addElement(new AIProfileItem(p.getProfileName()));
-        });
-        profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
-      });
+  public CompletableFuture<List<Profile>> updateProfiles() {
+    return CompletableFuture.supplyAsync(()-> {
+      try {
+        return currManager.fetchProfiles();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     });
+
   }
 
   /**
@@ -366,7 +350,7 @@ public class OracleAIChatBox extends JPanel {
   }
 
   /**
-   * Restores the elemetn state according to the current connection.
+   * Restores the element state according to the current connection.
    *
    * @param state the state that should be applied
    */
@@ -387,6 +371,66 @@ public class OracleAIChatBox extends JPanel {
       companionConversationQuestion.setEnabled(true);
     }
     
+  }
+
+  /**
+   * Starts the spining wheel
+   * TODO : try to be clever here...
+   */
+  private void startActivityNotifier(String message) {
+     activityProgress.setIndeterminate(true);
+     activityProgress.setVisible(true);
+    chatBoxNotificationMessage.setVisible(true);
+    chatBoxNotificationMessage.setText(message);
+   }
+
+  /**
+   * Stops the spining wheel
+   */private void stopActivityNotifier() {
+    activityProgress.setMinimum(0);
+    activityProgress.setMaximum(0);
+    activityProgress.setIndeterminate(false);
+    activityProgress.setVisible(false);
+
+    chatBoxNotificationMessage.setVisible(false);
+    chatBoxNotificationMessage.setText("");
+
+  }
+
+  /**
+   * Restores the element state from scratch.
+   * basically called only once ny switchConnection()
+   *
+   */
+  public void initState() {
+    startActivityNotifier(messages.getString("companion.chat.fetching_profiles"));
+    updateProfiles().thenAccept(finalFetchedProfiles -> {
+      ApplicationManager.getApplication().invokeLater(() -> {
+        profileListModel.removeAllElements();
+        finalFetchedProfiles.forEach(p -> {
+          profileListModel.addElement(new AIProfileItem(p.getProfileName()));
+        });
+
+        profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
+
+        if (profileListModel.getUsableProfiles().size() == 0) {
+          companionConversationQuestion.setEnabled(false);
+          companionConversationQuestion.setToolTipText(
+            messages.getString("companion.chat.no_profile_yet.tooltip"));
+          explainSQLCheckbox.setEnabled(false);
+          explainSQLCheckbox.setToolTipText(
+            messages.getString("companion.chat.no_profile_yet.tooltip"));
+        } else {
+          companionConversationQuestion.setEnabled(true);
+          companionConversationQuestion.setToolTipText(
+            messages.getString("companion.chat.question.enabled.tooltip"));
+          explainSQLCheckbox.setEnabled(true);
+          explainSQLCheckbox.setToolTipText(
+            messages.getString("companion.explainsql.tooltip"));
+        }
+        stopActivityNotifier();
+      });
+    });
   }
 
   private void createUIComponents() {

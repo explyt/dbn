@@ -25,6 +25,13 @@ public class OracleProfilesInfo implements CallableStatementOutput {
 
   @Override
   public void read(CallableStatement statement) throws SQLException {
-    profiles = Arrays.stream(statement.getString(1).split(" ")).map((s)->Profile.builder().profileName(s).build()).collect(Collectors.toList());
-  }
+    String result = statement.getString(1);
+    if (result == null) {
+      profiles = List.of();
+    } else {
+      profiles = Arrays.stream(result.split(" "))
+                       .map((s) -> Profile.builder().profileName(s).build())
+                       .collect(Collectors.toList());
+    }
+    }
 }
