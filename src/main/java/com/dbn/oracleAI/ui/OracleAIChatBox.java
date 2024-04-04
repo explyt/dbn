@@ -60,6 +60,9 @@ public class OracleAIChatBox extends JPanel {
       return label;
     }
 
+    public boolean isEffective(){
+      return effective;
+    }
     /**
      * Used to UI fw
      *
@@ -94,8 +97,10 @@ public class OracleAIChatBox extends JPanel {
      */
     public List<AIProfileItem> getAllProfiles() {
       List<AIProfileItem> result = new ArrayList<>();
-      for (int i = 0; i < this.getSize(); i++) {
-        result.add(this.getElementAt(i));
+      for (int i = 0; i < this.getSize()-1; i++) {
+        if(this.getElementAt(i)!=ADD_PROFILE_COMBO_ITEM && this.getElementAt(i)!=NONE_COMBO_ITEM){
+          result.add(this.getElementAt(i));
+        }
       }
       return result;
     }
@@ -131,7 +136,7 @@ public class OracleAIChatBox extends JPanel {
   private JTextField chatBoxNotificationMessage;
   private JCheckBox checkBox1;
 
-  public DatabaseOracleAIManager currManager;
+  public static DatabaseOracleAIManager currManager;
 
   static ResourceBundle messages =
     ResourceBundle.getBundle("Messages", Locale.getDefault());
@@ -142,8 +147,10 @@ public class OracleAIChatBox extends JPanel {
   static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
     new AIProfileItem(messages.getString("companion.profile.combox.add"), false);
 
+  static final AIProfileItem NONE_COMBO_ITEM =
+      new AIProfileItem("<None>", false);
+
   private OracleAIChatBox(Project project) {
-    currManager = project.getService(DatabaseOracleAIManager.class);
     initializeUI();
     this.setLayout(new BorderLayout(0, 0));
     this.add(chatBoxMainPanel);
@@ -151,6 +158,7 @@ public class OracleAIChatBox extends JPanel {
   }
 
   public static OracleAIChatBox getInstance(Project project) {
+    currManager = project.getService(DatabaseOracleAIManager.class);
     if (instance == null) {
       instance = new OracleAIChatBox(project);
     }
@@ -167,8 +175,11 @@ public class OracleAIChatBox extends JPanel {
 
     profileComboBox.setModel(profileListModel);
     profileComboBox.addActionListener(e -> {
-      if (profileComboBox.getSelectedItem().equals(ADD_PROFILE_COMBO_ITEM))
+      if (Objects.equals(profileComboBox.getSelectedItem(), ADD_PROFILE_COMBO_ITEM)) {
+        profileComboBox.hidePopup();
+        profileComboBox.setSelectedIndex(0);
         currManager.openSettings();
+      }
     });
 
     profileComboBox.setRenderer(new ProfileComboBoxRenderer());
@@ -323,9 +334,19 @@ public class OracleAIChatBox extends JPanel {
    * Updates profile combox box model with new profile item list
    */
   public void updateProfiles(List<AIProfileItem> items) {
-    profileListModel.removeAllElements();
-    profileListModel.addAll(items);
-    profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
+    try {
+      profileListModel.removeAllElements();
+      profileListModel.addAll(items);
+      if (items.isEmpty()) {
+        profileListModel.addElement(NONE_COMBO_ITEM);
+        profileComboBox.setSelectedItem(NONE_COMBO_ITEM);
+      }
+      profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
+      profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
+    } catch (Exception e){
+      System.out.println(e.getMessage());
+
+    }
   }
 
   /**
@@ -334,19 +355,15 @@ public class OracleAIChatBox extends JPanel {
    *
    * @return the state for this current companion
    */
-  public OracleAIChatBoxState captureState() {
+  public OracleAIChatBoxState captureState(String currConnection) {
+    AIProfileItem selectedProfile = (AIProfileItem) profileListModel.getSelectedItem();
     return OracleAIChatBoxState.builder()
-                               .aiAnswers(
-                                 companionConversationAnswersText.getText())
-                               .currentQuestionText(
-                                 companionConversationQuestion.getSelectedItem()
-                                                              .toString())
-                               .profiles(profileListModel.getAllProfiles())
-                               .selectedProfile(
-                                 (AIProfileItem) profileListModel.getSelectedItem())
-                               .aiAnswers(
-                                 companionConversationAnswersText.getText())
-                               .build();
+        .currConnection(currConnection)
+        .aiAnswers(companionConversationAnswersText.getText())
+        .currentQuestionText(companionConversationQuestion.getSelectedItem().toString())
+        .profiles(profileListModel.getAllProfiles())
+        .selectedProfile(selectedProfile!=NONE_COMBO_ITEM?selectedProfile:null)
+        .build();
   }
 
   /**
@@ -356,21 +373,20 @@ public class OracleAIChatBox extends JPanel {
    */
   public void restoreState(OracleAIChatBoxState state) {
     assert state != null : "cannot be null";
+      this.updateProfiles(state.getProfiles());
+//      for (String s : state.getQuestionHistory()) {
+//        companionConversationQuestion.addItem(s);
+//      }
+      companionConversationQuestion.setSelectedItem(
+          state.getCurrentQuestionText());
+      companionConversationAnswersText.setText(state.getAiAnswers());
 
-    this.updateProfiles(state.getProfiles());
-    for (String s : state.getQuestionHistory()) {
-      companionConversationQuestion.addItem(s);
-    }
-    companionConversationQuestion.setSelectedItem(
-      state.getCurrentQuestionText());
-    companionConversationAnswersText.setText(state.getAiAnswers());
-    
-    if (profileListModel.getUsableProfiles().size() == 0) {
-      companionConversationQuestion.setEnabled(false);
-    } else {
-      companionConversationQuestion.setEnabled(true);
-    }
-    
+      if (profileListModel.getUsableProfiles().size() == 0) {
+        companionConversationQuestion.setEnabled(false);
+      } else {
+        companionConversationQuestion.setEnabled(true);
+      }
+
   }
 
   /**
@@ -410,7 +426,9 @@ public class OracleAIChatBox extends JPanel {
         finalFetchedProfiles.forEach(p -> {
           profileListModel.addElement(new AIProfileItem(p.getProfileName()));
         });
-
+        if(finalFetchedProfiles.size()==0){
+          profileListModel.addElement(NONE_COMBO_ITEM);
+        }
         profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
 
         if (profileListModel.getUsableProfiles().size() == 0) {

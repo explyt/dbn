@@ -12,6 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
 import java.util.Map;
+import java.util.Objects;
 
 public class ProfileManagementPanel extends JPanel {
   private Map<String, Profile> profileMap;
@@ -53,7 +54,7 @@ public class ProfileManagementPanel extends JPanel {
       updateWindow();
       initializeTable();
     } else {
-      JOptionPane.showMessageDialog(this, "No profiles loaded.", "Error", JOptionPane.ERROR_MESSAGE);
+      initializeEmptyWindow();
     }
   }
 
@@ -63,8 +64,10 @@ public class ProfileManagementPanel extends JPanel {
     comboBox1.setSelectedItem(currProfile != null ? currProfile.getProfileName() : null);
     comboBox1.addActionListener(e -> {
       String selectedProfileName = (String) comboBox1.getSelectedItem();
-      currProfile = profileMap.get(selectedProfileName);
-      updateWindow();
+      if(!Objects.equals(selectedProfileName, "<None>") && !Objects.equals(selectedProfileName, null)){
+        currProfile = profileMap.get(selectedProfileName);
+        updateWindow();
+      }
     });
   }
 
@@ -87,6 +90,15 @@ public class ProfileManagementPanel extends JPanel {
   });
   }
 
+  private void initializeEmptyWindow(){
+    comboBox1.addItem("<None>");
+    credentialField.setText("None");
+    providerField.setText("None");
+    modelField.setText("None");
+    deleteButton.disable();
+    editButton.disable();
+    makeDefaultButton.disable();
+  }
   private void updateWindow() {
     if (currProfile != null) {
       populateProfileNames();
@@ -94,6 +106,8 @@ public class ProfileManagementPanel extends JPanel {
       credentialField.setText(currProfile.getCredentialName());
       providerField.setText(currProfile.getProvider().getAction());
       modelField.setText(currProfile.getModel());
+    } else {
+      initializeEmptyWindow();
     }
   }
 

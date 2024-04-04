@@ -35,15 +35,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
-@State(name = com.dbn.debugger.DatabaseDebuggerManager.COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
+@State(name = DatabaseOracleAIManager.COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 @Slf4j public class DatabaseOracleAIManager extends ProjectComponentBase
   implements PersistentState {
   public static final String COMPONENT_NAME =
     "DBNavigator.Project.OracleAIManager";
   public static final String TOOL_WINDOW_ID = "Oracle Companion";
-  public ConnectionHandler currConnection;
+  public ConnectionId currConnection;
   private static OracleAIChatBox oracleAIChatBox;
   private static volatile DatabaseOracleAIManager manager;
   private final Map<ConnectionId, OracleAIChatBoxState> chatBoxStates =
@@ -64,16 +65,15 @@ import java.util.concurrent.ConcurrentHashMap;
 
     // First save the current one
     if (currConnection != null) {
-      chatBoxStates.put(currConnection.getConnectionId(),
-                        oracleAIChatBox.captureState());
+      chatBoxStates.put(currConnection,
+                        oracleAIChatBox.captureState(currConnection.toString()));
     }
     // now apply the new one
-    currConnection = ConnectionHandler.get(connectionId);
+    currConnection = connectionId;
     OracleAIChatBoxState newState = chatBoxStates.get(connectionId);
+      oracleAIChatBox.initState();
     if (newState != null) {
       oracleAIChatBox.restoreState(newState);
-    } else {
-      oracleAIChatBox.initState();
     }
   }
 
@@ -107,8 +107,8 @@ import java.util.concurrent.ConcurrentHashMap;
     String output;
     try {
       DBNConnection mainConnection =
-        currConnection.getConnection(SessionId.ORACLE_AI);
-      output = currConnection.getOracleAIInterface()
+        Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
+      output = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface()
                              .executeQuery(mainConnection, action, profile,
                                            text)
                              .getQueryOutput();
@@ -132,8 +132,8 @@ import java.util.concurrent.ConcurrentHashMap;
     if (currConnection != null) {
       DBNConnection mainConnection;
 
-        mainConnection = currConnection.getConnection(SessionId.ORACLE_AI);
-        profiles = currConnection.getOracleAIInterface().listProfiles(mainConnection);
+        mainConnection = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
+        profiles = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface().listProfiles(mainConnection);
 
     }
       return profiles;
@@ -152,7 +152,7 @@ import java.util.concurrent.ConcurrentHashMap;
   }
 
   public void openSettings() {
-    AnAction action = new OracleAISettingsOpenAction(currConnection);
+    AnAction action = new OracleAISettingsOpenAction(ConnectionHandler.get(currConnection));
     AnActionEvent event =
       AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, null,
                                           dataId -> {
@@ -170,22 +170,24 @@ import java.util.concurrent.ConcurrentHashMap;
    *********************************************/
 
   @Override public Element getComponentState() {
-    Element allChatBoxStatesElement = new Element("OracleAIChatBoxState");
+    Element allChatBoxStatesElement = new Element("OracleAIChatBoxStates");
     chatBoxStates.forEach((connectionId, chatBoxState) -> {
-      chatBoxState.setAttribute("connectionId", connectionId.toString());
-      allChatBoxStatesElement.addContent(chatBoxState);
+      Element chatBoxStateElement = chatBoxState.toElement();
+      chatBoxStateElement.setAttribute("connectionId", connectionId.toString());
+      allChatBoxStatesElement.addContent(chatBoxStateElement);
     });
     return allChatBoxStatesElement;
   }
 
   @Override public void loadComponentState(@NotNull Element element) {
-    List<Element> chatBoxStateElements =
-      element.getChildren("OracleAIChatBoxState");
+    List<Element> chatBoxStateElements = element.getChildren();
     chatBoxStateElements.forEach(chatBoxStateElement -> {
-      ConnectionId connectionId =
-        ConnectionId.get(chatBoxStateElement.getAttributeValue("connectionId"));
-      chatBoxStates.put(connectionId,
-                        (OracleAIChatBoxState) chatBoxStateElement);
+      String connectionIdStr = chatBoxStateElement.getAttributeValue("connectionId");
+      if (connectionIdStr != null) {
+        ConnectionId connectionId = ConnectionId.get(connectionIdStr);
+        OracleAIChatBoxState chatBoxState = OracleAIChatBoxState.fromElement(chatBoxStateElement);
+        chatBoxStates.put(connectionId, chatBoxState);
+      }
     });
   }
 }
