@@ -4,17 +4,23 @@ import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.wm.WindowManager;
 
 import javax.swing.*;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class OracleAISettingsWindow extends JDialog {
+
+  static private final ResourceBundle messages =
+    ResourceBundle.getBundle("Messages", Locale.getDefault());
+
   private JPanel contentPane;
   private JTabbedPane tabbedPane;
   private ConnectionHandler currConnection;
   public OracleAISettingsWindow(ConnectionHandler connection) {
-    super(WindowManager.getInstance().getFrame(connection.getProject()), "Oracle AI Chat Box", true);
+    super(WindowManager.getInstance().getFrame(connection.getProject()), messages.getString(
+      "companion.window.title"), true);
     currConnection = connection;
     setContentPane(contentPane);
-    setTitle("Oracle AI Settings");
-    setSize(1000, 700);
+    setTitle(messages.getString("ai.settings.window.title"));
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     setLocationRelativeTo(WindowManager.getInstance().getFrame(connection.getProject()));
     setTabs();
@@ -26,7 +32,7 @@ public class OracleAISettingsWindow extends JDialog {
 
 
   private void setTabs() {
-    tabbedPane.addTab("Profiles",new ProfileManagementPanel(currConnection));
-    tabbedPane.addTab("Credentials", new CredentialManagementPanel());
+    tabbedPane.addTab(messages.getString("ai.settings.window.tab.profiles.title"),new ProfileManagementPanel(currConnection));
+    tabbedPane.addTab(messages.getString("ai.settings.window.tab.credentials.title"), new CredentialManagementPanel());
   }
 }

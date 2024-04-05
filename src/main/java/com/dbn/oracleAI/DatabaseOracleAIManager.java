@@ -8,8 +8,6 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.OracleAISettingsOpenAction;
-import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
@@ -32,7 +30,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -122,26 +120,12 @@ import java.util.concurrent.ConcurrentHashMap;
     }
   }
 
-  /**
-   * fetch all profiles
-   * @return the list of profiles, can be empty not null
-   */
-  public List<Profile> fetchProfiles()
-    throws SQLException, DatabaseOperationException {
-    List<Profile> profiles = new ArrayList<>();
-    if (currConnection != null) {
-      DBNConnection mainConnection;
-
-        mainConnection = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
-        profiles = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface().listProfiles(mainConnection);
-
-    }
-      return profiles;
-  }
 
   public static com.dbn.oracleAI.DatabaseOracleAIManager getInstance(
     @NotNull Project project) {
     if (manager == null) {
+      // TODO : remove this as we are synchronizing around the entire class.
+      //        Should use synch with small impact
       synchronized (DatabaseOracleAIManager.class) {
         if (manager == null) {
           manager = new DatabaseOracleAIManager(project);
@@ -190,4 +174,24 @@ import java.util.concurrent.ConcurrentHashMap;
       }
     });
   }
+
+
+  //internal map hosting references to manager
+  //TODO : hook to connection deletion to cleanup map
+  // we assume non static map as we have only one instance fo this
+  private Map<ConnectionId,AIProfileService>profileManagerMap = new HashMap<>();
+
+
+  /**
+   * Gets a profile manager for the current connection.
+   * Managers are sigletons
+   * Ww assume that we alwasy have a current connection
+   * @return a manager.
+   */
+  public synchronized AIProfileService getProfileService() {
+    //TODO : later find better than using "synchronized"
+    return profileManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
+                                          new AIProfileService(ConnectionHandler.get(currConnection)));
+  }
+
 }
