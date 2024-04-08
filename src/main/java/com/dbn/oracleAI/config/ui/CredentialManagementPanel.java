@@ -13,11 +13,17 @@ import java.awt.*;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Represents a panel for managing AI credentials within the application.
- * This panel allows users to view, edit, and delete AI credentials associated with a specific connection.
+ * A panel for managing AI credentials within the application. It provides functionalities
+ * to view, edit, and delete AI credentials associated with a specific connection. This UI component
+ * is part of the Oracle AI integration module, allowing users to efficiently manage their AI service
+ * credentials directly within the IDE.
+ *
+ * The panel is dynamically populated with credential information retrieved from the AI credential service,
+ * and it utilizes the {@link ConnectionHandler} to fetch and manage credentials for a specific project connection.
  */
 public class CredentialManagementPanel extends JPanel {
 
@@ -35,35 +41,63 @@ public class CredentialManagementPanel extends JPanel {
   private Map<String, CredentialProvider> credentialsProvidersMap;
 
   /**
-   * Initializes a new instance of the CredentialManagementPanel with a specified connection.
-   * This constructor sets up the UI components and fetches the credentials for the given connection.
+   * Initializes a new instance of the CredentialManagementPanel for managing AI credentials,
+   * setting up UI components and fetching credentials for the given connection.
    *
-   * @param connection The ConnectionHandler associated with this panel, used to fetch and manage credentials.
+   * @param connection The ConnectionHandler associated with this panel. It is used to fetch
+   *                   and manage credentials related to the project's Oracle AI integration.
    */
   public CredentialManagementPanel(ConnectionHandler connection) {
     this.credentialSvc = connection.getProject().getService(DatabaseOracleAIManager.class).getCredentialService();
+    initializeUI();
     fetchCredentialsProviders();
 
     this.add(mainPane);
   }
 
   /**
-   * Fetches the list of credential providers from the AI credential service and updates the UI.
-   * This method asynchronously retrieves the credentials, updating the credential list and display information.
+   * Initializes UI components of the panel, setting up list selection listeners for credential selection,
+   * and configuring the appearance of the list and its cells. This method is responsible for the initial
+   * UI setup and layout of the credential management panel.
+   */
+  private void initializeUI() {
+    credentialList.addListSelectionListener((e) -> {
+      CredentialProvider selectedCredentialProvider = credentialsProvidersMap.get(credentialList.getSelectedValue());
+      displayInfo.removeAll();
+      panelTemplate(selectedCredentialProvider.getCredentialName(), selectedCredentialProvider.getUsername());
+      profilesLabel.setText(selectedCredentialProvider.getProfiles().stream().map(Profile::getProfileName).collect(Collectors.joining(", ")));
+    });
+    credentialList.setCellRenderer(new DefaultListCellRenderer() {
+      @Override
+      public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+        Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+        setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        return c;
+      }
+    });
+  }
+  /**
+   * Asynchronously fetches the list of credential providers from the AI credential service and updates
+   * the UI components accordingly. This method retrieves the credentials, updating the credential list
+   * and the display information panel based on the available credentials for the connected project.
    */
   private void fetchCredentialsProviders() {
     credentialSvc.listCredentialsDetailed().thenAccept(credentialProviderList -> {
       ApplicationManager.getApplication().invokeLater(() -> {
-        this.credentialsProvidersMap = credentialProviderList.stream().collect(Collectors.toMap(CredentialProvider::getCredentialName, cred -> cred));
-        credentialList.setListData(credentialsProvidersMap.values().stream().map(CredentialProvider::getCredentialName).toArray(String[]::new));
-        credentialList.addListSelectionListener((e) -> {
-          CredentialProvider selectedCredentialProvider = credentialsProvidersMap.get(credentialList.getSelectedValue());
-          displayInfo.removeAll();
-          panelTemplate(selectedCredentialProvider.getCredentialName(), selectedCredentialProvider.getUsername());
-          profilesLabel.setText(selectedCredentialProvider.getProfiles().stream().map(Profile::getProfileName).collect(Collectors.joining(", ")));
-        });
+        credentialsProvidersMap = credentialProviderList.stream()
+            .collect(Collectors.toMap(CredentialProvider::getCredentialName, Function.identity()));
+        updateCredentialList();
+
       });
     });
+  }
+
+  /**
+   * Updates the credential list UI component with the names of the available credential providers.
+   * This method is called after the credential providers have been fetched to refresh the displayed list.
+   */
+  private void updateCredentialList() {
+    credentialList.setListData(credentialsProvidersMap.values().stream().map(CredentialProvider::getCredentialName).toArray(String[]::new));
   }
 
   /**

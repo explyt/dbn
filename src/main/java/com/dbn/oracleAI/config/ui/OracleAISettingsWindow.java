@@ -4,6 +4,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.wm.WindowManager;
 
 import javax.swing.*;
+import java.awt.*;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -23,8 +24,9 @@ public class OracleAISettingsWindow extends JDialog {
     setContentPane(contentPane);
     setTitle(messages.getString("ai.settings.window.title"));
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    setLocationRelativeTo(WindowManager.getInstance().getFrame(connection.getProject()));
     setTabs();
+    pack();
+    setLocationRelativeTo(WindowManager.getInstance().getFrame(connection.getProject()));
   }
 
   public void display() {
@@ -33,7 +35,12 @@ public class OracleAISettingsWindow extends JDialog {
 
 
   private void setTabs() {
-    tabbedPane.addTab(messages.getString("ai.settings.window.tab.profiles.title"),new ProfileManagementPanel(currConnection));
-    tabbedPane.addTab(messages.getString("ai.settings.window.tab.credentials.title"), new CredentialManagementPanel());
+    JPanel profileManagement = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    profileManagement.add(new ProfileManagementPanel(currConnection));
+    JPanel credManagement = new JPanel(new FlowLayout(FlowLayout.LEFT));
+    credManagement.add(new CredentialManagementPanel(currConnection));
+    tabbedPane.addTab(messages.getString("ai.settings.window.tab.profiles.title"), profileManagement);
+    tabbedPane.addTab(messages.getString("ai.settings.window.tab.credentials.title"), credManagement);
   }
+
 }
