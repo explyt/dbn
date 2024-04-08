@@ -20,6 +20,7 @@ import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
@@ -138,14 +139,14 @@ public class OracleAIChatBox extends JPanel {
 
   public static DatabaseOracleAIManager currManager;
 
-  static ResourceBundle messages =
+  static private final ResourceBundle messages =
     ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   /**
    * special profile combox item that lead to create a new profile
    */
   static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
-    new AIProfileItem(messages.getString("companion.profile.combox.add"), false);
+    new AIProfileItem(messages.getString("companion.profile.combobox.add"), false);
 
   static final AIProfileItem NONE_COMBO_ITEM =
       new AIProfileItem("<None>", false);
@@ -319,15 +320,8 @@ public class OracleAIChatBox extends JPanel {
    * Updates profile combox box model by fetching
    * list of available profiles for the current connection
    */
-  public CompletableFuture<List<Profile>> updateProfiles() {
-    return CompletableFuture.supplyAsync(()-> {
-      try {
-        return currManager.fetchProfiles();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      }
-    });
-
+  public CompletableFuture<Map<String, Profile>> updateProfiles() {
+    return currManager.getProfileService().getProfiles();
   }
 
   /**
@@ -423,8 +417,8 @@ public class OracleAIChatBox extends JPanel {
     updateProfiles().thenAccept(finalFetchedProfiles -> {
       ApplicationManager.getApplication().invokeLater(() -> {
         profileListModel.removeAllElements();
-        finalFetchedProfiles.forEach(p -> {
-          profileListModel.addElement(new AIProfileItem(p.getProfileName()));
+        finalFetchedProfiles.forEach((pn, p) -> {
+          profileListModel.addElement(new AIProfileItem(pn));
         });
         if(finalFetchedProfiles.size()==0){
           profileListModel.addElement(NONE_COMBO_ITEM);

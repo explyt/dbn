@@ -2,19 +2,26 @@ package com.dbn.oracleAI.config.ui;
 
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.oracleAI.AIProfileService;
+import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.ProfileManagementSettings;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import java.awt.Component;
+import java.awt.*;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 public class ProfileManagementPanel extends JPanel {
+
+  static private final ResourceBundle messages =
+    ResourceBundle.getBundle("Messages", Locale.getDefault());
+
   private Map<String, Profile> profileMap;
   private Profile currProfile;
   private JPanel mainPane;
@@ -27,24 +34,29 @@ public class ProfileManagementPanel extends JPanel {
   private JButton editButton;
   private JButton deleteButton;
   private JButton makeDefaultButton;
-  private ProfileManagementSettings profileManager;
+  private final AIProfileService profileSvc;
   private Project currProject;
 
   public ProfileManagementPanel(ConnectionHandler connection) {
-    this.profileManager = new ProfileManagementSettings(connection);
+    this.profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
     this.currProject = connection.getProject();
     initComponent();
   }
 
   private void initComponent() {
     this.add(mainPane);
-    ApplicationManager.getApplication().executeOnPooledThread(() -> {
-      profileMap = profileManager.loadProfiles();
-      if (profileMap != null && !profileMap.isEmpty()) {
-        currProfile = profileMap.values().iterator().next();
-      }
-      ApplicationManager.getApplication().invokeLater(this::initializeUIComponents);
-    });
+      profileSvc.getProfiles().thenAccept(pm -> {
+        profileMap = pm;
+        if (!profileMap.isEmpty()) {
+          currProfile = profileMap.values().iterator().next();
+        } else {
+          currProfile = null;
+        }
+        ApplicationManager.getApplication()
+                          .invokeLater(this::initializeUIComponents);
+      });
+
+
   }
 
   private void initializeUIComponents() {
@@ -73,23 +85,31 @@ public class ProfileManagementPanel extends JPanel {
 
   private void initializeButtons() {
     deleteButton.addActionListener(e -> {
-      Messages.showQuestionDialog(currProject, "Profile Deletion", "Are you sure you want to delete this profile?", Messages.options("Delete", "Cancel  "), 0,
-          option -> {
-        if(option == 0 &&currProfile != null) {
-        if (profileManager.deleteProfile(currProfile.getProfileName())) {
-          profileMap.remove(currProfile.getProfileName());
-          if (!profileMap.isEmpty()) {
-            currProfile = profileMap.values().iterator().next();
-          } else {
-            currProfile = null;
-          }
-          updateWindow();
-        }
-      }
-    });
-  });
+      Messages.showQuestionDialog(currProject,
+                                  messages.getString("ai.settings.profile.deletion.title"),
+                                  messages.getString("ai.settings.profile.deletion.message.prefix") + currProfile.getProfileName(),
+                                  Messages.options(
+                                    messages.getString("ai.messages.yes"),
+                                    messages.getString("ai.messages.no")), 1,
+                                  option -> {
+                                    if (option == 0) {
+                                      removeProfile(currProfile);
+                                      updateWindow();
+                                      }
+                                    });
+                                  });
   }
 
+  private void removeProfile(Profile profile) {
+    profileSvc.deleteProfile(profile.getProfileName()).thenRun(() -> {
+      profileMap.remove(profile.getProfileName());
+      if (!profileMap.isEmpty()) {
+        currProfile = profileMap.values().iterator().next();
+      } else {
+        currProfile = null;
+      }
+    });
+  }
   private void initializeEmptyWindow(){
     comboBox1.addItem("<None>");
     credentialField.setText("None");
