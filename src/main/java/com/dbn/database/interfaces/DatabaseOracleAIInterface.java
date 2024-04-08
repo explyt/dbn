@@ -126,5 +126,22 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * @throws DatabaseOperationException If there is an error in retrieving the list of AI profiles.
    */
   List<Profile> listProfiles(DBNConnection connection) throws DatabaseOperationException;
+
+  /**
+   * Provides a detailed list of all credentials stored in the database.
+   *
+   * @param connection The database connection object.
+   * @return A detailed list containing information about each credential.
+   * @throws DatabaseOperationException If there is an error in retrieving the detailed list of credentials.
+   */
+  List<CredentialProvider> listCredentialsDetailed(DBNConnection connection) throws DatabaseOperationException;
+
+  /**
+   * Provides a detailed list of all AI profiles stored in the database.
+   *
+   * @param connection The database connection object.
+   * @return A detailed list containing information about each AI profile.
+   * @throws DatabaseOperationException If there is an error in retrieving the detailed list of AI profiles.
+   */
   List<Profile> listProfilesDetailed(DBNConnection connection) throws DatabaseOperationException;
 }

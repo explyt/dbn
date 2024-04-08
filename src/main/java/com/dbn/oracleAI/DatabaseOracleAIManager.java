@@ -44,7 +44,6 @@ import java.util.concurrent.ConcurrentHashMap;
   public static final String TOOL_WINDOW_ID = "Oracle Companion";
   public ConnectionId currConnection;
   private static OracleAIChatBox oracleAIChatBox;
-  private static volatile DatabaseOracleAIManager manager;
   private final Map<ConnectionId, OracleAIChatBoxState> chatBoxStates =
     new ConcurrentHashMap<>();
 
@@ -121,19 +120,6 @@ import java.util.concurrent.ConcurrentHashMap;
   }
 
 
-  public static com.dbn.oracleAI.DatabaseOracleAIManager getInstance(
-    @NotNull Project project) {
-    if (manager == null) {
-      // TODO : remove this as we are synchronizing around the entire class.
-      //        Should use synch with small impact
-      synchronized (DatabaseOracleAIManager.class) {
-        if (manager == null) {
-          manager = new DatabaseOracleAIManager(project);
-        }
-      }
-    }
-    return manager;
-  }
 
   public void openSettings() {
     AnAction action = new OracleAISettingsOpenAction(ConnectionHandler.get(currConnection));
@@ -181,6 +167,8 @@ import java.util.concurrent.ConcurrentHashMap;
   // we assume non static map as we have only one instance fo this
   private Map<ConnectionId,AIProfileService>profileManagerMap = new HashMap<>();
 
+  private Map<ConnectionId,AICredentialService>credentialManagerMap = new HashMap<>();
+
 
   /**
    * Gets a profile manager for the current connection.
@@ -192,6 +180,11 @@ import java.util.concurrent.ConcurrentHashMap;
     //TODO : later find better than using "synchronized"
     return profileManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
                                           new AIProfileService(ConnectionHandler.get(currConnection)));
+  }
+  public synchronized AICredentialService getCredentialService() {
+    //TODO : later find better than using "synchronized"
+    return credentialManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
+                                          new AICredentialService(ConnectionHandler.get(currConnection)));
   }
 
 }

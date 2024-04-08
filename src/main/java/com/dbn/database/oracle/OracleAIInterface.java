@@ -121,6 +121,16 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
+  public List<CredentialProvider> listCredentialsDetailed(DBNConnection connection) throws DatabaseOperationException {
+    try{
+      List<Profile> profileList = listProfilesDetailed(connection);
+      List<CredentialProvider> credentialProviders = executeCall(connection, new OracleCredentialsDetailedInfo(profileList), "list-credentials-detailed", profileList).getCredentialsProviders();
+      return credentialProviders;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  @Override
   public List<Profile> listProfilesDetailed(DBNConnection connection) throws DatabaseOperationException {
     try {
       List<Profile> profileList = executeCall(connection, new OracleProfilesDetailedInfo(), "list-profiles-detailed").getProfileList();

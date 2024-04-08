@@ -10,14 +10,15 @@ import java.util.ResourceBundle;
 public class OracleAISettingsWindow extends JDialog {
 
   static private final ResourceBundle messages =
-    ResourceBundle.getBundle("Messages", Locale.getDefault());
+      ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   private JPanel contentPane;
   private JTabbedPane tabbedPane;
   private ConnectionHandler currConnection;
+
   public OracleAISettingsWindow(ConnectionHandler connection) {
     super(WindowManager.getInstance().getFrame(connection.getProject()), messages.getString(
-      "companion.window.title"), true);
+        "companion.window.title"), true);
     currConnection = connection;
     setContentPane(contentPane);
     setTitle(messages.getString("ai.settings.window.title"));
