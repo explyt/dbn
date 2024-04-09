@@ -20,7 +20,7 @@ import java.util.ResourceBundle;
 public class ProfileManagementPanel extends JPanel {
 
   static private final ResourceBundle messages =
-      ResourceBundle.getBundle("Messages", Locale.getDefault());
+    ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   private Map<String, Profile> profileMap;
   private Profile currProfile;
@@ -38,23 +38,25 @@ public class ProfileManagementPanel extends JPanel {
   private Project currProject;
 
   public ProfileManagementPanel(ConnectionHandler connection) {
-    this.currProject = connection.getProject();
     this.profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
+    this.currProject = connection.getProject();
     initComponent();
   }
 
   private void initComponent() {
     this.add(mainPane);
-    profileSvc.getProfiles().thenAccept(pm -> {
-      profileMap = pm;
-      if (!profileMap.isEmpty()) {
-        currProfile = profileMap.values().iterator().next();
-      } else {
-        currProfile = null;
-      }
-      ApplicationManager.getApplication()
-          .invokeLater(this::initializeUIComponents);
-    });
+      profileSvc.getProfiles().thenAccept(pm -> {
+        profileMap = pm;
+        if (!profileMap.isEmpty()) {
+          currProfile = profileMap.values().iterator().next();
+        } else {
+          currProfile = null;
+        }
+        ApplicationManager.getApplication()
+                          .invokeLater(this::initializeUIComponents);
+      });
+
+
   }
 
   private void initializeUIComponents() {
@@ -74,7 +76,7 @@ public class ProfileManagementPanel extends JPanel {
     comboBox1.setSelectedItem(currProfile != null ? currProfile.getProfileName() : null);
     comboBox1.addActionListener(e -> {
       String selectedProfileName = (String) comboBox1.getSelectedItem();
-      if (!Objects.equals(selectedProfileName, "<None>") && !Objects.equals(selectedProfileName, null)) {
+      if(!Objects.equals(selectedProfileName, "<None>") && !Objects.equals(selectedProfileName, null)){
         currProfile = profileMap.get(selectedProfileName);
         updateWindow();
       }
@@ -84,18 +86,18 @@ public class ProfileManagementPanel extends JPanel {
   private void initializeButtons() {
     deleteButton.addActionListener(e -> {
       Messages.showQuestionDialog(currProject,
-          messages.getString("ai.settings.profile.deletion.title"),
-          messages.getString("ai.settings.profile.deletion.message.prefix") + currProfile.getProfileName(),
-          Messages.options(
-              messages.getString("ai.messages.yes"),
-              messages.getString("ai.messages.no")), 1,
-          option -> {
-            if (option == 0) {
-              removeProfile(currProfile);
-              updateWindow();
-            }
-          });
-    });
+                                  messages.getString("ai.settings.profile.deletion.title"),
+                                  messages.getString("ai.settings.profile.deletion.message.prefix") + currProfile.getProfileName(),
+                                  Messages.options(
+                                    messages.getString("ai.messages.yes"),
+                                    messages.getString("ai.messages.no")), 1,
+                                  option -> {
+                                    if (option == 0) {
+                                      removeProfile(currProfile);
+                                      updateWindow();
+                                      }
+                                    });
+                                  });
   }
 
   private void removeProfile(Profile profile) {
@@ -108,17 +110,15 @@ public class ProfileManagementPanel extends JPanel {
       }
     });
   }
-
-  private void initializeEmptyWindow() {
+  private void initializeEmptyWindow(){
     comboBox1.addItem("<None>");
     credentialField.setText("None");
     providerField.setText("None");
     modelField.setText("None");
-    deleteButton.setEnabled(false);
-    editButton.setEnabled(false);
-    makeDefaultButton.setEnabled(false);
+    deleteButton.disable();
+    editButton.disable();
+    makeDefaultButton.disable();
   }
-
   private void updateWindow() {
     if (currProfile != null) {
       populateProfileNames();
