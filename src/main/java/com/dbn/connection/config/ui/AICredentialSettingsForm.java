@@ -8,7 +8,7 @@ import com.dbn.connection.SessionId;
 import com.dbn.connection.config.AICredentialSettings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.CredentialProvider;
-import com.dbn.oracleAI.config.PasswordCredentialProvider;
+//import com.dbn.oracleAI.config.PasswordCredentialProvider;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.ComboBox;
@@ -73,14 +73,14 @@ public class AICredentialSettingsForm extends ConfigurationEditorForm<AICredenti
                               String credentialName,
                               String apiName,
                               String apiKey){
-    CredentialProvider credentialAttributes = new PasswordCredentialProvider(credentialName, apiName, apiKey);
-    try{
-      currConnection.getOracleAIInterface().createCredential(mainConnection, credentialAttributes);
-      showInfoDialog(getConfiguration().getProject(), "Credential Creation", "Credential " + getConfiguration().getCredentialName() + " created succesfully");
-
-    } catch (CredentialManagementException e) {
-      throw new RuntimeException(e);
-    }
+//    CredentialProvider credentialAttributes = new PasswordCredentialProvider(credentialName, apiName, apiKey);
+//    try{
+//      currConnection.getOracleAIInterface().createCredential(mainConnection, credentialAttributes);
+//      showInfoDialog(getConfiguration().getProject(), "Credential Creation", "Credential " + getConfiguration().getCredentialName() + " created succesfully");
+//
+//    } catch (CredentialManagementException e) {
+//      throw new RuntimeException(e);
+//    }
   }
 
 

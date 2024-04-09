@@ -7,7 +7,7 @@
         <!ELEMENT statement (#PCDATA)>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="setup-credential" timeout="20">
+    <statement-execution-processor id="create-credential" timeout="20">
         <statement>
             DECLARE
             v_credential_count NUMBER;
@@ -19,7 +19,7 @@
 
             IF v_credential_count = 0 THEN
             DBMS_CLOUD.CREATE_CREDENTIAL(
-            '{1}'
+            {1}
             );
             END IF;
             END;
