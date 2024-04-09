@@ -151,17 +151,16 @@ public class OracleAIChatBox extends JPanel {
   static final AIProfileItem NONE_COMBO_ITEM =
       new AIProfileItem("<None>", false);
 
-  private OracleAIChatBox(Project project) {
+  private OracleAIChatBox() {
+    this.setLayout(new BorderLayout(1, 1));
+    this.add(chatBoxMainPanel,BorderLayout.CENTER);
     initializeUI();
-    this.setLayout(new BorderLayout(0, 0));
-    this.add(chatBoxMainPanel);
-
   }
 
   public static OracleAIChatBox getInstance(Project project) {
     currManager = project.getService(DatabaseOracleAIManager.class);
     if (instance == null) {
-      instance = new OracleAIChatBox(project);
+      instance = new OracleAIChatBox();
     }
     return instance;
   }

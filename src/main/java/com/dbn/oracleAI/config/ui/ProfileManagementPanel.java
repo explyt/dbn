@@ -25,21 +25,33 @@ public class ProfileManagementPanel extends JPanel {
   private Map<String, Profile> profileMap;
   private Profile currProfile;
   private JPanel mainPane;
-  private JTable table1;
+  private JTable objListTable;
   private JButton button1;
-  private JComboBox<String> comboBox1;
+  private JComboBox<String> profileComboxBox;
   private JLabel credentialField;
   private JLabel modelField;
   private JLabel providerField;
   private JButton editButton;
   private JButton deleteButton;
   private JButton makeDefaultButton;
+  private JPanel profileMgntObjectListPanel;
+  private JPanel profileAttrPanel;
+  private JPanel profileSelectionPanel;
+  private JPanel attributesActionPanel;
+  private JPanel profileMgnttitlePanel;
+  private JPanel profileMgntAttributesPanel;
+  private JPanel attributesListPanel;
+
+  private JPanel windowActionPanel;
   private final AIProfileService profileSvc;
   private Project currProject;
 
   public ProfileManagementPanel(ConnectionHandler connection) {
-    this.profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
     this.currProject = connection.getProject();
+    this.profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
+
+
+
     initComponent();
   }
 
@@ -56,7 +68,6 @@ public class ProfileManagementPanel extends JPanel {
                           .invokeLater(this::initializeUIComponents);
       });
 
-
   }
 
   private void initializeUIComponents() {
@@ -71,11 +82,11 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void initializeProfileNames() {
-    comboBox1.removeAllItems();
-    profileMap.forEach((name, profile) -> comboBox1.addItem(name));
-    comboBox1.setSelectedItem(currProfile != null ? currProfile.getProfileName() : null);
-    comboBox1.addActionListener(e -> {
-      String selectedProfileName = (String) comboBox1.getSelectedItem();
+    profileComboxBox.removeAllItems();
+    profileMap.forEach((name, profile) -> profileComboxBox.addItem(name));
+    profileComboxBox.setSelectedItem(currProfile != null ? currProfile.getProfileName() : null);
+    profileComboxBox.addActionListener(e -> {
+      String selectedProfileName = (String) profileComboxBox.getSelectedItem();
       if(!Objects.equals(selectedProfileName, "<None>") && !Objects.equals(selectedProfileName, null)){
         currProfile = profileMap.get(selectedProfileName);
         updateWindow();
@@ -111,43 +122,49 @@ public class ProfileManagementPanel extends JPanel {
     });
   }
   private void initializeEmptyWindow(){
-    comboBox1.addItem("<None>");
-    credentialField.setText("None");
-    providerField.setText("None");
-    modelField.setText("None");
+    profileComboxBox.addItem("<None>");
+    credentialField.setText(messages.getString("ai.messages.unknown"));
+    providerField.setText(messages.getString("ai.messages.unknown"));
+    modelField.setText(messages.getString("ai.messages.unknown"));
     deleteButton.disable();
     editButton.disable();
     makeDefaultButton.disable();
   }
+
+  private String fixAttributesPresentation(String value) {
+    if (value != null ) return value;
+    return messages.getString("ai.messages.unknown");
+  }
+
   private void updateWindow() {
     if (currProfile != null) {
       populateProfileNames();
       populateTable(currProfile);
-      credentialField.setText(currProfile.getCredentialName());
-      providerField.setText(currProfile.getProvider().getAction());
-      modelField.setText(currProfile.getModel());
+      credentialField.setText(fixAttributesPresentation(currProfile.getCredentialName()));
+      providerField.setText(fixAttributesPresentation(currProfile.getProvider().getAction()));
+      modelField.setText(fixAttributesPresentation(currProfile.getModel()));
     } else {
       initializeEmptyWindow();
     }
   }
 
   private void populateProfileNames() {
-    comboBox1.removeAllItems();
+    profileComboxBox.removeAllItems();
     if (profileMap != null) {
-      profileMap.keySet().forEach(comboBox1::addItem);
+      profileMap.keySet().forEach(profileComboxBox::addItem);
     }
     if (currProfile != null) {
-      comboBox1.setSelectedItem(currProfile.getProfileName());
+      profileComboxBox.setSelectedItem(currProfile.getProfileName());
     }
-    comboBox1.addActionListener(e -> {
-      String selectedProfileName = (String) comboBox1.getSelectedItem();
+    profileComboxBox.addActionListener(e -> {
+      String selectedProfileName = (String) profileComboxBox.getSelectedItem();
       currProfile = profileMap.get(selectedProfileName);
       updateWindow();
     });
   }
 
   private void initializeTable() {
-    table1.setDefaultRenderer(Object.class, new TableCellRenderer() {
+    objListTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
       private final JTextField editor = new JTextField();
 
       @Override
@@ -160,7 +177,7 @@ public class ProfileManagementPanel extends JPanel {
         return editor;
       }
     });
-    table1.setSelectionModel(new NullSelectionModel());
+    objListTable.setSelectionModel(new NullSelectionModel());
   }
 
   private void populateTable(Profile profile) {
@@ -175,7 +192,11 @@ public class ProfileManagementPanel extends JPanel {
         return false;
       }
     };
-    table1.setModel(tableModel);
+    objListTable.setModel(tableModel);
+  }
+
+  private void createUIComponents() {
+    // TODO: place custom component creation code here
   }
 
   private static class NullSelectionModel extends DefaultListSelectionModel {
