@@ -439,6 +439,7 @@ public class OracleAIChatBox extends JPanel {
           explainSQLCheckbox.setToolTipText(
             messages.getString("companion.explainsql.tooltip"));
         }
+        currManager.openSettings();
         stopActivityNotifier();
       });
     });

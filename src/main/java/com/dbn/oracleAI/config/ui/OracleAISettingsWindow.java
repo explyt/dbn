@@ -4,6 +4,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.wm.WindowManager;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -23,15 +25,23 @@ public class OracleAISettingsWindow extends JDialog {
     currConnection = connection;
     setContentPane(settingsWindowContentPane);
     setTitle(messages.getString("ai.settings.window.title"));
-    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
     setLocationRelativeTo(WindowManager.getInstance().getFrame(connection.getProject()));
     pack();
     setTabs();
+
+    settingsCloseButton.addActionListener(new ActionListener() {
+      public void actionPerformed(ActionEvent e) {
+        dispose();
+
+      }
+    });
   }
 
   public void display() {
     setVisible(true);
   }
+
 
 
   private void setTabs() {

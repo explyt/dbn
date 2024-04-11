@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.oracleAI.config.ui.ProfileManagementPanel">
-  <grid id="27dc6" binding="mainPane" layout-manager="BorderLayout" hgap="2" vgap="2">
+  <grid id="cdaef" binding="mainPane" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="true" same-size-vertically="false" hgap="-1" vgap="0">
+    <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
       <xy x="20" y="20" width="650" height="727"/>
     </constraints>
-    <properties>
-      <background color="-855310"/>
-    </properties>
+    <properties/>
     <border type="none"/>
     <children>
-      <grid id="afaf6" binding="profileMgnttitlePanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="afaf6" binding="profileMgntTitlePanel" layout-manager="GridLayoutManager" row-count="1" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
-        <constraints border-constraint="North"/>
-        <properties>
-          <background color="-855310"/>
-          <enabled value="true"/>
-        </properties>
+        <constraints>
+          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
         <border type="none"/>
         <children>
           <component id="eeff5" class="javax.swing.JLabel">
@@ -26,12 +24,11 @@
               <text resource-bundle="Messages" key="profiles.mgnt.label"/>
             </properties>
           </component>
-          <component id="2faf4" class="javax.swing.JButton" binding="button1" default-binding="true">
+          <component id="2faf4" class="javax.swing.JButton" binding="addProfileButton">
             <constraints>
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <background color="-9078918"/>
               <icon value="img/action/Add.png"/>
               <minimumSize width="30" height="30"/>
               <preferredSize width="30" height="15"/>
@@ -40,28 +37,10 @@
           </component>
         </children>
       </grid>
-      <grid id="5c206" binding="profileMgntObjectListPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-        <constraints border-constraint="South"/>
-        <properties/>
-        <border type="empty">
-          <size top="5" left="0" bottom="0" right="0"/>
-        </border>
-        <children>
-          <scrollpane id="73d66">
-            <constraints border-constraint="Center"/>
-            <properties/>
-            <border type="line" title-resource-bundle="Messages" title-key="profiles.mgnt.attr.associated"/>
-            <children>
-              <component id="42f68" class="javax.swing.JTable" binding="objListTable">
-                <constraints/>
-                <properties/>
-              </component>
-            </children>
-          </scrollpane>
-        </children>
-      </grid>
       <grid id="9d2df" binding="profileMgntAttributesPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-        <constraints border-constraint="Center"/>
+        <constraints>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
         <properties/>
         <border type="none"/>
         <children>
@@ -212,6 +191,28 @@
               </grid>
             </children>
           </grid>
+        </children>
+      </grid>
+      <grid id="5c206" binding="profileMgntObjectListPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties/>
+        <border type="none">
+          <size top="5" left="0" bottom="0" right="0"/>
+        </border>
+        <children>
+          <scrollpane id="73d66">
+            <constraints border-constraint="Center"/>
+            <properties/>
+            <border type="line" title-resource-bundle="Messages" title-key="profiles.mgnt.attr.associated"/>
+            <children>
+              <component id="42f68" class="javax.swing.JTable" binding="objListTable">
+                <constraints/>
+                <properties/>
+              </component>
+            </children>
+          </scrollpane>
         </children>
       </grid>
     </children>

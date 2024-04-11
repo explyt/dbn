@@ -26,7 +26,7 @@ public class ProfileManagementPanel extends JPanel {
   private Profile currProfile;
   private JPanel mainPane;
   private JTable objListTable;
-  private JButton button1;
+  private JButton addProfileButton;
   private JComboBox<String> profileComboxBox;
   private JLabel credentialField;
   private JLabel modelField;
@@ -38,7 +38,7 @@ public class ProfileManagementPanel extends JPanel {
   private JPanel profileAttrPanel;
   private JPanel profileSelectionPanel;
   private JPanel attributesActionPanel;
-  private JPanel profileMgnttitlePanel;
+  private JPanel profileMgntTitlePanel;
   private JPanel profileMgntAttributesPanel;
   private JPanel attributesListPanel;
 
@@ -49,24 +49,24 @@ public class ProfileManagementPanel extends JPanel {
   public ProfileManagementPanel(ConnectionHandler connection) {
     this.currProject = connection.getProject();
     this.profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
+    // make sure we use box that stretch
+    this.setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
 
-
-
+    this.add(mainPane);
     initComponent();
   }
 
   private void initComponent() {
-    this.add(mainPane);
-      profileSvc.getProfiles().thenAccept(pm -> {
-        profileMap = pm;
-        if (!profileMap.isEmpty()) {
-          currProfile = profileMap.values().iterator().next();
-        } else {
-          currProfile = null;
-        }
-        ApplicationManager.getApplication()
-                          .invokeLater(this::initializeUIComponents);
-      });
+    profileSvc.getProfiles().thenAccept(pm -> {
+      profileMap = pm;
+      if (!profileMap.isEmpty()) {
+        currProfile = profileMap.values().iterator().next();
+      } else {
+        currProfile = null;
+      }
+      ApplicationManager.getApplication()
+                        .invokeLater(this::initializeUIComponents);
+    });
 
   }
 
@@ -181,6 +181,7 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void populateTable(Profile profile) {
+    // TODO : use messages
     String[] columnNames = {"Table/View Name", "Owner"};
     Object[][] data = profile.getObjectList().stream()
         .map(obj -> new Object[]{obj.getName(), obj.getOwner()})

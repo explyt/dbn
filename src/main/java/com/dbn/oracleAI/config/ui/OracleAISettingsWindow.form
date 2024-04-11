@@ -2,32 +2,27 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.oracleAI.config.ui.OracleAISettingsWindow">
   <grid id="27dc6" binding="settingsWindowContentPane" layout-manager="BorderLayout" hgap="1" vgap="1">
     <constraints>
-      <xy x="0" y="0" width="0" height="0"/>
+      <xy x="0" y="0" width="92" height="67"/>
     </constraints>
     <properties>
-      <background color="-855310"/>
-      <maximumSize width="-1" height="-1"/>
-      <minimumSize width="-1" height="-1"/>
       <opaque value="false"/>
       <preferredSize width="650" height="500"/>
     </properties>
-    <border type="none"/>
+    <border type="empty">
+      <size top="3" left="3" bottom="3" right="1"/>
+    </border>
     <children>
       <component id="2a694" class="javax.swing.JTabbedPane" binding="settingsTabbedPane">
         <constraints border-constraint="Center"/>
         <properties>
-          <background color="-855310"/>
-          <minimumSize width="-1" height="-1"/>
-          <preferredSize width="-1" height="-1"/>
+          <minimumSize width="20" height="20"/>
           <tabLayoutPolicy value="0"/>
           <tabPlacement value="1"/>
         </properties>
       </component>
       <grid id="faa01" binding="settingsWindowBottomPanel" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="2">
         <constraints border-constraint="South"/>
-        <properties>
-          <background color="-855310"/>
-        </properties>
+        <properties/>
         <border type="none"/>
         <children>
           <component id="c71a6" class="javax.swing.JButton" binding="settingsCloseButton">
