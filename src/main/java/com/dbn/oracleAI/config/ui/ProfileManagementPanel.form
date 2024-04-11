@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.oracleAI.config.ui.ProfileManagementPanel">
-  <grid id="cdaef" binding="mainPane" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="true" same-size-vertically="false" hgap="-1" vgap="3">
-    <margin top="0" left="0" bottom="0" right="0"/>
+  <grid id="cdaef" binding="mainPane" layout-manager="GridLayoutManager" row-count="3" column-count="1" same-size-horizontally="true" same-size-vertically="false" hgap="0" vgap="3">
+    <margin top="3" left="3" bottom="3" right="3"/>
     <constraints>
       <xy x="20" y="20" width="650" height="727"/>
     </constraints>
@@ -55,9 +55,10 @@
                   <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="1" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <horizontalTextPosition value="0"/>
-                  <label resource-bundle="Messages" key="profiles.mgnt.edit.button.label"/>
-                  <text resource-bundle="Messages" key="profiles.mgnt.edit.button.label"/>
+                  <horizontalTextPosition value="2"/>
+                  <icon value="img/EditData.png"/>
+                  <label value=""/>
+                  <text value=""/>
                   <toolTipText resource-bundle="Messages" key="profiles.mgnt.edit.button.tooltip"/>
                 </properties>
               </component>
@@ -66,8 +67,9 @@
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="1" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <text resource-bundle="Messages" key="profiles.mgnt.delete.button.label"/>
-                  <toolTipText resource-bundle="Messages" key="profiles.mgnt.delete.button.tooltip"/>
+                  <icon value="img/action/Delete.png"/>
+                  <text value=""/>
+                  <toolTipText value=""/>
                 </properties>
               </component>
               <component id="c4876" class="javax.swing.JButton" binding="makeDefaultButton">
@@ -75,6 +77,8 @@
                   <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="1" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
+                  <hideActionText value="true"/>
+                  <horizontalTextPosition value="0"/>
                   <text resource-bundle="Messages" key="profiles.mgnt.mkdefault.button.label"/>
                   <toolTipText resource-bundle="Messages" key="profiles.mgnt.mkdefault.button.tooltip"/>
                 </properties>
@@ -205,7 +209,7 @@
           <scrollpane id="73d66">
             <constraints border-constraint="Center"/>
             <properties/>
-            <border type="line" title-resource-bundle="Messages" title-key="profiles.mgnt.attr.associated"/>
+            <border type="etched" title-resource-bundle="Messages" title-key="profiles.mgnt.attr.associated"/>
             <children>
               <component id="42f68" class="javax.swing.JTable" binding="objListTable">
                 <constraints/>
