@@ -8,10 +8,17 @@ import com.dbn.oracleAI.config.Profile;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import java.awt.*;
+import java.awt.Component;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -95,7 +102,7 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void initializeButtons() {
-    deleteButton.addActionListener(e -> {
+    deleteButton.addActionListener(event -> {
       Messages.showQuestionDialog(currProject,
                                   messages.getString("ai.settings.profile.deletion.title"),
                                   messages.getString("ai.settings.profile.deletion.message.prefix") + currProfile.getProfileName(),
@@ -109,6 +116,9 @@ public class ProfileManagementPanel extends JPanel {
                                       }
                                     });
                                   });
+    addProfileButton.addActionListener(event -> {
+      new ProfileEditionDialog(currProject).display();
+    });
   }
 
   private void removeProfile(Profile profile) {
@@ -196,9 +206,6 @@ public class ProfileManagementPanel extends JPanel {
     objListTable.setModel(tableModel);
   }
 
-  private void createUIComponents() {
-    // TODO: place custom component creation code here
-  }
 
   private static class NullSelectionModel extends DefaultListSelectionModel {
     @Override

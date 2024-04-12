@@ -7,7 +7,21 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBUI;
 
-import javax.swing.*;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.InputMap;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -15,7 +29,11 @@ import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
@@ -99,9 +117,7 @@ public class OracleAIChatBox extends JPanel {
     public List<AIProfileItem> getAllProfiles() {
       List<AIProfileItem> result = new ArrayList<>();
       for (int i = 0; i < this.getSize()-1; i++) {
-        if(this.getElementAt(i)!=ADD_PROFILE_COMBO_ITEM && this.getElementAt(i)!=NONE_COMBO_ITEM){
-          result.add(this.getElementAt(i));
-        }
+        result.add(this.getElementAt(i));
       }
       return result;
     }
@@ -148,8 +164,6 @@ public class OracleAIChatBox extends JPanel {
   static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
     new AIProfileItem(messages.getString("companion.profile.combobox.add"), false);
 
-  static final AIProfileItem NONE_COMBO_ITEM =
-      new AIProfileItem("<None>", false);
 
   private OracleAIChatBox() {
     this.setLayout(new BorderLayout(1, 1));
@@ -330,10 +344,6 @@ public class OracleAIChatBox extends JPanel {
     try {
       profileListModel.removeAllElements();
       profileListModel.addAll(items);
-      if (items.isEmpty()) {
-        profileListModel.addElement(NONE_COMBO_ITEM);
-        profileComboBox.setSelectedItem(NONE_COMBO_ITEM);
-      }
       profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
       profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
     } catch (Exception e){
@@ -355,7 +365,7 @@ public class OracleAIChatBox extends JPanel {
         .aiAnswers(companionConversationAnswersText.getText())
         .currentQuestionText(companionConversationQuestion.getSelectedItem().toString())
         .profiles(profileListModel.getAllProfiles())
-        .selectedProfile(selectedProfile!=NONE_COMBO_ITEM?selectedProfile:null)
+        .selectedProfile((selectedProfile != null && selectedProfile.isEffective())?selectedProfile:null)
         .build();
   }
 
@@ -419,9 +429,7 @@ public class OracleAIChatBox extends JPanel {
         finalFetchedProfiles.forEach((pn, p) -> {
           profileListModel.addElement(new AIProfileItem(pn));
         });
-        if(finalFetchedProfiles.size()==0){
-          profileListModel.addElement(NONE_COMBO_ITEM);
-        }
+
         profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
 
         if (profileListModel.getUsableProfiles().size() == 0) {
@@ -439,13 +447,9 @@ public class OracleAIChatBox extends JPanel {
           explainSQLCheckbox.setToolTipText(
             messages.getString("companion.explainsql.tooltip"));
         }
-        currManager.openSettings();
         stopActivityNotifier();
       });
     });
   }
 
-  private void createUIComponents() {
-    // TODO: place custom component creation code here
-  }
 }
