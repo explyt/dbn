@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-
 plugins {
   id("java")
   id("org.jetbrains.kotlin.jvm") version "1.9.20"
@@ -104,7 +102,7 @@ tasks {
         systemProperties["idea.auto.reload.plugins"] = true
         jvmArgs = listOf(
             "-Xms512m",
-            "-Xmx2048m",
+            "-Xmx2048m", "-Dfake.services=true",
             "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044",
         )
    }

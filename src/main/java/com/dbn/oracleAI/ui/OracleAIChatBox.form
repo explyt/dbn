@@ -6,6 +6,7 @@
     </constraints>
     <properties>
       <opaque value="true"/>
+      <preferredSize width="-1" height="-1"/>
     </properties>
     <border type="empty">
       <size top="5" left="5" bottom="5" right="5"/>

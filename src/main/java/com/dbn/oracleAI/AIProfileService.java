@@ -8,6 +8,7 @@ import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -30,6 +31,11 @@ public class AIProfileService {
    * @return a map of profile by profile name. can be empty but not null
    */
   public CompletableFuture<Map<String, Profile>> getProfiles() {
+    if (System.getProperty("fake.services") !=null) {
+      Map<String, Profile> faked = new HashMap<String, Profile>();
+      faked.put("FAKE",Profile.builder().profileName("cohere").credentialName("foo").model("foo").build());
+      return CompletableFuture.completedFuture(faked);
+    }
     return CompletableFuture.supplyAsync(()-> {
       try {
         DBNConnection dbnConnection =
@@ -46,6 +52,7 @@ public class AIProfileService {
       }
     });
   }
+
 
   /**
    * Drops a profile on the remote server  asynchronously
