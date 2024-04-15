@@ -2,20 +2,21 @@ package com.dbn.oracleAI.config;
 
 import com.dbn.oracleAI.types.ProviderType;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.Expose;
 import com.google.gson.reflect.TypeToken;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NonNull;
+import lombok.Setter;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.lang.reflect.Type;
-import com.google.gson.GsonBuilder;
-import com.google.gson.annotations.Expose;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.sql.Clob;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -30,12 +31,14 @@ public class Profile implements AttributeInput {
   private String profileName;
   private String description;
 
-  @Expose private ProviderType provider;
-  @Expose private String credentialName;
-  @Expose private List<ObjectListItem> objectList;
+  @NonNull @Expose private ProviderType provider;
+  @NonNull @Expose private String credentialName;
+  @Builder.Default
+  @Expose private List<ObjectListItem> objectList = Collections.emptyList();
   private Integer maxTokens;
-  private List<String> stopTokens;
-  @Expose private String model;
+  @Builder.Default
+  private List<String> stopTokens = Collections.emptyList();
+  @NonNull @Expose private String model;
   private Double temperature;
   private Boolean comments;
 
