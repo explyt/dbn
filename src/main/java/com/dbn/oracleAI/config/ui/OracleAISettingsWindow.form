@@ -20,16 +20,22 @@
           <tabPlacement value="1"/>
         </properties>
       </component>
-      <grid id="faa01" binding="settingsWindowBottomPanel" layout-manager="FlowLayout" hgap="5" vgap="5" flow-align="2">
+      <grid id="faa01" binding="settingsWindowBottomPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
         <constraints border-constraint="South"/>
         <properties/>
         <border type="none"/>
         <children>
           <component id="c71a6" class="javax.swing.JButton" binding="settingsCloseButton">
-            <constraints/>
+            <constraints border-constraint="East"/>
             <properties>
+              <horizontalAlignment value="0"/>
+              <horizontalTextPosition value="0"/>
               <text resource-bundle="Messages" key="profiles.mgnt.buttons.close.text"/>
             </properties>
+          </component>
+          <component id="848a1" class="javax.swing.JSeparator">
+            <constraints border-constraint="North"/>
+            <properties/>
           </component>
         </children>
       </grid>

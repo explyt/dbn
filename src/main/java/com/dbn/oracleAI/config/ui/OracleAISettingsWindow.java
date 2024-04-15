@@ -3,7 +3,11 @@ package com.dbn.oracleAI.config.ui;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.wm.WindowManager;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.JTabbedPane;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Locale;
@@ -21,7 +25,7 @@ public class OracleAISettingsWindow extends JDialog {
   private ConnectionHandler currConnection;
   public OracleAISettingsWindow(ConnectionHandler connection) {
     super(WindowManager.getInstance().getFrame(connection.getProject()), messages.getString(
-      "companion.window.title"), true);
+      "ai.settings.window.title"), true);
     currConnection = connection;
     setContentPane(settingsWindowContentPane);
     setTitle(messages.getString("ai.settings.window.title"));
@@ -33,7 +37,6 @@ public class OracleAISettingsWindow extends JDialog {
     settingsCloseButton.addActionListener(new ActionListener() {
       public void actionPerformed(ActionEvent e) {
         dispose();
-
       }
     });
   }

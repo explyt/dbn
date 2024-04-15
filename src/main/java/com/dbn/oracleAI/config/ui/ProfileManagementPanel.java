@@ -8,15 +8,25 @@ import com.dbn.oracleAI.config.Profile;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import java.awt.*;
+import java.awt.Component;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+/**
+ * Profile management bindings
+ */
 public class ProfileManagementPanel extends JPanel {
 
   static private final ResourceBundle messages =
@@ -56,6 +66,9 @@ public class ProfileManagementPanel extends JPanel {
     initComponent();
   }
 
+  /**
+   * initialize bindings
+   */
   private void initComponent() {
     profileSvc.getProfiles().thenAccept(pm -> {
       profileMap = pm;
@@ -70,6 +83,9 @@ public class ProfileManagementPanel extends JPanel {
 
   }
 
+  /**
+   * initialize UI components
+   */
   private void initializeUIComponents() {
     if (currProfile != null) {
       initializeProfileNames();
@@ -81,6 +97,9 @@ public class ProfileManagementPanel extends JPanel {
     }
   }
 
+  /**
+   * populate profile map for current connection
+   */
   private void initializeProfileNames() {
     profileComboxBox.removeAllItems();
     profileMap.forEach((name, profile) -> profileComboxBox.addItem(name));
@@ -94,8 +113,12 @@ public class ProfileManagementPanel extends JPanel {
     });
   }
 
+
+  /**
+   * initialize action buttons
+   */
   private void initializeButtons() {
-    deleteButton.addActionListener(e -> {
+    deleteButton.addActionListener(event -> {
       Messages.showQuestionDialog(currProject,
                                   messages.getString("ai.settings.profile.deletion.title"),
                                   messages.getString("ai.settings.profile.deletion.message.prefix") + currProfile.getProfileName(),
@@ -109,8 +132,15 @@ public class ProfileManagementPanel extends JPanel {
                                       }
                                     });
                                   });
+    addProfileButton.addActionListener(event -> {
+      new ProfileEditionDialog(currProject).display();
+    });
   }
 
+  /**
+   * Removes a profile from remote server
+   * @param profile the profile ot be deleted
+   */
   private void removeProfile(Profile profile) {
     profileSvc.deleteProfile(profile.getProfileName()).thenRun(() -> {
       profileMap.remove(profile.getProfileName());
@@ -122,20 +152,29 @@ public class ProfileManagementPanel extends JPanel {
     });
   }
   private void initializeEmptyWindow(){
-    profileComboxBox.addItem("<None>");
-    credentialField.setText(messages.getString("ai.messages.unknown"));
-    providerField.setText(messages.getString("ai.messages.unknown"));
-    modelField.setText(messages.getString("ai.messages.unknown"));
-    deleteButton.disable();
-    editButton.disable();
-    makeDefaultButton.disable();
+    profileComboxBox.setToolTipText("ai.messages.noitems");
+    credentialField.setEnabled(false);
+    providerField.setEnabled(false);
+    modelField.setEnabled(false);
+    deleteButton.setEnabled(false);
+    editButton.setEnabled(false);
+    makeDefaultButton.setEnabled(false);
   }
 
+  /**
+   * Placeholder to display a friendly value as opposed to blank
+   * when value is null
+   * @param value
+   * @return
+   */
   private String fixAttributesPresentation(String value) {
     if (value != null ) return value;
     return messages.getString("ai.messages.unknown");
   }
 
+  /**
+   * Updates the windows with current profile list
+   */
   private void updateWindow() {
     if (currProfile != null) {
       populateProfileNames();
@@ -148,6 +187,9 @@ public class ProfileManagementPanel extends JPanel {
     }
   }
 
+  /**
+   * Populate the combo with profile list
+   */
   private void populateProfileNames() {
     profileComboxBox.removeAllItems();
     if (profileMap != null) {
@@ -196,9 +238,6 @@ public class ProfileManagementPanel extends JPanel {
     objListTable.setModel(tableModel);
   }
 
-  private void createUIComponents() {
-    // TODO: place custom component creation code here
-  }
 
   private static class NullSelectionModel extends DefaultListSelectionModel {
     @Override
