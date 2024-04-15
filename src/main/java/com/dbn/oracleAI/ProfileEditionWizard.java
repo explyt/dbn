@@ -8,7 +8,9 @@ import lombok.ToString;
 
 import javax.swing.JPanel;
 import java.awt.CardLayout;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * Wizard for profile edition or creation.
@@ -33,12 +35,15 @@ public class ProfileEditionWizard {
    * The given panel is expected to be layout'ed by a <code>CardLayout</code>.
    * This panel (and so underneath CardLayout) will be populated with this wizard steps
    * @param panel a CardLayout'ed panel.
+   * @params listener a listener that will be added to steps to receive event
    */
-  public void populateTo(JPanel panel) {
+  public void populateTo(WizardStepEventListener listener, JPanel panel) {
     assert panel.getLayout().getClass().equals(CardLayout.class):"wrong panel given ";
 
     this.steps.forEach(step -> {
       panel.add(step.getViewPort(),step.getTitle());
+
+      step.getProvider().addEventListener(listener);
     });
 
   }
@@ -50,6 +55,7 @@ public class ProfileEditionWizard {
     implements WizardStep {
     private String title;
     private WizardStepViewPortProvider provider;
+    private List<WizardStepEventListener> listeners = new ArrayList<>();
 
     /**
      * Creates a new step
@@ -70,6 +76,14 @@ public class ProfileEditionWizard {
      */
     @Override public JPanel getViewPort() {
       return this.provider.getPanel();
+    }
+
+    @Override public boolean isValid() {
+      return this.provider.isInputsValid();
+    }
+
+    @Override public void addListener(WizardStepEventListener listener) {
+      listeners.add(listener);
     }
   }
 

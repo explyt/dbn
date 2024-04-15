@@ -16,4 +16,8 @@ public interface WizardStepViewPortProvider {
    * @return the panel
    */
   JPanel getPanel();
+
+  boolean isInputsValid();
+
+  void addEventListener(WizardStepEventListener listener);
 }

@@ -56,7 +56,7 @@ public class WizardStepView<E> {
     }
     this.currentStepIdx--;
     this.listeners.forEach(listener -> {
-      listener.notifyViewChange();
+      listener.onViewChange();
     });
   }
 
@@ -81,7 +81,7 @@ public class WizardStepView<E> {
     }
     this.currentStepIdx++;
     this.listeners.forEach(listener -> {
-      listener.notifyViewChange();
+      listener.onViewChange();
     });
   }
 

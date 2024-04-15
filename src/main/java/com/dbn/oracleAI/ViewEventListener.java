@@ -9,5 +9,5 @@ public interface ViewEventListener extends EventListener {
   /**
    * this method is called whenever the view move to one step forward or backward.
    */
-  void notifyViewChange();
+  void onViewChange();
 }

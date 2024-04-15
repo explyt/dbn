@@ -2,7 +2,10 @@ package com.dbn.oracleAI.config.ui;
 
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.ViewEventListener;
+import com.dbn.oracleAI.WizardStepChangeEvent;
+import com.dbn.oracleAI.WizardStepEventListener;
 import com.dbn.oracleAI.WizardStepView;
+import com.dbn.oracleAI.WizardStepViewPortProvider;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
 
@@ -15,10 +18,13 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Set;
 
-public class ProfileEditionDialog extends JDialog implements ViewEventListener {
+public class ProfileEditionDialog extends JDialog implements ViewEventListener,
+  WizardStepEventListener {
 
   static private final ResourceBundle messages =
     ResourceBundle.getBundle("Messages", Locale.getDefault());
@@ -88,7 +94,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener {
     this.wizardModelView.addListener(this);
     CardLayout layout = (CardLayout)this.wizardMainPane.getLayout();
 
-    this.wizardModel.populateTo(this.wizardMainPane);
+    this.wizardModel.populateTo(this, this.wizardMainPane);
     layout.show(this.wizardMainPane,this.wizardModelView.current().getTitle());
   }
 
@@ -97,7 +103,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener {
     setVisible(true);
   }
 
-  @Override public void notifyViewChange() {
+  @Override public void onViewChange() {
     wizardProgress.setValue(this.wizardModelView.progress());
     wizardProgress.setString(this.wizardModelView.current().getTitle());
 
@@ -109,12 +115,31 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener {
 
     if (!this.wizardModelView.canForward()) {
       nextButton.setAction(COMMIT);
+      // we are at the end , forbud user to commit if we have
+      // dirty values
+      if (invalidSteps.isEmpty()) {
+        nextButton.setEnabled(true);
+      } else {
+        // TODO : use Messages
+        nextButton.setToolTipText("fix errors first");
+        nextButton.setEnabled(false);
+      }
     } else {
       nextButton.setAction(FORWARD);
     }
     CardLayout layout = (CardLayout)this.wizardMainPane.getLayout();
     layout.show(this.wizardMainPane,this.wizardModelView.current().getTitle());
-    System.out.println("notifyViewChange: current view " + this.wizardModelView);
+    System.out.println("onViewChange: current view " + this.wizardModelView);
+  }
+
+  Set<WizardStepViewPortProvider> invalidSteps = new HashSet<>();
+  @Override public void onStepChange(WizardStepChangeEvent event) {
+    // keep track of invalid steps
+    if (!event.getProvider().isInputsValid()) {
+      invalidSteps.add(event.getProvider());
+    } else {
+      invalidSteps.remove(event.getProvider());
+    }
   }
 
   private class ForwardAction extends AbstractAction {

@@ -18,7 +18,8 @@ public class ProfileNameVerifier extends InputVerifier implements
   }
   @Override
   public boolean shouldYieldFocus(JComponent input) {
-    return verify(input);
+    //return verify(input);
+    return true;
   }
   @Override public boolean verify(JComponent input) {
     // TODO : enough for now

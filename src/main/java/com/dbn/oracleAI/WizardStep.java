@@ -19,4 +19,17 @@ public interface WizardStep {
    */
   public JPanel getViewPort();
 
+  /**
+   * Check that this step is valid. That is
+   * basically all inputs have expected value;
+   * @return true of valid, false otherwsie
+   */
+  boolean isValid();
+
+  /**
+   * Adds a listener to this step change.
+   * @param listener a listener that is fired when the step changed.
+   */
+  public void addListener(WizardStepEventListener listener);
+
 }
