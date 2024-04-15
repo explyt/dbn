@@ -39,29 +39,15 @@ public class Profile implements AttributeInput {
   private Double temperature;
   private Boolean comments;
 
-  @Setter
-  @Getter
-  public static class ObjectListItem {
-    private String owner;
-    private String name;
 
-    public ObjectListItem(String owner, String name) {
-      this.owner = owner;
-      this.name = name;
-    }
+
+  @Override
+  public void validate() {
+    //TODO
   }
 
   @Override
-  public boolean isValid() {
-    return provider != null && credentialName != null;
-  }
-
-  @Override
-  public String format() throws IllegalArgumentException {
-    if (!isValid()) {
-      throw new IllegalArgumentException("Invalid profile attributes.");
-    }
-
+  public String toAttributeMap() throws IllegalArgumentException {
     String attributesJson = gson.toJson(this).replace("'", "''");
 
     return String.format(

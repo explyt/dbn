@@ -1,13 +1,27 @@
 package com.dbn.oracleAI.config.ui;
 
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AICredentialService;
+import com.dbn.oracleAI.config.CredentialProvider;
+import com.dbn.oracleAI.config.OciCredentialProvider;
+import com.dbn.oracleAI.config.PasswordCredentialProvider;
 import com.dbn.oracleAI.types.CredentialType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.wm.WindowManager;
 
-import javax.swing.*;
-import java.awt.*;
+
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import java.awt.CardLayout;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * A dialog window for creating new AI credentials.
@@ -15,6 +29,8 @@ import java.util.Objects;
  * It interacts with {@link AICredentialService} to create credentials in the system.
  */
 public class CredentialCreationWindow extends JDialog {
+  static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
+
   private final AICredentialService credentialSvc;
   private JPanel contentPane;
   private JTextField credentialNameField;
@@ -30,22 +46,25 @@ public class CredentialCreationWindow extends JDialog {
   private JTextField fingerprintField;
   private JButton cancelButton;
   private JButton saveButton;
+  private JLabel errorLabel;
+  private ConnectionRef connection;
 
   /**
    * Constructs a CredentialCreationWindow dialog.
    *
-   * @param connection The connection handler associated with the current project.
+   * @param connection    The connection handler associated with the current project.
    * @param credentialSvc The service used to create credentials.
    */
-  public CredentialCreationWindow(ConnectionHandler connection, AICredentialService credentialSvc){
-    super(WindowManager.getInstance().getFrame(connection.getProject()), "Oracle AI Chat Box", true);
+  public CredentialCreationWindow(ConnectionRef connection, AICredentialService credentialSvc) {
+    super(WindowManager.getInstance().getFrame(connection.get().getProject()), "Oracle AI Chat Box", true);
     this.credentialSvc = credentialSvc;
+    this.connection = connection;
     setContentPane(contentPane);
-    setTitle("Credential Provider Creation");
+    setTitle(messages.getString("ai.settings.credentials.creation.title"));
     setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     initializeUI();
     pack();
-    setLocationRelativeTo(WindowManager.getInstance().getFrame(connection.getProject()));
+    setLocationRelativeTo(WindowManager.getInstance().getFrame(connection.get().getProject()));
   }
 
   /**
@@ -54,37 +73,51 @@ public class CredentialCreationWindow extends JDialog {
   private void initializeUI() {
     typeComboBox.addItem(CredentialType.PASSWORD);
     typeComboBox.addItem(CredentialType.OCI);
-    typeComboBox.addActionListener((e)->{
-      CardLayout cl = (CardLayout)(card.getLayout());
+    typeComboBox.addActionListener((e) -> {
+      CardLayout cl = (CardLayout) (card.getLayout());
       cl.show(card, typeComboBox.getSelectedItem().toString());
     });
-    saveButton.addActionListener((e)->{
+    saveButton.addActionListener((e) -> {
       addCredential();
     });
-    cancelButton.addActionListener((e)->{
+    cancelButton.addActionListener((e) -> {
       this.dispose();
     });
   }
+
 
   /**
    * Adds a credential based on the selected credential type and input fields.
    * Communicates with {@link AICredentialService} to persist the credential.
    */
-  private void addCredential(){
+  private void addCredential() {
     CredentialType credentialType = (CredentialType) typeComboBox.getSelectedItem();
-    switch (Objects.requireNonNull(credentialType)){
-      case PASSWORD:
-        credentialSvc.createPasswordCredential(credentialNameField.getText(), usernameField.getText(), passwordField.getText()).thenRun(this::dispose);
-        break;
-      case OCI:
-        credentialSvc.createOCICredential(credentialNameField.getText(), userOcidField.getText(), userTenancyOcidField.getText(), privateKeyField.getText(), fingerprintField.getText()).thenRun(this::dispose);
+    CredentialProvider credentialProvider = null;
+    try {
+      switch (Objects.requireNonNull(credentialType)) {
+        case PASSWORD:
+          credentialProvider = new PasswordCredentialProvider(credentialNameField.getText(), usernameField.getText(), passwordField.getText());
+          break;
+        case OCI:
+          credentialProvider = new OciCredentialProvider(credentialNameField.getText(), userOcidField.getText(), userTenancyOcidField.getText(), privateKeyField.getText(), fingerprintField.getText());
+      }
+
+    credentialSvc.createCredential(credentialProvider).thenAccept((e) -> this.dispose()).exceptionally(e ->
+    {
+      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(connection.get().getProject(), e.getCause().getMessage()));
+      return null;
+    });
+    } catch (IllegalArgumentException e){
+      errorLabel.setText("* " + e.getMessage());
+      errorLabel.setVisible(true);
+      pack();
     }
   }
 
   /**
    * Displays the dialog window.
    */
-  public void display(){
+  public void display() {
     setVisible(true);
   }
 }

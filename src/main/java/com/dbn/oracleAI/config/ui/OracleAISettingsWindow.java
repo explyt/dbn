@@ -27,8 +27,8 @@ public class OracleAISettingsWindow extends JDialog {
     setContentPane(settingsWindowContentPane);
     setTitle(messages.getString("ai.settings.window.title"));
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-    setLocationRelativeTo(WindowManager.getInstance().getFrame(connection.getProject()));
     pack();
+    setLocationRelativeTo(WindowManager.getInstance().getFrame(connection.getProject()));
     setTabs();
 
     settingsCloseButton.addActionListener(new ActionListener() {
@@ -47,6 +47,6 @@ public class OracleAISettingsWindow extends JDialog {
 
   private void setTabs() {
     settingsTabbedPane.addTab(messages.getString("ai.settings.window.tab.profiles.title"), new ProfileManagementPanel(currConnection));
-    settingsTabbedPane.addTab(messages.getString("ai.settings.window.tab.credentials.title"), new CredentialManagementPanel());
+    settingsTabbedPane.addTab(messages.getString("ai.settings.window.tab.credentials.title"), new CredentialManagementPanel(currConnection));
   }
 }

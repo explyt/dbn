@@ -74,7 +74,7 @@ public class OracleCredentialsDetailedInfo implements CallableStatementOutput {
     while (rs.next()) {
       String credentialName = rs.getString("CREDENTIAL_NAME");
       String username = rs.getString("USERNAME");
-      credentialProviderBuildersMap.computeIfAbsent(credentialName, k -> CredentialProvider.builder().credentialName(credentialName).username(username).build());
+      credentialProviderBuildersMap.computeIfAbsent(credentialName, k -> new CredentialProvider(credentialName, username));
     }
 
     // Associate profiles with corresponding CredentialProvider objects

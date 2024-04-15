@@ -25,6 +25,6 @@ public class OracleCredentialsInfo implements CallableStatementOutput {
 
   @Override
   public void read(CallableStatement statement) throws SQLException {
-    credentials = Arrays.stream(statement.getString(1).split(" ")).map((credentialName)->CredentialProvider.builder().credentialName(credentialName).build()).collect(Collectors.toList());
+    credentials = Arrays.stream(statement.getString(1).split(" ")).map(CredentialProvider::new).collect(Collectors.toList());
   }
 }

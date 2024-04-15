@@ -12,6 +12,7 @@ import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.config.CredentialProvider;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ActionAIType;
+
 import java.sql.SQLException;
 import java.util.*;
 
@@ -24,7 +25,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public void createCredential(DBNConnection connection, CredentialProvider credentialAttributes) throws CredentialManagementException {
     try {
-      executeCall(connection, null, "create-credential", credentialAttributes.getCredentialName(), credentialAttributes.format());
+      executeCall(connection, null, "create-credential", credentialAttributes.getCredentialName(), credentialAttributes.toAttributeMap());
     } catch (SQLException e) {
       throw new CredentialManagementException("Failed to create credential: " + credentialAttributes.getCredentialName(), e);
     }
@@ -51,7 +52,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public void createProfile(DBNConnection connection, Profile profileAttributes) throws ProfileManagementException {
     try {
-      executeCall(connection, null, "create-profile", profileAttributes.getProfileName(), profileAttributes.format());
+      executeCall(connection, null, "create-profile", profileAttributes.getProfileName(), profileAttributes.toAttributeMap());
     } catch (SQLException e) {
       throw new ProfileManagementException("Failed to create profile: " + profileAttributes.getProfileName(), e);
     }
@@ -89,7 +90,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     try {
       return executeCall(connection, new OracleTablesList(), "list-tables");
     } catch (SQLException e) {
-      throw new DatabaseOperationException("Failed to list tables", e.getErrorCode(), e);
+      throw new DatabaseOperationException("Failed to list tables", e);
     }
   }
 
@@ -98,7 +99,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     try {
       return executeCall(connection, new OracleViewsList(), "list-views");
     } catch (SQLException e) {
-      throw new DatabaseOperationException("Failed to list views", e.getErrorCode(), e);
+      throw new DatabaseOperationException("Failed to list views", e);
     }
   }
 
@@ -107,7 +108,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     try {
       return executeCall(connection, new OracleCredentialsInfo(), "list-credentials").getCredentials();
     } catch (SQLException e) {
-      throw new DatabaseOperationException("Failed to list credentials", e.getErrorCode(), e);
+      throw new DatabaseOperationException("Failed to list credentials", e);
     }
   }
 
@@ -116,17 +117,19 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     try {
       return executeCall(connection, new OracleProfilesInfo(), "list-profiles").getProfiles();
     } catch (SQLException e) {
-      throw new DatabaseOperationException("Failed to list profiles", e.getErrorCode(), e);
+      throw new DatabaseOperationException("Failed to list profiles", e);
     }
   }
 
   @Override
-  public List<CredentialProvider> listCredentialsDetailed(DBNConnection connection) throws DatabaseOperationException {
+  public List<CredentialProvider> listCredentialsDetailed(DBNConnection connection) throws CredentialManagementException {
     try{
       List<Profile> profileList = listProfilesDetailed(connection);
       List<CredentialProvider> credentialProviders = executeCall(connection, new OracleCredentialsDetailedInfo(profileList), "list-credentials-detailed", profileList).getCredentialsProviders();
       return credentialProviders;
     } catch (SQLException e) {
+      throw new CredentialManagementException("Failed to list credentials", e);
+    } catch (DatabaseOperationException e) {
       throw new RuntimeException(e);
     }
   }
@@ -136,9 +139,30 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
       List<Profile> profileList = executeCall(connection, new OracleProfilesDetailedInfo(), "list-profiles-detailed").getProfileList();
       return profileList;
     } catch (SQLException e) {
-      throw new DatabaseOperationException(e.getMessage(), e.getErrorCode(), e);
+      throw new DatabaseOperationException(e.getMessage(), e);
     }
   }
+
+  @Override
+  public List<String> listSchemas(DBNConnection connection) throws DatabaseOperationException {
+    try {
+      List<String> schemaList = executeCall(connection, new SchemasInfo(), "list-schemas").getSchemaList();
+      return schemaList;
+    } catch (SQLException e) {
+      throw new DatabaseOperationException(e.getMessage(), e);
+    }
+  }
+
+  @Override
+  public List<ObjectListItem> listObjectListItems(DBNConnection connection) throws DatabaseOperationException {
+    try {
+      List<ObjectListItem> objectListItemsList = executeCall(connection, new ObjectListItemInfo(), "list-tables").getObjectListItemsList();
+      return objectListItemsList;
+    } catch (SQLException e) {
+      throw new DatabaseOperationException(e.getMessage(), e);
+    }
+  }
+
 
 }
 
