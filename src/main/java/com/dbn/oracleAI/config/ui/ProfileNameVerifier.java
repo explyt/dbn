@@ -6,6 +6,9 @@ import javax.swing.JTextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * Input verifier for an AI profile name
+ */
 public class ProfileNameVerifier extends InputVerifier implements
   ActionListener {
 
@@ -13,11 +16,12 @@ public class ProfileNameVerifier extends InputVerifier implements
     JTextField input = (JTextField)e.getSource();
     shouldYieldFocus(input); //ignore return value
   }
+  @Override
   public boolean shouldYieldFocus(JComponent input) {
     return verify(input);
   }
   @Override public boolean verify(JComponent input) {
     // TODO : enough for now
-    return ((JTextField)input).getText().length()>0;
+    return ((JTextField)input).getText().length() > 0;
   }
 }

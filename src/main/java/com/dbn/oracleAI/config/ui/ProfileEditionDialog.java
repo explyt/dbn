@@ -70,13 +70,18 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener {
     System.out.println(this.wizardModelView.toString());
   }
 
-
+  /**
+   * Commits user inputs on current selected profile
+   */
   private void commitWizardView() {
     // enough for now
 
     dispose();
   }
 
+  /**
+   * init the profile edition wizard
+   */
   private void initWizard() {
     this.wizardModel = new ProfileEditionWizard();
     this.wizardModelView = this.wizardModel.getView();
