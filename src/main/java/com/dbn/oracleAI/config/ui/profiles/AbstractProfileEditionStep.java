@@ -17,4 +17,8 @@ public abstract class AbstractProfileEditionStep implements
   @Override public boolean isInputsValid() {
     return true;
   }
+
+  @Override public boolean isInputsChanged() {
+    return false;
+  }
 }

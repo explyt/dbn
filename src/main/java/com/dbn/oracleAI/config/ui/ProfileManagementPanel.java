@@ -24,6 +24,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
 
+import static com.dbn.common.util.Conditional.when;
+
 /**
  * Profile management bindings
  */
@@ -41,9 +43,9 @@ public class ProfileManagementPanel extends JPanel {
   private JLabel credentialField;
   private JLabel modelField;
   private JLabel providerField;
-  private JButton editButton;
-  private JButton deleteButton;
-  private JButton makeDefaultButton;
+  private JButton editProfileButton;
+  private JButton deleteProfileButton;
+  private JButton makeDefaultProfileButton;
   private JPanel profileMgntObjectListPanel;
   private JPanel profileAttrPanel;
   private JPanel profileSelectionPanel;
@@ -118,22 +120,23 @@ public class ProfileManagementPanel extends JPanel {
    * initialize action buttons
    */
   private void initializeButtons() {
-    deleteButton.addActionListener(event -> {
-      Messages.showQuestionDialog(currProject,
-                                  messages.getString("ai.settings.profile.deletion.title"),
-                                  messages.getString("ai.settings.profile.deletion.message.prefix") + currProfile.getProfileName(),
+    deleteProfileButton.addActionListener(event -> {
+      Messages.showQuestionDialog(currProject, messages.getString(
+                                    "ai.settings.profile.deletion.title"), messages.getString(
+                                    "ai.settings.profile.deletion.message.prefix")
+                                                                           + currProfile.getProfileName(),
                                   Messages.options(
                                     messages.getString("ai.messages.yes"),
                                     messages.getString("ai.messages.no")), 1,
-                                  option -> {
-                                    if (option == 0) {
-                                      removeProfile(currProfile);
-                                      updateWindow();
-                                      }
-                                    });
-                                  });
+                                  option -> when(option == 0,
+                                                 () -> removeProfile(
+                                                   currProfile)));
+    });
+    editProfileButton.addActionListener(event -> {
+      new ProfileEditionDialog(currProject, currProfile).display();
+    });
     addProfileButton.addActionListener(event -> {
-      new ProfileEditionDialog(currProject).display();
+      new ProfileEditionDialog(currProject, currProfile).display();
     });
   }
 
@@ -149,6 +152,15 @@ public class ProfileManagementPanel extends JPanel {
       } else {
         currProfile = null;
       }
+      updateWindow();
+    }).exceptionally(throwable -> {
+      //ApplicationManager.getApplication().invokeLater(() -> {
+        Messages.showErrorDialog(currProject,
+                                 messages.getString("profiles.mgnt.attr.deletion.failed.title"),
+                                 messages.getString("profiles.mgnt.attr.deletion.failed.msg"));
+      //});
+
+      return null;
     });
   }
   private void initializeEmptyWindow(){
@@ -156,9 +168,9 @@ public class ProfileManagementPanel extends JPanel {
     credentialField.setEnabled(false);
     providerField.setEnabled(false);
     modelField.setEnabled(false);
-    deleteButton.setEnabled(false);
-    editButton.setEnabled(false);
-    makeDefaultButton.setEnabled(false);
+    deleteProfileButton.setEnabled(false);
+    editProfileButton.setEnabled(false);
+    makeDefaultProfileButton.setEnabled(false);
   }
 
   /**
