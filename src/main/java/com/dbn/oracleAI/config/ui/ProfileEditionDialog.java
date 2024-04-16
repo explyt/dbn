@@ -1,11 +1,15 @@
 package com.dbn.oracleAI.config.ui;
 
+import com.dbn.oracleAI.AIProfileService;
+import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.ViewEventListener;
 import com.dbn.oracleAI.WizardStepChangeEvent;
 import com.dbn.oracleAI.WizardStepEventListener;
 import com.dbn.oracleAI.WizardStepView;
 import com.dbn.oracleAI.WizardStepViewPortProvider;
+import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
 
@@ -43,9 +47,26 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
   private ForwardAction FORWARD;
   private CommitAction COMMIT;
 
-  public ProfileEditionDialog(Project currProject) {
-    super(WindowManager.getInstance().getFrame(currProject), "CHANGE TITLE", false);
+  private AIProfileService profileSvc;
 
+  /**
+   * Creates a new AI profile edition dialog
+   * for profile creation.
+   * @param currProject current project we belong to
+   */
+  public ProfileEditionDialog(Project currProject) {
+    this(currProject,null);
+  }
+
+  /**
+   * Creates a new AI profile edition dialog
+   * for profile edition
+   * @param currProject current project we belong to
+   * @param profile the profile to be edited through the wizard
+   */
+  public ProfileEditionDialog(Project currProject, Profile profile) {
+    super(WindowManager.getInstance().getFrame(currProject), "CHANGE TITLE", false);
+    profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
     setModal(true);
     setContentPane(mainPane);
     setTitle(messages.getString("profiles.settings.window.title"));
@@ -55,7 +76,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
       dispose();
     });
 
-    initWizard();
+    initWizard(profile);
     initProgress();
 
     FORWARD = new ForwardAction(this.wizardModelView);
@@ -80,7 +101,25 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
    * Commits user inputs on current selected profile
    */
   private void commitWizardView() {
-    // enough for now
+    // TODO : check that data have changed to avoid
+    //        calling service
+    //   see this.wizardModelView.current().getProvider().isInputsChanged()
+    // TODO : do not use dummy values
+    Profile editedProfile = Profile.builder()
+                                   .profileName("")
+                                   .credentialName("")
+                                    .model("").provider(ProviderType.COHERE)
+                                   .build();
+    this.wizardModel.hydrate(editedProfile);
+
+    //TODO : we have to check if this is a "ADD" or "EDIT"
+    //       assume ADD for now
+      profileSvc.addProfile(editedProfile).thenRun(() -> {
+
+      }).exceptionally(throwable -> {
+        //TODO : show error dialog
+        return null;
+      });
 
     dispose();
   }
@@ -88,8 +127,8 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
   /**
    * init the profile edition wizard
    */
-  private void initWizard() {
-    this.wizardModel = new ProfileEditionWizard();
+  private void initWizard(Profile profile) {
+    this.wizardModel = new ProfileEditionWizard(profile);
     this.wizardModelView = this.wizardModel.getView();
     this.wizardModelView.addListener(this);
     CardLayout layout = (CardLayout)this.wizardMainPane.getLayout();

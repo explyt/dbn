@@ -60,7 +60,7 @@
           <forms/>
         </constraints>
         <properties>
-          <text resource-bundle="Messages" key="profiles.mgng.attr.description"/>
+          <text resource-bundle="Messages" key="profiles.mgnt.attr.description"/>
         </properties>
       </component>
       <component id="7863f" class="javax.swing.JTextField" binding="descriptionTextField">

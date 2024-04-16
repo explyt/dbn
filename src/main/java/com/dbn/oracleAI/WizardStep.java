@@ -1,5 +1,7 @@
 package com.dbn.oracleAI;
 
+import com.dbn.oracleAI.config.Profile;
+
 import javax.swing.JPanel;
 
 /**
@@ -32,4 +34,9 @@ public interface WizardStep {
    */
   public void addListener(WizardStepEventListener listener);
 
+  /**
+   * hydrate a profile with data handle by this step
+   * @param p the profile to be hydrated
+   */
+  void setAttributesOn(Profile p);
 }

@@ -2,6 +2,7 @@ package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.oracleAI.WizardStepChangeEvent;
 import com.dbn.oracleAI.WizardStepEventListener;
+import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.ProfileNameVerifier;
 
 import javax.swing.JComboBox;
@@ -19,7 +20,7 @@ public class ProfileEditionGeneralStep extends AbstractProfileEditionStep {
   private JTextField descriptionTextField;
 
   public ProfileEditionGeneralStep() {
-
+    super();
     nameTextField.setInputVerifier(new ProfileNameVerifier());
     nameTextField.addActionListener(e->{
       for (WizardStepEventListener listener : this.listeners) {
@@ -30,7 +31,16 @@ public class ProfileEditionGeneralStep extends AbstractProfileEditionStep {
 
   }
 
-  public JPanel getPanel() {
+  public ProfileEditionGeneralStep(Profile profile) {
+    super();
+    // TODO : do we authorize name to be edited
+    nameTextField.setText(profile.getProfileName());
+    descriptionTextField.setText(profile.getDescription());
+    //TODO fill combox and select the rigth one
+    credentialComboBox.setSelectedItem(profile.getCredentialName());
+  }
+
+  @Override public JPanel getPanel() {
     return profileEditionGeneralMainPane;
   }
 
@@ -39,5 +49,9 @@ public class ProfileEditionGeneralStep extends AbstractProfileEditionStep {
     return nameTextField.getInputVerifier().verify(nameTextField);
   }
 
+  @Override public void setAttributesOn(Profile p) {
+    p.setProfileName(nameTextField.getText());
+    // TODO : set others attrs
+  }
 
 }
