@@ -1,5 +1,7 @@
 package com.dbn.oracleAI;
 
+import com.dbn.oracleAI.config.Profile;
+
 import javax.swing.JPanel;
 
 /**
@@ -17,7 +19,24 @@ public interface WizardStepViewPortProvider {
    */
   JPanel getPanel();
 
+  /**
+   * Checks that data model of this provider are correct
+   * @return true if vliad , false otherwise
+   */
   boolean isInputsValid();
 
+  /**
+   * Checks that data model of this provider have changed
+   * @return true if some input data has changed , false otherwise
+   */
+  boolean isInputsChanged();
+
+  /**
+   * Adds a listener to this step provider
+   *
+   * @param listener the listener
+   */
   void addEventListener(WizardStepEventListener listener);
+
+  void setAttributesOn(Profile p);
 }

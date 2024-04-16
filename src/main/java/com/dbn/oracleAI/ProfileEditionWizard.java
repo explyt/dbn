@@ -1,5 +1,6 @@
 package com.dbn.oracleAI;
 
+import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionGeneralStep;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionProviderStep;
@@ -49,6 +50,17 @@ public class ProfileEditionWizard {
   }
 
   /**
+   * Populate profile attributes with current inputs data.
+   * This will go through all steps to set current values
+   * @param editedProfile the profile to be hydrated
+   */
+  public void hydrate(Profile editedProfile) {
+    this.steps.forEach(step -> {
+      step.setAttributesOn(editedProfile);
+    });
+  }
+
+  /**
    * Step for profile edition.
    */
   @Getter @ToString static public class ProfileEditionWizardStep
@@ -85,20 +97,35 @@ public class ProfileEditionWizard {
     @Override public void addListener(WizardStepEventListener listener) {
       listeners.add(listener);
     }
+
+    @Override public void setAttributesOn(Profile p) {
+      this.provider.setAttributesOn(p);
+    }
   }
 
   /**
    * Creates a new wizrd
    */
-  public ProfileEditionWizard() {
+  public ProfileEditionWizard(Profile profile) {
     // fake it for now
     this.steps = new LinkedList<>();
-    this.steps.add(new ProfileEditionWizardStep("general",
-                                                new ProfileEditionGeneralStep()));
-    this.steps.add(new ProfileEditionWizardStep("provider",
-                                                new ProfileEditionProviderStep()));
-    this.steps.add(new ProfileEditionWizardStep("object list",
-                                                new ProfileEditionObjectListStep()));
-
+    if (profile != null) {
+      this.steps.add(new ProfileEditionWizardStep("general",
+                                                  new ProfileEditionGeneralStep(
+                                                    profile)));
+      this.steps.add(new ProfileEditionWizardStep("provider",
+                                                  new ProfileEditionProviderStep(
+                                                    profile)));
+      this.steps.add(new ProfileEditionWizardStep("object list",
+                                                  new ProfileEditionObjectListStep(
+                                                    profile)));
+    } else {
+      this.steps.add(new ProfileEditionWizardStep("general",
+                                                  new ProfileEditionGeneralStep()));
+      this.steps.add(new ProfileEditionWizardStep("provider",
+                                                  new ProfileEditionProviderStep()));
+      this.steps.add(new ProfileEditionWizardStep("object list",
+                                                  new ProfileEditionObjectListStep()));
+    }
   }
 }

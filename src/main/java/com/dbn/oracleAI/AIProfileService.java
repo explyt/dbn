@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -34,7 +36,7 @@ public class AIProfileService {
   public CompletableFuture<Map<String, Profile>> getProfiles() {
     if (System.getProperty("fake.services") !=null) {
       Map<String, Profile> faked = new HashMap<String, Profile>();
-      faked.put("FAKE",Profile.builder().profileName("cohere").provider(
+      faked.put("cohere",Profile.builder().profileName("cohere").provider(
         ProviderType.COHERE).credentialName("foo").model("foo").build());
       return CompletableFuture.completedFuture(faked);
     }
@@ -67,9 +69,13 @@ public class AIProfileService {
         DBNConnection connection = connectionHandler.getConnection(SessionId.ORACLE_AI);
           connectionHandler.getOracleAIInterface().dropProfile(connection, profileName);
       } catch (SQLException | ProfileManagementException e) {
-        throw new RuntimeException(e.getMessage(), e);
+        throw new CompletionException(e);
       }
     });
 
+  }
+
+  public CompletionStage<Void> addProfile(Profile editedProfile) {
+    return CompletableFuture.completedFuture(null);
   }
 }
