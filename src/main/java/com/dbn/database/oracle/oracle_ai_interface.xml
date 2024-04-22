@@ -32,12 +32,12 @@
             BEGIN
             SELECT COUNT(*)
             INTO v_profile_count
-            FROM DBA_CLOUD_AI_PROFILES
+            FROM USER_CLOUD_AI_PROFILES
             WHERE PROFILE_NAME = '{0}';
 
             IF v_profile_count = 0 THEN
             DBMS_CLOUD_AI.CREATE_PROFILE(
-            '{1}'
+            {1}
             );
             END IF;
             END;
@@ -147,10 +147,8 @@
     <statement-execution-processor id="update-profile" timeout="20">
         <statement>
             BEGIN
-            DBMS_CLOUD_AI.SET_ATTRIBUTE(
-            profile_name    => '{0}',
-            attribute_name  => '{1}',
-            attribute_value => '{2}'
+            DBMS_CLOUD_AI.SET_ATTRIBUTES(
+                {0}
             );
             END;
         </statement>

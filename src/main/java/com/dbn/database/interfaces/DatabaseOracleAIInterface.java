@@ -5,6 +5,7 @@ import com.dbn.database.common.oracleAI.OracleQueryOutput;
 import com.dbn.database.common.oracleAI.OracleTablesList;
 import com.dbn.database.common.oracleAI.OracleViewsList;
 import com.dbn.oracleAI.config.CredentialProvider;
+import com.dbn.oracleAI.config.ObjectListItem;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
@@ -63,12 +64,10 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * Updates an attribute of an existing AI profile in the database.
    *
    * @param connection The database connection object.
-   * @param profileName The name of the AI profile whose attribute is to be updated.
-   * @param attributeName The name of the attribute to update.
-   * @param attributeValue The new value for the attribute.
+   * @param profileAttributes The AI profile whose attribute is to be updated.
    * @throws ProfileManagementException If there is an error in updating the AI profile attribute.
    */
-  void setProfileAttribute(DBNConnection connection, String profileName, String attributeName, String attributeValue) throws ProfileManagementException;
+  void setProfileAttributes(DBNConnection connection, Profile profileAttributes) throws ProfileManagementException;
 
   /**
    * Deletes an existing AI profile from the database.
@@ -116,7 +115,7 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * @return A list containing information about each stored credential.
    * @throws DatabaseOperationException If there is an error in retrieving the list of credentials.
    */
-  List<CredentialProvider> listCredentials(DBNConnection connection) throws DatabaseOperationException;
+  List<CredentialProvider> listCredentials(DBNConnection connection) throws CredentialManagementException;
 
   /**
    * Lists all AI profiles stored in the database.
@@ -143,5 +142,25 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * @return A detailed list containing information about each AI profile.
    * @throws DatabaseOperationException If there is an error in retrieving the detailed list of AI profiles.
    */
-  List<Profile> listProfilesDetailed(DBNConnection connection) throws DatabaseOperationException;
+  List<Profile> listProfilesDetailed(DBNConnection connection) throws ProfileManagementException;
+
+  /**
+   * Lists all schemas available in the current database connection.
+   *
+   * @param connection The database connection object.
+   * @return A list of schema names available to the current connection.
+   * @throws DatabaseOperationException If there is an error in listing the schemas.
+   */
+  List<String> listSchemas(DBNConnection connection) throws DatabaseOperationException;
+
+  /**
+   * Lists all object list items available in the current database connection.
+   * This can include tables, views, and other database objects.
+   *
+   * @param connection The database connection object.
+   * @return A list of ObjectListItems, each representing a database object.
+   * @throws DatabaseOperationException If there is an error in retrieving the list of database objects.
+   */
+  List<ObjectListItem> listObjectListItems(DBNConnection connection, String profileName) throws DatabaseOperationException;
+
 }

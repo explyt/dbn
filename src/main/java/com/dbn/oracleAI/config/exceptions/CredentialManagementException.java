@@ -1,6 +1,8 @@
 package com.dbn.oracleAI.config.exceptions;
 
 import java.sql.SQLException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Custom exception class for credential management that enriches SQLExceptions with more user-friendly messages.
@@ -34,7 +36,14 @@ public class CredentialManagementException extends DatabaseOperationException {
         return "Missing Credential Name";
       case 20020:
         return "Missing credential attribute";
+      case 20022:
+        String regex = "ORA-20022:([^\\n]+)";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(defaultMessage);
 
+        if (matcher.find()) {
+          return matcher.group(1).trim();
+        }
       default:
         return defaultMessage;
     }

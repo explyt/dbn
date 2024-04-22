@@ -37,15 +37,16 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 @State(name = DatabaseOracleAIManager.COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
-@Slf4j public class DatabaseOracleAIManager extends ProjectComponentBase
-  implements PersistentState {
+@Slf4j
+public class DatabaseOracleAIManager extends ProjectComponentBase
+    implements PersistentState {
   public static final String COMPONENT_NAME =
-    "DBNavigator.Project.OracleAIManager";
+      "DBNavigator.Project.OracleAIManager";
   public static final String TOOL_WINDOW_ID = "Oracle Companion";
   public ConnectionId currConnection;
   private static OracleAIChatBox oracleAIChatBox;
   private final Map<ConnectionId, OracleAIChatBoxState> chatBoxStates =
-    new ConcurrentHashMap<>();
+      new ConcurrentHashMap<>();
 
   private DatabaseOracleAIManager(Project project) {
     super(project, COMPONENT_NAME);
@@ -63,12 +64,12 @@ import java.util.concurrent.ConcurrentHashMap;
     // First save the current one
     if (currConnection != null) {
       chatBoxStates.put(currConnection,
-                        oracleAIChatBox.captureState(currConnection.toString()));
+          oracleAIChatBox.captureState(currConnection.toString()));
     }
     // now apply the new one
     currConnection = connectionId;
     OracleAIChatBoxState newState = chatBoxStates.get(connectionId);
-      oracleAIChatBox.initState();
+    oracleAIChatBox.initState();
     if (newState != null) {
       oracleAIChatBox.restoreState(newState);
     }
@@ -77,7 +78,7 @@ import java.util.concurrent.ConcurrentHashMap;
   public ToolWindow getOracleAIWindow() {
     Project project = getProject();
     ToolWindowManager toolWindowManager =
-      ToolWindowManager.getInstance(project);
+        ToolWindowManager.getInstance(project);
     return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
   }
 
@@ -88,50 +89,43 @@ import java.util.concurrent.ConcurrentHashMap;
       oracleAIChatBox = getOracleAIChatBox();
       ContentFactory contentFactory = contentManager.getFactory();
       Content content =
-        contentFactory.createContent(oracleAIChatBox, null, true);
+          contentFactory.createContent(oracleAIChatBox, null, true);
       contentManager.addContent(content);
       toolWindow.setAvailable(true, null);
     }
     return toolWindow;
   }
 
-  @NotNull public OracleAIChatBox getOracleAIChatBox() {
+  @NotNull
+  public OracleAIChatBox getOracleAIChatBox() {
     return OracleAIChatBox.getInstance(getProject());
   }
 
   public String queryOracleAI(String text, ActionAIType action,
-                              String profile) {
+                              String profile) throws QueryExecutionException, SQLException {
     String output;
-    try {
-      DBNConnection mainConnection =
+    DBNConnection mainConnection =
         Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
-      output = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface()
-                             .executeQuery(mainConnection, action, profile,
-                                           text)
-                             .getQueryOutput();
-      return output;
-    } catch (SQLException e) {
-      output = e.getMessage();
-      System.out.println(e);
-      return output;
-    } catch (QueryExecutionException e) {
-      throw new RuntimeException(e);
-    }
-  }
+    output = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface()
+        .executeQuery(mainConnection, action, profile,
+            text)
+        .getQueryOutput();
+    return output;
 
+  }
 
 
   public void openSettings() {
     AnAction action = new OracleAISettingsOpenAction(ConnectionHandler.get(currConnection));
     AnActionEvent event =
-      AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, null,
-                                          dataId -> {
-                                            if (PlatformDataKeys.PROJECT.is(
-                                              dataId)) {
-                                              return getProject();
-                                            }
-                                            return null;
-                                          });
+        AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, null,
+            dataId -> {
+              if (PlatformDataKeys.PROJECT.is(
+                  dataId)) {
+                return getProject();
+              }
+              return null;
+            });
     action.actionPerformed(event);
   }
 
@@ -139,7 +133,8 @@ import java.util.concurrent.ConcurrentHashMap;
    *            PersistentStateComponent       *
    *********************************************/
 
-  @Override public Element getComponentState() {
+  @Override
+  public Element getComponentState() {
     Element allChatBoxStatesElement = new Element("OracleAIChatBoxStates");
     chatBoxStates.forEach((connectionId, chatBoxState) -> {
       Element chatBoxStateElement = chatBoxState.toElement();
@@ -149,7 +144,8 @@ import java.util.concurrent.ConcurrentHashMap;
     return allChatBoxStatesElement;
   }
 
-  @Override public void loadComponentState(@NotNull Element element) {
+  @Override
+  public void loadComponentState(@NotNull Element element) {
     List<Element> chatBoxStateElements = element.getChildren();
     chatBoxStateElements.forEach(chatBoxStateElement -> {
       String connectionIdStr = chatBoxStateElement.getAttributeValue("connectionId");
@@ -161,30 +157,27 @@ import java.util.concurrent.ConcurrentHashMap;
     });
   }
 
+  private Map<ConnectionId, AIProfileService> profileManagerMap = new HashMap<>();
 
-  //internal map hosting references to manager
-  //TODO : hook to connection deletion to cleanup map
-  // we assume non static map as we have only one instance fo this
-  private Map<ConnectionId,AIProfileService>profileManagerMap = new HashMap<>();
-
-  private Map<ConnectionId,AICredentialService>credentialManagerMap = new HashMap<>();
+  private Map<ConnectionId, AICredentialService> credentialManagerMap = new HashMap<>();
 
 
   /**
    * Gets a profile manager for the current connection.
-   * Managers are sigletons
-   * Ww assume that we alwasy have a current connection
+   * Managers are singletons
+   * Ww assume that we always have a current connection
    * @return a manager.
    */
   public synchronized AIProfileService getProfileService() {
     //TODO : later find better than using "synchronized"
     return profileManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
-                                          new AIProfileService(ConnectionHandler.get(currConnection)));
+        new AIProfileService(ConnectionHandler.get(currConnection).ref()));
   }
+
   public synchronized AICredentialService getCredentialService() {
     //TODO : later find better than using "synchronized"
     return credentialManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
-                                          new AICredentialService(ConnectionHandler.get(currConnection)));
+        new AICredentialService(ConnectionHandler.get(currConnection).ref()));
   }
 
 }

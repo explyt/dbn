@@ -4,8 +4,10 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionGeneralStep;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionProviderStep;
+import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.ToString;
+import org.eclipse.sisu.Nullable;
 
 import javax.swing.JPanel;
 import java.awt.CardLayout;
@@ -106,26 +108,26 @@ public class ProfileEditionWizard {
   /**
    * Creates a new wizrd
    */
-  public ProfileEditionWizard(Profile profile) {
+  public ProfileEditionWizard(Project project, @Nullable Profile profile) {
     // fake it for now
     this.steps = new LinkedList<>();
     if (profile != null) {
       this.steps.add(new ProfileEditionWizardStep("general",
                                                   new ProfileEditionGeneralStep(
-                                                    profile)));
+                                                    project, profile)));
       this.steps.add(new ProfileEditionWizardStep("provider",
                                                   new ProfileEditionProviderStep(
-                                                    profile)));
+                                                    project, profile)));
       this.steps.add(new ProfileEditionWizardStep("object list",
                                                   new ProfileEditionObjectListStep(
-                                                    profile)));
+                                                    project, profile)));
     } else {
       this.steps.add(new ProfileEditionWizardStep("general",
-                                                  new ProfileEditionGeneralStep()));
+                                                  new ProfileEditionGeneralStep(project)));
       this.steps.add(new ProfileEditionWizardStep("provider",
-                                                  new ProfileEditionProviderStep()));
+                                                  new ProfileEditionProviderStep(project)));
       this.steps.add(new ProfileEditionWizardStep("object list",
-                                                  new ProfileEditionObjectListStep()));
+                                                  new ProfileEditionObjectListStep(project)));
     }
   }
 }

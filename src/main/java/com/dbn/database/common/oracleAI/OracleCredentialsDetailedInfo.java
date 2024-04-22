@@ -79,7 +79,8 @@ public class OracleCredentialsDetailedInfo implements CallableStatementOutput {
 
     // Associate profiles with corresponding CredentialProvider objects
     for (Profile profile : this.profileList) {
-      credentialProviderBuildersMap.get(profile.getCredentialName()).getProfiles().add(profile);
+      CredentialProvider credentialProvider = credentialProviderBuildersMap.get(profile.getCredentialName());
+      if(credentialProvider != null) credentialProvider.getProfiles().add(profile);
     }
 
     // Convert map values to a list and return

@@ -1,9 +1,14 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.oracleAI.AICredentialService;
+import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.WizardStepChangeEvent;
 import com.dbn.oracleAI.WizardStepEventListener;
+import com.dbn.oracleAI.config.CredentialProvider;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.ProfileNameVerifier;
+import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.project.Project;
 
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
@@ -18,26 +23,43 @@ public class ProfileEditionGeneralStep extends AbstractProfileEditionStep {
   private JTextField nameTextField;
   private JComboBox credentialComboBox;
   private JTextField descriptionTextField;
+  private final AICredentialService credentialSvc;
 
-  public ProfileEditionGeneralStep() {
+  public ProfileEditionGeneralStep(Project project) {
     super();
+    this.credentialSvc = project.getService(DatabaseOracleAIManager.class).getCredentialService();
     nameTextField.setInputVerifier(new ProfileNameVerifier());
     nameTextField.addActionListener(e->{
       for (WizardStepEventListener listener : this.listeners) {
         listener.onStepChange(new WizardStepChangeEvent(this));
       }
     });
+    populateCredentials();
     //((JTextField)input).setBorder(Borders.lineBorder(Color.RED));
 
   }
 
-  public ProfileEditionGeneralStep(Profile profile) {
+  private void populateCredentials(){
+    ApplicationManager.getApplication().invokeLater(()->{
+      credentialSvc.listCredentials().thenAccept(credentialProviderList -> {
+
+        for(CredentialProvider credential : credentialProviderList){
+          credentialComboBox.addItem(credential.getCredentialName());
+          credentialComboBox.setSelectedIndex(0);
+        }
+      });
+    });
+  }
+
+  public ProfileEditionGeneralStep(Project project, Profile profile) {
     super();
+    this.credentialSvc = project.getService(DatabaseOracleAIManager.class).getCredentialService();
     // TODO : do we authorize name to be edited
     nameTextField.setText(profile.getProfileName());
     descriptionTextField.setText(profile.getDescription());
-    //TODO fill combox and select the rigth one
-    credentialComboBox.setSelectedItem(profile.getCredentialName());
+    credentialComboBox.addItem(profile.getCredentialName());
+    credentialComboBox.setSelectedIndex(0);
+    credentialComboBox.setEnabled(false);
   }
 
   @Override public JPanel getPanel() {
@@ -51,7 +73,8 @@ public class ProfileEditionGeneralStep extends AbstractProfileEditionStep {
 
   @Override public void setAttributesOn(Profile p) {
     p.setProfileName(nameTextField.getText());
-    // TODO : set others attrs
+    p.setCredentialName(credentialComboBox.getSelectedItem().toString());
+    p.setDescription(descriptionTextField.getText());
   }
 
 }

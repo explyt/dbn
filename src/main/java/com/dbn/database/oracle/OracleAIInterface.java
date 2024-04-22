@@ -5,6 +5,7 @@ import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.common.oracleAI.*;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseOracleAIInterface;
+import com.dbn.oracleAI.config.ObjectListItem;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
@@ -54,7 +55,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     try {
       executeCall(connection, null, "create-profile", profileAttributes.getProfileName(), profileAttributes.toAttributeMap());
     } catch (SQLException e) {
-      throw new ProfileManagementException("Failed to create profile: " + profileAttributes.getProfileName(), e);
+      throw new ProfileManagementException("Failed to create profile: " + profileAttributes.getProfileName() + "\n" + e.getMessage(), e);
     }
   }
 
@@ -68,11 +69,11 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
-  public void setProfileAttribute(DBNConnection connection, String profileName, String attributeName, String attributeValue) throws ProfileManagementException {
+  public void setProfileAttributes(DBNConnection connection, Profile profileAttribute) throws ProfileManagementException {
     try {
-      executeCall(connection, null, "update-profile", profileName, attributeName, attributeValue);
+      executeCall(connection, null, "update-profile", profileAttribute.toAttributeMap());
     } catch (SQLException e) {
-      throw new ProfileManagementException("Failed to set profile attribute: " + profileName, e);
+      throw new ProfileManagementException("Failed to set profile attribute: " + profileAttribute.getProfileName(), e);
     }
   }
 
@@ -81,9 +82,10 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     try {
       return executeCall(connection, new OracleQueryOutput(), "ai-query", profile, action, text, "");
     } catch (SQLException e) {
-      throw new QueryExecutionException(e.getMessage(), e.getErrorCode(), e);
+      throw new QueryExecutionException("Failed to query\n", e);
     }
   }
+
 
   @Override
   public OracleTablesList listTables(DBNConnection connection) throws DatabaseOperationException {
@@ -104,11 +106,11 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
-  public List<CredentialProvider> listCredentials(DBNConnection connection) throws DatabaseOperationException {
+  public List<CredentialProvider> listCredentials(DBNConnection connection) throws CredentialManagementException {
     try {
       return executeCall(connection, new OracleCredentialsInfo(), "list-credentials").getCredentials();
     } catch (SQLException e) {
-      throw new DatabaseOperationException("Failed to list credentials", e);
+      throw new CredentialManagementException("Failed to list credential names", e);
     }
   }
 
@@ -134,12 +136,12 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     }
   }
   @Override
-  public List<Profile> listProfilesDetailed(DBNConnection connection) throws DatabaseOperationException {
+  public List<Profile> listProfilesDetailed(DBNConnection connection) throws ProfileManagementException {
     try {
       List<Profile> profileList = executeCall(connection, new OracleProfilesDetailedInfo(), "list-profiles-detailed").getProfileList();
       return profileList;
     } catch (SQLException e) {
-      throw new DatabaseOperationException(e.getMessage(), e);
+      throw new ProfileManagementException(e.getMessage(), e);
     }
   }
 
@@ -154,9 +156,9 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
-  public List<ObjectListItem> listObjectListItems(DBNConnection connection) throws DatabaseOperationException {
+  public List<ObjectListItem> listObjectListItems(DBNConnection connection, String profileName) throws DatabaseOperationException {
     try {
-      List<ObjectListItem> objectListItemsList = executeCall(connection, new ObjectListItemInfo(), "list-tables").getObjectListItemsList();
+      List<ObjectListItem> objectListItemsList = executeCall(connection, new ObjectListItemInfo(profileName), "list-tables").getObjectListItemsList();
       return objectListItemsList;
     } catch (SQLException e) {
       throw new DatabaseOperationException(e.getMessage(), e);

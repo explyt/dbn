@@ -1,8 +1,10 @@
 package com.dbn.oracleAI;
 
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.oracleAI.config.ObjectListItem;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
@@ -22,10 +24,12 @@ import java.util.stream.Collectors;
  * Service to handle AI profiles
  */
 public class AIProfileService {
-  private final ConnectionHandler connectionHandler;
+  private final ConnectionRef connectionRef;
+  private Map<String, ObjectListItem> objectListItemMap;
 
-  AIProfileService(ConnectionHandler connectionHandler) {
-    this.connectionHandler = connectionHandler;
+
+  AIProfileService(ConnectionRef connectionRef) {
+    this.connectionRef = connectionRef;
   }
 
 
@@ -43,16 +47,16 @@ public class AIProfileService {
     return CompletableFuture.supplyAsync(()-> {
       try {
         DBNConnection dbnConnection =
-          connectionHandler.getConnection(SessionId.ORACLE_AI);
-        List<Profile> profileList = connectionHandler.getOracleAIInterface()
+            connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        List<Profile> profileList = connectionRef.get().getOracleAIInterface()
                                                      .listProfilesDetailed(
                                                        dbnConnection);
         return profileList.stream()
                           .collect(Collectors.toMap(Profile::getProfileName,
                                                     Function.identity(),
                                                     (existing, replacement) -> existing));
-      } catch (SQLException | DatabaseOperationException e) {
-        throw new RuntimeException(e.getMessage(), e);
+      } catch (ProfileManagementException | SQLException e) {
+        throw new CompletionException(e.getMessage(), e);
       }
     });
   }
@@ -66,8 +70,8 @@ public class AIProfileService {
   public CompletableFuture<Void> deleteProfile(String profileName) {
     return CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = connectionHandler.getConnection(SessionId.ORACLE_AI);
-          connectionHandler.getOracleAIInterface().dropProfile(connection, profileName);
+        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        connectionRef.get().getOracleAIInterface().dropProfile(connection, profileName);
       } catch (SQLException | ProfileManagementException e) {
         throw new CompletionException(e);
       }
@@ -75,7 +79,93 @@ public class AIProfileService {
 
   }
 
-  public CompletionStage<Void> addProfile(Profile editedProfile) {
-    return CompletableFuture.completedFuture(null);
+  /**
+   * Creates a profile on the remote server  asynchronously
+   * @param profile the profile to be created
+   * @throws ProfileManagementException
+   */
+  public CompletionStage<Void> addProfile(Profile profile) {
+    return CompletableFuture.runAsync(()-> {
+          try {
+            DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+            connectionRef.get().getOracleAIInterface().createProfile(connection, profile);
+          } catch (SQLException | ProfileManagementException e) {
+            throw new CompletionException(e);
+          }
+        }
+    );
   }
+
+  /**
+   * Updates a profile on the remote server  asynchronously
+   * @param updatedProfile the updated profile attributes
+   * @throws ProfileManagementException
+   */
+  public CompletionStage<Void> updateProfile(Profile updatedProfile) {
+    return CompletableFuture.runAsync(()-> {
+          try {
+            DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+            connectionRef.get().getOracleAIInterface().setProfileAttributes(connection, updatedProfile);
+          } catch (SQLException | ProfileManagementException e) {
+            throw new CompletionException(e);
+          }
+        }
+    );
+  }
+
+  /**
+   * Loads all schemas that are accessible for the current user asynchronously
+   */
+  public CompletableFuture<List<String>> loadSchemas(){
+    return CompletableFuture.supplyAsync(()-> {
+      try {
+        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        List<String> schemas = connectionRef.get().getOracleAIInterface().listSchemas(connection);
+
+        return schemas;
+      } catch (DatabaseOperationException | SQLException e) {
+        throw new CompletionException(e);
+      }
+    });
+  }
+
+  /**
+   * Loads object list items of a certain profile asynchronously
+   */
+  public CompletableFuture<List<ObjectListItem>> loadObjectListItems(String profileName){
+    return CompletableFuture.supplyAsync(()-> {
+      try {
+        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        List<ObjectListItem> objectListItemsList = connectionRef.get().getOracleAIInterface().listObjectListItems(connection, profileName);
+        objectListItemMap = objectListItemsList.stream().collect(Collectors.toMap((e)->e.getName()+"_"+e.getOwner(), (e)->e));
+        return objectListItemsList;
+      } catch (DatabaseOperationException | SQLException e) {
+        throw new CompletionException(e);
+      }
+    });
+  }
+
+  /**
+   * Loads all object list item accessible to the current user asynchronously
+   */
+  public ObjectListItem[] getObjectItems(){
+    ObjectListItem[] data = objectListItemMap.keySet().stream()
+        .map(item -> objectListItemMap.get(item)
+        )
+        .toArray(ObjectListItem[]::new);
+    return data;
+  }
+
+  /**
+   * Loads all object list items accessible to the user from a specific schema asynchronously
+   */
+  public ObjectListItem[] getObjectItemsBySchema(String schema){
+    ObjectListItem[] data = objectListItemMap.keySet().stream()
+        .filter(item -> objectListItemMap.get(item).getOwner().equals(schema))
+        .map(item -> objectListItemMap.get(item)
+        )
+        .toArray(ObjectListItem[]::new);
+    return data;
+  }
+
 }

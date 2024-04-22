@@ -76,25 +76,19 @@ public class CredentialManagementPanel extends JPanel {
 
     // Initializes addButton with its action listener for creating new credential
     addButton.addActionListener((e) -> {
-      CredentialCreationWindow credCreationWindow = new CredentialCreationWindow(connection, credentialSvc);
-
-      //TODO the following will refresh the credentials list whenever we close the creation window, we need to find a way to only run this when we actually manager to create a new credential
-      credCreationWindow.addWindowListener(new WindowAdapter() {
-        @Override
-        public void windowClosed(WindowEvent e) {
-          super.windowClosed(e);
-          updateCredentialProviders();
-        }
-      });
-      credCreationWindow.display();
-
+      CredentialCreationCallback callback = this::updateCredentialProviders;
+      CredentialCreationWindow.showDialog(connection, credentialSvc, null, callback);
     });
 
+    editButton.addActionListener((e) -> {
+      CredentialCreationCallback callback = this::updateCredentialProviders;
+      CredentialCreationWindow.showDialog(connection, credentialSvc, credentialList.getSelectedValue(), callback);
+    });
     // Initializes deleteButton with its action listener for deleting selected credentials
     deleteButton.addActionListener(e -> {
       Messages.showQuestionDialog(connection.get().getProject(),
           messages.getString("ai.settings.credential.deletion.title"),
-          messages.getString("ai.settings.credential.deletion.message.prefix") + credentialList.getSelectedValue(),
+          messages.getString("ai.settings.credential.deletion.message.prefix") + credentialList.getSelectedValue().getCredentialName(),
           Messages.options(
               messages.getString("ai.messages.yes"),
               messages.getString("ai.messages.no")), 1,

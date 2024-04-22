@@ -1,6 +1,7 @@
 package com.dbn.database.common.oracleAI;
 
 import com.dbn.database.common.statement.CallableStatementOutput;
+import com.dbn.oracleAI.config.ObjectListItem;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ProviderType;
 import lombok.Getter;
@@ -14,22 +15,25 @@ import java.util.*;
 @Getter
 public class OracleProfilesDetailedInfo implements CallableStatementOutput{
 
-  private List<Profile> profileList;
+    private List<Profile> profileList;
 
-  @Override
-  public void registerParameters(CallableStatement statement) throws SQLException {
-  }
-
-  @Override
-  public void read(CallableStatement statement) throws SQLException {
-    try{
-      ResultSet rs = statement.executeQuery();
-      profileList = buildProfilesFromResultSet(rs);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    @Override
+    public void registerParameters(CallableStatement statement) throws SQLException {
     }
-  }
 
+    @Override
+    public void read(CallableStatement statement) throws SQLException {
+      try{
+        ResultSet rs = statement.executeQuery();
+        profileList = buildProfilesFromResultSet(rs);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+  /**
+   * Since the result set has each attribute in a separate row, it was read accordingly
+   */
   public static List<Profile> buildProfilesFromResultSet(ResultSet rs) throws SQLException, IOException {
     Map<String, Profile> profileBuildersMap = new HashMap<>();
 
@@ -38,13 +42,12 @@ public class OracleProfilesDetailedInfo implements CallableStatementOutput{
       String attributeName = rs.getString("ATTRIBUTE_NAME");
       java.sql.Clob clobData = rs.getClob("ATTRIBUTE_VALUE");
 
-      Object attributeObject = Profile.clobToObject(attributeName, clobData);
-
       Profile profile = profileBuildersMap.computeIfAbsent(profileName, k -> Profile.builder().profileName(profileName).build());
+      Object attributeObject = profile.clobToObject(attributeName, clobData);
 
       if ("object_list".equals(attributeName) && attributeObject instanceof List) {
         @SuppressWarnings("unchecked")
-        List<Profile.ObjectListItem> objectList = (List<Profile.ObjectListItem>) attributeObject;
+        List<ObjectListItem> objectList = (List<ObjectListItem>) attributeObject;
         profile.setObjectList(objectList);
       } else if (attributeObject instanceof String) {
         String attributeValue = (String) attributeObject;
@@ -54,8 +57,7 @@ public class OracleProfilesDetailedInfo implements CallableStatementOutput{
       }
     }
 
-    List<Profile> profiles = new ArrayList<>();
-    profiles.addAll(profileBuildersMap.values());
+    List<Profile> profiles = new ArrayList<>(profileBuildersMap.values());
 
     return profiles;
 
