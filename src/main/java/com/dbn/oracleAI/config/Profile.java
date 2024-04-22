@@ -29,28 +29,31 @@ import java.util.List;
 @Builder
 public class Profile implements AttributeInput {
 
-  private static final Gson gson = new GsonBuilder()
-      .excludeFieldsWithoutExposeAnnotation()
-      .create();
+
+  private final String NAME = "name";
+  private final String OWNER = "owner";
 
   private String profileName;
 
   private String description;
 
-  @Expose private ProviderType provider;
+  @Expose
+  private ProviderType provider;
   @SerializedName("credential_name")
-  @Expose private String credentialName;
+  @Expose
+  private String credentialName;
   @Builder.Default
   @SerializedName("object_list")
-  @Expose private List<ObjectListItem> objectList = Collections.emptyList();
+  @Expose
+  private List<ObjectListItem> objectList = Collections.emptyList();
   private Integer maxTokens;
   @Builder.Default
   private List<String> stopTokens = Collections.emptyList();
   private String model;
   @Builder.Default
-  @Expose private Double temperature = 0.0;
+  @Expose
+  private Double temperature = 0.0;
   private Boolean comments;
-
 
 
   @Override
@@ -60,6 +63,10 @@ public class Profile implements AttributeInput {
 
   @Override
   public String toAttributeMap() throws IllegalArgumentException {
+    Gson gson = new GsonBuilder()
+        .excludeFieldsWithoutExposeAnnotation()
+        .create();
+
     String attributesJson = gson.toJson(this).replace("'", "''");
 
     return String.format(
@@ -77,7 +84,8 @@ public class Profile implements AttributeInput {
 
       try (Reader reader = clob.getCharacterStream();
            BufferedReader br = new BufferedReader(reader)) {
-        Type listType = new TypeToken<List<ObjectListItem>>(){}.getType();
+        Type listType = new TypeToken<List<ObjectListItem>>() {
+        }.getType();
         return gson.fromJson(br, listType);
       }
     } else {
@@ -86,19 +94,20 @@ public class Profile implements AttributeInput {
            BufferedReader br = new BufferedReader(reader)) {
         int b;
         while (-1 != (b = br.read())) {
-          sb.append((char)b);
+          sb.append((char) b);
         }
       }
       return sb.toString();
     }
   }
+
   public class ObjectListItemDeserializer implements JsonDeserializer<ObjectListItem> {
     @Override
     public ObjectListItem deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
       JsonObject jsonObject = json.getAsJsonObject();
-      String owner = jsonObject.get("owner").getAsString();
-      String name = jsonObject.get("name").getAsString();
-      return ObjectListItemManager.getObjectListItem(owner, name,profileName);
+      String owner = jsonObject.get(OWNER).getAsString();
+      String name = jsonObject.get(NAME).getAsString();
+      return ObjectListItemManager.getObjectListItem(owner, name, profileName);
     }
   }
 

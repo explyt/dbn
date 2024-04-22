@@ -12,11 +12,11 @@ public class ObjectListItemManager {
 
   public static synchronized ObjectListItem getObjectListItem(String owner, String name, String profileName) {
     for (ObjectListItem item : items) {
-      if (item.getOwner().toUpperCase().equals(owner.toUpperCase()) && item.getName().toUpperCase().equals(name.toUpperCase()) && item.getProfileName().toUpperCase().equals(profileName.toUpperCase())) {
+      if (item.getOwner().toUpperCase().equals(owner.toUpperCase()) && item.getName().toUpperCase().equals(name.toUpperCase())) {
         return item;
       }
     }
-    ObjectListItem newItem = new ObjectListItem(owner, name, profileName);
+    ObjectListItem newItem = new ObjectListItem(owner, name);
     items.add(newItem);
     return newItem;
   }

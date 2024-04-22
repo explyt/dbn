@@ -3,9 +3,9 @@ package com.dbn.oracleAI.config.ui;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AICredentialService;
-import com.dbn.oracleAI.config.CredentialProvider;
-import com.dbn.oracleAI.config.OciCredentialProvider;
-import com.dbn.oracleAI.config.PasswordCredentialProvider;
+import com.dbn.oracleAI.config.Credential;
+import com.dbn.oracleAI.config.OciCredential;
+import com.dbn.oracleAI.config.PasswordCredential;
 import com.dbn.oracleAI.types.CredentialType;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
@@ -49,7 +49,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JTextField fingerprintField;
   private JLabel errorLabel;
   private ConnectionRef connection;
-  private CredentialProvider credentialProvider;
+  private Credential credential;
   private CredentialCreationCallback creationCallback;
 
   /**
@@ -58,11 +58,11 @@ public class CredentialCreationWindow extends DialogWrapper {
    * @param connection    The connection handler associated with the current project.
    * @param credentialSvc The service used to create credentials.
    */
-  public CredentialCreationWindow(ConnectionRef connection, AICredentialService credentialSvc, @Nullable CredentialProvider credentialProvider, CredentialCreationCallback creationCallback) {
+  public CredentialCreationWindow(ConnectionRef connection, AICredentialService credentialSvc, @Nullable Credential credential, CredentialCreationCallback creationCallback) {
     super(true);
     this.credentialSvc = credentialSvc;
     this.connection = connection;
-    this.credentialProvider = credentialProvider;
+    this.credential = credential;
     this.creationCallback = creationCallback;
     init();
     setTitle(messages.getString("ai.settings.credentials.creation.title"));
@@ -74,7 +74,7 @@ public class CredentialCreationWindow extends DialogWrapper {
    * Initializes the user interface components and event listeners for the dialog.
    */
   private void initializeUI() {
-    if (credentialProvider != null) {
+    if (credential != null) {
       hydrateFields();
     } else {
       typeComboBox.addItem(CredentialType.PASSWORD);
@@ -90,14 +90,14 @@ public class CredentialCreationWindow extends DialogWrapper {
    * Populate fields with the attributes of the credential to be updated
    */
   private void hydrateFields() {
-    credentialNameField.setText(credentialProvider.getCredentialName());
+    credentialNameField.setText(credential.getCredentialName());
     credentialNameField.setEnabled(false);
-    if(credentialProvider instanceof PasswordCredentialProvider){
+    if(credential instanceof PasswordCredential){
       typeComboBox.addItem(CredentialType.PASSWORD);
-      usernameField.setText(credentialProvider.getUsername());
-    } else if (credentialProvider instanceof OciCredentialProvider){
+      usernameField.setText(credential.getUsername());
+    } else if (credential instanceof OciCredential){
       typeComboBox.addItem(CredentialType.OCI);
-      OciCredentialProvider ociCredentialProvider = (OciCredentialProvider) credentialProvider;
+      OciCredential ociCredentialProvider = (OciCredential) credential;
       userOcidField.setText(ociCredentialProvider.getUsername());
       userTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
       privateKeyField.setText(ociCredentialProvider.getPrivateKey());
@@ -117,7 +117,7 @@ public class CredentialCreationWindow extends DialogWrapper {
 
     // Defines the action to either create or update credential
     Action commitAction;
-    if(credentialProvider==null){
+    if(credential ==null){
       commitAction = new AbstractAction("Create") {
       @Override
       public void actionPerformed(ActionEvent e) {
@@ -151,15 +151,15 @@ public class CredentialCreationWindow extends DialogWrapper {
    */
   private void doCreateAction() {
     CredentialType credentialType = (CredentialType) typeComboBox.getSelectedItem();
-    CredentialProvider credentialProvider = null;
+    Credential credential = null;
     switch (credentialType) {
       case PASSWORD:
-        credentialProvider = new PasswordCredentialProvider(credentialNameField.getText(), usernameField.getText(), passwordField.getText());
+        credential = new PasswordCredential(credentialNameField.getText(), usernameField.getText(), passwordField.getText());
         break;
       case OCI:
-        credentialProvider = new OciCredentialProvider(credentialNameField.getText(), "ocidField", "tenancyOcid", "privateKey", "fingerprint");
+        credential = new OciCredential(credentialNameField.getText(), "ocidField", "tenancyOcid", "privateKey", "fingerprint");
     }
-    credentialSvc.createCredential(credentialProvider).thenAccept((e) -> {
+    credentialSvc.createCredential(credential).thenAccept((e) -> {
       SwingUtilities.invokeLater(() -> {
         if (creationCallback != null) {
           creationCallback.onCredentialCreated();
@@ -180,15 +180,15 @@ public class CredentialCreationWindow extends DialogWrapper {
    */
   private void doUpdateAction() {
     CredentialType credentialType = CredentialType.PASSWORD;
-    CredentialProvider editedCredentialProvider = null;
+    Credential editedCredential = null;
     switch (credentialType) {
       case PASSWORD:
-        editedCredentialProvider = new PasswordCredentialProvider(credentialNameField.getText(), usernameField.getText(), passwordField.getText());
+        editedCredential = new PasswordCredential(credentialNameField.getText(), usernameField.getText(), passwordField.getText());
         break;
       case OCI:
-        editedCredentialProvider = new OciCredentialProvider(credentialNameField.getText(), "ocidField", "tenancyOcid", "privateKey", "fingerprint");
+        editedCredential = new OciCredential(credentialNameField.getText(), "ocidField", "tenancyOcid", "privateKey", "fingerprint");
     }
-    credentialSvc.updateCredential(editedCredentialProvider).thenAccept((e) -> {
+    credentialSvc.updateCredential(editedCredential).thenAccept((e) -> {
       SwingUtilities.invokeLater(() -> {
         if (creationCallback != null) {
           creationCallback.onCredentialCreated();
@@ -222,11 +222,11 @@ public class CredentialCreationWindow extends DialogWrapper {
    * Handles the creation of the new instance and the opening of the dialog window
    * @param connection
    * @param credentialSvc
-   * @param credentialProvider
+   * @param credential
    * @param creationCallback to refresh the credentials list once we created a new one
    */
-  public static void showDialog(ConnectionRef connection, AICredentialService credentialSvc, CredentialProvider credentialProvider, CredentialCreationCallback creationCallback) {
-    CredentialCreationWindow dialog = new CredentialCreationWindow(connection, credentialSvc, credentialProvider, creationCallback);
+  public static void showDialog(ConnectionRef connection, AICredentialService credentialSvc, Credential credential, CredentialCreationCallback creationCallback) {
+    CredentialCreationWindow dialog = new CredentialCreationWindow(connection, credentialSvc, credential, creationCallback);
     dialog.showAndGet();
   }
 

@@ -10,14 +10,13 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ObjectListItem {
-  @Expose public String owner;
-  @Expose public String name;
-  private boolean selected;
-  private String profileName;
+  @Expose
+  public String owner;
+  @Expose
+  public String name;
 
-  public ObjectListItem(String owner, String name, String profileName) {
-    this.owner = owner.toUpperCase();
-    this.name = name.toUpperCase();
-    this.profileName = profileName.toUpperCase();
+  public ObjectListItem(String owner, String name) {
+    this.owner = owner;
+    this.name = name;
   }
 }

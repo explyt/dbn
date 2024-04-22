@@ -2,20 +2,26 @@ package com.dbn.database.oracle;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
-import com.dbn.database.common.oracleAI.*;
+import com.dbn.database.common.oracleAI.ObjectListItemInfo;
+import com.dbn.database.common.oracleAI.OracleCredentialsDetailedInfo;
+import com.dbn.database.common.oracleAI.OracleProfilesDetailedInfo;
+import com.dbn.database.common.oracleAI.OracleQueryOutput;
+import com.dbn.database.common.oracleAI.OracleTablesList;
+import com.dbn.database.common.oracleAI.OracleViewsList;
+import com.dbn.database.common.oracleAI.SchemasInfo;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseOracleAIInterface;
+import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.ObjectListItem;
+import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
-import com.dbn.oracleAI.config.CredentialProvider;
-import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ActionAIType;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
 
 public class OracleAIInterface extends DatabaseInterfaceBase implements DatabaseOracleAIInterface {
 
@@ -24,7 +30,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
-  public void createCredential(DBNConnection connection, CredentialProvider credentialAttributes) throws CredentialManagementException {
+  public void createCredential(DBNConnection connection, Credential credentialAttributes) throws CredentialManagementException {
     try {
       executeCall(connection, null, "create-credential", credentialAttributes.getCredentialName(), credentialAttributes.toAttributeMap());
     } catch (SQLException e) {
@@ -42,12 +48,19 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
-  public void setCredentialAttribute(DBNConnection connection, String credentialName, String attributeName, String attributeValue) throws CredentialManagementException {
-    try {
-      executeCall(connection, null, "update-credential", credentialName, attributeName, attributeValue);
-    } catch (SQLException e) {
-      throw new CredentialManagementException("Failed to set credential attribute: " + credentialName, e);
+  public void setCredentialAttribute(DBNConnection connection, Credential credential) throws CredentialManagementException {
+
+    List<String> updatedList = credential.toUpdatingAttributeList();
+
+    //TODO make these requests run simultaneously
+    for (String updatedAttr : updatedList) {
+      try {
+        executeCall(connection, null, "update-credential", updatedAttr);
+      } catch (SQLException e) {
+        throw new CredentialManagementException("Failed to set credential attribute: " + credential.getCredentialName(), e);
+      }
     }
+
   }
 
   @Override
@@ -69,11 +82,11 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
-  public void setProfileAttributes(DBNConnection connection, Profile profileAttribute) throws ProfileManagementException {
+  public void setProfileAttributes(DBNConnection connection, Profile profile) throws ProfileManagementException {
     try {
-      executeCall(connection, null, "update-profile", profileAttribute.toAttributeMap());
+      executeCall(connection, null, "update-profile", profile.toAttributeMap());
     } catch (SQLException e) {
-      throw new ProfileManagementException("Failed to set profile attribute: " + profileAttribute.getProfileName(), e);
+      throw new ProfileManagementException("Failed to set profile attribute: " + profile.getProfileName(), e);
     }
   }
 
@@ -105,38 +118,20 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     }
   }
 
-  @Override
-  public List<CredentialProvider> listCredentials(DBNConnection connection) throws CredentialManagementException {
-    try {
-      return executeCall(connection, new OracleCredentialsInfo(), "list-credentials").getCredentials();
-    } catch (SQLException e) {
-      throw new CredentialManagementException("Failed to list credential names", e);
-    }
-  }
 
   @Override
-  public List<Profile> listProfiles(DBNConnection connection) throws DatabaseOperationException {
+  public List<Credential> listCredentials(DBNConnection connection) throws CredentialManagementException {
     try {
-      return executeCall(connection, new OracleProfilesInfo(), "list-profiles").getProfiles();
-    } catch (SQLException e) {
-      throw new DatabaseOperationException("Failed to list profiles", e);
-    }
-  }
-
-  @Override
-  public List<CredentialProvider> listCredentialsDetailed(DBNConnection connection) throws CredentialManagementException {
-    try{
-      List<Profile> profileList = listProfilesDetailed(connection);
-      List<CredentialProvider> credentialProviders = executeCall(connection, new OracleCredentialsDetailedInfo(profileList), "list-credentials-detailed", profileList).getCredentialsProviders();
-      return credentialProviders;
+//      List<Profile> profileList = listProfilesDetailed(connection);
+      List<Credential> credentials = executeCall(connection, new OracleCredentialsDetailedInfo(), "list-credentials-detailed").getCredentialsProviders();
+      return credentials;
     } catch (SQLException e) {
       throw new CredentialManagementException("Failed to list credentials", e);
-    } catch (DatabaseOperationException e) {
-      throw new RuntimeException(e);
     }
   }
+
   @Override
-  public List<Profile> listProfilesDetailed(DBNConnection connection) throws ProfileManagementException {
+  public List<Profile> listProfiles(DBNConnection connection) throws ProfileManagementException {
     try {
       List<Profile> profileList = executeCall(connection, new OracleProfilesDetailedInfo(), "list-profiles-detailed").getProfileList();
       return profileList;

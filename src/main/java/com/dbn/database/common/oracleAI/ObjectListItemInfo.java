@@ -15,6 +15,9 @@ import java.util.List;
 public class ObjectListItemInfo implements CallableStatementOutput {
   private List<ObjectListItem> objectListItemsList;
   private String profileName;
+
+  private final String OWNER = "OWNER";
+  private final String TABLE_NAME = "TABLE_NAME";
   public ObjectListItemInfo(String profileName){
     this.profileName = profileName;
   }
@@ -28,8 +31,8 @@ public class ObjectListItemInfo implements CallableStatementOutput {
 
     ResultSet rs = statement.executeQuery();
     while (rs.next()) {
-      String owner = rs.getString("OWNER");
-      String table = rs.getString("TABLE_NAME");
+      String owner = rs.getString(OWNER);
+      String table = rs.getString(TABLE_NAME);
       objectListItemsList.add(ObjectListItemManager.getObjectListItem(owner, table, profileName));
     }
   }

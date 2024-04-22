@@ -157,9 +157,8 @@
         <statement>
             BEGIN
             DBMS_CLOUD.UPDATE_CREDENTIAL(
-            credential_name => '{0}',
-            attribute => '{1}}',
-            value => '{2}}');
+                {0}
+            );
             END;
         </statement>
     </statement-execution-processor>

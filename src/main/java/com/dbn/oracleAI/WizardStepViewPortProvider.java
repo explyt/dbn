@@ -39,4 +39,8 @@ public interface WizardStepViewPortProvider {
   void addEventListener(WizardStepEventListener listener);
 
   void setAttributesOn(Profile p);
+
+  void notifyLoading(String message);
+  void stopLoading();
+  String getLoadingMessage();
 }

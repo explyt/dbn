@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.ObjectListItem;
@@ -22,7 +23,6 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,51 +40,25 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   private JLabel selectedTablesLabel;
   private JComboBox schemaComboBox;
   private final AIProfileService profileSvc;
+  private final Project project;
   ObjectListSelectedTableModel selectedTableModel = new ObjectListSelectedTableModel();
   ObjectListSelectingTableModel selectingTableModel = new ObjectListSelectingTableModel();
   private String pattern = "";
 
 
-  public ProfileEditionObjectListStep(Project project) {
-    super();
-    this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
-    patternFilter.addActionListener(e-> {
-
-    });
-    patternFilter.getDocument().addDocumentListener(new DocumentListener() {
-      public void changedUpdate(DocumentEvent e) {
-        filter();
-      }
-      public void removeUpdate(DocumentEvent e) {
-        filter();
-      }
-      public void insertUpdate(DocumentEvent e) {
-        filter();
-      }
-
-      public void filter() {
-        pattern = patternFilter.getText();
-        populateSelectingTable(schemaComboBox.getSelectedItem().toString());
-      }
-    });
-    useAllCheckBox.addItemListener(
-        e -> {
-          if(useAllCheckBox.isSelected()) selectingTableModel.selectAllFiltered();
-        }
-    );
-    initializeTable(null);
-  }
-
   public ProfileEditionObjectListStep(Project project, Profile profile) {
     super();
     this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
+    this.project = project;
     patternFilter.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {
         filter();
       }
+
       public void removeUpdate(DocumentEvent e) {
         filter();
       }
+
       public void insertUpdate(DocumentEvent e) {
         filter();
       }
@@ -97,10 +71,9 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
     useAllCheckBox.addItemListener(
         e -> {
-          if(useAllCheckBox.isSelected()) selectingTableModel.selectAllFiltered();
+          if (useAllCheckBox.isSelected()) selectingTableModel.selectAllFiltered();
         }
     );
-
     initializeTable(profile);
   }
 
@@ -135,11 +108,14 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
           schemaComboBox.addItem(schema);
         }
       });
+    }).exceptionally(e -> {
+      Messages.showErrorDialog(project, e.getCause().getMessage());
+      return null;
     });
   }
 
   private void loadTables(@Nullable Profile profile) {
-    profileSvc.loadObjectListItems(profile!=null?profile.getProfileName():"").thenAccept(objectListItems -> {
+    profileSvc.loadObjectListItems(profile != null ? profile.getProfileName() : "").thenAccept(objectListItems -> {
       ApplicationManager.getApplication().invokeLater(() -> {
         populateSelectingTable(schemaComboBox.getSelectedItem().toString());
         populateSelectedTable(profile);
@@ -148,36 +124,35 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         });
       });
 
+    }).exceptionally(e -> {
+      Messages.showErrorDialog(project, e.getCause().getMessage());
+      return null;
     });
   }
 
   private void populateSelectedTable(Profile profile) {
     if (profile != null) {
-
-
-        selectedTableModel.updateItems(profile.getObjectList());
-
+      selectedTableModel.updateItems(profile.getObjectList());
     }
   }
 
   private void populateSelectingTable(String schema) {
-    if(schema.equals("All Schemas")) selectingTableModel.updateItems(profileSvc.getObjectItems());
-    else selectingTableModel.updateItems(profileSvc.getObjectItemsBySchema(schema));
+    if (schema.equals("All Schemas")) selectingTableModel.updateItems(profileSvc.getObjectItems());
+    else selectingTableModel.updateItems(profileSvc.getObjectItemsForSchema(schema));
     selectingTable.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(new JCheckBox()) {
       @Override
       public boolean stopCellEditing() {
         int row = selectingTable.getEditingRow();
         boolean isSelected = (Boolean) getCellEditorValue();
-
         ObjectListItem item = selectingTableModel.getItemAt(row);
+
         if (isSelected) {
-          item.setSelected(true);
-          selectedTableModel.addItem(item);
+          if (!selectedTableModel.contains(item)) {
+            selectedTableModel.addItem(item);
+          }
         } else {
-          item.setSelected(false);
           selectedTableModel.removeItem(item);
         }
-
         return super.stopCellEditing();
       }
     });
@@ -189,6 +164,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
       super.setSelectionInterval(-1, -1);
     }
   }
+
   @Override
   public JPanel getPanel() {
     return profileEditionObjectListMainPane;
@@ -252,15 +228,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     public void addItem(ObjectListItem item) {
       data.add(item);
       fireTableRowsInserted(data.size() - 1, data.size() - 1);
-    }
-
-    public void updateItems(List<ObjectListItem> items) {
-      data.clear();
-      for (ObjectListItem item : items) {
-        item.setSelected(true);
-        data.add(item);
-      }
-      fireTableRowsInserted(0, data.size() - 1);
+      selectingTableModel.fireTableDataChanged();
     }
 
     public void removeItem(ObjectListItem item) {
@@ -268,7 +236,26 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
       if (index >= 0) {
         data.remove(index);
         fireTableRowsDeleted(index, index);
+        selectingTableModel.fireTableDataChanged(); // Refresh other table
       }
+    }
+
+    public void updateItems(List<ObjectListItem> items) {
+      data.clear();
+      for (ObjectListItem item : items) {
+        data.add(item);
+      }
+      fireTableRowsInserted(0, data.size() - 1);
+    }
+
+    // Method to get data
+    public List<ObjectListItem> getData() {
+      return data;
+    }
+
+    // Method to check if the model contains a specific item
+    public boolean contains(ObjectListItem item) {
+      return data.contains(item);
     }
 
     public ObjectListItem getItemAt(int rowIndex) {
@@ -308,7 +295,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         case 0:
           return item.getName();
         case 1:
-          return item.isSelected();
+          return selectedTableModel.getData().contains(item);
         default:
           return null;
       }
@@ -328,25 +315,25 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     }
 
     // Methods to manipulate the data
-    public void updateItems(ObjectListItem[] items) {
+    public void updateItems(List<ObjectListItem> items) {
       filteredData = filterItems(items, pattern);
       fireTableRowsInserted(filteredData.size() - 1, filteredData.size() - 1);
     }
 
-    public void selectAllFiltered(){
+    public void selectAllFiltered() {
       for (int i = 0; i < filteredData.size(); i++) {
         ObjectListItem item = filteredData.get(i);
-        item.setSelected(true);
         selectedTableModel.addItem(item);
       }
       fireTableRowsUpdated(0, filteredData.size() - 1);
 
     }
 
-    private List<ObjectListItem> filterItems(ObjectListItem[] items, String pattern){
-      List<ObjectListItem> filteredItems = Arrays.stream(items).filter(item -> item.getName().toLowerCase().contains(pattern.toLowerCase())).collect(Collectors.toList());
+    private List<ObjectListItem> filterItems(List<ObjectListItem> items, String pattern) {
+      List<ObjectListItem> filteredItems = items.stream().filter(item -> item.getName().toLowerCase().contains(pattern.toLowerCase())).collect(Collectors.toList());
       return filteredItems;
     }
+
     public void removeItem(ObjectListItem item) {
       int index = filteredData.indexOf(item);
       if (index >= 0) {

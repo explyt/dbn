@@ -5,11 +5,9 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AICredentialService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
-import com.dbn.oracleAI.config.CredentialProvider;
-import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.Credential;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.util.ui.JBUI;
-
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -21,11 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.stream.Collectors;
 
 /**
  * A panel for managing AI credentials within the application, offering functionalities
@@ -41,7 +36,7 @@ public class CredentialManagementPanel extends JPanel {
   static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   private JPanel mainPane;
-  private JList<CredentialProvider> credentialList;
+  private JList<Credential> credentialList;
   private JPanel displayInfo;
   private JLabel profilesLabel;
   private JButton deleteButton;
@@ -62,7 +57,7 @@ public class CredentialManagementPanel extends JPanel {
     this.connection = connection.ref();
     initializeUI();
     updateCredentialProviders();
-    this.setLayout(new BoxLayout(this,BoxLayout.Y_AXIS));
+    this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
     this.add(mainPane);
   }
@@ -102,17 +97,16 @@ public class CredentialManagementPanel extends JPanel {
     // Configures credentialList with a list selection listener for updating display info based on selected credential
     credentialList.addListSelectionListener((e) -> {
       if (!e.getValueIsAdjusting() && credentialList.getSelectedValue() != null) {
-        CredentialProvider selectedCredentialProvider = credentialList.getSelectedValue();
+        Credential selectedCredential = credentialList.getSelectedValue();
         displayInfo.removeAll();
-        panelTemplate(selectedCredentialProvider.getCredentialName(), selectedCredentialProvider.getUsername());
-        profilesLabel.setText(selectedCredentialProvider.getProfiles().stream().map(Profile::getProfileName).collect(Collectors.joining(", ")));
-
+        panelTemplate(selectedCredential.getCredentialName(), selectedCredential.getUsername());
+        profilesLabel.setText(credentialSvc.getProfilesByCredential(selectedCredential.getCredentialName()));
       }
     });
     credentialList.setCellRenderer(new DefaultListCellRenderer() {
       @Override
       public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
-        CredentialProvider credential = (CredentialProvider) value;
+        Credential credential = (Credential) value;
         value = credential.getCredentialName();
         Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
@@ -144,7 +138,7 @@ public class CredentialManagementPanel extends JPanel {
    * and the display information panel based on the available credentials for the connected project.
    */
   private void updateCredentialProviders() {
-    credentialSvc.listCredentials()
+    credentialSvc.listCredentialsWithProfiles()
         .thenAccept(credentialProviderList -> {
           credentialList.setListData(credentialProviderList);
           credentialList.setSelectedIndex(0);

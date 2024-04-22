@@ -1,14 +1,16 @@
 package com.dbn.database.common.oracleAI;
 
 import com.dbn.database.common.statement.CallableStatementOutput;
-import com.dbn.oracleAI.config.CredentialProvider;
-import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.Credential;
 import lombok.Getter;
 
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents detailed information about Oracle AI credentials, including associated profiles.
@@ -18,17 +20,13 @@ import java.util.*;
 @Getter
 public class OracleCredentialsDetailedInfo implements CallableStatementOutput {
 
-  private List<Profile> profileList;
-  private List<CredentialProvider> credentialsProviders;
+  private List<Credential> credentialsProviders;
 
-  /**
-   * Constructs an instance of OracleCredentialsDetailedInfo with a pre-defined list of profiles.
-   *
-   * @param profileList The list of profiles associated with the credentials.
-   */
-  public OracleCredentialsDetailedInfo(List<Profile> profileList) {
-    this.profileList = profileList;
-  }
+  private final String CREDENTIAL_NAME = "CREDENTIAL_NAME";
+  private final String USERNAME = "USERNAME";
+  private final String COMMENTS = "COMMENTS";
+  private final String ENABLED = "ENABLED";
+
 
   /**
    * Registers parameters with the provided CallableStatement.
@@ -67,20 +65,16 @@ public class OracleCredentialsDetailedInfo implements CallableStatementOutput {
    * @return A list of CredentialProvider objects constructed from the ResultSet data.
    * @throws SQLException If an error occurs while accessing the ResultSet.
    */
-  private List<CredentialProvider> buildCredentialProviders(ResultSet rs) throws SQLException {
-    Map<String, CredentialProvider> credentialProviderBuildersMap = new HashMap<>();
+  private List<Credential> buildCredentialProviders(ResultSet rs) throws SQLException {
+    Map<String, Credential> credentialProviderBuildersMap = new HashMap<>();
 
     // Iterate over ResultSet to populate credentialProviderBuildersMap
     while (rs.next()) {
-      String credentialName = rs.getString("CREDENTIAL_NAME");
-      String username = rs.getString("USERNAME");
-      credentialProviderBuildersMap.computeIfAbsent(credentialName, k -> new CredentialProvider(credentialName, username));
-    }
-
-    // Associate profiles with corresponding CredentialProvider objects
-    for (Profile profile : this.profileList) {
-      CredentialProvider credentialProvider = credentialProviderBuildersMap.get(profile.getCredentialName());
-      if(credentialProvider != null) credentialProvider.getProfiles().add(profile);
+      String credentialName = rs.getString(CREDENTIAL_NAME);
+      String username = rs.getString(USERNAME);
+      String comments = rs.getString(COMMENTS);
+      boolean enabled = rs.getBoolean(ENABLED);
+      credentialProviderBuildersMap.computeIfAbsent(credentialName, k -> new Credential(credentialName, username, enabled, comments));
     }
 
     // Convert map values to a list and return
