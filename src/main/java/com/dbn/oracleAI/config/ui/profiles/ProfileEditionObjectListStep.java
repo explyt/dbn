@@ -99,10 +99,8 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   }
 
   private void loadSchemas() {
-    notifyLoading("Loading tables/views");
     profileSvc.loadSchemas().thenAccept(schemaList -> {
       ApplicationManager.getApplication().invokeLater(() -> {
-        stopLoading();
         schemaComboBox.addItem("All Schemas");
         for (String schema : schemaList) {
           schemaComboBox.addItem(schema);

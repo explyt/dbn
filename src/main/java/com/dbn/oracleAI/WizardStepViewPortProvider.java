@@ -15,18 +15,21 @@ public interface WizardStepViewPortProvider {
    * Gets the panel to be displayed.
    * Method to be called by wizard when the implementor
    * step should appear on screen
+   *
    * @return the panel
    */
   JPanel getPanel();
 
   /**
    * Checks that data model of this provider are correct
+   *
    * @return true if vliad , false otherwise
    */
   boolean isInputsValid();
 
   /**
    * Checks that data model of this provider have changed
+   *
    * @return true if some input data has changed , false otherwise
    */
   boolean isInputsChanged();
@@ -39,8 +42,4 @@ public interface WizardStepViewPortProvider {
   void addEventListener(WizardStepEventListener listener);
 
   void setAttributesOn(Profile p);
-
-  void notifyLoading(String message);
-  void stopLoading();
-  String getLoadingMessage();
 }
