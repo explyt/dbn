@@ -7,9 +7,6 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.config.AICredentialSettings;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.oracleAI.config.CredentialProvider;
-//import com.dbn.oracleAI.config.PasswordCredentialProvider;
-import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.ui.ComboBox;
 import org.jetbrains.annotations.NotNull;
@@ -17,8 +14,6 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
-
-import static com.dbn.common.util.Messages.showInfoDialog;
 
 public class AICredentialSettingsForm extends ConfigurationEditorForm<AICredentialSettings> {
   private JPanel mainPanel;
