@@ -1,11 +1,13 @@
 package com.dbn.oracleAI.config.exceptions;
 
+import java.sql.SQLException;
+
 public class ProfileManagementException extends DatabaseOperationException {
   public ProfileManagementException(String message) {
     super(message);
   }
 
-  public ProfileManagementException(String message, Throwable cause) {
+  public ProfileManagementException(String message, SQLException cause) {
     super(message, cause);
   }
 }

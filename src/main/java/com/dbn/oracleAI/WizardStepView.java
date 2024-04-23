@@ -7,7 +7,7 @@ import java.util.List;
 /**
  * View on a wizard.
  * Wizard is composed of steps. To walk through
- * these steps, i.e go back and forth a view is instanciated
+ * these steps, i.e. go back and forth a view is instantiated
  * upon wizard model. A model contain more step that a view expose
  * @param <E> type of list of step that view will wrap.
  */
@@ -91,7 +91,7 @@ public class WizardStepView<E> {
    * @return a percentage as an int between 0 and 100.
    */
   public int progress() {
-    return (int) Math.abs((((float)this.currentStepIdx) / ((float)this.backend.size())) * 100.0);
+    return (int) Math.abs((((float)this.currentStepIdx+1) / ((float)this.backend.size())) * 100.0);
   }
 
   @Override public String toString() {

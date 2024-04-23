@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.config.ui;
 
+import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.ProfileEditionWizard;
@@ -10,17 +11,22 @@ import com.dbn.oracleAI.WizardStepView;
 import com.dbn.oracleAI.WizardStepViewPortProvider;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ProviderType;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
+import org.eclipse.sisu.Nullable;
 
 import javax.swing.AbstractAction;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.SwingWorker;
 import java.awt.CardLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.util.HashSet;
 import java.util.Locale;
@@ -48,6 +54,8 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
   private CommitAction COMMIT;
 
   private AIProfileService profileSvc;
+  private Profile currProfile;
+  private Project currProject;
 
   /**
    * Creates a new AI profile edition dialog
@@ -64,19 +72,19 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
    * @param currProject current project we belong to
    * @param profile the profile to be edited through the wizard
    */
-  public ProfileEditionDialog(Project currProject, Profile profile) {
+  public ProfileEditionDialog(Project currProject,@Nullable Profile profile) {
     super(WindowManager.getInstance().getFrame(currProject), "CHANGE TITLE", false);
     profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
+    this.currProfile = profile;
+    this.currProject = currProject;
     setModal(true);
     setContentPane(mainPane);
     setTitle(messages.getString("profiles.settings.window.title"));
     setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
     cancelButton.addActionListener(event -> {
       dispose();
     });
-
-    initWizard(profile);
+    initWizard();
     initProgress();
 
     FORWARD = new ForwardAction(this.wizardModelView);
@@ -88,6 +96,10 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
     // we never start moving backward
     previousButton.setEnabled(false);
     pack();
+    setLocationRelativeTo(WindowManager.getInstance().getFrame(currProject));
+    Point location = getLocation();
+    location.translate(50, -50);
+    this.setLocation(location);;
   }
   private void initProgress() {
     wizardProgress.setMinimum(0);
@@ -100,35 +112,43 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
   /**
    * Commits user inputs on current selected profile
    */
-  private void commitWizardView() {
+  private void commitWizardView(Profile currProfile) {
     // TODO : check that data have changed to avoid
     //        calling service
     //   see this.wizardModelView.current().getProvider().isInputsChanged()
-    // TODO : do not use dummy values
-    Profile editedProfile = Profile.builder()
-                                   .profileName("")
-                                   .credentialName("")
-                                    .model("").provider(ProviderType.COHERE)
-                                   .build();
-    this.wizardModel.hydrate(editedProfile);
+    Profile editedProfile;
+    if(currProfile!=null){
+      editedProfile = currProfile;
+      this.wizardModel.hydrate(editedProfile);
 
-    //TODO : we have to check if this is a "ADD" or "EDIT"
-    //       assume ADD for now
-      profileSvc.addProfile(editedProfile).thenRun(() -> {
-
-      }).exceptionally(throwable -> {
-        //TODO : show error dialog
+      profileSvc.updateProfile(editedProfile).thenRun(this::dispose).exceptionally(e -> {
+        ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currProject, e.getCause().getMessage()));
         return null;
       });
+    } else {
+      editedProfile = Profile.builder()
+          .profileName("")
+          .credentialName("")
+          .model("").provider(ProviderType.COHERE)
+          .build();
+      this.wizardModel.hydrate(editedProfile);
 
-    dispose();
+      profileSvc.addProfile(editedProfile).thenRun(this::dispose).exceptionally(
+          e -> {
+            ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currProject, e.getCause().getMessage()));
+            return null;
+          }
+      );
+    }
+
+
   }
 
   /**
    * init the profile edition wizard
    */
-  private void initWizard(Profile profile) {
-    this.wizardModel = new ProfileEditionWizard(profile);
+  private void initWizard() {
+    this.wizardModel = new ProfileEditionWizard(currProject, currProfile);
     this.wizardModelView = this.wizardModel.getView();
     this.wizardModelView.addListener(this);
     CardLayout layout = (CardLayout)this.wizardMainPane.getLayout();
@@ -143,7 +163,26 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
   }
 
   @Override public void onViewChange() {
-    wizardProgress.setValue(this.wizardModelView.progress());
+
+    SwingWorker<Void, Void> worker = new SwingWorker<>() {
+      @Override
+      protected Void doInBackground() throws Exception {
+        int start = wizardProgress.getValue();
+        int end = wizardModelView.progress();
+        if(start<end){
+        for (int i = start; i <= end; i++) {
+          wizardProgress.setValue(i);
+          Thread.sleep(5);
+        }} else {
+          for (int i = start; i >= end; i--) {
+            wizardProgress.setValue(i);
+            Thread.sleep(5);
+          }
+        }
+        return null;
+      }
+    };
+    worker.execute();
     wizardProgress.setString(this.wizardModelView.current().getTitle());
 
     if (!this.wizardModelView.canBackward()) {
@@ -195,12 +234,12 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
   private class CommitAction extends AbstractAction {
     private ProfileEditionDialog dialog;
     public CommitAction(ProfileEditionDialog dialog) {
-      super("Finish");
+      super(currProfile!=null?"Update":"Create");
       this.dialog = dialog;
     }
 
     @Override public void actionPerformed(ActionEvent e) {
-      this.dialog.commitWizardView();
+      this.dialog.commitWizardView(currProfile);
     }
   }
 }

@@ -7,7 +7,7 @@
         <!ELEMENT statement (#PCDATA)>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="setup-credential" timeout="20">
+    <statement-execution-processor id="create-credential" timeout="20">
         <statement>
             DECLARE
             v_credential_count NUMBER;
@@ -19,7 +19,7 @@
 
             IF v_credential_count = 0 THEN
             DBMS_CLOUD.CREATE_CREDENTIAL(
-            '{1}'
+            {1}
             );
             END IF;
             END;
@@ -32,12 +32,12 @@
             BEGIN
             SELECT COUNT(*)
             INTO v_profile_count
-            FROM DBA_CLOUD_AI_PROFILES
+            FROM USER_CLOUD_AI_PROFILES
             WHERE PROFILE_NAME = '{0}';
 
             IF v_profile_count = 0 THEN
             DBMS_CLOUD_AI.CREATE_PROFILE(
-            '{1}'
+            {1}
             );
             END IF;
             END;
@@ -77,6 +77,11 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="list-credentials-detailed" timeout="20">
+        <statement>
+            SELECT * FROM ALL_CREDENTIALS
+        </statement>
+    </statement-execution-processor>
     <statement-execution-processor id="list-profiles-detailed" timeout="20">
         <statement>
             SELECT * FROM USER_CLOUD_AI_PROFILE_ATTRIBUTES
@@ -100,15 +105,8 @@
     </statement-execution-processor>
     <statement-execution-processor id="list-tables" timeout="20">
         <statement>
-            declare
-            tables VARCHAR2(4000);
-            begin
-            SELECT LISTAGG(TABLE_NAME, ' ') WITHIN GROUP ( ORDER BY TABLE_NAME )
-            INTO tables
-            FROM all_tables;
-            ? := tables;
-            end;
-            /
+            SELECT OWNER, TABLE_NAME
+            FROM all_tables
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="list-views" timeout="20">
@@ -121,6 +119,15 @@
             FROM all_views;
             ? := views;
             end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="list-schemas" timeout="20">
+        <statement>
+            SELECT DISTINCT OWNER
+            FROM ALL_TABLES
+            UNION
+            SELECT DISTINCT OWNER
+            FROM ALL_VIEWS
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="drop-profile" timeout="20">
@@ -140,10 +147,8 @@
     <statement-execution-processor id="update-profile" timeout="20">
         <statement>
             BEGIN
-            DBMS_CLOUD_AI.SET_ATTRIBUTE(
-            profile_name    => '{0}',
-            attribute_name  => '{1}',
-            attribute_value => '{2}'
+            DBMS_CLOUD_AI.SET_ATTRIBUTES(
+                {0}
             );
             END;
         </statement>
@@ -152,9 +157,8 @@
         <statement>
             BEGIN
             DBMS_CLOUD.UPDATE_CREDENTIAL(
-            credential_name => '{0}',
-            attribute => '{1}}',
-            value => '{2}}');
+                {0}
+            );
             END;
         </statement>
     </statement-execution-processor>

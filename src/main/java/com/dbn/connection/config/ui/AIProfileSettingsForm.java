@@ -7,7 +7,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.config.AIProfileSettings;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.oracleAI.config.CredentialProvider;
+import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
@@ -43,7 +43,7 @@ public class AIProfileSettingsForm extends ConfigurationEditorForm<com.dbn.conne
 
     ConnectionId connectionId = configuration.getConnectionId();
     ConnectionHandler currConnection = getConnectionHandler(connectionId);
-    if(currConnection != null){
+    if (currConnection != null) {
 
       resetFormChanges();
       loadBoxes();
@@ -72,31 +72,30 @@ public class AIProfileSettingsForm extends ConfigurationEditorForm<com.dbn.conne
     try {
       DBNConnection mainConnection = currConnection.getConnection(SessionId.ORACLE_AI);
       Progress.prompt(configuration.getProject(), currConnection, false, "Creating New Profile", "Creating a profile by the name: " + configuration.getProfileName(), progress -> setupProfile(currConnection, mainConnection, configuration.getProfileName(), configuration.getProvider(), configuration.getCredentialBoxName()));
-    } catch (SQLException e){
+    } catch (SQLException e) {
       System.out.println(e.getMessage());
     }
-    }
+  }
 
-    public void setupProfile(ConnectionHandler currConnection,
-                                DBNConnection mainConnection,
-                                String profileName,
-                                String provider,
-                                String credentialName){
-    assert provider != null: "provider cannot be null";
+  public void setupProfile(ConnectionHandler currConnection,
+                           DBNConnection mainConnection,
+                           String profileName,
+                           String provider,
+                           String credentialName) {
+    assert provider != null : "provider cannot be null";
 
     Profile profileAttributes = Profile.builder()
-          .profileName(profileName)
-          .credentialName(credentialName)
-          .provider(ProviderType.valueOf(provider))
-          .build();
+        .profileName(profileName)
+        .credentialName(credentialName)
+        .provider(ProviderType.valueOf(provider))
+        .build();
     try {
       currConnection.getOracleAIInterface().createProfile(mainConnection, profileAttributes);
       showInfoDialog(getConfiguration().getProject(), "Profile Creation", "Credential " + getConfiguration().getProfileName() + " created succesfully");
-    }
-    catch (ProfileManagementException e) {
+    } catch (ProfileManagementException e) {
       throw new RuntimeException(e);
     }
-    }
+  }
 
 
   public ConnectionHandler getConnectionHandler(ConnectionId id) {
@@ -125,20 +124,20 @@ public class AIProfileSettingsForm extends ConfigurationEditorForm<com.dbn.conne
     AIProfileSettings configuration = getConfiguration();
     ConnectionId connectionId = configuration.getConnectionId();
     ConnectionHandler currConnection = getConnectionHandler(connectionId);
-    ApplicationManager.getApplication().executeOnPooledThread(()->{
+    ApplicationManager.getApplication().executeOnPooledThread(() -> {
 
-    try {
-      DBNConnection mainConnection = currConnection.getConnection(SessionId.ORACLE_AI);
-      List<CredentialProvider> credentials = currConnection.getOracleAIInterface().listCredentials(mainConnection);
+      try {
+        DBNConnection mainConnection = currConnection.getConnection(SessionId.ORACLE_AI);
+        List<Credential> credentials = currConnection.getOracleAIInterface().listCredentials(mainConnection);
 
-      for(CredentialProvider credential : credentials){
-        credentialNameBox.addItem(credential.getCredentialName());
+        for (Credential credential : credentials) {
+          credentialNameBox.addItem(credential.getCredentialName());
+        }
+      } catch (DatabaseOperationException e) {
+        throw new RuntimeException(e);
+      } catch (SQLException e) {
+        System.out.println(e);
       }
-    } catch (DatabaseOperationException e) {
-      throw new RuntimeException(e);
-    } catch (SQLException e){
-      System.out.println(e);
-    }
 
     });
   }
@@ -152,6 +151,7 @@ public class AIProfileSettingsForm extends ConfigurationEditorForm<com.dbn.conne
     modelBox.setSelectedItem("3.5");
     loadCredentials();
   }
+
   private void addEventListeners() {
     profileButton.addActionListener(e -> {
       try {

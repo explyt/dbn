@@ -108,7 +108,7 @@
                       <text resource-bundle="Messages" key="profiles.mgnt.attr.name.label"/>
                     </properties>
                   </component>
-                  <component id="801e" class="javax.swing.JComboBox" binding="profileComboxBox">
+                  <component id="801e" class="javax.swing.JComboBox" binding="profileComboBox">
                     <constraints border-constraint="Center"/>
                     <properties/>
                   </component>

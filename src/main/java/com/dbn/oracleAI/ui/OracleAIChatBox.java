@@ -1,27 +1,15 @@
 package com.dbn.oracleAI.ui;
 
+import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBUI;
 
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.InputMap;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.JTextComponent;
@@ -35,6 +23,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -62,10 +51,11 @@ public class OracleAIChatBox extends JPanel {
 
     /**
      * Creates a new combo item
-     * @param label the label 
+     *
+     * @param label     the label
      * @param effective is this effective or placeholder item ?
      */
-    public AIProfileItem(String label,boolean effective) {
+    public AIProfileItem(String label, boolean effective) {
       this.label = label;
       this.effective = effective;
     }
@@ -79,15 +69,17 @@ public class OracleAIChatBox extends JPanel {
       return label;
     }
 
-    public boolean isEffective(){
+    public boolean isEffective() {
       return effective;
     }
+
     /**
      * Used to UI fw
      *
      * @return the label
      */
-    @Override public String toString() {
+    @Override
+    public String toString() {
       return label;
     }
 
@@ -116,7 +108,7 @@ public class OracleAIChatBox extends JPanel {
      */
     public List<AIProfileItem> getAllProfiles() {
       List<AIProfileItem> result = new ArrayList<>();
-      for (int i = 0; i < this.getSize()-1; i++) {
+      for (int i = 0; i < this.getSize() - 1; i++) {
         result.add(this.getElementAt(i));
       }
       return result;
@@ -124,12 +116,13 @@ public class OracleAIChatBox extends JPanel {
 
     /**
      * Get list of effective profiles.
-     * remove non-effective profiles and the special 
+     * remove non-effective profiles and the special
+     *
      * @return
      */
     public List<AIProfileItem> getUsableProfiles() {
       return this.getAllProfiles().stream().filter(aiProfileItem -> aiProfileItem.effective == true).collect(
-        Collectors.toList());
+          Collectors.toList());
     }
   }
 
@@ -156,18 +149,18 @@ public class OracleAIChatBox extends JPanel {
   public static DatabaseOracleAIManager currManager;
 
   static private final ResourceBundle messages =
-    ResourceBundle.getBundle("Messages", Locale.getDefault());
+      ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   /**
    * special profile combox item that lead to create a new profile
    */
   static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
-    new AIProfileItem(messages.getString("companion.profile.combobox.add"), false);
+      new AIProfileItem(messages.getString("companion.profile.combobox.add"), false);
 
 
   private OracleAIChatBox() {
     this.setLayout(new BorderLayout(1, 1));
-    this.add(chatBoxMainPanel,BorderLayout.CENTER);
+    this.add(chatBoxMainPanel, BorderLayout.CENTER);
     initializeUI();
   }
 
@@ -200,27 +193,28 @@ public class OracleAIChatBox extends JPanel {
 
   }
 
-  private class  ProfileComboBoxRenderer extends BasicComboBoxRenderer {
+  private class ProfileComboBoxRenderer extends BasicComboBoxRenderer {
     @Override
     public Component getListCellRendererComponent(JList<?> list, Object value,
                                                   int index, boolean isSelected,
                                                   boolean cellHasFocus) {
       super.getListCellRendererComponent(list, value, index, isSelected,
-                                                cellHasFocus);
-      if (ADD_PROFILE_COMBO_ITEM.equals((AIProfileItem)value)) {
+          cellHasFocus);
+      if (ADD_PROFILE_COMBO_ITEM.equals((AIProfileItem) value)) {
         setFont(getFont().deriveFont(Font.ITALIC));
       }
       return this;
     }
   }
+
   private void createTextFieldsPanel() {
     companionConversationQuestion.addItem(
-      "What are the names of all the customers");
+        "What are the names of all the customers");
     companionConversationQuestion.addItem("Who joined after February 2022");
     companionConversationQuestion.addItem(
-      "Can you list all customers by their join date in ascending order");
+        "Can you list all customers by their join date in ascending order");
     companionConversationQuestion.addItem(
-      "I need the email addresses and join dates of customers whose last name is Doe");
+        "I need the email addresses and join dates of customers whose last name is Doe");
     setupEnterAction();
   }
 
@@ -237,7 +231,7 @@ public class OracleAIChatBox extends JPanel {
   private void setupEnterAction() {
 
     Component editorComponent =
-      companionConversationQuestion.getEditor().getEditorComponent();
+        companionConversationQuestion.getEditor().getEditorComponent();
 
     if (editorComponent instanceof JComponent) {
       JComponent editor = (JComponent) editorComponent;
@@ -249,7 +243,8 @@ public class OracleAIChatBox extends JPanel {
       inputMap.put(KeyStroke.getKeyStroke("shift ENTER"), "insert-break");
 
       actionMap.put("submit", new AbstractAction() {
-        @Override public void actionPerformed(ActionEvent e) {
+        @Override
+        public void actionPerformed(ActionEvent e) {
           submitText();
         }
       });
@@ -260,8 +255,8 @@ public class OracleAIChatBox extends JPanel {
   private void submitText() {
     startActivityNotifier("Submitting.. (we need a key in messages)");
     ApplicationManager.getApplication()
-                      .executeOnPooledThread(
-                        () -> processQuery(selectedAction()));
+        .executeOnPooledThread(
+            () -> processQuery(selectedAction()));
   }
 
   private ActionAIType selectedAction() {
@@ -275,23 +270,32 @@ public class OracleAIChatBox extends JPanel {
   private void processQuery(ActionAIType actionType) {
 
     Objects.requireNonNull(companionConversationQuestion.getSelectedItem(),
-                           "cannot be here without question been selected");
+        "cannot be here without question been selected");
 
     AIProfileItem item = (AIProfileItem) profileComboBox.getSelectedItem();
     Objects.requireNonNull(item,
-                           "cannot be here without profile been selected");
+        "cannot be here without profile been selected");
     if (ADD_PROFILE_COMBO_ITEM.equals(item)) {
       // TODO : we should never arrive here anyway
       return;
     }
 
     String question =
-      companionConversationQuestion.getSelectedItem().toString();
+        companionConversationQuestion.getSelectedItem().toString();
     if (question.length() > 0) {
-      String output =
-        currManager.queryOracleAI(question, actionType, item.getLabel());
-      ApplicationManager.getApplication()
-                        .invokeLater(() -> {setDisplayTextPane(output);stopActivityNotifier();});
+      try {
+        String output =
+            currManager.queryOracleAI(question, actionType, item.getLabel());
+        ApplicationManager.getApplication()
+            .invokeLater(() -> {
+              setDisplayTextPane(output);
+              stopActivityNotifier();
+            });
+      } catch (QueryExecutionException | SQLException e) {
+
+        ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
+
+      }
     }
 
   }
@@ -320,7 +324,7 @@ public class OracleAIChatBox extends JPanel {
   private void initializeTextStyles() {
     StyledDocument doc = companionConversationAnswersText.getStyledDocument();
     Style def = StyleContext.getDefaultStyleContext()
-                            .getStyle(StyleContext.DEFAULT_STYLE);
+        .getStyle(StyleContext.DEFAULT_STYLE);
 
     Style regular = doc.addStyle("regular", def);
     StyleConstants.setFontFamily(def, "SansSerif");
@@ -346,7 +350,7 @@ public class OracleAIChatBox extends JPanel {
       profileListModel.addAll(items);
       profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
       profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
-    } catch (Exception e){
+    } catch (Exception e) {
       System.out.println(e.getMessage());
 
     }
@@ -365,7 +369,7 @@ public class OracleAIChatBox extends JPanel {
         .aiAnswers(companionConversationAnswersText.getText())
         .currentQuestionText(companionConversationQuestion.getSelectedItem().toString())
         .profiles(profileListModel.getAllProfiles())
-        .selectedProfile((selectedProfile != null && selectedProfile.isEffective())?selectedProfile:null)
+        .selectedProfile((selectedProfile != null && selectedProfile.isEffective()) ? selectedProfile : null)
         .build();
   }
 
@@ -376,19 +380,19 @@ public class OracleAIChatBox extends JPanel {
    */
   public void restoreState(OracleAIChatBoxState state) {
     assert state != null : "cannot be null";
-      this.updateProfiles(state.getProfiles());
+    this.updateProfiles(state.getProfiles());
 //      for (String s : state.getQuestionHistory()) {
 //        companionConversationQuestion.addItem(s);
 //      }
-      companionConversationQuestion.setSelectedItem(
-          state.getCurrentQuestionText());
-      companionConversationAnswersText.setText(state.getAiAnswers());
+    companionConversationQuestion.setSelectedItem(
+        state.getCurrentQuestionText());
+    companionConversationAnswersText.setText(state.getAiAnswers());
 
-      if (profileListModel.getUsableProfiles().size() == 0) {
-        companionConversationQuestion.setEnabled(false);
-      } else {
-        companionConversationQuestion.setEnabled(true);
-      }
+    if (profileListModel.getUsableProfiles().size() == 0) {
+      companionConversationQuestion.setEnabled(false);
+    } else {
+      companionConversationQuestion.setEnabled(true);
+    }
 
   }
 
@@ -397,15 +401,16 @@ public class OracleAIChatBox extends JPanel {
    * TODO : try to be clever here...
    */
   private void startActivityNotifier(String message) {
-     activityProgress.setIndeterminate(true);
-     activityProgress.setVisible(true);
+    activityProgress.setIndeterminate(true);
+    activityProgress.setVisible(true);
     chatBoxNotificationMessage.setVisible(true);
     chatBoxNotificationMessage.setText(message);
-   }
+  }
 
   /**
    * Stops the spining wheel
-   */private void stopActivityNotifier() {
+   */
+  private void stopActivityNotifier() {
     activityProgress.setMinimum(0);
     activityProgress.setMaximum(0);
     activityProgress.setIndeterminate(false);
@@ -419,7 +424,6 @@ public class OracleAIChatBox extends JPanel {
   /**
    * Restores the element state from scratch.
    * basically called only once ny switchConnection()
-   *
    */
   public void initState() {
     startActivityNotifier(messages.getString("companion.chat.fetching_profiles"));
@@ -435,17 +439,17 @@ public class OracleAIChatBox extends JPanel {
         if (profileListModel.getUsableProfiles().size() == 0) {
           companionConversationQuestion.setEnabled(false);
           companionConversationQuestion.setToolTipText(
-            messages.getString("companion.chat.no_profile_yet.tooltip"));
+              messages.getString("companion.chat.no_profile_yet.tooltip"));
           explainSQLCheckbox.setEnabled(false);
           explainSQLCheckbox.setToolTipText(
-            messages.getString("companion.chat.no_profile_yet.tooltip"));
+              messages.getString("companion.chat.no_profile_yet.tooltip"));
         } else {
           companionConversationQuestion.setEnabled(true);
           companionConversationQuestion.setToolTipText(
-            messages.getString("companion.chat.question.enabled.tooltip"));
+              messages.getString("companion.chat.question.enabled.tooltip"));
           explainSQLCheckbox.setEnabled(true);
           explainSQLCheckbox.setToolTipText(
-            messages.getString("companion.explainsql.tooltip"));
+              messages.getString("companion.explainsql.tooltip"));
         }
         stopActivityNotifier();
       });

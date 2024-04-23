@@ -48,10 +48,7 @@
           <forms/>
         </constraints>
         <properties>
-          <model>
-            <item value="Cred1"/>
-            <item value="Cred2"/>
-          </model>
+          <model/>
         </properties>
       </component>
       <component id="ad7d6" class="javax.swing.JLabel">

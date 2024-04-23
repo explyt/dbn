@@ -2,14 +2,13 @@ package com.dbn.oracleAI.config.exceptions;
 
 import lombok.Getter;
 
+import java.sql.SQLException;
+
 @Getter
 public class DatabaseOperationException extends Exception {
 
-  private int errorCode;
-
-  public DatabaseOperationException(String message, int errorCode, Throwable cause) {
+  public DatabaseOperationException(String message, SQLException cause) {
     super(message, cause);
-    this.errorCode = errorCode;
   }
 
 
@@ -17,6 +16,4 @@ public class DatabaseOperationException extends Exception {
     super(message);
   }
 
-  public DatabaseOperationException(String message, Throwable cause) {
-  }
 }

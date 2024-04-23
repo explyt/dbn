@@ -42,8 +42,9 @@
         </constraints>
         <properties>
           <model>
-            <item value="OpenAI"/>
-            <item value="Azure"/>
+            <item value="COHERE"/>
+            <item value="OPENAI"/>
+            <item value="AZURE"/>
             <item value="OCI"/>
           </model>
         </properties>

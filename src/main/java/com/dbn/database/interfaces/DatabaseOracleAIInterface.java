@@ -4,7 +4,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.oracleAI.OracleQueryOutput;
 import com.dbn.database.common.oracleAI.OracleTablesList;
 import com.dbn.database.common.oracleAI.OracleViewsList;
-import com.dbn.oracleAI.config.CredentialProvider;
+import com.dbn.oracleAI.config.Credential;
+import com.dbn.oracleAI.config.ObjectListItem;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
@@ -24,16 +25,16 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
   /**
    * Creates a new credential for accessing external services or databases.
    *
-   * @param connection The database connection object representing a session with the database.
+   * @param connection           The database connection object representing a session with the database.
    * @param credentialAttributes The attributes for the new credential to be created.
    * @throws CredentialManagementException If there is an error in creating the credential.
    */
-  void createCredential(DBNConnection connection, CredentialProvider credentialAttributes) throws CredentialManagementException;
+  void createCredential(DBNConnection connection, Credential credentialAttributes) throws CredentialManagementException;
 
   /**
    * Removes an existing credential from the database.
    *
-   * @param connection The database connection object.
+   * @param connection     The database connection object.
    * @param credentialName The name of the credential to remove.
    * @throws CredentialManagementException If there is an error in removing the credential.
    */
@@ -43,17 +44,14 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * Updates an attribute of an existing credential in the database.
    *
    * @param connection The database connection object.
-   * @param credentialName The name of the credential whose attribute is to be updated.
-   * @param attributeName The name of the attribute to update.
-   * @param attributeValue The new value for the attribute.
    * @throws CredentialManagementException If there is an error in updating the credential attribute.
    */
-  void setCredentialAttribute(DBNConnection connection, String credentialName, String attributeName, String attributeValue) throws CredentialManagementException;
+  void setCredentialAttribute(DBNConnection connection, Credential credential) throws CredentialManagementException;
 
   /**
    * Creates a new AI profile for executing AI-related operations in the database.
    *
-   * @param connection The database connection object.
+   * @param connection        The database connection object.
    * @param profileAttributes The attributes for the new AI profile to be created.
    * @throws ProfileManagementException If there is an error in creating the AI profile.
    */
@@ -63,17 +61,15 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * Updates an attribute of an existing AI profile in the database.
    *
    * @param connection The database connection object.
-   * @param profileName The name of the AI profile whose attribute is to be updated.
-   * @param attributeName The name of the attribute to update.
-   * @param attributeValue The new value for the attribute.
+   * @param profile    The AI profile whose attribute is to be updated. The update will be for each attribute separately
    * @throws ProfileManagementException If there is an error in updating the AI profile attribute.
    */
-  void setProfileAttribute(DBNConnection connection, String profileName, String attributeName, String attributeValue) throws ProfileManagementException;
+  void setProfileAttributes(DBNConnection connection, Profile profile) throws ProfileManagementException;
 
   /**
    * Deletes an existing AI profile from the database.
    *
-   * @param connection The database connection object.
+   * @param connection  The database connection object.
    * @param profileName The name of the AI profile to be deleted.
    * @throws ProfileManagementException If there is an error in deleting the AI profile.
    */
@@ -83,9 +79,9 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * Executes an AI-related query using a specified action and text on a specific profile.
    *
    * @param connection The database connection object.
-   * @param action The AI action to perform, such as translate or analyze.
-   * @param profile The name of the AI profile to use for the query execution.
-   * @param text The text or query to process using the AI action.
+   * @param action     The AI action to perform, such as translate or analyze.
+   * @param profile    The name of the AI profile to use for the query execution.
+   * @param text       The text or query to process using the AI action.
    * @return The result of the AI query execution.
    * @throws QueryExecutionException If there is an error in executing the AI query.
    */
@@ -116,15 +112,35 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * @return A list containing information about each stored credential.
    * @throws DatabaseOperationException If there is an error in retrieving the list of credentials.
    */
-  List<CredentialProvider> listCredentials(DBNConnection connection) throws DatabaseOperationException;
+  List<Credential> listCredentials(DBNConnection connection) throws CredentialManagementException;
+
 
   /**
-   * Lists all AI profiles stored in the database.
+   * Provides a detailed list of all AI profiles stored in the database.
    *
    * @param connection The database connection object.
-   * @return A list containing information about each stored AI profile.
-   * @throws DatabaseOperationException If there is an error in retrieving the list of AI profiles.
+   * @return A detailed list containing information about each AI profile.
+   * @throws DatabaseOperationException If there is an error in retrieving the detailed list of AI profiles.
    */
-  List<Profile> listProfiles(DBNConnection connection) throws DatabaseOperationException;
-  List<Profile> listProfilesDetailed(DBNConnection connection) throws DatabaseOperationException;
+  List<Profile> listProfiles(DBNConnection connection) throws ProfileManagementException;
+
+  /**
+   * Lists all schemas available in the current database connection.
+   *
+   * @param connection The database connection object.
+   * @return A list of schema names available to the current connection.
+   * @throws DatabaseOperationException If there is an error in listing the schemas.
+   */
+  List<String> listSchemas(DBNConnection connection) throws DatabaseOperationException;
+
+  /**
+   * Lists all object list items available in the current database connection.
+   * This can include tables, views, and other database objects.
+   *
+   * @param connection The database connection object.
+   * @return A list of ObjectListItems, each representing a database object.
+   * @throws DatabaseOperationException If there is an error in retrieving the list of database objects.
+   */
+  List<ObjectListItem> listObjectListItems(DBNConnection connection, String profileName) throws DatabaseOperationException;
+
 }
