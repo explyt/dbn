@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.config;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
 
@@ -15,11 +16,18 @@ import java.util.List;
 
 @Getter
 @ToString
+@EqualsAndHashCode
+/**
+ * AI provider credential class
+ */
 public class Credential implements AttributeInput {
-
+  /**name of that credential*/
   protected String credentialName;
+  /**username used in that credential*/
   protected String username;
+  /**Is that credential enabled, a credential can be defined on DB side but been disabled*/
   protected boolean isEnabled;
+  /**comment used in that credential*/
   protected String comments;
 
   public Credential(String credentialName, String userName, boolean isEnabled, String comments) {

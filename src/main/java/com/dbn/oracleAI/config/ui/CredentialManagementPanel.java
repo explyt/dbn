@@ -4,10 +4,11 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AICredentialService;
+import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Credential;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.util.ui.JBUI;
+import com.intellij.openapi.project.Project;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -18,9 +19,12 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.Component;
-import java.awt.GridBagConstraints;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  * A panel for managing AI credentials within the application, offering functionalities
@@ -42,8 +46,17 @@ public class CredentialManagementPanel extends JPanel {
   private JButton deleteButton;
   private JButton addButton;
   private JButton editButton;
+    private JLabel profilesLabelTitle;
   private final AICredentialService credentialSvc;
+  private final AIProfileService profileSvc;
   private final ConnectionRef connection;
+  private final Project curProject;
+
+  /**
+   * Keeps a mapping of profile names that used a specific credential name
+   * (Assuming that credential names are unique within the DB)
+   */
+  private final Map<Credential, List<String>> credentialNameToProfileNameMap = new HashMap<>();
 
   /**
    * Initializes a new instance of the CredentialManagementPanel for managing AI credentials,
@@ -53,10 +66,16 @@ public class CredentialManagementPanel extends JPanel {
    *                   and managing credentials related to the project's Oracle AI integration.
    */
   public CredentialManagementPanel(ConnectionHandler connection) {
+    if (connection == null || connection.ref().get() == null) {
+      throw new IllegalArgumentException("connection cannot be null");
+    }
     this.credentialSvc = connection.getProject().getService(DatabaseOracleAIManager.class).getCredentialService();
+    this.profileSvc = connection.getProject().getService(DatabaseOracleAIManager.class).getProfileService();
+
     this.connection = connection.ref();
+    this.curProject = connection.getProject();
     initializeUI();
-    updateCredentialProviders();
+    updateCredentialList();
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
     this.add(mainPane);
@@ -71,17 +90,17 @@ public class CredentialManagementPanel extends JPanel {
 
     // Initializes addButton with its action listener for creating new credential
     addButton.addActionListener((e) -> {
-      CredentialCreationCallback callback = this::updateCredentialProviders;
+      CredentialCreationCallback callback = this::updateCredentialList;
       CredentialCreationWindow.showDialog(connection, credentialSvc, null, callback);
     });
 
     editButton.addActionListener((e) -> {
-      CredentialCreationCallback callback = this::updateCredentialProviders;
+      CredentialCreationCallback callback = this::updateCredentialList;
       CredentialCreationWindow.showDialog(connection, credentialSvc, credentialList.getSelectedValue(), callback);
     });
     // Initializes deleteButton with its action listener for deleting selected credentials
     deleteButton.addActionListener(e -> {
-      Messages.showQuestionDialog(connection.get().getProject(),
+      Messages.showQuestionDialog(this.curProject,
           messages.getString("ai.settings.credential.deletion.title"),
           messages.getString("ai.settings.credential.deletion.message.prefix") + credentialList.getSelectedValue().getCredentialName(),
           Messages.options(
@@ -99,8 +118,16 @@ public class CredentialManagementPanel extends JPanel {
       if (!e.getValueIsAdjusting() && credentialList.getSelectedValue() != null) {
         Credential selectedCredential = credentialList.getSelectedValue();
         displayInfo.removeAll();
-        panelTemplate(selectedCredential.getCredentialName(), selectedCredential.getUsername());
-        profilesLabel.setText(credentialSvc.getProfilesByCredential(selectedCredential.getCredentialName()));
+        panelTemplate(selectedCredential);
+        String used = credentialNameToProfileNameMap.get(selectedCredential).stream()
+                .collect(Collectors.joining(","));
+        if (used.length() >0) {
+          profilesLabelTitle.setText(messages.getString("credential.mgnt.used"));
+          profilesLabel.setText(used);
+        } else {
+          profilesLabelTitle.setText(messages.getString("credential.mgnt.notused"));
+          profilesLabel.setText("");
+        }
       }
     });
     credentialList.setCellRenderer(new DefaultListCellRenderer() {
@@ -123,10 +150,10 @@ public class CredentialManagementPanel extends JPanel {
    */
   private void removeCredential(String credential) {
     credentialSvc.deleteCredential(credential)
-        .thenAccept((c) -> this.updateCredentialProviders())
+        .thenAccept((c) -> this.updateCredentialList())
         .exceptionally(
             e -> {
-              ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(connection.get().getProject(), e.getCause().getMessage()));
+              ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(this.curProject, e.getCause().getMessage()));
               return null;
             });
 
@@ -137,18 +164,22 @@ public class CredentialManagementPanel extends JPanel {
    * the UI components accordingly. This method retrieves the credentials, updating the credential list
    * and the display information panel based on the available credentials for the connected project.
    */
-  private void updateCredentialProviders() {
-    credentialSvc.listCredentialsWithProfiles()
-        .thenAccept(credentialProviderList -> {
-          credentialList.setListData(credentialProviderList);
-          credentialList.setSelectedIndex(0);
-        })
-        .exceptionally(e -> {
-          {
-            ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(connection.get().getProject(), e.getCause().getMessage()));
-            return null;
-          }
-        });
+  private void updateCredentialList() {
+    credentialNameToProfileNameMap.clear();
+    credentialSvc.getCredentials().thenAcceptBoth(profileSvc.getProfiles(),(credentials, profiles)->{
+      for (Credential cred :credentials) {
+        List<String> pNames = profiles.stream().filter(profile-> cred.equals(profile.getCredentialName()))
+                .map(profile -> profile.getProfileName()).collect(Collectors.toList());
+        credentialNameToProfileNameMap.put(cred, pNames);
+      }
+      credentialList.setListData( credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}) );
+      credentialList.setSelectedIndex(0);
+    }).exceptionally(e -> {
+      {
+        ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(this.curProject, e.getCause().getMessage()));
+        return null;
+      }
+    });
   }
 
 
@@ -157,28 +188,25 @@ public class CredentialManagementPanel extends JPanel {
    * This method dynamically creates and displays UI components such as labels and text fields
    * to show detailed information for the selected credential, including its name and associated username.
    *
-   * @param credentialName The name of the credential to display information for.
-   * @param username       The username associated with the selected credential.
+   * @param credential The credential to display information for.
    */
-  public void panelTemplate(String credentialName, String username) {
-    GridBagConstraints constraints = new GridBagConstraints();
-    constraints.fill = GridBagConstraints.HORIZONTAL;
-    constraints.anchor = GridBagConstraints.WEST;
-    constraints.weightx = 1.0;
-    constraints.gridx = 0;
-    constraints.gridy = GridBagConstraints.RELATIVE;
-    constraints.insets = JBUI.insets(2);
+  public void panelTemplate(Credential credential) {
 
-    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.credential_name")), constraints);
-    constraints.gridx = 1;
-    JTextField credentialNameField = new JTextField(credentialName);
-    displayInfo.add(credentialNameField, constraints);
+    displayInfo.setLayout(new com.jgoodies.forms.layout.FormLayout("fill:d:noGrow,left:4dlu:noGrow,fill:d:grow", "center:d:noGrow,top:3dlu:noGrow,center:max(d;4px):noGrow"));
 
-    constraints.gridx = 0;
-    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.username")), constraints);
-    constraints.gridx = 1;
-    JTextField userNameField = new JTextField(username);
-    displayInfo.add(userNameField, constraints);
+
+    com.jgoodies.forms.layout.CellConstraints cc = new com.jgoodies.forms.layout.CellConstraints();
+    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.credential_name")), cc.xy(1, 1));
+    displayInfo.add(new JTextField(credential.getCredentialName()),
+            cc.xy(3, 1, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+
+    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.username")), cc.xy(1, 3));
+    displayInfo.add(new JTextField(credential.getUsername()),
+            cc.xy(3, 3, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+
+//    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.comment")), cc.xy(1, 5));
+//    displayInfo.add(new JTextField(credential.getComments()),
+//            cc.xy(3, 5, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
     displayInfo.revalidate();
     displayInfo.repaint();

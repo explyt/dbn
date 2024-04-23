@@ -10,14 +10,12 @@ import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.types.ProviderType;
 
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ConcurrentMap;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -40,10 +38,10 @@ public class AIProfileService {
    * @return a map of profile by profile name. can be empty but not null
    * @throws ProfileManagementException
    */
-  public CompletableFuture<Map<String, Profile>> getProfiles() {
+  public CompletableFuture<List<Profile>> getProfiles() {
     if (System.getProperty("fake.services") != null) {
-      Map<String, Profile> faked = new HashMap<String, Profile>();
-      faked.put("cohere", Profile.builder().profileName("cohere").provider(
+      List<Profile> faked = new ArrayList<>();
+      faked.add(Profile.builder().profileName("cohere").provider(
           ProviderType.COHERE).credentialName("foo").model("foo").build());
       return CompletableFuture.completedFuture(faked);
     }
@@ -52,12 +50,8 @@ public class AIProfileService {
         DBNConnection dbnConnection =
             connectionRef.get().getConnection(SessionId.ORACLE_AI);
         List<Profile> profileList = connectionRef.get().getOracleAIInterface()
-            .listProfiles(
-                dbnConnection);
-        return profileList.stream()
-            .collect(Collectors.toMap(Profile::getProfileName,
-                Function.identity(),
-                (existing, replacement) -> existing));
+            .listProfiles(dbnConnection);
+        return profileList;
       } catch (ProfileManagementException | SQLException e) {
         throw new CompletionException("Cannot get profile", e);
       }
@@ -89,7 +83,7 @@ public class AIProfileService {
    * @param profile the profile to be created
    * @throws ProfileManagementException
    */
-  public CompletionStage<Void> addProfile(Profile profile) {
+  public CompletionStage<Void> createProfile(Profile profile) {
     return CompletableFuture.runAsync(() -> {
           try {
             DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
@@ -122,7 +116,9 @@ public class AIProfileService {
   /**
    * Loads all schemas that are accessible for the current user asynchronously
    */
-  public CompletableFuture<List<String>> loadSchemas() {
+
+  // TODO : move this to another service
+    public CompletableFuture<List<String>> loadSchemas() {
     return CompletableFuture.supplyAsync(() -> {
       try {
         DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
