@@ -11,26 +11,29 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTable;
-import javax.swing.JTextField;
 import javax.swing.table.AbstractTableModel;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * This class is for a window that lists the available ai provider keys,
  * and allows us to select one and hydrate the createCredentialWindow with it.
  */
-public class AiProviderKeysSelection extends DialogWrapper {
+public class AiProviderSelection extends DialogWrapper {
+
+  static private final ResourceBundle messages =
+      ResourceBundle.getBundle("Messages", Locale.getDefault());
   private JPanel panel1;
   private JTable table1;
-  private JTextField textField1;
   private AIProviderTypeBundle aiProviderTypes;
   private ProvidersSelectionCallback callback;
 
 
-  protected AiProviderKeysSelection(@Nullable Project project, ProvidersSelectionCallback callback) {
+  protected AiProviderSelection(@Nullable Project project, ProvidersSelectionCallback callback) {
     super(project, false);
     this.callback = callback;
     initializeProvidersList(project);
-    setTitle("AI Provider Keys Selection");
+    setTitle(messages.getString("ai.settings.providers.selection"));
     init();
     pack();
   }
@@ -47,7 +50,7 @@ public class AiProviderKeysSelection extends DialogWrapper {
 
     private final String HOSTNAME = "Hostname";
     private final String USERNAME = "Username";
-    private final String KEY = "Key";
+    private final String KEY = "Password";
     private final AIProviderTypeBundle aiProviderTypes;
     private final String[] columnNames = {HOSTNAME, USERNAME, KEY};
 

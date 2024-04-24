@@ -25,7 +25,6 @@ public class AIProvidersGeneralSettingsForm extends ConfigurationEditorForm<AIPr
   private JPanel mainPanel;
   private JPanel environmentTypesTablePanel;
 
-  private JPanel environmentTypesPanel;
   private AIProviderEditorTable environmentTypesTable;
 
   public AIProvidersGeneralSettingsForm(AIProvidersGeneralSettings settings) {

@@ -82,9 +82,10 @@ public class CredentialCreationWindow extends DialogWrapper {
       });
       keyProviderPickerButton.addActionListener((e) -> {
         ProvidersSelectionCallback providersSelectionCallback = aiProviderType -> populateFields(aiProviderType.getUsername(), aiProviderType.getKey());
-        AiProviderKeysSelection aiProviderKeysSelection = new AiProviderKeysSelection(connection.get().getProject(), providersSelectionCallback);
-        aiProviderKeysSelection.showAndGet();
+        AiProviderSelection aiProviderSelection = new AiProviderSelection(connection.get().getProject(), providersSelectionCallback);
+        aiProviderSelection.showAndGet();
       });
+      keyProviderPickerButton.setToolTipText(messages.getString("ai.settings.providers.selection.button"));
     }
   }
 
@@ -184,7 +185,7 @@ public class CredentialCreationWindow extends DialogWrapper {
 
   /**
    * Defines the behaviour when we click the create/update button
-   * It starts by validating and then it executes the specifies action
+   * It starts by validating, and then it executes the specifies action
    */
   @Override
   protected void doOKAction() {
@@ -202,28 +203,28 @@ public class CredentialCreationWindow extends DialogWrapper {
   @Override
   protected ValidationInfo doValidate() {
     if (credentialNameField.getText().isEmpty()) {
-      return new ValidationInfo("Credential name cannot be empty", credentialNameField);
+      return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.credentialName"), credentialNameField);
     }
     if (typeComboBox.getSelectedItem() == CredentialType.PASSWORD) {
 
       if (usernameField.getText().isEmpty()) {
-        return new ValidationInfo("Username cannot be empty", usernameField);
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.username"), usernameField);
       }
       if (passwordField.getText().isEmpty()) {
-        return new ValidationInfo("Password cannot be empty", passwordField);
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.password"), passwordField);
       }
     } else {
       if (userOcidField.getText().isEmpty()) {
-        return new ValidationInfo("User OCID field cannot be empty", userOcidField);
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.userOcid"), userOcidField);
       }
       if (userTenancyOcidField.getText().isEmpty()) {
-        return new ValidationInfo("User Tenancy OCID field cannot be empty", userTenancyOcidField);
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.userTenancyOcid"), userTenancyOcidField);
       }
       if (privateKeyField.getText().isEmpty()) {
-        return new ValidationInfo("Private Key field cannot be empty", privateKeyField);
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.privateKey"), privateKeyField);
       }
       if (fingerprintField.getText().isEmpty()) {
-        return new ValidationInfo("Fingerprint field cannot be empty", fingerprintField);
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.fingerprint"), fingerprintField);
       }
     }
     return null;
