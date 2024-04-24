@@ -9,12 +9,9 @@ import com.dbn.oracleAI.config.PasswordCredential;
 import com.dbn.oracleAI.types.CredentialType;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -22,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.CardLayout;
-import java.awt.event.ActionEvent;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -47,6 +43,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JTextField userTenancyOcidField;
   private JTextField privateKeyField;
   private JTextField fingerprintField;
+  private JButton keyProviderPickerButton;
   private JLabel errorLabel;
   private ConnectionRef connection;
   private Credential credential;
@@ -83,7 +80,19 @@ public class CredentialCreationWindow extends DialogWrapper {
         CardLayout cl = (CardLayout) (card.getLayout());
         cl.show(card, typeComboBox.getSelectedItem().toString());
       });
+      keyProviderPickerButton.addActionListener((e) -> {
+        ProvidersSelectionCallback providersSelectionCallback = aiProviderType -> populateFields(aiProviderType.getUsername(), aiProviderType.getKey());
+        AiProviderSelection aiProviderSelection = new AiProviderSelection(connection.get().getProject(), providersSelectionCallback);
+        aiProviderSelection.showAndGet();
+      });
+      keyProviderPickerButton.setToolTipText(messages.getString("ai.settings.providers.selection.button"));
     }
+  }
+
+  private void populateFields(String username, String key) {
+    typeComboBox.setSelectedItem(CredentialType.PASSWORD);
+    usernameField.setText(username);
+    passwordField.setText(key);
   }
 
   /**
@@ -92,73 +101,32 @@ public class CredentialCreationWindow extends DialogWrapper {
   private void hydrateFields() {
     credentialNameField.setText(credential.getCredentialName());
     credentialNameField.setEnabled(false);
-    if(credential instanceof PasswordCredential){
-      typeComboBox.addItem(CredentialType.PASSWORD);
-      usernameField.setText(credential.getUsername());
-    } else if (credential instanceof OciCredential){
-      typeComboBox.addItem(CredentialType.OCI);
-      OciCredential ociCredentialProvider = (OciCredential) credential;
-      userOcidField.setText(ociCredentialProvider.getUsername());
-      userTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
-      privateKeyField.setText(ociCredentialProvider.getPrivateKey());
-      fingerprintField.setText(ociCredentialProvider.getFingerprint());
-    }
+    //TODO find a way to distinguish between credential types
+    // For now, just assuming it's password type
+//    if (credential instanceof PasswordCredential) {
+    typeComboBox.addItem(CredentialType.PASSWORD);
+    typeComboBox.setSelectedIndex(0);
+    usernameField.setText(credential.getUsername());
+//    } else if (credential instanceof OciCredential) {
+//      typeComboBox.addItem(CredentialType.OCI);
+//      typeComboBox.setSelectedIndex(0);
+//      OciCredential ociCredentialProvider = (OciCredential) credential;
+//      userOcidField.setText(ociCredentialProvider.getUsername());
+//      userTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
+//      privateKeyField.setText(ociCredentialProvider.getPrivateKey());
+//      fingerprintField.setText(ociCredentialProvider.getFingerprint());
+//    }
     typeComboBox.setEnabled(false);
   }
 
-
-  /**
-   * Define the possible actions of this dialog window
-   */
-  @NotNull
-  @Override
-  protected Action @NotNull [] createActions() {
-    super.createActions();
-
-    // Defines the action to either create or update credential
-    Action commitAction;
-    if(credential ==null){
-      commitAction = new AbstractAction("Create") {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (doValidate() == null) {
-          doCreateAction();
-        }
-      }
-    };} else{
-      commitAction = new AbstractAction("Update") {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          if (doValidate() == null) {
-            doUpdateAction();
-          }
-        }
-      };
-    }
-
-    // Defines action to cancel the operation and close the window
-    Action cancelAction = new AbstractAction("Cancel") {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        doCancelAction();
-      }
-    };
-    return new Action[]{commitAction, cancelAction};
-  }
 
   /**
    * Collects the fields' info and sends them to the service layer to create new credential
    */
   private void doCreateAction() {
     CredentialType credentialType = (CredentialType) typeComboBox.getSelectedItem();
-    Credential credential = null;
-    switch (credentialType) {
-      case PASSWORD:
-        credential = new PasswordCredential(credentialNameField.getText(), usernameField.getText(), passwordField.getText());
-        break;
-      case OCI:
-        credential = new OciCredential(credentialNameField.getText(), "ocidField", "tenancyOcid", "privateKey", "fingerprint");
-    }
+    Credential credential = getCredentialType(credentialType);
+    ;
     credentialSvc.createCredential(credential).thenAccept((e) -> {
       SwingUtilities.invokeLater(() -> {
         if (creationCallback != null) {
@@ -176,18 +144,29 @@ public class CredentialCreationWindow extends DialogWrapper {
   }
 
   /**
+   * Based on the credential Type we picked in combobox, it create a new credential instance to be sent either for creation or update in DB
+   *
+   * @param credentialType
+   * @return
+   */
+  private Credential getCredentialType(CredentialType credentialType) {
+    Credential credential = null;
+    switch (credentialType) {
+      case PASSWORD:
+        credential = new PasswordCredential(credentialNameField.getText(), usernameField.getText(), passwordField.getText());
+        break;
+      case OCI:
+        credential = new OciCredential(credentialNameField.getText(), userOcidField.getText(), userTenancyOcidField.getText(), privateKeyField.getText(), fingerprintField.getText());
+    }
+    return credential;
+  }
+
+  /**
    * Collects the fields' info and sends them to the service layer to update new credential
    */
   private void doUpdateAction() {
     CredentialType credentialType = CredentialType.PASSWORD;
-    Credential editedCredential = null;
-    switch (credentialType) {
-      case PASSWORD:
-        editedCredential = new PasswordCredential(credentialNameField.getText(), usernameField.getText(), passwordField.getText());
-        break;
-      case OCI:
-        editedCredential = new OciCredential(credentialNameField.getText(), "ocidField", "tenancyOcid", "privateKey", "fingerprint");
-    }
+    Credential editedCredential = getCredentialType(credentialType);
     credentialSvc.updateCredential(editedCredential).thenAccept((e) -> {
       SwingUtilities.invokeLater(() -> {
         if (creationCallback != null) {
@@ -205,21 +184,55 @@ public class CredentialCreationWindow extends DialogWrapper {
   }
 
   /**
+   * Defines the behaviour when we click the create/update button
+   * It starts by validating, and then it executes the specifies action
+   */
+  @Override
+  protected void doOKAction() {
+    super.doOKAction();
+    if (credential != null) {
+      doUpdateAction();
+    } else {
+      doCreateAction();
+    }
+  }
+
+  /**
    * Defines the validation logic for the fields
    */
   @Override
   protected ValidationInfo doValidate() {
     if (credentialNameField.getText().isEmpty()) {
-      return new ValidationInfo("Credential name cannot be empty", credentialNameField);
+      return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.credentialName"), credentialNameField);
     }
-    if (passwordField.getText().isEmpty()) {
-      return new ValidationInfo("Password cannot be empty", passwordField);
+    if (typeComboBox.getSelectedItem() == CredentialType.PASSWORD) {
+
+      if (usernameField.getText().isEmpty()) {
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.username"), usernameField);
+      }
+      if (passwordField.getText().isEmpty()) {
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.password"), passwordField);
+      }
+    } else {
+      if (userOcidField.getText().isEmpty()) {
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.userOcid"), userOcidField);
+      }
+      if (userTenancyOcidField.getText().isEmpty()) {
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.userTenancyOcid"), userTenancyOcidField);
+      }
+      if (privateKeyField.getText().isEmpty()) {
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.privateKey"), privateKeyField);
+      }
+      if (fingerprintField.getText().isEmpty()) {
+        return new ValidationInfo(messages.getString("ai.settings.credential.creation.validation.fingerprint"), fingerprintField);
+      }
     }
     return null;
   }
 
   /**
    * Handles the creation of the new instance and the opening of the dialog window
+   *
    * @param connection
    * @param credentialSvc
    * @param credential
