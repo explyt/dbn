@@ -3,11 +3,6 @@ package com.dbn.oracleAI.config;
 import com.dbn.oracleAI.types.ProviderType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -78,10 +73,7 @@ public class Profile implements AttributeInput {
 
   public Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
     if ("object_list".equals(attributeName)) {
-      GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(ObjectListItem.class, new ObjectListItemDeserializer());
-      Gson gson = builder.create();
-
+      Gson gson = new GsonBuilder().create();
       try (Reader reader = clob.getCharacterStream();
            BufferedReader br = new BufferedReader(reader)) {
         Type listType = new TypeToken<List<ObjectListItem>>() {
@@ -100,16 +92,4 @@ public class Profile implements AttributeInput {
       return sb.toString();
     }
   }
-
-  public class ObjectListItemDeserializer implements JsonDeserializer<ObjectListItem> {
-    @Override
-    public ObjectListItem deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-      JsonObject jsonObject = json.getAsJsonObject();
-      String owner = jsonObject.get(OWNER).getAsString();
-      String name = jsonObject.get(NAME).getAsString();
-      return ObjectListItemManager.getObjectListItem(owner, name, profileName);
-    }
-  }
-
-
 }

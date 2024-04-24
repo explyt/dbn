@@ -100,9 +100,10 @@ tasks {
   }
   runIde {
         systemProperties["idea.auto.reload.plugins"] = true
+        systemProperties["fake.services"] = false
         jvmArgs = listOf(
             "-Xms512m",
-            "-Xmx2048m", "-Dfake.services=true",
+            "-Xmx2048m",
             "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=1044",
         )
    }

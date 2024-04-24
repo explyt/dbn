@@ -356,7 +356,12 @@ public class OracleAIChatBox extends JPanel {
     return currManager.getProfileService().getProfiles().thenApply(pl-> pl.stream()
          .collect(Collectors.toMap(Profile::getProfileName,
                  Function.identity(),
-                 (existing, replacement) -> existing)));
+                 (existing, replacement) -> existing)))
+            .exceptionally(e->{
+              ApplicationManager.getApplication().invokeLater(() ->
+                      Messages.showErrorDialog(currManager.getProject(), "Cannot get profile list: " + e.getCause().getMessage()));
+              return null;
+            });
 
   }
 
@@ -370,6 +375,7 @@ public class OracleAIChatBox extends JPanel {
       profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
       profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
     } catch (Exception e) {
+      // TODO fix this
       System.out.println(e.getMessage());
 
     }
