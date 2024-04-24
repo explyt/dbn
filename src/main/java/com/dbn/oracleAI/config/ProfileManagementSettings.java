@@ -58,7 +58,7 @@
 //    return CompletableFuture.supplyAsync(()-> {
 //      try {
 //        DBNConnection connection = connectionHandler.getConnection(SessionId.ORACLE_AI);
-//        List<CredentialProvider> credentials = connectionHandler.getOracleAIInterface().listCredentials(connection);
+//        List<CredentialProvider> credentials = connectionHandler.getOracleAIInterface().getCredentials(connection);
 //        return credentials;
 //      } catch (DatabaseOperationException e) {
 //        throw new RuntimeException(e);

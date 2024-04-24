@@ -33,7 +33,7 @@ public class AiProviderSelection extends DialogWrapper {
     super(project, false);
     this.callback = callback;
     initializeProvidersList(project);
-    setTitle(messages.getString("ai.settings.providers.selection"));
+    setTitle(messages.getString("ai.settings.credential.template.window.title"));
     init();
     pack();
   }

@@ -4,14 +4,10 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
-import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
@@ -23,8 +19,6 @@ public class AICredentialService {
 
   private final ConnectionRef connectionRef;
 
-  private final Map<String, String> credentialNameToProfileNameMap = new HashMap<>();
-
   /**
    * Constructs a new AICredentialService with a specified connection handler.
    *
@@ -33,14 +27,14 @@ public class AICredentialService {
    * @throws CredentialManagementException
    */
   public AICredentialService(ConnectionRef connectionRef) {
-    assert connectionRef.get() != null : "No connection";
+    assert connectionRef != null : "No connection";
     this.connectionRef = connectionRef;
   }
 
   /**
    * Asynchronously creates a new credential.
    *
-   * @throws CredentialManagementException
+   * @throws CredentialManagementException underlying service failed
    */
   public CompletableFuture<Void> createCredential(Credential credential) {
     return CompletableFuture.runAsync(() -> {
@@ -74,7 +68,7 @@ public class AICredentialService {
    *
    * @throws CredentialManagementException
    */
-  public CompletableFuture<List<Credential>> listCredentials() {
+  public CompletableFuture<List<Credential>> getCredentials() {
     return CompletableFuture.supplyAsync(() -> {
       try {
         // Obtain a connection for Oracle AI session
@@ -89,34 +83,6 @@ public class AICredentialService {
     });
   }
 
-  /**
-   * Asynchronously lists detailed credential information from the database. And also lists the profiles related to each
-   *
-   * @throws CredentialManagementException
-   */
-  public CompletableFuture<Credential[]> listCredentialsWithProfiles() {
-    return CompletableFuture.supplyAsync(() -> {
-      try {
-        // Obtain a connection for Oracle AI session
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-
-        List<Credential> credentialList = connectionRef.get().getOracleAIInterface().listCredentials(connection);
-        List<Profile> profiles = connectionRef.get().getOracleAIInterface().listProfiles(connection);
-        credentialNameToProfileNameMap.clear();
-        for (Profile profile : profiles) {
-          credentialNameToProfileNameMap.compute(profile.getCredentialName(), (k, v) -> (v == null) ? profile.getProfileName() : v.concat(", " + profile.getProfileName()));
-        }
-        // Fetch and return detailed list of credentials
-        return credentialList.toArray(Credential[]::new);
-      } catch (CredentialManagementException | ProfileManagementException | SQLException e) {
-        throw new CompletionException("Cannot list credentials", e);
-      }
-    });
-  }
-
-  public String getProfilesByCredential(String credentialName) {
-    return credentialNameToProfileNameMap.get(credentialName);
-  }
 
   /**
    * Asynchronously deletes a specific credential information from the database.

@@ -53,7 +53,7 @@ public class ProfileEditionGeneralStep extends AbstractProfileEditionStep {
 
   private void populateCredentials() {
     ApplicationManager.getApplication().invokeLater(() -> {
-      credentialSvc.listCredentials().thenAccept(credentialProviderList -> {
+      credentialSvc.getCredentials().thenAccept(credentialProviderList -> {
 
         for (Credential credential : credentialProviderList) {
           credentialComboBox.addItem(credential.getCredentialName());

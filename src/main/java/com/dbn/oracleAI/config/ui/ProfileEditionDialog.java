@@ -21,7 +21,6 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingWorker;
@@ -133,7 +132,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
           .build();
       this.wizardModel.hydrate(editedProfile);
 
-      profileSvc.addProfile(editedProfile).thenRun(this::dispose).exceptionally(
+      profileSvc.createProfile(editedProfile).thenRun(this::dispose).exceptionally(
           e -> {
             ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currProject, e.getCause().getMessage()));
             return null;

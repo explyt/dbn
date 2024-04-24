@@ -23,6 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.ResourceBundle;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Conditional.when;
 
@@ -73,37 +75,26 @@ public class ProfileManagementPanel extends JPanel {
    */
   private void initComponent() {
     initializeButtons();
-    profileSvc.getProfiles().thenAccept(pm -> {
-      profileMap = pm;
-      if (!profileMap.isEmpty()) {
-        currProfile = profileMap.values().iterator().next();
-      } else {
-        currProfile = null;
-      }
-      ApplicationManager.getApplication()
-          .invokeLater(this::initializeUIComponents);
-    }).exceptionally(e -> {
-      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currProject, e.getCause().getMessage()));
-
-      return null;
-    });
+    updateProfileNames();
   }
 
   private void updateProfileNames() {
     profileSvc.getProfiles().thenAccept(pm -> {
-      profileMap = pm;
+      profileMap = pm.stream().collect(Collectors.toMap(Profile::getProfileName,
+              Function.identity(),
+              (existing, replacement) -> existing));
+
       if (!profileMap.isEmpty()) {
         currProfile = profileMap.values().iterator().next();
       } else {
         currProfile = null;
       }
       ApplicationManager.getApplication()
-          .invokeLater(this::populateProfilesNames);
+              .invokeLater(this::populateProfilesNames);
     }).exceptionally(e -> {
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currProject, e.getCause().getMessage()));
       return null;
     });
-
   }
 
   /**
