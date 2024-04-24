@@ -47,7 +47,7 @@ public class PasswordCredential extends Credential {
   public List<String> toUpdatingAttributeList() {
     List<String> output = new ArrayList<>();
 
-    if (!Objects.equals(username, "")) output.add(toAttributeFormat("user_ocid", username));
+    if (!Objects.equals(username, "")) output.add(toAttributeFormat("username", username));
     if (!Objects.equals(password, "")) output.add(toAttributeFormat("password", password));
     return output;
   }

@@ -14,9 +14,7 @@ import org.jetbrains.annotations.NotNull;
 @AllArgsConstructor
 public class ObjectListItem {
   @NotNull
-  @Expose
   public String owner;
-  @Expose
   public String name;
 
 }
