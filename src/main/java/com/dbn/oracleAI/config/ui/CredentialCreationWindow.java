@@ -12,7 +12,6 @@ import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -22,7 +21,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.CardLayout;
-import java.awt.event.ActionEvent;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -47,7 +45,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JTextField OCICredentialUserTenancyOcidField;
   private JTextField OCICredentialPrivateKeyField;
   private JTextField OCICredentialFingerprintField;
-    private JButton  keyProviderPickerButton;
+  private JButton keyProviderPickerButton;
   private JPanel credentialGeneralPane;
   private JLabel errorLabel;
   private ConnectionRef connection;
@@ -85,18 +83,19 @@ public class CredentialCreationWindow extends DialogWrapper {
         CardLayout cl = (CardLayout) (credentialAttributesPane.getLayout());
         cl.show(credentialAttributesPane, credentialTypeComboBox.getSelectedItem().toString());
       });
-      keyProviderPickerButton.addActionListener((e) -> {
-        ProvidersSelectionCallback providersSelectionCallback = aiProviderType -> populateFields(aiProviderType.getUsername(), aiProviderType.getKey());
-        AiProviderSelection aiProviderSelection = new AiProviderSelection(connection.get().getProject(), providersSelectionCallback);
-        aiProviderSelection.showAndGet();
-      });
     }
+    keyProviderPickerButton.addActionListener((e) -> {
+      ProvidersSelectionCallback providersSelectionCallback = aiProviderType -> populateFields(aiProviderType.getUsername(), aiProviderType.getKey());
+      AiProviderSelection aiProviderSelection = new AiProviderSelection(connection.get().getProject(), providersSelectionCallback);
+      aiProviderSelection.showAndGet();
+
+    });
   }
 
   private void populateFields(String username, String key) {
-      credentialTypeComboBox.setSelectedItem(CredentialType.PASSWORD);
-      passwordCredentialUsernameField.setText(username);
-      passwordCredentialPasswordField.setText(key);
+    credentialTypeComboBox.setSelectedItem(CredentialType.PASSWORD);
+    passwordCredentialUsernameField.setText(username);
+    passwordCredentialPasswordField.setText(key);
   }
 
   /**
@@ -105,59 +104,60 @@ public class CredentialCreationWindow extends DialogWrapper {
   private void hydrateFields() {
     credentialNameField.setText(credential.getCredentialName());
     credentialNameField.setEnabled(false);
-    if(credential instanceof PasswordCredential){
-        credentialTypeComboBox.addItem(CredentialType.PASSWORD);
-        passwordCredentialUsernameField.setText(credential.getUsername());
-    } else if (credential instanceof OciCredential){
-        credentialTypeComboBox.addItem(CredentialType.OCI);
+    if (credential instanceof PasswordCredential) {
+      credentialTypeComboBox.addItem(CredentialType.PASSWORD);
+      passwordCredentialUsernameField.setText(credential.getUsername());
+    } else if (credential instanceof OciCredential) {
+      credentialTypeComboBox.addItem(CredentialType.OCI);
       OciCredential ociCredentialProvider = (OciCredential) credential;
-        OCICredentialUserOcidField.setText(ociCredentialProvider.getUsername());
-        OCICredentialUserTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
-        OCICredentialPrivateKeyField.setText(ociCredentialProvider.getPrivateKey());
-        OCICredentialFingerprintField.setText(ociCredentialProvider.getFingerprint());
+      OCICredentialUserOcidField.setText(ociCredentialProvider.getUsername());
+      OCICredentialUserTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
+      OCICredentialPrivateKeyField.setText(ociCredentialProvider.getPrivateKey());
+      OCICredentialFingerprintField.setText(ociCredentialProvider.getFingerprint());
     }
-      credentialTypeComboBox.setEnabled(false);
+    credentialTypeComboBox.addItem(CredentialType.PASSWORD);
+    credentialTypeComboBox.setEnabled(false);
   }
 
 
   /**
    * Define the possible actions of this dialog window
    */
-  @NotNull
-  @Override
-  protected Action @NotNull [] createActions() {
-    super.createActions();
-
-    // Defines the action to either create or update credential
-    Action commitAction;
-    if(credential ==null){
-      commitAction = new AbstractAction(messages.getString("ai.messages.button.create")) {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        if (doValidate() == null) {
-          doCreateAction();
-        }
-      }
-    };} else{
-      commitAction = new AbstractAction(messages.getString("ai.messages.button.update")) {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          if (doValidate() == null) {
-            doUpdateAction();
-          }
-        }
-      };
-    }
-
-    // Defines action to cancel the operation and close the window
-    Action cancelAction = new AbstractAction(messages.getString("ai.messages.button.cancel")) {
-      @Override
-      public void actionPerformed(ActionEvent e) {
-        doCancelAction();
-      }
-    };
-    return new Action[]{commitAction, cancelAction};
-  }
+//  @NotNull
+//  @Override
+//  protected Action @NotNull [] createActions() {
+//    super.createActions();
+//    // Defines the action to either create or update credential
+//    Action commitAction;
+//    if (credential == null) {
+//      commitAction = new AbstractAction(messages.getString("ai.messages.button.create")) {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//          if (doValidate() == null) {
+//            doCreateAction();
+//          }
+//        }
+//      };
+//    } else {
+//      commitAction = new AbstractAction(messages.getString("ai.messages.button.update")) {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//          if (doValidate() == null) {
+//            doUpdateAction();
+//          }
+//        }
+//      };
+//    }
+//
+//    // Defines action to cancel the operation and close the window
+//    Action cancelAction = new AbstractAction(messages.getString("ai.messages.button.cancel")) {
+//      @Override
+//      public void actionPerformed(ActionEvent e) {
+//        doCancelAction();
+//      }
+//    };
+//    return new Action[]{commitAction, cancelAction};
+//  }
 
   /**
    * Collects the fields' info and sends them to the service layer to create new credential
@@ -171,7 +171,7 @@ public class CredentialCreationWindow extends DialogWrapper {
         break;
       case OCI:
         credential = new OciCredential(credentialNameField.getText(), OCICredentialUserOcidField.getText(),
-                OCICredentialUserTenancyOcidField.getText(), OCICredentialPrivateKeyField.getText(), OCICredentialFingerprintField.getText());
+            OCICredentialUserTenancyOcidField.getText(), OCICredentialPrivateKeyField.getText(), OCICredentialFingerprintField.getText());
     }
     credentialSvc.createCredential(credential).thenAccept((e) -> {
       SwingUtilities.invokeLater(() -> {
@@ -201,7 +201,7 @@ public class CredentialCreationWindow extends DialogWrapper {
         break;
       case OCI:
         editedCredential = new OciCredential(credentialNameField.getText(), OCICredentialUserOcidField.getText(),
-                OCICredentialUserTenancyOcidField.getText(), OCICredentialPrivateKeyField.getText(), OCICredentialFingerprintField.getText());
+            OCICredentialUserTenancyOcidField.getText(), OCICredentialPrivateKeyField.getText(), OCICredentialFingerprintField.getText());
     }
     credentialSvc.updateCredential(editedCredential).thenAccept((e) -> {
       SwingUtilities.invokeLater(() -> {
@@ -219,6 +219,7 @@ public class CredentialCreationWindow extends DialogWrapper {
 
   }
 
+
   /**
    * Defines the behaviour when we click the create/update button
    * It starts by validating, and then it executes the specifies action
@@ -233,6 +234,13 @@ public class CredentialCreationWindow extends DialogWrapper {
     }
   }
 
+  @Override
+  protected Action @NotNull [] createActions() {
+    super.setOKButtonText(credential != null ? "Update" : "Create");
+
+    return super.createActions();
+  }
+
   /**
    * Defines the validation logic for the fields
    */
@@ -240,7 +248,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   protected ValidationInfo doValidate() {
     if (credentialNameField.getText().isEmpty()) {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_1"),
-              credentialNameField);
+          credentialNameField);
     }
 
     switch (CredentialType.valueOf(credentialTypeComboBox.getSelectedItem().toString())) {
@@ -259,36 +267,37 @@ public class CredentialCreationWindow extends DialogWrapper {
     }
     if (!OCICredentialUserOcidField.getText().startsWith("ocid1.user.oc1.")) {
       return new ValidationInfo(
-              messages.getString("ai.settings.credentials.oci.info.user_ocid.validation_error_2"),
-              OCICredentialUserOcidField);
+          messages.getString("ai.settings.credentials.oci.info.user_ocid.validation_error_2"),
+          OCICredentialUserOcidField);
     }
     if (OCICredentialUserTenancyOcidField.getText().isEmpty()) {
       return new ValidationInfo(
-              messages.getString("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_1"),
-              OCICredentialUserTenancyOcidField);
+          messages.getString("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_1"),
+          OCICredentialUserTenancyOcidField);
     }
     if (!OCICredentialUserTenancyOcidField.getText().startsWith("ocid1.tenancy.oc1.")) {
       return new ValidationInfo(
-              messages.getString("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_2"),
-              OCICredentialUserTenancyOcidField);
+          messages.getString("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_2"),
+          OCICredentialUserTenancyOcidField);
     }
     if (OCICredentialFingerprintField.getText().isEmpty()) {
       return new ValidationInfo(messages.getString("ai.settings.credentials.oci.info.fingerprint.validation_error_1"),
-              OCICredentialFingerprintField);
+          OCICredentialFingerprintField);
     }
     if (OCICredentialPrivateKeyField.getText().isEmpty()) {
       return new ValidationInfo(messages.getString("ai.settings.credentials.oci.info.private_key.validation_error_1"), OCICredentialPrivateKeyField);
     }
     return null;
   }
+
   private ValidationInfo doPasswordCredentialValidate() {
     if (passwordCredentialUsernameField.getText().isEmpty()) {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.username.validation_error_1"),
-              passwordCredentialUsernameField);
+          passwordCredentialUsernameField);
     }
     if (passwordCredentialPasswordField.getText().isEmpty()) {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.password.validation_error_1")
-              , passwordCredentialPasswordField);
+          , passwordCredentialPasswordField);
     }
     return null;
   }
