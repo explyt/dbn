@@ -191,22 +191,29 @@ public class CredentialManagementPanel extends JPanel {
    * @param credential The credential to display information for.
    */
   public void panelTemplate(Credential credential) {
-
-    displayInfo.setLayout(new com.jgoodies.forms.layout.FormLayout("fill:d:noGrow,left:4dlu:noGrow,fill:d:grow", "center:d:noGrow,top:3dlu:noGrow,center:max(d;4px):noGrow"));
+    displayInfo.setLayout(new com.jgoodies.forms.layout.FormLayout(
+            "fill:d:noGrow,left:4dlu:noGrow,fill:d:grow",
+            "center:d:noGrow,top:3dlu:noGrow,center:d:noGrow,top:3dlu:noGrow,center:d:noGrow"));
 
 
     com.jgoodies.forms.layout.CellConstraints cc = new com.jgoodies.forms.layout.CellConstraints();
     displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.credential_name")), cc.xy(1, 1));
-    displayInfo.add(new JTextField(credential.getCredentialName()),
+    JTextField jt1 = new JTextField(credential.getCredentialName());
+    jt1.setEditable(false);
+    displayInfo.add(jt1,
             cc.xy(3, 1, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
     displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.username")), cc.xy(1, 3));
-    displayInfo.add(new JTextField(credential.getUsername()),
+    JTextField jt2 = new JTextField(credential.getUsername());
+    jt2.setEditable(false);
+    displayInfo.add(jt2,
             cc.xy(3, 3, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
-//    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.comment")), cc.xy(1, 5));
-//    displayInfo.add(new JTextField(credential.getComments()),
-//            cc.xy(3, 5, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.comment")), cc.xy(1, 5));
+    JTextField jt3 = new JTextField(credential.getComments());
+    jt3.setEditable(false);
+    displayInfo.add(jt3,
+            cc.xy(3, 5, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
     displayInfo.revalidate();
     displayInfo.repaint();

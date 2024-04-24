@@ -12,7 +12,6 @@ import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.JComboBox;
@@ -41,12 +40,13 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JComboBox<CredentialType> typeComboBox;
   private JTextField usernameField;
   private JTextField passwordField;
-  private JPanel card;
+  private JPanel credentialAttributesPane;
   private JPanel ociCard;
   private JTextField userOcidField;
   private JTextField userTenancyOcidField;
   private JTextField privateKeyField;
   private JTextField fingerprintField;
+  private JPanel credentialGeneralPane;
   private JLabel errorLabel;
   private ConnectionRef connection;
   private Credential credential;
@@ -80,8 +80,8 @@ public class CredentialCreationWindow extends DialogWrapper {
       typeComboBox.addItem(CredentialType.PASSWORD);
       typeComboBox.addItem(CredentialType.OCI);
       typeComboBox.addActionListener((e) -> {
-        CardLayout cl = (CardLayout) (card.getLayout());
-        cl.show(card, typeComboBox.getSelectedItem().toString());
+        CardLayout cl = (CardLayout) (credentialAttributesPane.getLayout());
+        cl.show(credentialAttributesPane, typeComboBox.getSelectedItem().toString());
       });
     }
   }
