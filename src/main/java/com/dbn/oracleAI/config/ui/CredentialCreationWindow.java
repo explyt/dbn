@@ -14,6 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -46,6 +47,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JTextField OCICredentialUserTenancyOcidField;
   private JTextField OCICredentialPrivateKeyField;
   private JTextField OCICredentialFingerprintField;
+    private JButton  keyProviderPickerButton;
   private JPanel credentialGeneralPane;
   private JLabel errorLabel;
   private ConnectionRef connection;
@@ -83,7 +85,18 @@ public class CredentialCreationWindow extends DialogWrapper {
         CardLayout cl = (CardLayout) (credentialAttributesPane.getLayout());
         cl.show(credentialAttributesPane, credentialTypeComboBox.getSelectedItem().toString());
       });
+      keyProviderPickerButton.addActionListener((e) -> {
+        ProvidersSelectionCallback providersSelectionCallback = aiProviderType -> populateFields(aiProviderType.getUsername(), aiProviderType.getKey());
+        AiProviderSelection aiProviderSelection = new AiProviderSelection(connection.get().getProject(), providersSelectionCallback);
+        aiProviderSelection.showAndGet();
+      });
     }
+  }
+
+  private void populateFields(String username, String key) {
+      credentialTypeComboBox.setSelectedItem(CredentialType.PASSWORD);
+      passwordCredentialUsernameField.setText(username);
+      passwordCredentialPasswordField.setText(key);
   }
 
   /**
@@ -93,17 +106,17 @@ public class CredentialCreationWindow extends DialogWrapper {
     credentialNameField.setText(credential.getCredentialName());
     credentialNameField.setEnabled(false);
     if(credential instanceof PasswordCredential){
-      credentialTypeComboBox.addItem(CredentialType.PASSWORD);
-      passwordCredentialUsernameField.setText(credential.getUsername());
+        credentialTypeComboBox.addItem(CredentialType.PASSWORD);
+        passwordCredentialUsernameField.setText(credential.getUsername());
     } else if (credential instanceof OciCredential){
-      credentialTypeComboBox.addItem(CredentialType.OCI);
+        credentialTypeComboBox.addItem(CredentialType.OCI);
       OciCredential ociCredentialProvider = (OciCredential) credential;
-      OCICredentialUserOcidField.setText(ociCredentialProvider.getUsername());
-      OCICredentialUserTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
-      OCICredentialPrivateKeyField.setText(ociCredentialProvider.getPrivateKey());
-      OCICredentialFingerprintField.setText(ociCredentialProvider.getFingerprint());
+        OCICredentialUserOcidField.setText(ociCredentialProvider.getUsername());
+        OCICredentialUserTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
+        OCICredentialPrivateKeyField.setText(ociCredentialProvider.getPrivateKey());
+        OCICredentialFingerprintField.setText(ociCredentialProvider.getFingerprint());
     }
-    credentialTypeComboBox.setEnabled(false);
+      credentialTypeComboBox.setEnabled(false);
   }
 
 
@@ -207,6 +220,20 @@ public class CredentialCreationWindow extends DialogWrapper {
   }
 
   /**
+   * Defines the behaviour when we click the create/update button
+   * It starts by validating, and then it executes the specifies action
+   */
+  @Override
+  protected void doOKAction() {
+    super.doOKAction();
+    if (credential != null) {
+      doUpdateAction();
+    } else {
+      doCreateAction();
+    }
+  }
+
+  /**
    * Defines the validation logic for the fields
    */
   @Override
@@ -268,6 +295,7 @@ public class CredentialCreationWindow extends DialogWrapper {
 
   /**
    * Handles the creation of the new instance and the opening of the dialog window
+   *
    * @param connection
    * @param credentialSvc
    * @param credential
@@ -283,7 +311,5 @@ public class CredentialCreationWindow extends DialogWrapper {
     return contentPane;
   }
 
-  private void createUIComponents() {
-    // TODO: place custom component creation code here
-  }
+
 }
