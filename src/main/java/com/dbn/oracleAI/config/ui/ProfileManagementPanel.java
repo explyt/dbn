@@ -21,7 +21,6 @@ import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -81,8 +80,8 @@ public class ProfileManagementPanel extends JPanel {
   private void updateProfileNames() {
     profileSvc.getProfiles().thenAccept(pm -> {
       profileMap = pm.stream().collect(Collectors.toMap(Profile::getProfileName,
-              Function.identity(),
-              (existing, replacement) -> existing));
+          Function.identity(),
+          (existing, replacement) -> existing));
 
       if (!profileMap.isEmpty()) {
         currProfile = profileMap.values().iterator().next();
@@ -90,7 +89,7 @@ public class ProfileManagementPanel extends JPanel {
         currProfile = null;
       }
       ApplicationManager.getApplication()
-              .invokeLater(this::populateProfilesNames);
+          .invokeLater(this::initializeUIComponents);
     }).exceptionally(e -> {
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currProject, e.getCause().getMessage()));
       return null;
@@ -102,35 +101,13 @@ public class ProfileManagementPanel extends JPanel {
    */
   private void initializeUIComponents() {
     if (currProfile != null) {
-      initializeProfileNames();
+      populateProfileNames();
       updateWindow();
-      initializeFilledWindow();
       initializeTable();
     } else {
       initializeEmptyWindow();
     }
   }
-
-  /**
-   * populate profile map for current connection
-   */
-  private void initializeProfileNames() {
-    populateProfilesNames();
-    profileComboBox.addActionListener(e -> {
-      String selectedProfileName = (String) profileComboBox.getSelectedItem();
-      if (!Objects.equals(selectedProfileName, "<None>") && !Objects.equals(selectedProfileName, null)) {
-        currProfile = profileMap.get(selectedProfileName);
-        updateWindow();
-      }
-    });
-  }
-
-  private void populateProfilesNames() {
-    profileComboBox.removeAllItems();
-    profileMap.forEach((name, profile) -> profileComboBox.addItem(name));
-    profileComboBox.setSelectedItem(currProfile != null ? currProfile.getProfileName() : null);
-  }
-
 
   /**
    * initialize action buttons
@@ -227,7 +204,6 @@ public class ProfileManagementPanel extends JPanel {
    */
   private void updateWindow() {
     if (currProfile != null) {
-      populateProfileNames();
       initializeFilledWindow();
       populateTable(currProfile);
       credentialField.setText(fixAttributesPresentation(currProfile.getCredentialName()));
@@ -249,8 +225,8 @@ public class ProfileManagementPanel extends JPanel {
     if (currProfile != null) {
       profileComboBox.setSelectedItem(currProfile.getProfileName());
     }
-    profileComboBox.removeItem("New profile...");
-    profileComboBox.addItem("New profile...");
+//    profileComboBox.removeItem("New profile...");
+//    profileComboBox.addItem("New profile...");
     profileComboBox.addActionListener(e -> {
       String selectedProfileName = (String) profileComboBox.getSelectedItem();
       currProfile = profileMap.get(selectedProfileName);
