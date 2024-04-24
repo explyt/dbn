@@ -9,37 +9,15 @@
 <data-dictionary>
     <statement-execution-processor id="create-credential" timeout="20">
         <statement>
-            DECLARE
-            v_credential_count NUMBER;
             BEGIN
-            SELECT COUNT(*)
-            INTO v_credential_count
-            FROM ALL_CREDENTIALS
-            WHERE CREDENTIAL_NAME = '{0}';
-
-            IF v_credential_count = 0 THEN
-            DBMS_CLOUD.CREATE_CREDENTIAL(
-            {1}
-            );
-            END IF;
+            DBMS_CLOUD.CREATE_CREDENTIAL( {1} );
             END;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="create-profile" timeout="20">
         <statement>
-            DECLARE
-            v_profile_count NUMBER;
             BEGIN
-            SELECT COUNT(*)
-            INTO v_profile_count
-            FROM USER_CLOUD_AI_PROFILES
-            WHERE PROFILE_NAME = '{0}';
-
-            IF v_profile_count = 0 THEN
-            DBMS_CLOUD_AI.CREATE_PROFILE(
-            {1}
-            );
-            END IF;
+            DBMS_CLOUD_AI.CREATE_PROFILE( {1} );
             END;
         </statement>
     </statement-execution-processor>
@@ -64,7 +42,7 @@
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-profiles" timeout="10">
+    <statement-execution-processor id="list-profiles" timeout="100">
         <statement>
             declare
             profile_names VARCHAR2(4000);

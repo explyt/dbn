@@ -45,7 +45,6 @@ public class OracleProfilesDetailedInfo implements CallableStatementOutput {
       String profileName = rs.getString("PROFILE_NAME");
       String attributeName = rs.getString("ATTRIBUTE_NAME");
       java.sql.Clob clobData = rs.getClob("ATTRIBUTE_VALUE");
-
       Profile profile = profileBuildersMap.computeIfAbsent(profileName, k -> Profile.builder().profileName(profileName).build());
       Object attributeObject = profile.clobToObject(attributeName, clobData);
 

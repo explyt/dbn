@@ -39,7 +39,7 @@ public class AIProfileService {
    * @throws ProfileManagementException
    */
   public CompletableFuture<List<Profile>> getProfiles() {
-    if (System.getProperty("fake.services") != null) {
+    if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
       List<Profile> faked = new ArrayList<>();
       faked.add(Profile.builder().profileName("cohere").provider(
           ProviderType.COHERE).credentialName("foo").model("foo").build());
