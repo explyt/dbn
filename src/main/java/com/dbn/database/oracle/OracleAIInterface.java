@@ -19,8 +19,10 @@ import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
+import com.dbn.oracleAI.types.DataType;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OracleAIInterface extends DatabaseInterfaceBase implements DatabaseOracleAIInterface {
@@ -153,8 +155,12 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public List<ObjectListItem> listObjectListItems(DBNConnection connection, String profileName) throws DatabaseOperationException {
     try {
-      List<ObjectListItem> objectListItemsList = executeCall(connection, new ObjectListItemInfo(profileName), "list-tables").getObjectListItemsList();
-      return objectListItemsList;
+      List<ObjectListItem> objectListItems = new ArrayList<>();
+      List<ObjectListItem> tableObjectListItemsList = executeCall(connection, new ObjectListItemInfo(profileName, DataType.TABLE), "list-tables").getObjectListItemsList();
+      List<ObjectListItem> viewObjectListItemsList = executeCall(connection, new ObjectListItemInfo(profileName, DataType.VIEW), "list-views").getObjectListItemsList();
+      objectListItems.addAll(tableObjectListItemsList);
+      objectListItems.addAll(viewObjectListItemsList);
+      return objectListItems;
     } catch (SQLException e) {
       throw new DatabaseOperationException(e.getMessage(), e);
     }

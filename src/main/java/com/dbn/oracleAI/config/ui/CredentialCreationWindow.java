@@ -63,9 +63,10 @@ public class CredentialCreationWindow extends DialogWrapper {
    */
   /**
    * Constructs a CredentialCreationWindow dialog.
-   * @param connection The connection handler associated with the current project.
-   * @param credentialSvc The service used to create credentials.
-   * @param credential the credential to be edited, can be null in case of credential creation
+   *
+   * @param connection       The connection handler associated with the current project.
+   * @param credentialSvc    The service used to create credentials.
+   * @param credential       the credential to be edited, can be null in case of credential creation
    * @param creationCallback the callback to validate creation/edition
    */
   public CredentialCreationWindow(ConnectionRef connection, AICredentialService credentialSvc, @Nullable Credential credential, CredentialCreationCallback creationCallback) {
@@ -83,6 +84,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   /**
    * Set the existing credential name list.
    * That list is used during validation
+   *
    * @param names the list of names
    */
   public void setExistingCredentialNames(List<String> names) {
@@ -233,7 +235,7 @@ public class CredentialCreationWindow extends DialogWrapper {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_1"),
           credentialNameField);
     }
-    if (this.existingCredentialNames.contains(credentialNameField.getText())) {
+    if (this.existingCredentialNames.contains(credentialNameField.getText()) && credential==null) {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_2"),
               credentialNameField);
     }

@@ -71,32 +71,26 @@
             query_output VARCHAR2(4000);
             begin
             SELECT DBMS_CLOUD_AI.GENERATE(
-                prompt => '{2}',
-                profile_name => '{0}',
-                action => '{1}',
-                attributes => '{3}')
+            prompt => '{2}',
+            profile_name => '{0}',
+            action => '{1}',
+            attributes => '{3}')
             INTO query_output
             FROM dual;
             ? := query_output;
             end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-tables" timeout="20">
+    <statement-execution-processor id="list-tables" timeout="30">
         <statement>
             SELECT OWNER, TABLE_NAME
             FROM all_tables
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-views" timeout="20">
+    <statement-execution-processor id="list-views" timeout="30">
         <statement>
-            declare
-            views VARCHAR2(4000);
-            begin
-            SELECT LISTAGG(VIEW_NAME, ' ') WITHIN GROUP ( ORDER BY VIEW_NAME )
-            INTO views
-            FROM all_views;
-            ? := views;
-            end;
+            SELECT OWNER, VIEW_NAME
+            FROM all_views
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="list-schemas" timeout="20">
@@ -126,7 +120,7 @@
         <statement>
             BEGIN
             DBMS_CLOUD_AI.SET_ATTRIBUTES(
-                {0}
+            {0}
             );
             END;
         </statement>
@@ -135,7 +129,7 @@
         <statement>
             BEGIN
             DBMS_CLOUD.UPDATE_CREDENTIAL(
-                {0}
+            {0}
             );
             END;
         </statement>

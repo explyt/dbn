@@ -1,6 +1,6 @@
 package com.dbn.oracleAI.config;
 
-import com.google.gson.annotations.Expose;
+import com.dbn.oracleAI.types.DataType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,5 +16,6 @@ public class ObjectListItem {
   @NotNull
   public String owner;
   public String name;
+  public DataType type;
 
 }

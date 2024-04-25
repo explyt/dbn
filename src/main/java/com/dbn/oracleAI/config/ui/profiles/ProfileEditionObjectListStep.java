@@ -3,14 +3,16 @@ package com.dbn.oracleAI.config.ui.profiles;
 import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.oracleAI.WizardStepChangeEvent;
+import com.dbn.oracleAI.WizardStepEventListener;
 import com.dbn.oracleAI.config.ObjectListItem;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.ui.SelectedObjectItemsVerifier;
+import com.dbn.oracleAI.types.DataType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import org.eclipse.sisu.Nullable;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultListSelectionModel;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -21,7 +23,14 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -39,6 +48,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   private JTable selectingTable;
   private JLabel selectedTablesLabel;
   private JComboBox schemaComboBox;
+  private JCheckBox withViewsButton;
   private final AIProfileService profileSvc;
   private final Project project;
   ObjectListSelectedTableModel selectedTableModel = new ObjectListSelectedTableModel();
@@ -50,6 +60,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     super();
     this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
+
     patternFilter.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {
         filter();
@@ -72,14 +83,59 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     useAllCheckBox.addItemListener(
         e -> {
           if (useAllCheckBox.isSelected()) selectingTableModel.selectAllFiltered();
+          else selectingTableModel.unselectAllFiltered();
         }
     );
+    withViewsButton.addItemListener((
+        e -> {
+          populateSelectingTable(schemaComboBox.getSelectedItem().toString());
+        }
+    ));
     initializeTable(profile);
   }
 
   private void initializeTable(@Nullable Profile profile) {
     selectedTable.setModel(selectedTableModel);
+    addValidationListener(selectedTable);
     selectingTable.setModel(selectingTableModel);
+    selectingTable.addMouseListener(new MouseAdapter() {
+      //      @Override
+//      public void mouseClicked(MouseEvent e) {
+//        int row = selectingTable.rowAtPoint(e.getPoint());
+//        if (row >= 0) {
+//          ObjectListItem item = selectingTableModel.getItemAt(row);
+//          toggleItemSelection(item);
+//        }
+//      }
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+          int row = selectingTable.rowAtPoint(e.getPoint());
+          if (row >= 0) {
+            ObjectListItem item = selectingTableModel.getItemAt(row);
+            if (selectedTableModel.contains(item)) {
+              return;
+            }
+            selectedTableModel.addItem(item);
+            selectingTableModel.removeItem(item);
+          }
+        }
+      }
+    });
+    selectedTable.addMouseListener(new MouseAdapter() {
+      @Override
+      public void mouseClicked(MouseEvent e) {
+        if (e.getClickCount() == 2) {
+          int row = selectedTable.rowAtPoint(e.getPoint());
+          if (row >= 0) {
+            ObjectListItem item = selectedTableModel.getItemAt(row);
+            selectingTableModel.addItem(item);
+            selectedTableModel.removeItem(item);
+          }
+        }
+      }
+    });
+
     loadSchemas();
     loadTables(profile);
     selectingTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
@@ -92,10 +148,40 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         editor.setEditable(false);
         editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
         editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+
+        // Check if the current row item is in the selectedTableModel
+        ObjectListItem currentItem = selectingTableModel.getItemAt(row);
+        if (currentItem.getType() == DataType.VIEW) {
+          editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
+          editor.setBackground(Color.BLACK);
+        } else {
+          editor.setFont(editor.getFont().deriveFont(Font.PLAIN));
+        }
         return editor;
       }
     });
-    selectingTable.setSelectionModel(new ProfileEditionObjectListStep.NullSelectionModel());
+    selectedTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
+      private final JTextField editor = new JTextField();
+
+      @Override
+      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        editor.setText((value != null) ? value.toString() : "");
+        editor.setBorder(null);
+        editor.setEditable(false);
+        editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+        editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+
+        // Check if the current row item is in the selectedTableModel
+        ObjectListItem currentItem = selectedTableModel.getItemAt(row);
+        if (currentItem.getType() == DataType.VIEW) {
+          editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
+          editor.setBackground(Color.BLACK);
+        } else {
+          editor.setFont(editor.getFont().deriveFont(Font.PLAIN));
+        }
+        return editor;
+      }
+    });
   }
 
   private void loadSchemas() {
@@ -118,6 +204,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         populateSelectingTable(schemaComboBox.getSelectedItem().toString());
         populateSelectedTable(profile);
         schemaComboBox.addActionListener((e) -> {
+//          selectingTable.removeMouseListener(selectingTable.getMouseListeners()[0]); // Remove existing listeners
           populateSelectingTable(schemaComboBox.getSelectedItem().toString());
         });
       });
@@ -128,39 +215,50 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     });
   }
 
+  private void adjustColumnSizes(JTable table) {
+    int tableWidth = table.getWidth();
+
+    // Ensure that the table has columns before adjusting sizes
+    if (table.getColumnModel().getColumnCount() > 1) {
+      TableColumn column1 = table.getColumnModel().getColumn(0);
+      TableColumn column2 = table.getColumnModel().getColumn(1);
+
+      // Set each column to half of the table width
+      int columnWidth = tableWidth / 3;
+
+      column1.setPreferredWidth(2 * columnWidth);
+      column2.setPreferredWidth(columnWidth);
+    }
+  }
+
+
   private void populateSelectedTable(Profile profile) {
     if (profile != null) {
       selectedTableModel.updateItems(profile.getObjectList());
     }
-  }
-
-  private void populateSelectingTable(String schema) {
-    if (schema.equals("All Schemas")) selectingTableModel.updateItems(profileSvc.getObjectItems());
-    else selectingTableModel.updateItems(profileSvc.getObjectItemsForSchema(schema));
-    selectingTable.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(new JCheckBox()) {
+    adjustColumnSizes(selectedTable);
+    selectedTable.addComponentListener(new ComponentAdapter() {
       @Override
-      public boolean stopCellEditing() {
-        int row = selectingTable.getEditingRow();
-        boolean isSelected = (Boolean) getCellEditorValue();
-        ObjectListItem item = selectingTableModel.getItemAt(row);
-
-        if (isSelected) {
-          if (!selectedTableModel.contains(item)) {
-            selectedTableModel.addItem(item);
-          }
-        } else {
-          selectedTableModel.removeItem(item);
-        }
-        return super.stopCellEditing();
+      public void componentResized(ComponentEvent e) {
+        adjustColumnSizes(selectedTable);
       }
     });
   }
 
-  private static class NullSelectionModel extends DefaultListSelectionModel {
-    @Override
-    public void setSelectionInterval(int index0, int index1) {
-      super.setSelectionInterval(-1, -1);
+  private void populateSelectingTable(String schema) {
+    if (schema.equals("All Schemas")) {
+      selectingTableModel.updateItems(profileSvc.getObjectItems());
+    } else {
+      selectingTableModel.updateItems(profileSvc.getObjectItemsForSchema(schema));
     }
+    adjustColumnSizes(selectingTable);
+    selectingTable.addComponentListener(new ComponentAdapter() {
+      @Override
+      public void componentResized(ComponentEvent e) {
+        adjustColumnSizes(selectingTable);
+      }
+    });
+
   }
 
   @Override
@@ -226,7 +324,8 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     public void addItem(ObjectListItem item) {
       data.add(item);
       fireTableRowsInserted(data.size() - 1, data.size() - 1);
-      selectingTableModel.fireTableDataChanged();
+      selectingTableModel.fireTableDataChanged(); // Refresh other table to update bold styling
+      fireTableDataChanged();
     }
 
     public void removeItem(ObjectListItem item) {
@@ -234,7 +333,9 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
       if (index >= 0) {
         data.remove(index);
         fireTableRowsDeleted(index, index);
-        selectingTableModel.fireTableDataChanged(); // Refresh other table
+        selectingTableModel.fireTableDataChanged(); // Refresh other table to update bold styling
+        fireTableDataChanged();
+
       }
     }
 
@@ -265,12 +366,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   public class ObjectListSelectingTableModel extends AbstractTableModel {
 
     private List<ObjectListItem> filteredData;
-    private String[] columnNames = {"Table/View Name", "Selected"};
-
-    @Override
-    public boolean isCellEditable(int row, int column) {
-      return column == 1;
-    }
+    private String[] columnNames = {"Table/View Name", "Owner"};
 
     public ObjectListSelectingTableModel() {
       this.filteredData = new ArrayList<>();
@@ -293,7 +389,9 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         case 0:
           return item.getName();
         case 1:
-          return selectedTableModel.getData().contains(item);
+          return item.getOwner();
+//        case 2:
+//          return selectedTableModel.getData().contains(item);
         default:
           return null;
       }
@@ -306,9 +404,6 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-      if (columnIndex == 1) {
-        return Boolean.class;
-      }
       return String.class;
     }
 
@@ -321,14 +416,32 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     public void selectAllFiltered() {
       for (int i = 0; i < filteredData.size(); i++) {
         ObjectListItem item = filteredData.get(i);
-        selectedTableModel.addItem(item);
+        if (!selectedTableModel.contains(item)) {
+          selectedTableModel.addItem(item);
+          selectingTableModel.removeItem(item);
+        }
       }
       fireTableRowsUpdated(0, filteredData.size() - 1);
+      selectingTableModel.fireTableDataChanged();
+
+    }
+
+    public void unselectAllFiltered() {
+      for (int i = 0; i < filteredData.size(); i++) {
+        ObjectListItem item = filteredData.get(i);
+        selectedTableModel.removeItem(item);
+        selectingTableModel.addItem(item);
+      }
+      fireTableRowsUpdated(0, filteredData.size() - 1);
+      selectingTableModel.fireTableDataChanged();
 
     }
 
     private List<ObjectListItem> filterItems(List<ObjectListItem> items, String pattern) {
-      List<ObjectListItem> filteredItems = items.stream().filter(item -> item.getName().toLowerCase().contains(pattern.toLowerCase())).collect(Collectors.toList());
+      List<ObjectListItem> filteredItems = items.stream().filter(item -> item.getName().toLowerCase().contains(pattern.toLowerCase())).filter(item -> !selectedTableModel.getData().contains(item)).collect(Collectors.toList());
+      if (!withViewsButton.isSelected()) {
+        filteredItems = filteredItems.stream().filter(item -> item.getType() == DataType.TABLE).collect(Collectors.toList());
+      }
       return filteredItems;
     }
 
@@ -337,7 +450,15 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
       if (index >= 0) {
         filteredData.remove(index);
         fireTableRowsDeleted(index, index);
+        fireTableDataChanged();
       }
+    }
+
+    public void addItem(ObjectListItem item) {
+      filteredData.add(item);
+      fireTableRowsInserted(0, getRowCount() - 1);
+      fireTableDataChanged();
+
     }
 
     public ObjectListItem getItemAt(int rowIndex) {
@@ -345,6 +466,25 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     }
   }
 
-  ;
+
+  private void addValidationListener(JTable table) {
+    table.setInputVerifier(new SelectedObjectItemsVerifier());
+    table.getModel().addTableModelListener(e -> {
+      fireWizardStepChangeEvent();
+    });
+  }
+
+  private void fireWizardStepChangeEvent() {
+    for (WizardStepEventListener listener : this.listeners) {
+      listener.onStepChange(new WizardStepChangeEvent(this));
+    }
+  }
+
+  @Override
+  public boolean isInputsValid() {
+    // TODO : add more
+    return selectedTable.getInputVerifier().verify(selectedTable);
+  }
+
 
 }
