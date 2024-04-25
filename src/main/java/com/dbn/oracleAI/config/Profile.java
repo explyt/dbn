@@ -111,7 +111,7 @@ public class Profile implements AttributeInput {
       JsonObject jsonObject = json.getAsJsonObject();
       String owner = jsonObject.has(OWNER) ? jsonObject.get(OWNER).getAsString() : null;
       String name = jsonObject.has(NAME) ? jsonObject.get(NAME).getAsString() : null;
-      if (owner != null) return ObjectListItemManager.getObjectListItem(owner, name);
+      if (owner != null) return ObjectListItemManager.getObjectListItem(owner, name, null);
       return null;
     }
   }
