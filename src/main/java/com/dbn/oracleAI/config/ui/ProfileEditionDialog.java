@@ -10,6 +10,7 @@ import com.dbn.oracleAI.WizardStepEventListener;
 import com.dbn.oracleAI.WizardStepView;
 import com.dbn.oracleAI.WizardStepViewPortProvider;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -33,10 +34,10 @@ import java.util.ResourceBundle;
 import java.util.Set;
 
 public class ProfileEditionDialog extends JDialog implements ViewEventListener,
-  WizardStepEventListener {
+    WizardStepEventListener {
 
   static private final ResourceBundle messages =
-    ResourceBundle.getBundle("Messages", Locale.getDefault());
+      ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   private JPanel mainPane;
   private JPanel buttonPanel;
@@ -59,19 +60,21 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
   /**
    * Creates a new AI profile edition dialog
    * for profile creation.
+   *
    * @param currProject current project we belong to
    */
   public ProfileEditionDialog(Project currProject) {
-    this(currProject,null);
+    this(currProject, null);
   }
 
   /**
    * Creates a new AI profile edition dialog
    * for profile edition
+   *
    * @param currProject current project we belong to
-   * @param profile the profile to be edited through the wizard
+   * @param profile     the profile to be edited through the wizard
    */
-  public ProfileEditionDialog(Project currProject,@Nullable Profile profile) {
+  public ProfileEditionDialog(Project currProject, @Nullable Profile profile) {
     super(WindowManager.getInstance().getFrame(currProject), "CHANGE TITLE", false);
     profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
     this.currProfile = profile;
@@ -91,15 +94,19 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
 
     nextButton.setAction(FORWARD);
 
-    previousButton.addActionListener(e -> {wizardModelView.backward();});
+    previousButton.addActionListener(e -> {
+      wizardModelView.backward();
+    });
     // we never start moving backward
     previousButton.setEnabled(false);
     pack();
     setLocationRelativeTo(WindowManager.getInstance().getFrame(currProject));
     Point location = getLocation();
     location.translate(50, -50);
-    this.setLocation(location);;
+    this.setLocation(location);
+    ;
   }
+
   private void initProgress() {
     wizardProgress.setMinimum(0);
     wizardProgress.setMaximum(100);
@@ -116,7 +123,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
     //        calling service
     //   see this.wizardModelView.current().getProvider().isInputsChanged()
     Profile editedProfile;
-    if(currProfile!=null){
+    if (currProfile != null) {
       editedProfile = currProfile;
       this.wizardModel.hydrate(editedProfile);
 
@@ -150,10 +157,10 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
     this.wizardModel = new ProfileEditionWizard(currProject, currProfile);
     this.wizardModelView = this.wizardModel.getView();
     this.wizardModelView.addListener(this);
-    CardLayout layout = (CardLayout)this.wizardMainPane.getLayout();
+    CardLayout layout = (CardLayout) this.wizardMainPane.getLayout();
 
     this.wizardModel.populateTo(this, this.wizardMainPane);
-    layout.show(this.wizardMainPane,this.wizardModelView.current().getTitle());
+    layout.show(this.wizardMainPane, this.wizardModelView.current().getTitle());
   }
 
 
@@ -161,18 +168,20 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
     setVisible(true);
   }
 
-  @Override public void onViewChange() {
+  @Override
+  public void onViewChange() {
 
     SwingWorker<Void, Void> worker = new SwingWorker<>() {
       @Override
       protected Void doInBackground() throws Exception {
         int start = wizardProgress.getValue();
         int end = wizardModelView.progress();
-        if(start<end){
-        for (int i = start; i <= end; i++) {
-          wizardProgress.setValue(i);
-          Thread.sleep(5);
-        }} else {
+        if (start < end) {
+          for (int i = start; i <= end; i++) {
+            wizardProgress.setValue(i);
+            Thread.sleep(5);
+          }
+        } else {
           for (int i = start; i >= end; i--) {
             wizardProgress.setValue(i);
             Thread.sleep(5);
@@ -192,6 +201,8 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
 
     if (!this.wizardModelView.canForward()) {
       nextButton.setAction(COMMIT);
+
+
       // we are at the end , forbud user to commit if we have
       // dirty values
       if (invalidSteps.isEmpty()) {
@@ -201,43 +212,69 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
         nextButton.setToolTipText("fix errors first");
         nextButton.setEnabled(false);
       }
+      if (this.currProfile == null && changedSteps.isEmpty()) {
+        // we are in creation and no step have changed
+        // there is not way this wizard is valid
+        nextButton.setEnabled(false);
+      } else {
+        nextButton.setEnabled(true);
+      }
+
     } else {
       nextButton.setAction(FORWARD);
     }
-    CardLayout layout = (CardLayout)this.wizardMainPane.getLayout();
-    layout.show(this.wizardMainPane,this.wizardModelView.current().getTitle());
+    CardLayout layout = (CardLayout) this.wizardMainPane.getLayout();
+    layout.show(this.wizardMainPane, this.wizardModelView.current().getTitle());
     System.out.println("onViewChange: current view " + this.wizardModelView);
   }
 
   Set<WizardStepViewPortProvider> invalidSteps = new HashSet<>();
-  @Override public void onStepChange(WizardStepChangeEvent event) {
+  Set<WizardStepViewPortProvider> changedSteps = new HashSet<>();
+
+  @Override
+  public void onStepChange(WizardStepChangeEvent event) {
+    changedSteps.add(event.getProvider());
     // keep track of invalid steps
     if (!event.getProvider().isInputsValid()) {
       invalidSteps.add(event.getProvider());
     } else {
       invalidSteps.remove(event.getProvider());
     }
+    if (event.getProvider() instanceof ProfileEditionObjectListStep) {
+      if (invalidSteps.isEmpty()) {
+        nextButton.setEnabled(true);
+      } else {
+        // TODO : use Messages
+        nextButton.setToolTipText("fix errors first");
+        nextButton.setEnabled(false);
+      }
+    }
   }
 
   private class ForwardAction extends AbstractAction {
     private WizardStepView view;
+
     public ForwardAction(WizardStepView view) {
       super("next", new ImageIcon("img/NextRecord.png"));
       this.view = view;
     }
 
-    @Override public void actionPerformed(ActionEvent e) {
+    @Override
+    public void actionPerformed(ActionEvent e) {
       this.view.forward();
     }
   }
+
   private class CommitAction extends AbstractAction {
     private ProfileEditionDialog dialog;
+
     public CommitAction(ProfileEditionDialog dialog) {
-      super(currProfile!=null?"Update":"Create");
+      super(currProfile != null ? "Update" : "Create");
       this.dialog = dialog;
     }
 
-    @Override public void actionPerformed(ActionEvent e) {
+    @Override
+    public void actionPerformed(ActionEvent e) {
       this.dialog.commitWizardView(currProfile);
     }
   }

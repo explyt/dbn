@@ -7,13 +7,14 @@ import com.dbn.oracleAI.WizardStepEventListener;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.ProfileNameVerifier;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 /**
  * Profile edition general step for edition wizard
@@ -32,17 +33,13 @@ public class ProfileEditionGeneralStep extends AbstractProfileEditionStep {
     super();
     if (profile == null) {
       this.credentialSvc = project.getService(DatabaseOracleAIManager.class).getCredentialService();
-      nameTextField.setInputVerifier(new ProfileNameVerifier());
-      nameTextField.addActionListener(e -> {
-        for (WizardStepEventListener listener : this.listeners) {
-          listener.onStepChange(new WizardStepChangeEvent(this));
-        }
-      });
+      addValidationListener(nameTextField);
       populateCredentials();
     } else {
       this.credentialSvc = project.getService(DatabaseOracleAIManager.class).getCredentialService();
       // TODO : do we authorize name to be edited
       nameTextField.setText(profile.getProfileName());
+      addValidationListener(nameTextField);
       descriptionTextField.setText(profile.getDescription());
       credentialComboBox.addItem(profile.getCredentialName());
       credentialComboBox.setSelectedIndex(0);
@@ -51,15 +48,37 @@ public class ProfileEditionGeneralStep extends AbstractProfileEditionStep {
 
   }
 
-  private void populateCredentials() {
-    ApplicationManager.getApplication().invokeLater(() -> {
-      credentialSvc.getCredentials().thenAccept(credentialProviderList -> {
+  private void addValidationListener(JTextField textField) {
+    textField.setInputVerifier(new ProfileNameVerifier());
+    textField.getDocument().addDocumentListener(new DocumentListener() {
+      public void changedUpdate(DocumentEvent e) {
+        fireWizardStepChangeEvent();
+      }
 
-        for (Credential credential : credentialProviderList) {
-          credentialComboBox.addItem(credential.getCredentialName());
-          credentialComboBox.setSelectedIndex(0);
-        }
-      });
+      public void removeUpdate(DocumentEvent e) {
+        fireWizardStepChangeEvent();
+      }
+
+      public void insertUpdate(DocumentEvent e) {
+        fireWizardStepChangeEvent();
+      }
+    });
+  }
+
+  private void fireWizardStepChangeEvent() {
+    for (WizardStepEventListener listener : this.listeners) {
+      listener.onStepChange(new WizardStepChangeEvent(this));
+    }
+  }
+
+
+  private void populateCredentials() {
+    credentialSvc.getCredentials().thenAccept(credentialProviderList -> {
+
+      for (Credential credential : credentialProviderList) {
+        credentialComboBox.addItem(credential.getCredentialName());
+        credentialComboBox.setSelectedIndex(0);
+      }
     });
   }
 

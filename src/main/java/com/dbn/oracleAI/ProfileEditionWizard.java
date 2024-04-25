@@ -120,7 +120,6 @@ public class ProfileEditionWizard {
    * Creates a new wizrd
    */
   public ProfileEditionWizard(Project project, @Nullable Profile profile) {
-    // fake it for now
     this.steps = new LinkedList<>();
     if (profile != null) {
       this.steps.add(new ProfileEditionWizardStep("general",
