@@ -21,6 +21,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import java.awt.CardLayout;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -35,6 +37,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private final AICredentialService credentialSvc;
   private JPanel contentPane;
   private JTextField credentialNameField;
+  private List<String> existingCredentialNames = new ArrayList();
   private JPanel passwordCard;
   private JComboBox<CredentialType> credentialTypeComboBox;
   private JTextField passwordCredentialUsernameField;
@@ -53,10 +56,17 @@ public class CredentialCreationWindow extends DialogWrapper {
   private CredentialCreationCallback creationCallback;
 
   /**
-   * Constructs a CredentialCreationWindow dialog.
    *
-   * @param connection    The connection handler associated with the current project.
+   *
+   * @param connection
    * @param credentialSvc The service used to create credentials.
+   */
+  /**
+   * Constructs a CredentialCreationWindow dialog.
+   * @param connection The connection handler associated with the current project.
+   * @param credentialSvc The service used to create credentials.
+   * @param credential the credential to be edited, can be null in case of credential creation
+   * @param creationCallback the callback to validate creation/edition
    */
   public CredentialCreationWindow(ConnectionRef connection, AICredentialService credentialSvc, @Nullable Credential credential, CredentialCreationCallback creationCallback) {
     super(true);
@@ -70,6 +80,17 @@ public class CredentialCreationWindow extends DialogWrapper {
     pack();
   }
 
+  /**
+   * Set the existing credential name list.
+   * That list is used during validation
+   * @param names the list of names
+   */
+  public void setExistingCredentialNames(List<String> names) {
+    if (names == null) {
+      throw new IllegalArgumentException("cannot be null");
+    }
+    this.existingCredentialNames = names;
+  }
   /**
    * Initializes the user interface components and event listeners for the dialog.
    */
@@ -120,44 +141,6 @@ public class CredentialCreationWindow extends DialogWrapper {
   }
 
 
-  /**
-   * Define the possible actions of this dialog window
-   */
-//  @NotNull
-//  @Override
-//  protected Action @NotNull [] createActions() {
-//    super.createActions();
-//    // Defines the action to either create or update credential
-//    Action commitAction;
-//    if (credential == null) {
-//      commitAction = new AbstractAction(messages.getString("ai.messages.button.create")) {
-//        @Override
-//        public void actionPerformed(ActionEvent e) {
-//          if (doValidate() == null) {
-//            doCreateAction();
-//          }
-//        }
-//      };
-//    } else {
-//      commitAction = new AbstractAction(messages.getString("ai.messages.button.update")) {
-//        @Override
-//        public void actionPerformed(ActionEvent e) {
-//          if (doValidate() == null) {
-//            doUpdateAction();
-//          }
-//        }
-//      };
-//    }
-//
-//    // Defines action to cancel the operation and close the window
-//    Action cancelAction = new AbstractAction(messages.getString("ai.messages.button.cancel")) {
-//      @Override
-//      public void actionPerformed(ActionEvent e) {
-//        doCancelAction();
-//      }
-//    };
-//    return new Action[]{commitAction, cancelAction};
-//  }
 
   /**
    * Collects the fields' info and sends them to the service layer to create new credential
@@ -250,6 +233,10 @@ public class CredentialCreationWindow extends DialogWrapper {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_1"),
           credentialNameField);
     }
+    if (this.existingCredentialNames.contains(credentialNameField.getText())) {
+      return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_2"),
+              credentialNameField);
+    }
 
     switch (CredentialType.valueOf(credentialTypeComboBox.getSelectedItem().toString())) {
       case PASSWORD:
@@ -302,23 +289,12 @@ public class CredentialCreationWindow extends DialogWrapper {
     return null;
   }
 
-  /**
-   * Handles the creation of the new instance and the opening of the dialog window
-   *
-   * @param connection
-   * @param credentialSvc
-   * @param credential
-   * @param creationCallback to refresh the credentials list once we created a new one
-   */
-  public static void showDialog(ConnectionRef connection, AICredentialService credentialSvc, Credential credential, CredentialCreationCallback creationCallback) {
-    CredentialCreationWindow dialog = new CredentialCreationWindow(connection, credentialSvc, credential, creationCallback);
-    dialog.showAndGet();
-  }
 
   @Override
   protected @Nullable JComponent createCenterPanel() {
     return contentPane;
   }
+
 
 
 }

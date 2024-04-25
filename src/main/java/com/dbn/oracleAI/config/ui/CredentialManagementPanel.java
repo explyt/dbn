@@ -17,8 +17,12 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -46,7 +50,9 @@ public class CredentialManagementPanel extends JPanel {
   private JButton deleteButton;
   private JButton addButton;
   private JButton editButton;
-    private JLabel profilesLabelTitle;
+  private JLabel profilesLabelTitle;
+  private JList usedByList;
+  private JScrollPane usedByScrollPane;
   private final AICredentialService credentialSvc;
   private final AIProfileService profileSvc;
   private final ConnectionRef connection;
@@ -91,26 +97,32 @@ public class CredentialManagementPanel extends JPanel {
     // Initializes addButton with its action listener for creating new credential
     addButton.addActionListener((e) -> {
       CredentialCreationCallback callback = this::updateCredentialList;
-      CredentialCreationWindow.showDialog(connection, credentialSvc, null, callback);
+      CredentialCreationWindow win = new CredentialCreationWindow(connection, credentialSvc, null, callback);
+      win.setExistingCredentialNames(
+              credentialNameToProfileNameMap.keySet().stream().map(c->c.getCredentialName()).collect(Collectors.toList()));
+      win.showAndGet();
+
     });
 
     editButton.addActionListener((e) -> {
       CredentialCreationCallback callback = this::updateCredentialList;
-      CredentialCreationWindow.showDialog(connection, credentialSvc, credentialList.getSelectedValue(), callback);
+      CredentialCreationWindow win = new CredentialCreationWindow(connection, credentialSvc, credentialList.getSelectedValue(), callback);
+      win.setExistingCredentialNames(credentialNameToProfileNameMap.keySet().stream().map(c->c.getCredentialName()).collect(Collectors.toList()));
+      win.showAndGet();
     });
     // Initializes deleteButton with its action listener for deleting selected credentials
     deleteButton.addActionListener(e -> {
       Messages.showQuestionDialog(this.curProject,
-          messages.getString("ai.settings.credential.deletion.title"),
-          messages.getString("ai.settings.credential.deletion.message.prefix") + credentialList.getSelectedValue().getCredentialName(),
-          Messages.options(
-              messages.getString("ai.messages.yes"),
-              messages.getString("ai.messages.no")), 1,
-          option -> {
-            if (option == 0) {
-              removeCredential(credentialList.getSelectedValue().getCredentialName());
-            }
-          });
+              messages.getString("ai.settings.credential.deletion.title"),
+              messages.getString("ai.settings.credential.deletion.message.prefix") + credentialList.getSelectedValue().getCredentialName(),
+              Messages.options(
+                      messages.getString("ai.messages.yes"),
+                      messages.getString("ai.messages.no")), 1,
+              option -> {
+                if (option == 0) {
+                  removeCredential(credentialList.getSelectedValue().getCredentialName());
+                }
+              });
     });
 
     // Configures credentialList with a list selection listener for updating display info based on selected credential
@@ -119,14 +131,14 @@ public class CredentialManagementPanel extends JPanel {
         Credential selectedCredential = credentialList.getSelectedValue();
         displayInfo.removeAll();
         panelTemplate(selectedCredential);
-        String used = credentialNameToProfileNameMap.get(selectedCredential).stream()
-                .collect(Collectors.joining(","));
-        if (used.length() >0) {
+        String[] used = credentialNameToProfileNameMap.get(selectedCredential).toArray(new String[]{});
+        if (used.length > 0) {
           profilesLabelTitle.setText(messages.getString("credential.mgnt.used"));
-          profilesLabel.setText(used);
+          usedByList.setListData(used);
+          usedByScrollPane.setVisible(true);
         } else {
           profilesLabelTitle.setText(messages.getString("credential.mgnt.notused"));
-          profilesLabel.setText("");
+          usedByScrollPane.setVisible(false);
         }
       }
     });
@@ -137,6 +149,11 @@ public class CredentialManagementPanel extends JPanel {
         value = credential.getCredentialName();
         Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+        if (!credential.isEnabled()) {
+          setFont(getFont().deriveFont(Font.ITALIC));
+          setForeground(Color.LIGHT_GRAY);
+
+        }
         return c;
       }
     });
@@ -150,12 +167,12 @@ public class CredentialManagementPanel extends JPanel {
    */
   private void removeCredential(String credential) {
     credentialSvc.deleteCredential(credential)
-        .thenAccept((c) -> this.updateCredentialList())
-        .exceptionally(
-            e -> {
-              ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(this.curProject, e.getCause().getMessage()));
-              return null;
-            });
+            .thenAccept((c) -> this.updateCredentialList())
+            .exceptionally(
+                    e -> {
+                      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(this.curProject, e.getCause().getMessage()));
+                      return null;
+                    });
 
   }
 
@@ -166,13 +183,13 @@ public class CredentialManagementPanel extends JPanel {
    */
   private void updateCredentialList() {
     credentialNameToProfileNameMap.clear();
-    credentialSvc.getCredentials().thenAcceptBoth(profileSvc.getProfiles(),(credentials, profiles)->{
-      for (Credential cred :credentials) {
-        List<String> pNames = profiles.stream().filter(profile-> cred.equals(profile.getCredentialName()))
+    credentialSvc.getCredentials().thenAcceptBoth(profileSvc.getProfiles(), (credentials, profiles) -> {
+      for (Credential cred : credentials) {
+        List<String> pNames = profiles.stream().filter(profile -> cred.getCredentialName().equals(profile.getCredentialName()))
                 .map(profile -> profile.getProfileName()).collect(Collectors.toList());
         credentialNameToProfileNameMap.put(cred, pNames);
       }
-      credentialList.setListData( credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}) );
+      credentialList.setListData(credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}));
       credentialList.setSelectedIndex(0);
     }).exceptionally(e -> {
       {
@@ -204,13 +221,13 @@ public class CredentialManagementPanel extends JPanel {
             cc.xy(3, 1, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
     displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.username")), cc.xy(1, 3));
-    JTextField jt2 = new JTextField(credential.getUsername());
+    JTextField jt2 = new JTextField(credential.getUsername(), 10);
     jt2.setEditable(false);
     displayInfo.add(jt2,
             cc.xy(3, 3, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
     displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.comment")), cc.xy(1, 5));
-    JTextField jt3 = new JTextField(credential.getComments());
+    JTextField jt3 = new JTextField(credential.getComments(), 10);
     jt3.setEditable(false);
     displayInfo.add(jt3,
             cc.xy(3, 5, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
@@ -219,5 +236,21 @@ public class CredentialManagementPanel extends JPanel {
     displayInfo.repaint();
   }
 
+
+  private void createUIComponents() {
+    credentialList = new JList<Credential>() {
+      public String getToolTipText(MouseEvent evt) {
+        Credential cred = getModel().getElementAt(locationToIndex(evt.getPoint()));
+        if (cred.isEnabled()) {
+          return "";
+        } else {
+          return messages.getString("ai.settings.credential.not_enabled");
+        }
+      }
+
+      ;
+    };
+
+  }
 
 }
