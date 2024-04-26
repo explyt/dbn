@@ -48,11 +48,11 @@ public class AiProviderSelection extends DialogWrapper {
 
   private static class AIProviderTableModel extends AbstractTableModel {
 
-    private final String HOSTNAME = "Hostname";
+    private final String NAME = "name";
     private final String USERNAME = "Username";
-    private final String KEY = "Password";
+    private final String KEY = "Secret";
     private final AIProviderTypeBundle aiProviderTypes;
-    private final String[] columnNames = {HOSTNAME, USERNAME, KEY};
+    private final String[] columnNames = {NAME, USERNAME, KEY};
 
     public AIProviderTableModel(AIProviderTypeBundle aiProviderTypes) {
       this.aiProviderTypes = aiProviderTypes;

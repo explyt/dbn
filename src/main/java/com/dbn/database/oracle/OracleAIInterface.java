@@ -2,24 +2,24 @@ package com.dbn.database.oracle;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
-import com.dbn.database.common.oracleAI.ObjectListItemInfo;
 import com.dbn.database.common.oracleAI.OracleCredentialsDetailedInfo;
 import com.dbn.database.common.oracleAI.OracleProfilesDetailedInfo;
 import com.dbn.database.common.oracleAI.OracleQueryOutput;
 import com.dbn.database.common.oracleAI.OracleTablesList;
 import com.dbn.database.common.oracleAI.OracleViewsList;
 import com.dbn.database.common.oracleAI.SchemasInfo;
+import com.dbn.database.common.oracleAI.TableAndViewListInfo;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseOracleAIInterface;
 import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.config.ObjectListItem;
+import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
-import com.dbn.oracleAI.types.DataType;
+import com.dbn.oracleAI.types.DatabaseObjectType;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -153,14 +153,15 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
-  public List<ObjectListItem> listObjectListItems(DBNConnection connection, String profileName) throws DatabaseOperationException {
+  public List<DBObjectItem> listObjectListItems(DBNConnection connection, String schemaName) throws DatabaseOperationException {
     try {
-      List<ObjectListItem> objectListItems = new ArrayList<>();
-      List<ObjectListItem> tableObjectListItemsList = executeCall(connection, new ObjectListItemInfo(profileName, DataType.TABLE), "list-tables").getObjectListItemsList();
-      List<ObjectListItem> viewObjectListItemsList = executeCall(connection, new ObjectListItemInfo(profileName, DataType.VIEW), "list-views").getObjectListItemsList();
-      objectListItems.addAll(tableObjectListItemsList);
-      objectListItems.addAll(viewObjectListItemsList);
-      return objectListItems;
+      List<DBObjectItem> DBObjectItems = new ArrayList<>();
+      // TODO : should be one roundtrip
+      List<DBObjectItem> tableDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.TABLE), "list-tables",schemaName).getDBObjectListItems();
+      List<DBObjectItem> viewDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.VIEW), "list-views",schemaName).getDBObjectListItems();
+      DBObjectItems.addAll(tableDBObjectListItems);
+      DBObjectItems.addAll(viewDBObjectListItems);
+      return DBObjectItems;
     } catch (SQLException e) {
       throw new DatabaseOperationException(e.getMessage(), e);
     }

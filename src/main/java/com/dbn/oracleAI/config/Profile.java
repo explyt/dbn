@@ -11,9 +11,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
+import com.intellij.openapi.diagnostic.Logger;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -27,11 +29,13 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@ToString
 public class Profile implements AttributeInput {
 
+  private static final Logger LOGGER = Logger.getInstance(Profile.class.getPackageName());
 
-  private final String NAME = "name";
-  private final String OWNER = "owner";
+  private final String PROFILE_NAME_ATTR_NAME = "name";
+  private final String PROFILE_OWNER_ATTR_NAME = "owner";
 
   private String profileName;
 
@@ -45,7 +49,7 @@ public class Profile implements AttributeInput {
   @Builder.Default
   @SerializedName("object_list")
   @Expose
-  private List<ObjectListItem> objectList = Collections.emptyList();
+  private List<ProfileDBObjectItem> objectList = Collections.emptyList();
   private Integer maxTokens;
   @Builder.Default
   private List<String> stopTokens = Collections.emptyList();
@@ -58,7 +62,7 @@ public class Profile implements AttributeInput {
 
   @Override
   public void validate() {
-    //TODO
+    // TODO implement this
   }
 
   @Override
@@ -79,12 +83,12 @@ public class Profile implements AttributeInput {
   public Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
     if ("object_list".equals(attributeName)) {
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(ObjectListItem.class, new ObjectListItemDeserializer());
+      builder.registerTypeAdapter(DBObjectItem.class, new ProfileDBObjectItemDeserializer());
       Gson gson = builder.create();
 
       try (Reader reader = clob.getCharacterStream();
            BufferedReader br = new BufferedReader(reader)) {
-        Type listType = new TypeToken<List<ObjectListItem>>() {
+        Type listType = new TypeToken<List<DBObjectItem>>() {
         }.getType();
         return gson.fromJson(br, listType);
       }
@@ -101,18 +105,25 @@ public class Profile implements AttributeInput {
     }
   }
 
-  public class ObjectListItemDeserializer implements JsonDeserializer<ObjectListItem> {
+  public class ProfileDBObjectItemDeserializer implements JsonDeserializer<ProfileDBObjectItem> {
     @Override
-    public ObjectListItem deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+    public ProfileDBObjectItem deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
       if (!json.isJsonObject()) {
         throw new JsonParseException("Expected JSON object");
       }
 
+      if (LOGGER.isDebugEnabled()) {
+        LOGGER.debug("deserializing ProfileDBObjectItem from ["+json+"]");
+      }
+
       JsonObject jsonObject = json.getAsJsonObject();
-      String owner = jsonObject.has(OWNER) ? jsonObject.get(OWNER).getAsString() : null;
-      String name = jsonObject.has(NAME) ? jsonObject.get(NAME).getAsString() : null;
-      if (owner != null) return ObjectListItemManager.getObjectListItem(owner, name, null);
-      return null;
+
+      if (!jsonObject.has(PROFILE_OWNER_ATTR_NAME)) {
+        throw new JsonParseException("missing ["+PROFILE_OWNER_ATTR_NAME+"] attribute");
+      }
+      String name = jsonObject.has(PROFILE_NAME_ATTR_NAME)?jsonObject.get(PROFILE_NAME_ATTR_NAME).getAsString():null;
+
+      return new ProfileDBObjectItem(jsonObject.get(PROFILE_OWNER_ATTR_NAME).getAsString(),name);
     }
   }
 

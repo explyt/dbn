@@ -1,8 +1,8 @@
 package com.dbn.database.common.oracleAI;
 
 import com.dbn.database.common.statement.CallableStatementOutput;
-import com.dbn.oracleAI.config.ObjectListItem;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.ProfileDBObjectItem;
 import com.dbn.oracleAI.types.ProviderType;
 import lombok.Getter;
 
@@ -50,7 +50,7 @@ public class OracleProfilesDetailedInfo implements CallableStatementOutput {
 
       if ("object_list".equals(attributeName) && attributeObject instanceof List) {
         @SuppressWarnings("unchecked")
-        List<ObjectListItem> objectList = (List<ObjectListItem>) attributeObject;
+        List<ProfileDBObjectItem> objectList = (List<ProfileDBObjectItem>) attributeObject;
         profile.setObjectList(objectList);
       } else if (attributeObject instanceof String) {
         String attributeValue = (String) attributeObject;

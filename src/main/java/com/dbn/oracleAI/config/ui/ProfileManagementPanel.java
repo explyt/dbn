@@ -225,8 +225,8 @@ public class ProfileManagementPanel extends JPanel {
     if (currProfile != null) {
       profileComboBox.setSelectedItem(currProfile.getProfileName());
     }
-//    profileComboBox.removeItem("New profile...");
-//    profileComboBox.addItem("New profile...");
+//    profileComboBox.hideItem("New profile...");
+//    profileComboBox.unhideItem("New profile...");
     profileComboBox.addActionListener(e -> {
       String selectedProfileName = (String) profileComboBox.getSelectedItem();
       currProfile = profileMap.get(selectedProfileName);

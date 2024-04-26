@@ -3,13 +3,16 @@ package com.dbn.oracleAI.config.ui.profiles;
 import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.oracleAI.DatabaseService;
 import com.dbn.oracleAI.WizardStepChangeEvent;
 import com.dbn.oracleAI.WizardStepEventListener;
-import com.dbn.oracleAI.config.ObjectListItem;
+import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.ProfileDBObjectItem;
 import com.dbn.oracleAI.config.ui.SelectedObjectItemsVerifier;
-import com.dbn.oracleAI.types.DataType;
+import com.dbn.oracleAI.types.DatabaseObjectType;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.eclipse.sisu.Nullable;
 
@@ -17,13 +20,16 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
+import javax.swing.table.TableRowSorter;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
@@ -32,8 +38,11 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
+import java.util.Map;
+import java.util.ResourceBundle;
 
 /**
  * Profile edition Object list step for edition wizard
@@ -41,27 +50,41 @@ import java.util.stream.Collectors;
  * @see com.dbn.oracleAI.ProfileEditionWizard
  */
 public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
+
+  static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
+  private static final Logger LOGGER = Logger.getInstance(DatabaseService.class.getPackageName());
+
+  private static int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
+  private static int TABLES_COLUMN_HEADERS_OWNER_IDX = 1;
+  private static String[] TABLES_COLUMN_HEADERS = {
+          messages.getString("profile.mgmt.obj_table.header.name"),
+          messages.getString("profile.mgmt.obj_table.header.owner")
+  };
+
   private JPanel profileEditionObjectListMainPane;
-  private JCheckBox useAllCheckBox;
+  private JCheckBox selectAllCheckBox;
   private JTextField patternFilter;
-  private JTable selectedTable;
-  private JTable selectingTable;
+  private JTable profileObjectListTable;
+  private JTable databaseObjectsTable;
   private JLabel selectedTablesLabel;
   private JComboBox schemaComboBox;
   private JCheckBox withViewsButton;
+  private JProgressBar activityProgress;
   private final AIProfileService profileSvc;
+  private final DatabaseService databaseSvc;
   private final Project project;
-  ObjectListSelectedTableModel selectedTableModel = new ObjectListSelectedTableModel();
-  ObjectListSelectingTableModel selectingTableModel = new ObjectListSelectingTableModel();
-  private String pattern = "";
+  ProfileObjectListTableModel profileObjListTableModel = new ProfileObjectListTableModel();
+  DatabaseObjectListTableModel dbObjListTableModel = new DatabaseObjectListTableModel();
 
+  Map<String,List<DBObjectItem>> schemaObjectListCache = new HashMap<>();
 
   public ProfileEditionObjectListStep(Project project, Profile profile) {
     super();
     this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
+    this.databaseSvc = project.getService(DatabaseOracleAIManager.class).getDatabaseService();
 
-    patternFilter.getDocument().addDocumentListener(new DocumentListener() {
+      patternFilter.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {
         filter();
       }
@@ -75,142 +98,171 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
       }
 
       public void filter() {
-        pattern = patternFilter.getText();
-        populateSelectingTable(schemaComboBox.getSelectedItem().toString());
+        populateDatabaseObjectTable(schemaComboBox.getSelectedItem().toString());
       }
     });
 
-    useAllCheckBox.addItemListener(
-        e -> {
-          if (useAllCheckBox.isSelected()) selectingTableModel.selectAllFiltered();
-          else selectingTableModel.unselectAllFiltered();
-        }
-    );
     withViewsButton.addItemListener((
         e -> {
-          populateSelectingTable(schemaComboBox.getSelectedItem().toString());
+          populateDatabaseObjectTable(schemaComboBox.getSelectedItem().toString());
         }
     ));
     initializeTable(profile);
   }
 
   private void initializeTable(@Nullable Profile profile) {
-    selectedTable.setModel(selectedTableModel);
-    addValidationListener(selectedTable);
-    selectingTable.setModel(selectingTableModel);
-    selectingTable.addMouseListener(new MouseAdapter() {
-      //      @Override
-//      public void mouseClicked(MouseEvent e) {
-//        int row = selectingTable.rowAtPoint(e.getPoint());
-//        if (row >= 0) {
-//          ObjectListItem item = selectingTableModel.getItemAt(row);
-//          toggleItemSelection(item);
-//        }
-//      }
+    LOGGER.debug("initializing tables");
+    profileObjectListTable.setModel(profileObjListTableModel);
+    addValidationListener(profileObjectListTable);
+    databaseObjectsTable.setModel(dbObjListTableModel);
+    databaseObjectsTable.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
-          int row = selectingTable.rowAtPoint(e.getPoint());
+          int row = databaseObjectsTable.rowAtPoint(e.getPoint());
           if (row >= 0) {
-            ObjectListItem item = selectingTableModel.getItemAt(row);
-            if (selectedTableModel.contains(item)) {
+            DBObjectItem item = dbObjListTableModel.getItemAt(row);
+            if (profileObjListTableModel.contains(item)) {
               return;
             }
-            selectedTableModel.addItem(item);
-            selectingTableModel.removeItem(item);
+            profileObjListTableModel.addItem(
+                    new ProfileDBObjectItem(item.getOwner(),item.getName()));
+            dbObjListTableModel.hideItem(item);
           }
         }
       }
     });
-    selectedTable.addMouseListener(new MouseAdapter() {
+    profileObjectListTable.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
-          int row = selectedTable.rowAtPoint(e.getPoint());
+          int row = profileObjectListTable.rowAtPoint(e.getPoint());
           if (row >= 0) {
-            ObjectListItem item = selectedTableModel.getItemAt(row);
-            selectingTableModel.addItem(item);
-            selectedTableModel.removeItem(item);
+            ProfileDBObjectItem item = profileObjListTableModel.getItemAt(row);
+            dbObjListTableModel.unhideItem(item.getOwner(),item.getName());
+            profileObjListTableModel.removeItem(item);
           }
         }
       }
     });
 
     loadSchemas();
-    loadTables(profile);
-    selectingTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
+    // now that we have schemas loaded we can add the listener
+    schemaComboBox.addActionListener((e) -> {
+      LOGGER.debug("action listener on  schemaComboBox fired");
+      populateDatabaseObjectTable(schemaComboBox.getSelectedItem().toString());
+    });
+
+    populateProfileObjectLitTable(profile);
+    ((TableRowSorter)databaseObjectsTable.getRowSorter()).setRowFilter(new RowFilter<DatabaseObjectListTableModel, Integer>() {
+
+      @Override
+      public boolean include(Entry<? extends DatabaseObjectListTableModel, ? extends Integer> entry) {
+        // first : is it already selected ? if yes should be hidden
+        if (entry.getModel().alreadySelectedItems.contains(entry.getModel().getItemAt((Integer)entry.getIdentifier()))) {
+          return false;
+        }
+
+        // second : does it match selected schema ?
+        if (!entry.getStringValue(TABLES_COLUMN_HEADERS_OWNER_IDX).equalsIgnoreCase(schemaComboBox.getSelectedItem().toString())) {
+          return false;
+        }
+
+        // third : does it match the current patten if any
+        if ((patternFilter.getText().length() > 0) && !entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX).matches(patternFilter.getText())) {
+          return false;
+        }
+        return true;
+      }
+    });
+    databaseObjectsTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
       private final JTextField editor = new JTextField();
 
       @Override
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        editor.setText((value != null) ? value.toString() : "");
+        editor.setText(value.toString());
         editor.setBorder(null);
         editor.setEditable(false);
         editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
         editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
-        ObjectListItem currentItem = selectingTableModel.getItemAt(row);
-        if (currentItem.getType() == DataType.VIEW) {
+        DBObjectItem currentItem = dbObjListTableModel.getItemAt(row);
+        if (currentItem.getType() == DatabaseObjectType.VIEW) {
           editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
-          editor.setBackground(Color.BLACK);
+          editor.setForeground(Color.LIGHT_GRAY);
         } else {
           editor.setFont(editor.getFont().deriveFont(Font.PLAIN));
+          editor.setForeground(Color.BLACK);
         }
         return editor;
       }
     });
-    selectedTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
+    profileObjectListTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
       private final JTextField editor = new JTextField();
 
       @Override
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        editor.setText((value != null) ? value.toString() : "");
+        editor.setText((value != null) ? value.toString() : "*");
         editor.setBorder(null);
         editor.setEditable(false);
         editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
         editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
-        ObjectListItem currentItem = selectedTableModel.getItemAt(row);
-        if (currentItem.getType() == DataType.VIEW) {
+        ProfileDBObjectItem currentItem = profileObjListTableModel.getItemAt(row);
+        if (locateTypeFor(currentItem) == DatabaseObjectType.VIEW) {
           editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
-          editor.setBackground(Color.BLACK);
+          editor.setForeground(Color.LIGHT_GRAY);
         } else {
           editor.setFont(editor.getFont().deriveFont(Font.PLAIN));
+          editor.setForeground(Color.BLACK);
         }
         return editor;
       }
     });
+  }
+
+  private void startActivityNotifier() {
+    activityProgress.setIndeterminate(true);
+    activityProgress.setVisible(true);
+  }
+
+  /**
+   * Stops the spining wheel
+   */
+  private void stopActivityNotifier() {
+    activityProgress.setIndeterminate(false);
+    activityProgress.setVisible(false);
+  }
+
+  /**
+   * Looks into DB object model for a matching type
+   * @param item object item in a profile
+   * @return the type of that item or null if it a wildcard object (i.e name == null)
+   */
+  private DatabaseObjectType locateTypeFor(ProfileDBObjectItem item) {
+    if (item.getName() == null || item.getName().length() == 0) {
+      return null;
+    }
+    // no way to not find something
+    return schemaObjectListCache.get(item.getOwner())
+            .stream().filter(item::isEquivalentTo).findFirst().get().getType();
   }
 
   private void loadSchemas() {
-    profileSvc.loadSchemas().thenAccept(schemaList -> {
+    startActivityNotifier();
+    databaseSvc.getSchemaNames().thenAccept(schemaList -> {
       ApplicationManager.getApplication().invokeLater(() -> {
-        schemaComboBox.addItem("All Schemas");
+        //schemaComboBox.unhideItem("All Schemas");
         for (String schema : schemaList) {
           schemaComboBox.addItem(schema);
         }
+        stopActivityNotifier();
       });
     }).exceptionally(e -> {
-      Messages.showErrorDialog(project, e.getCause().getMessage());
-      return null;
-    });
-  }
-
-  private void loadTables(@Nullable Profile profile) {
-    profileSvc.loadObjectListItems(profile != null ? profile.getProfileName() : "").thenAccept(objectListItems -> {
-      ApplicationManager.getApplication().invokeLater(() -> {
-        populateSelectingTable(schemaComboBox.getSelectedItem().toString());
-        populateSelectedTable(profile);
-        schemaComboBox.addActionListener((e) -> {
-//          selectingTable.removeMouseListener(selectingTable.getMouseListeners()[0]); // Remove existing listeners
-          populateSelectingTable(schemaComboBox.getSelectedItem().toString());
-        });
-      });
-
-    }).exceptionally(e -> {
-      Messages.showErrorDialog(project, e.getCause().getMessage());
+      Messages.showErrorDialog(project,"Cannot load schemas",
+              "Cannot load DB schemas: "+e.getCause().getMessage());
       return null;
     });
   }
@@ -232,34 +284,51 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   }
 
 
-  private void populateSelectedTable(Profile profile) {
+  private void populateProfileObjectLitTable(Profile profile) {
     if (profile != null) {
-      selectedTableModel.updateItems(profile.getObjectList());
+      // if null: we are in the middle of a profile creation
+      profileObjListTableModel.updateItems(profile.getObjectList());
     }
-    adjustColumnSizes(selectedTable);
-    selectedTable.addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentResized(ComponentEvent e) {
-        adjustColumnSizes(selectedTable);
-      }
-    });
+    //adjustColumnSizes(profileObjectListTable);
+//    profileObjectListTable.addComponentListener(new ComponentAdapter() {
+//      @Override
+//      public void componentResized(ComponentEvent e) {
+//        adjustColumnSizes(profileObjectListTable);
+//      }
+//    });
   }
 
-  private void populateSelectingTable(String schema) {
-    if (schema.equals("All Schemas")) {
-      selectingTableModel.updateItems(profileSvc.getObjectItems());
+  private void populateDatabaseObjectTable(String schema) {
+    List<DBObjectItem> objects = schemaObjectListCache.get(schema);
+    if (objects == null) {
+      startActivityNotifier();
+      databaseObjectsTable.setEnabled(false);
+      databaseSvc.getObjectItemsForSchema(schema).thenAccept(objs->{
+        ApplicationManager.getApplication().invokeLater(() -> {
+          schemaObjectListCache.put(schema,objs);
+          dbObjListTableModel.updateItems(objs);
+         // adjustColumnSizes(databaseObjectsTable);
+          stopActivityNotifier();
+          databaseObjectsTable.setEnabled(true);
+        });
+      }).exceptionally(e -> {
+        Messages.showErrorDialog(project,"Cannot fetch objects",
+                "Cannot fetching database object list: "+e.getCause().getMessage());
+        return null;
+      });
     } else {
-      selectingTableModel.updateItems(profileSvc.getObjectItemsForSchema(schema));
+      dbObjListTableModel.updateItems(objects);
     }
-    adjustColumnSizes(selectingTable);
-    selectingTable.addComponentListener(new ComponentAdapter() {
-      @Override
-      public void componentResized(ComponentEvent e) {
-        adjustColumnSizes(selectingTable);
-      }
-    });
+
+//    databaseObjectsTable.addComponentListener(new ComponentAdapter() {
+//      @Override
+//      public void componentResized(ComponentEvent e) {
+//        adjustColumnSizes(databaseObjectsTable);
+//      }
+//    });
 
   }
+
 
   @Override
   public JPanel getPanel() {
@@ -268,14 +337,17 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
   @Override
   public void setAttributesOn(Profile p) {
-    p.setObjectList(selectedTableModel.data);
+    p.setObjectList(profileObjListTableModel.data);
   }
 
-  public class ObjectListSelectedTableModel extends AbstractTableModel {
-    private List<ObjectListItem> data;
-    private String[] columnNames = {"Table/View Name", "Owner"};
+  public class ProfileObjectListTableModel extends AbstractTableModel {
+    private List<ProfileDBObjectItem> data;
 
-    public ObjectListSelectedTableModel() {
+    private static final int NAME_COLUMN_IDX = 0;
+    private static final int OWNER_COLUMN_IDX = 1;
+    private String[] columnNames = TABLES_COLUMN_HEADERS;
+
+    public ProfileObjectListTableModel() {
       this.data = new ArrayList<>();
     }
 
@@ -291,11 +363,11 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-      ObjectListItem item = data.get(rowIndex);
+      ProfileDBObjectItem item = data.get(rowIndex);
       switch (columnIndex) {
-        case 0:
+        case NAME_COLUMN_IDX:
           return item.getName();
-        case 1:
+        case OWNER_COLUMN_IDX:
           return item.getOwner();
         default:
           return null;
@@ -321,60 +393,67 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     }
 
     // Methods to manipulate the data
-    public void addItem(ObjectListItem item) {
+    public void addItem(ProfileDBObjectItem item) {
       data.add(item);
       fireTableRowsInserted(data.size() - 1, data.size() - 1);
-      selectingTableModel.fireTableDataChanged(); // Refresh other table to update bold styling
+      dbObjListTableModel.fireTableDataChanged(); // Refresh other table to update bold styling
       fireTableDataChanged();
     }
 
-    public void removeItem(ObjectListItem item) {
+    public void removeItem(ProfileDBObjectItem item) {
       int index = data.indexOf(item);
       if (index >= 0) {
         data.remove(index);
-        fireTableRowsDeleted(index, index);
-        selectingTableModel.fireTableDataChanged(); // Refresh other table to update bold styling
-        fireTableDataChanged();
+//        fireTableRowsDeleted(index, index);
+//        fireTableDataChanged();
 
       }
     }
 
-    public void updateItems(List<ObjectListItem> items) {
+    public void updateItems(List<ProfileDBObjectItem> items) {
       data.clear();
-      for (ObjectListItem item : items) {
-        data.add(item);
-      }
+      data.addAll(items);
       fireTableRowsInserted(0, data.size() - 1);
     }
 
     // Method to get data
-    public List<ObjectListItem> getData() {
+    public List<ProfileDBObjectItem> getData() {
       return data;
     }
 
     // Method to check if the model contains a specific item
-    public boolean contains(ObjectListItem item) {
+    public boolean contains(DBObjectItem item) {
+      // check that we have already this.
+      // that means we have something that match owner/name
+      // or owner/*
       return data.contains(item);
     }
 
-    public ObjectListItem getItemAt(int rowIndex) {
+
+    public ProfileDBObjectItem getItemAt(int rowIndex) {
       return data.get(rowIndex);
     }
   }
 
 
-  public class ObjectListSelectingTableModel extends AbstractTableModel {
+  public class DatabaseObjectListTableModel extends AbstractTableModel {
 
-    private List<ObjectListItem> filteredData;
-    private String[] columnNames = {"Table/View Name", "Owner"};
+    //items that do not match the object name pattern
+    private List<DBObjectItem> allItems;
 
-    public ObjectListSelectingTableModel() {
-      this.filteredData = new ArrayList<>();
+    //items that are already selected, moved to profile object list
+    List<DBObjectItem> alreadySelectedItems;
+
+    private String[] columnNames = TABLES_COLUMN_HEADERS;
+
+    public DatabaseObjectListTableModel() {
+      this.allItems = new ArrayList<>();
+      this.alreadySelectedItems = new ArrayList<>();
     }
 
     @Override
     public int getRowCount() {
-      return filteredData.size();
+      return allItems.size();
     }
 
     @Override
@@ -384,14 +463,12 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-      ObjectListItem item = filteredData.get(rowIndex);
+      DBObjectItem item = allItems.get(rowIndex);
       switch (columnIndex) {
         case 0:
           return item.getName();
         case 1:
           return item.getOwner();
-//        case 2:
-//          return selectedTableModel.getData().contains(item);
         default:
           return null;
       }
@@ -407,62 +484,52 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
       return String.class;
     }
 
-    // Methods to manipulate the data
-    public void updateItems(List<ObjectListItem> items) {
-      filteredData = filterItems(items, pattern);
-      fireTableRowsInserted(filteredData.size() - 1, filteredData.size() - 1);
-    }
 
-    public void selectAllFiltered() {
-      for (int i = 0; i < filteredData.size(); i++) {
-        ObjectListItem item = filteredData.get(i);
-        if (!selectedTableModel.contains(item)) {
-          selectedTableModel.addItem(item);
-          selectingTableModel.removeItem(item);
-        }
-      }
-      fireTableRowsUpdated(0, filteredData.size() - 1);
-      selectingTableModel.fireTableDataChanged();
-
-    }
-
-    public void unselectAllFiltered() {
-      for (int i = 0; i < filteredData.size(); i++) {
-        ObjectListItem item = filteredData.get(i);
-        selectedTableModel.removeItem(item);
-        selectingTableModel.addItem(item);
-      }
-      fireTableRowsUpdated(0, filteredData.size() - 1);
-      selectingTableModel.fireTableDataChanged();
-
-    }
-
-    private List<ObjectListItem> filterItems(List<ObjectListItem> items, String pattern) {
-      List<ObjectListItem> filteredItems = items.stream().filter(item -> item.getName().toLowerCase().contains(pattern.toLowerCase())).filter(item -> !selectedTableModel.getData().contains(item)).collect(Collectors.toList());
-      if (!withViewsButton.isSelected()) {
-        filteredItems = filteredItems.stream().filter(item -> item.getType() == DataType.TABLE).collect(Collectors.toList());
-      }
-      return filteredItems;
-    }
-
-    public void removeItem(ObjectListItem item) {
-      int index = filteredData.indexOf(item);
+    public void hideItem(DBObjectItem item) {
+      int index = allItems.indexOf(item);
       if (index >= 0) {
-        filteredData.remove(index);
+        alreadySelectedItems.add(item);
+        allItems.remove(index);
         fireTableRowsDeleted(index, index);
         fireTableDataChanged();
       }
     }
 
-    public void addItem(ObjectListItem item) {
-      filteredData.add(item);
+    /**
+     * move away all items from the alreadySelectedItems list
+     * @param item the item to be revealed
+     */
+    /**
+     * Moves away all items from the alreadySelectedItems list that
+     * match criterias
+     * @param itemOwner item owner
+     * @param itemName  item name, can be null meaning "all"
+     */
+    private void unhideItem(String itemOwner, String itemName) {
+      // first deal with wild card
+      // in that case, unhide all from the owner
+      if (itemName == null) {
+        alreadySelectedItems.removeIf(o->o.getOwner().equalsIgnoreCase(itemOwner));
+      } else {
+        alreadySelectedItems.removeIf(o-> (
+                o.getOwner().equalsIgnoreCase(itemOwner) &&
+                o.getName().equalsIgnoreCase(itemName)));
+      }
       fireTableRowsInserted(0, getRowCount() - 1);
       fireTableDataChanged();
 
     }
 
-    public ObjectListItem getItemAt(int rowIndex) {
-      return filteredData.get(rowIndex);
+    public DBObjectItem getItemAt(int rowIndex) {
+      return allItems.get(rowIndex);
+    }
+
+    public void updateItems(List<DBObjectItem> objs) {
+      assert objs != null:"cannot be null";
+      LOGGER.debug("DatabaseObjectListTableModel.updateItems with "+ objs.size());
+      allItems.clear();
+      allItems.addAll(objs);
+      this.fireTableDataChanged();
     }
   }
 
@@ -483,7 +550,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   @Override
   public boolean isInputsValid() {
     // TODO : add more
-    return selectedTable.getInputVerifier().verify(selectedTable);
+    return profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
   }
 
 

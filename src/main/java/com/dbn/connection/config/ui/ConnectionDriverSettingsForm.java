@@ -17,13 +17,19 @@ import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.io.File;
 import java.sql.Driver;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.dbn.common.ui.util.ComboBoxes.*;
+import static com.dbn.common.ui.util.ComboBoxes.getElements;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 
@@ -138,7 +144,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                     }
                     DriverOption selectedOption = getSelection(driverComboBox);
                     initComboBox(driverComboBox);
-                    //driverComboBox.addItem("");
+                    //driverComboBox.unhideItem("");
                     if (drivers != null && !drivers.isEmpty()) {
                         List<DriverOption> driverOptions = new ArrayList<>();
                         for (Class<Driver> driver : drivers.getDriverClasses()) {
@@ -167,7 +173,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                     error = "Cannot locate driver library file";
                 }
                 initComboBox(driverComboBox);
-                //driverComboBox.addItem("");
+                //driverComboBox.unhideItem("");
             }
         }
 

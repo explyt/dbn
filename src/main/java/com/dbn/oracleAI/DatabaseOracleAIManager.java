@@ -161,6 +161,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
 
   private Map<ConnectionId, AICredentialService> credentialManagerMap = new HashMap<>();
 
+  private Map<ConnectionId, DatabaseService> databaseManagerMap = new HashMap<>();
 
   /**
    * Gets a profile manager for the current connection.
@@ -180,4 +181,9 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
         new AICredentialService(ConnectionHandler.get(currConnection).ref()));
   }
 
+    public synchronized DatabaseService getDatabaseService() {
+      //TODO : later find better than using "synchronized"
+      return databaseManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
+              new DatabaseService(ConnectionHandler.get(currConnection).ref()));
+    }
 }
