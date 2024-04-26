@@ -5,38 +5,30 @@ import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
+import com.dbn.oracleAI.types.AuthorType;
+import com.esotericsoftware.kryo.kryo5.minlog.Log;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.JBUI;
 
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.InputMap;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.KeyStroke;
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.Style;
+import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.View;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +41,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class OracleAIChatBox extends JPanel {
+
+
   /**
    * Holder class for profile combox box
    * TODO : is that class create for each windows ?
@@ -136,21 +130,23 @@ public class OracleAIChatBox extends JPanel {
      * @return
      */
     public List<AIProfileItem> getUsableProfiles() {
-      return this.getAllProfiles().stream().filter(aiProfileItem -> aiProfileItem.effective == true).collect(
+      return this.getAllProfiles().stream().filter(aiProfileItem -> aiProfileItem.effective).collect(
           Collectors.toList());
     }
   }
 
-  private static final Insets TEXT_AREA_INSETS = JBUI.insets(10);
+  private static final Logger LOG = Logger.getInstance(OracleAIChatBox.class);
+  private static final Insets CHAT_TEXT_AREA_INSETS = JBUI.insets(3, 5, 3, 100);
+  private static final Insets PROMPT_TEXT_AREA_INSETS = JBUI.insets(15, 10, 15, 55);
 
   private static OracleAIChatBox instance;
   private JComboBox<AIProfileItem> profileComboBox;
   private ProfileComboBoxModel profileListModel = new ProfileComboBoxModel();
   private JPanel chatBoxMainPanel;
-  private JComboBox<String> companionConversationQuestion;
-  private JTextPane companionConversationAnswersText;
+  //  private JTextPane companionConversationAnswersText;
   private JCheckBox explainSQLCheckbox;
   private JPanel companionConversationPanel;
+  private JPanel conversationPanel;
   private JScrollPane companionConversationPan;
   private JPanel companionCommandPanel;
   private JPanel MainCenter;
@@ -160,6 +156,9 @@ public class OracleAIChatBox extends JPanel {
   private JProgressBar activityProgress;
   private JTextField chatBoxNotificationMessage;
   private JCheckBox checkBox1;
+  private StyledDocument chatDocument;
+  private JTextArea textArea;
+  private final List<ChatMessage> chatMessages = new ArrayList<>();
 
   public static DatabaseOracleAIManager currManager;
 
@@ -172,6 +171,8 @@ public class OracleAIChatBox extends JPanel {
   static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
       new AIProfileItem(messages.getString("companion.profile.combobox.add"), false);
 
+  static final AIProfileItem NONE_COMBO_ITEM =
+      new AIProfileItem("<None>", false);
 
   private OracleAIChatBox() {
     this.setLayout(new BorderLayout(1, 1));
@@ -189,10 +190,15 @@ public class OracleAIChatBox extends JPanel {
 
 
   private void initializeUI() {
-    initializeTextStyles();
-    createTextFieldsPanel();
-    configureTextArea(companionConversationAnswersText);
+    configureChatHeaderPanel();
+    Log.info("FINE", "Header of chat window displayed");
+    configureConversationPanel();
+    Log.info("FINE", "Center of chat window displayed");
+    configurePromptArea();
+    Log.info("FINE", "Bottom of chat window displayed");
+  }
 
+  private void configureChatHeaderPanel() {
     explainSQLCheckbox.setText(messages.getString("companion.explainSql.action"));
 
     profileComboBox.setModel(profileListModel);
@@ -203,9 +209,7 @@ public class OracleAIChatBox extends JPanel {
         currManager.openSettings();
       }
     });
-
     profileComboBox.setRenderer(new ProfileComboBoxRenderer());
-
   }
 
   private class ProfileComboBoxRenderer extends BasicComboBoxRenderer {
@@ -222,53 +226,152 @@ public class OracleAIChatBox extends JPanel {
     }
   }
 
-  private void createTextFieldsPanel() {
-    companionConversationQuestion.addItem(
-        "What are the names of all the customers");
-    companionConversationQuestion.addItem("Who joined after February 2022");
-    companionConversationQuestion.addItem(
-        "Can you list all customers by their join date in ascending order");
-    companionConversationQuestion.addItem(
-        "I need the email addresses and join dates of customers whose last name is Doe");
-    setupEnterAction();
+
+  private void configureConversationPanel() {
+    conversationPanel = new JPanel();
+    conversationPanel.setLayout(new BoxLayout(conversationPanel, BoxLayout.Y_AXIS));
+
+    companionConversationPan.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    companionConversationPan.add(conversationPanel);
+    companionConversationPan.setViewportView(conversationPanel);
   }
 
-  private void configureTextArea(JTextComponent textComponent) {
-    textComponent.setEditable(false);
-    textComponent.setMargin(TEXT_AREA_INSETS);
-    if (textComponent instanceof JTextArea) {
-      JTextArea textArea = (JTextArea) textComponent;
-      textArea.setLineWrap(true);
-      textArea.setWrapStyleWord(true);
-    }
-  }
+  private void configurePromptArea() {
 
-  private void setupEnterAction() {
+    JLayeredPane layeredPane = new JLayeredPane();
+    layeredPane.setBounds(0, 0, 480, 50);
+    layeredPane.setLayout(null);
 
-    Component editorComponent =
-        companionConversationQuestion.getEditor().getEditorComponent();
+    textArea = new JTextArea();
+    textArea.setLineWrap(true);
+    textArea.setWrapStyleWord(true);
+    textArea.setMargin(PROMPT_TEXT_AREA_INSETS);
+    JScrollPane scrollPane = new JScrollPane(textArea);
+    scrollPane.setBounds(0, 0, 480, 50);
+    textArea.setBounds(0, 0, 430, 40);
+    layeredPane.add(scrollPane, JLayeredPane.DEFAULT_LAYER);
 
-    if (editorComponent instanceof JComponent) {
-      JComponent editor = (JComponent) editorComponent;
+    JButton button = new JButton(">");
+    button.addActionListener(e -> {
+      submitText();
+    });
+    button.setBounds(410, 3, 50, 35);
+    layeredPane.add(button, JLayeredPane.PALETTE_LAYER);
+    layeredPane.setPreferredSize(new Dimension(480, 40));
+    JPanel aiQuestionPanel = new JPanel();
+    aiQuestionPanel.setLayout(null);
+    aiQuestionPanel.setPreferredSize(new Dimension(480, 40));
+    aiQuestionPanel.add(layeredPane);
+    companionConversationPanel.add(aiQuestionPanel, BorderLayout.SOUTH);
+    int newX = 10;
+    layeredPane.setLocation(newX, layeredPane.getY());
+    InputMap inputMap = textArea.getInputMap(JComponent.WHEN_FOCUSED);
+    ActionMap actionMap = textArea.getActionMap();
 
-      InputMap inputMap = editor.getInputMap(JComponent.WHEN_FOCUSED);
-      ActionMap actionMap = editor.getActionMap();
+    companionConversationPanel.addComponentListener(new ComponentAdapter() {
 
-      inputMap.put(KeyStroke.getKeyStroke("ENTER"), "submit");
-      inputMap.put(KeyStroke.getKeyStroke("shift ENTER"), "insert-break");
+      @Override
+      public void componentResized(ComponentEvent e) {
+        updateLayout();
+        updateTextPanesHeight();
+      }
 
-      actionMap.put("submit", new AbstractAction() {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-          submitText();
+      private void updateLayout() {
+        int newWidth = companionCommandPanel.getWidth();
+        layeredPane.setBounds(0, 0, newWidth, layeredPane.getHeight());
+        scrollPane.setBounds(0, 0, newWidth, scrollPane.getHeight());
+        button.setBounds(scrollPane.getWidth() - 70, button.getY(), 50, 35);
+
+        companionConversationPanel.revalidate();
+        companionConversationPanel.repaint();
+      }
+
+      private void updateTextPanesHeight() {
+        for (Component comp : conversationPanel.getComponents()) {
+          if (comp instanceof JTextPane) {
+            JTextPane pane = (JTextPane) comp;
+            int newHeight = calculateTextPaneHeight(pane);
+            pane.setPreferredSize(new Dimension(companionConversationPan.getWidth() * 3 / 4, newHeight));
+            pane.setMaximumSize(new Dimension(companionConversationPan.getWidth() * 3 / 4, newHeight));
+            if (pane.getBackground() == Color.WHITE) {
+              pane.setAlignmentX(Component.LEFT_ALIGNMENT);
+            } else {
+              pane.setAlignmentX(Component.RIGHT_ALIGNMENT);
+            }
+
+          }
         }
-      });
-    }
+        companionConversationPanel.revalidate();
+        companionConversationPanel.repaint();
+      }
 
+    });
+
+    inputMap.put(KeyStroke.getKeyStroke("ENTER"), "submit");
+    inputMap.put(KeyStroke.getKeyStroke("shift ENTER"), "insert-break");
+
+    actionMap.put("submit", new AbstractAction() {
+      @Override
+      public void actionPerformed(ActionEvent e) {
+        submitText();
+      }
+    });
+    textArea.getDocument().addDocumentListener(new DocumentListener() {
+
+
+      private void updateScrollPane() {
+        ApplicationManager.getApplication().invokeLater(() -> {
+
+
+          int totalHeight = textArea.getPreferredSize().height;
+          int maxHeight = 100;
+          int minHeight = 40;
+          if (totalHeight <= maxHeight && totalHeight > minHeight) {
+            resizePromptField(totalHeight);
+          } else if (totalHeight > maxHeight) {
+            resizePromptField(maxHeight);
+          } else {
+            resizePromptField(minHeight);
+          }
+          companionConversationPanel.revalidate();
+          companionConversationPanel.repaint();
+        });
+
+      }
+
+      private void resizePromptField(int height) {
+        layeredPane.setBounds(0, 0, companionCommandPanel.getWidth(), height);
+        scrollPane.setBounds(0, 0, companionCommandPanel.getWidth(), height);
+        button.setBounds(scrollPane.getWidth() - 70, height - 45, 50, 35);
+        layeredPane.setPreferredSize(new Dimension(companionCommandPanel.getWidth(), height));
+        aiQuestionPanel.setPreferredSize(new Dimension(companionCommandPanel.getWidth(), height));
+        scrollPane.setPreferredSize(new Dimension(companionCommandPanel.getWidth(), height));
+        int parentWidth = companionConversationPanel.getWidth();
+        int paneWidth = layeredPane.getPreferredSize().width;
+        int newX = (parentWidth - paneWidth) / 2;
+        layeredPane.setLocation(newX, layeredPane.getY());
+        scrollPane.setVerticalScrollBarPolicy(height < 40 ? ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER : ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+      }
+
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        updateScrollPane();
+      }
+
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        updateScrollPane();
+      }
+
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        updateScrollPane();
+      }
+    });
   }
 
   private void submitText() {
-    startActivityNotifier("Submitting.. (we need a key in messages)");
+    startActivityNotifier("Submitting..");
     ApplicationManager.getApplication()
         .executeOnPooledThread(
             () -> processQuery(selectedAction()));
@@ -284,68 +387,37 @@ public class OracleAIChatBox extends JPanel {
 
   private void processQuery(ActionAIType actionType) {
 
-    Objects.requireNonNull(companionConversationQuestion.getSelectedItem(),
+    Objects.requireNonNull(textArea.getText(),
         "cannot be here without question been selected");
 
     AIProfileItem item = (AIProfileItem) profileComboBox.getSelectedItem();
-    Objects.requireNonNull(item,
-        "cannot be here without profile been selected");
-    if (ADD_PROFILE_COMBO_ITEM.equals(item)) {
-      // TODO : we should never arrive here anyway
-      return;
-    }
 
-    String question =
-        companionConversationQuestion.getSelectedItem().toString();
+    String question = textArea.getText();
     if (question.length() > 0) {
+      textArea.setText("");
+      ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
+      chatMessages.add(inputChatMessage);
+      appendMessageToChat(inputChatMessage);
       try {
         String output =
             currManager.queryOracleAI(question, actionType, item.getLabel());
+        ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
+        chatMessages.add(outPutChatMessage);
+        appendMessageToChat(outPutChatMessage);
         ApplicationManager.getApplication()
+
             .invokeLater(() -> {
-              setDisplayTextPane(output);
-              stopActivityNotifier();
             });
       } catch (QueryExecutionException | SQLException e) {
 
         ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
 
+      } finally {
+        stopActivityNotifier();
       }
     }
 
-  }
 
-  public void setDisplayTextPane(String s) {
-    try {
-      StyledDocument doc = companionConversationAnswersText.getStyledDocument();
-      doc.remove(0, doc.getLength());
-
-      String[] tokens = s.split("```");
-      boolean isCode = false;
-      for (String token : tokens) {
-        if (isCode) {
-          doc.insertString(doc.getLength(), token, doc.getStyle("code"));
-        } else {
-          doc.insertString(doc.getLength(), token, doc.getStyle("regular"));
-        }
-        isCode = !isCode;
-      }
-    } catch (BadLocationException e) {
-      // TODO : cannot be printing things like that
-      e.printStackTrace();
-    }
-  }
-
-  private void initializeTextStyles() {
-    StyledDocument doc = companionConversationAnswersText.getStyledDocument();
-    Style def = StyleContext.getDefaultStyleContext()
-        .getStyle(StyleContext.DEFAULT_STYLE);
-
-    Style regular = doc.addStyle("regular", def);
-    StyleConstants.setFontFamily(def, "SansSerif");
-
-    Style s = doc.addStyle("code", regular);
-    StyleConstants.setForeground(s, Color.getHSBColor(210, 50, 100));
   }
 
   /**
@@ -353,15 +425,15 @@ public class OracleAIChatBox extends JPanel {
    * list of available profiles for the current connection
    */
   public CompletableFuture<Map<String, Profile>> updateProfiles() {
-    return currManager.getProfileService().getProfiles().thenApply(pl-> pl.stream()
-         .collect(Collectors.toMap(Profile::getProfileName,
-                 Function.identity(),
-                 (existing, replacement) -> existing)))
-            .exceptionally(e->{
-              ApplicationManager.getApplication().invokeLater(() ->
-                      Messages.showErrorDialog(currManager.getProject(), "Cannot get profile list: " + e.getCause().getMessage()));
-              return null;
-            });
+    return currManager.getProfileService().getProfiles().thenApply(pl -> pl.stream()
+            .collect(Collectors.toMap(Profile::getProfileName,
+                Function.identity(),
+                (existing, replacement) -> existing)))
+        .exceptionally(e -> {
+          ApplicationManager.getApplication().invokeLater(() ->
+              Messages.showErrorDialog(currManager.getProject(), "Cannot get profile list: " + e.getCause().getMessage()));
+          return null;
+        });
 
   }
 
@@ -372,6 +444,10 @@ public class OracleAIChatBox extends JPanel {
     try {
       profileListModel.removeAllElements();
       profileListModel.addAll(items);
+      if (items.isEmpty()) {
+        profileListModel.addElement(NONE_COMBO_ITEM);
+        profileComboBox.setSelectedItem(NONE_COMBO_ITEM);
+      }
       profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
       profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
     } catch (Exception e) {
@@ -382,8 +458,8 @@ public class OracleAIChatBox extends JPanel {
   }
 
   /**
-   * Backuop current elements state fo rlater re-use
-   * when we gonna enter here again with a new connection
+   * Backup current elements state for later re-use
+   * when we're going to enter here again with a new connection
    *
    * @return the state for this current companion
    */
@@ -391,8 +467,8 @@ public class OracleAIChatBox extends JPanel {
     AIProfileItem selectedProfile = (AIProfileItem) profileListModel.getSelectedItem();
     return OracleAIChatBoxState.builder()
         .currConnection(currConnection)
-        .aiAnswers(companionConversationAnswersText.getText())
-        .currentQuestionText(companionConversationQuestion.getSelectedItem().toString())
+        .aiAnswers(chatMessages)
+//        .currentQuestionText(companionConversationQuestion.getSelectedItem().toString())
         .profiles(profileListModel.getAllProfiles())
         .selectedProfile((selectedProfile != null && selectedProfile.isEffective()) ? selectedProfile : null)
         .build();
@@ -409,20 +485,23 @@ public class OracleAIChatBox extends JPanel {
 //      for (String s : state.getQuestionHistory()) {
 //        companionConversationQuestion.addItems(s);
 //      }
-    companionConversationQuestion.setSelectedItem(
-        state.getCurrentQuestionText());
-    companionConversationAnswersText.setText(state.getAiAnswers());
 
-    if (profileListModel.getUsableProfiles().size() == 0) {
-      companionConversationQuestion.setEnabled(false);
-    } else {
-      companionConversationQuestion.setEnabled(true);
-    }
+//      companionConversationQuestion.setSelectedItem(
+//          state.getCurrentQuestionText());
+    chatMessages.clear();
+    chatMessages.addAll(state.getAiAnswers());
+    populateChatPanel();
+
+//      if (profileListModel.getUsableProfiles().size() == 0) {
+//        companionConversationQuestion.setEnabled(false);
+//      } else {
+//        companionConversationQuestion.setEnabled(true);
+//      }
 
   }
 
   /**
-   * Starts the spining wheel
+   * Starts the spinning wheel
    * TODO : try to be clever here...
    */
   private void startActivityNotifier(String message) {
@@ -433,7 +512,7 @@ public class OracleAIChatBox extends JPanel {
   }
 
   /**
-   * Stops the spining wheel
+   * Stops the spinning wheel
    */
   private void stopActivityNotifier() {
     activityProgress.setMinimum(0);
@@ -458,27 +537,103 @@ public class OracleAIChatBox extends JPanel {
         finalFetchedProfiles.forEach((pn, p) -> {
           profileListModel.addElement(new AIProfileItem(pn));
         });
-
+        if (finalFetchedProfiles.size() == 0) {
+          profileListModel.addElement(NONE_COMBO_ITEM);
+        }
         profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
 
         if (profileListModel.getUsableProfiles().size() == 0) {
-          companionConversationQuestion.setEnabled(false);
-          companionConversationQuestion.setToolTipText(
-              messages.getString("companion.chat.no_profile_yet.tooltip"));
+
+//          companionConversationQuestion.setEnabled(false);
+//          companionConversationQuestion.setToolTipText(
+//            messages.getString("companion.chat.no_profile_yet.tooltip"));
           explainSQLCheckbox.setEnabled(false);
           explainSQLCheckbox.setToolTipText(
               messages.getString("companion.chat.no_profile_yet.tooltip"));
         } else {
-          companionConversationQuestion.setEnabled(true);
-          companionConversationQuestion.setToolTipText(
-              messages.getString("companion.chat.question.enabled.tooltip"));
+//          companionConversationQuestion.setEnabled(true);
+//          companionConversationQuestion.setToolTipText(
+//            messages.getString("companion.chat.question.enabled.tooltip"));
           explainSQLCheckbox.setEnabled(true);
           explainSQLCheckbox.setToolTipText(
               messages.getString("companion.explainsql.tooltip"));
         }
         stopActivityNotifier();
       });
+    }).exceptionally(e -> {
+      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getCause().getMessage()));
+      stopActivityNotifier();
+      return null;
     });
   }
+
+  private void populateChatPanel() {
+    for (ChatMessage message : chatMessages) {
+      appendMessageToChat(message);
+    }
+  }
+
+  private void appendMessageToChat(ChatMessage chatMessage) {
+    JTextPane messagePane = createMessagePane(chatMessage);
+
+    conversationPanel.add(messagePane);
+    conversationPanel.revalidate();
+    conversationPanel.repaint();
+  }
+
+  private JTextPane createMessagePane(ChatMessage chatMessage) {
+    JTextPane messagePane = new JTextPane();
+    messagePane.setText(chatMessage.getMessage());
+    messagePane.setEditable(false);
+
+    // Set background based on the author
+    if (chatMessage.getAuthor() == AuthorType.USER) {
+//      messagePane.setBorder(
+//          BorderFactory.createEmptyBorder(3, 30, 3, 5));
+      messagePane.setBackground(Color.LIGHT_GRAY);
+//      alignText(messagePane, StyleConstants.ALIGN_RIGHT);
+      messagePane.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+    } else {
+      messagePane.setBackground(Color.WHITE);
+//      messagePane.setMargin(CHAT_TEXT_AREA_INSETS);
+//      messagePane.setBorder(
+//          BorderFactory.createEmptyBorder(3, 5, 3, 100));
+
+//      alignText(messagePane, StyleConstants.ALIGN_LEFT);
+      messagePane.setAlignmentX(Component.RIGHT_ALIGNMENT);
+
+    }
+//    messagePane.setMargin(CHAT_TEXT_AREA_INSETS);
+
+
+    int height = calculateTextPaneHeight(messagePane);
+    messagePane.setPreferredSize(new Dimension(messagePane.getPreferredSize().width * 3 / 4, height));
+    messagePane.setMaximumSize(new Dimension(messagePane.getPreferredSize().width * 3 / 4, height));
+
+    return messagePane;
+  }
+
+  /**
+   * Aligns text inside a JTextPane.
+   *
+   * @param pane      the JTextPane to align text within.
+   * @param alignment the alignment value (e.g., StyleConstants.ALIGN_LEFT, StyleConstants.ALIGN_RIGHT).
+   */
+  private void alignText(JTextPane pane, int alignment) {
+    StyledDocument doc = pane.getStyledDocument();
+    SimpleAttributeSet attrs = new SimpleAttributeSet();
+    StyleConstants.setAlignment(attrs, alignment);
+    doc.setParagraphAttributes(0, doc.getLength(), attrs, false);
+  }
+
+  private int calculateTextPaneHeight(JTextPane textPane) {
+    textPane.setSize(conversationPanel.getWidth(), Integer.MAX_VALUE);
+    View view = textPane.getUI().getRootView(textPane).getView(0);
+    view.setSize(conversationPanel.getWidth(), Integer.MAX_VALUE);
+    int preferredHeight = (int) view.getPreferredSpan(View.Y_AXIS);
+    return preferredHeight;
+  }
+
 
 }

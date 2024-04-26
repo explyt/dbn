@@ -1,10 +1,12 @@
 package com.dbn.oracleAI.ui;
 
+import com.dbn.oracleAI.types.AuthorType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,7 +19,7 @@ public class OracleAIChatBoxState {
   private OracleAIChatBox.AIProfileItem selectedProfile;
   private String currentQuestionText;
   private List<String> questionHistory;
-  private String aiAnswers;
+  private List<ChatMessage> aiAnswers;
   private String currConnection;
 
   public OracleAIChatBoxState() {
@@ -35,7 +37,7 @@ public class OracleAIChatBoxState {
 //      questionsElement.addContent(new Element("question").setText(question));
 //    }
 //    stateElement.addContent(questionsElement);
-    stateElement.addContent(new Element("aiAnswers").setText(aiAnswers));
+//    stateElement.addContent(new Element("aiAnswers").setText(aiAnswers));
 
     Element profilesElement = new Element("profiles");
     for (OracleAIChatBox.AIProfileItem profile : profiles) {
@@ -45,6 +47,15 @@ public class OracleAIChatBoxState {
       profilesElement.addContent(profileElement);
     }
     stateElement.addContent(profilesElement);
+
+    Element messagesElement = new Element("chatMessages");
+    for (ChatMessage chatMessage : aiAnswers) {
+      Element messageElement = new Element("chatMessage");
+      messageElement.setAttribute("message", chatMessage.getMessage());
+      messageElement.setAttribute("author", chatMessage.getAuthor().toString());
+      profilesElement.addContent(messageElement);
+    }
+    stateElement.addContent(messagesElement);
 
     return stateElement;
   }
@@ -64,7 +75,7 @@ public class OracleAIChatBoxState {
 //    List<String> questions = questionElements.stream().map(Element::getText).collect(Collectors.toList());
 //    state.setQuestionHistory(questions);
 
-    state.setAiAnswers(stateElement.getChildText("aiAnswers"));
+//    state.setAiAnswers(stateElement.getChildText("aiAnswers"));
 
     List<Element> profileElements = stateElement.getChild("profiles").getChildren("profile");
     List<OracleAIChatBox.AIProfileItem> profiles = profileElements.stream()
@@ -74,9 +85,16 @@ public class OracleAIChatBoxState {
         .collect(Collectors.toList());
     state.setProfiles(profiles);
 
+    List<Element> messageElements = stateElement.getChild("chatMessages").getChildren("chatMessage");
+    List<ChatMessage> chatMessages = messageElements.stream()
+        .map(messageElement -> new ChatMessage(
+            messageElement.getAttributeValue("message"),
+            AuthorType.valueOf(messageElement.getAttributeValue("author"))))
+        .collect(Collectors.toList());
+    state.setAiAnswers(chatMessages);
+
     return state;
   }
-
 
 
   // Assuming getters and setters are implemented
