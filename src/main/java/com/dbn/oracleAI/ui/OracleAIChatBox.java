@@ -407,7 +407,7 @@ public class OracleAIChatBox extends JPanel {
     assert state != null : "cannot be null";
     this.updateProfiles(state.getProfiles());
 //      for (String s : state.getQuestionHistory()) {
-//        companionConversationQuestion.addItem(s);
+//        companionConversationQuestion.addItems(s);
 //      }
     companionConversationQuestion.setSelectedItem(
         state.getCurrentQuestionText());

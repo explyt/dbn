@@ -56,6 +56,7 @@
                 <constraints/>
                 <properties>
                   <autoCreateRowSorter value="true"/>
+                  <autoResizeMode value="4"/>
                 </properties>
               </component>
             </children>
@@ -112,6 +113,7 @@
           <component id="1c71d" class="javax.swing.JCheckBox" binding="withViewsButton">
             <constraints/>
             <properties>
+              <selected value="false"/>
               <text resource-bundle="Messages" key="profile.mgmt.obj_list.include_views"/>
             </properties>
           </component>

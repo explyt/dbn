@@ -23,18 +23,16 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
 import javax.swing.table.TableRowSorter;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -42,7 +40,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  * Profile edition Object list step for edition wizard
@@ -74,9 +74,11 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   private final DatabaseService databaseSvc;
   private final Project project;
   ProfileObjectListTableModel profileObjListTableModel = new ProfileObjectListTableModel();
-  DatabaseObjectListTableModel dbObjListTableModel = new DatabaseObjectListTableModel();
 
-  Map<String,List<DBObjectItem>> schemaObjectListCache = new HashMap<>();
+  //At start initialize it with empty one
+  DatabaseObjectListTableModel currentDbObjListTableModel = new DatabaseObjectListTableModel();
+
+  Map<String,DatabaseObjectListTableModel> schemaObjectListCache = new HashMap<>();
 
   public ProfileEditionObjectListStep(Project project, Profile profile) {
     super();
@@ -84,7 +86,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     this.project = project;
     this.databaseSvc = project.getService(DatabaseOracleAIManager.class).getDatabaseService();
 
-      patternFilter.getDocument().addDocumentListener(new DocumentListener() {
+    patternFilter.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {
         filter();
       }
@@ -104,30 +106,43 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
     withViewsButton.addItemListener((
         e -> {
-          populateDatabaseObjectTable(schemaComboBox.getSelectedItem().toString());
+          if (((JCheckBox)e.getSource()).isSelected()) {
+            currentDbObjListTableModel.unhideItemByType(DatabaseObjectType.VIEW);
+          } else {
+            currentDbObjListTableModel.hideItemByType(DatabaseObjectType.VIEW);
+          }
+
         }
     ));
-    initializeTable(profile);
+    initializeTables(profile);
   }
 
-  private void initializeTable(@Nullable Profile profile) {
+  private void initializeTables(@Nullable Profile profile) {
     LOGGER.debug("initializing tables");
+    profileObjectListTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     profileObjectListTable.setModel(profileObjListTableModel);
     addValidationListener(profileObjectListTable);
-    databaseObjectsTable.setModel(dbObjListTableModel);
+    databaseObjectsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+    databaseObjectsTable.setModel(currentDbObjListTableModel);
     databaseObjectsTable.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
-          int row = databaseObjectsTable.rowAtPoint(e.getPoint());
-          if (row >= 0) {
-            DBObjectItem item = dbObjListTableModel.getItemAt(row);
-            if (profileObjListTableModel.contains(item)) {
-              return;
+          JTable table = ((JTable)e.getSource());
+          int [] selectedRows = table.getSelectedRows();
+          if (selectedRows != null ) {
+            // hide all and add to profile obj list
+            List<String> namesTobeHidden = new ArrayList<>(selectedRows.length);
+            List<ProfileDBObjectItem> newItems = new ArrayList<>(selectedRows.length);
+            for (int i = 0;i<selectedRows.length;i++) {
+              newItems.add(new ProfileDBObjectItem(
+                      (String) table.getValueAt(selectedRows[i], 1),
+                      (String) table.getValueAt(selectedRows[i], 0)));
+              namesTobeHidden.add((String) table.getValueAt(selectedRows[i], 0));
+
             }
-            profileObjListTableModel.addItem(
-                    new ProfileDBObjectItem(item.getOwner(),item.getName()));
-            dbObjListTableModel.hideItem(item);
+            profileObjListTableModel.addItems(newItems);
+            currentDbObjListTableModel.hideItemByNames(namesTobeHidden);
           }
         }
       }
@@ -139,27 +154,36 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
           int row = profileObjectListTable.rowAtPoint(e.getPoint());
           if (row >= 0) {
             ProfileDBObjectItem item = profileObjListTableModel.getItemAt(row);
-            dbObjListTableModel.unhideItem(item.getOwner(),item.getName());
+            // we may be viewing datbase object from another schema
+            // locate it first. no way that cache not already populated
+            DatabaseObjectListTableModel model = schemaObjectListCache.get(item.getOwner());
+            assert model != null: "trying to unhide items form model not in the cache";
+            // TODO : verify that this do nto fire event when this is not the current model
+            //        of the table
+            model.unhideItem(item.getOwner(),item.getName());
             profileObjListTableModel.removeItem(item);
           }
         }
       }
     });
 
-    loadSchemas();
+
     // now that we have schemas loaded we can add the listener
     schemaComboBox.addActionListener((e) -> {
       LOGGER.debug("action listener on  schemaComboBox fired");
       populateDatabaseObjectTable(schemaComboBox.getSelectedItem().toString());
     });
+    loadSchemas();
 
-    populateProfileObjectLitTable(profile);
+    if (profile !=null) {
+      profileObjListTableModel.updateItems(profile.getObjectList());
+    }
     ((TableRowSorter)databaseObjectsTable.getRowSorter()).setRowFilter(new RowFilter<DatabaseObjectListTableModel, Integer>() {
 
       @Override
       public boolean include(Entry<? extends DatabaseObjectListTableModel, ? extends Integer> entry) {
         // first : is it already selected ? if yes should be hidden
-        if (entry.getModel().alreadySelectedItems.contains(entry.getModel().getItemAt((Integer)entry.getIdentifier()))) {
+        if (entry.getModel().parkedItems.contains(entry.getModel().getItemAt((Integer)entry.getIdentifier()))) {
           return false;
         }
 
@@ -187,7 +211,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
-        DBObjectItem currentItem = dbObjListTableModel.getItemAt(row);
+        DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
         if (currentItem.getType() == DatabaseObjectType.VIEW) {
           editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
           editor.setForeground(Color.LIGHT_GRAY);
@@ -245,17 +269,23 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     if (item.getName() == null || item.getName().length() == 0) {
       return null;
     }
-    // no way to not find something
-    return schemaObjectListCache.get(item.getOwner())
-            .stream().filter(item::isEquivalentTo).findFirst().get().getType();
+
+    DatabaseObjectListTableModel model = schemaObjectListCache.get(item.getOwner());
+    Optional<DBObjectItem> oitem = model.allItems.stream().filter(item::isEquivalentTo).findFirst();
+    if (oitem.isEmpty()) {
+      // look for hidden ones then
+      oitem = model.parkedItems.stream().filter(item::isEquivalentTo).findFirst();
+    }
+    // at this point, no way to no have something
+    return oitem.get().getType();
   }
 
   private void loadSchemas() {
     startActivityNotifier();
     databaseSvc.getSchemaNames().thenAccept(schemaList -> {
       ApplicationManager.getApplication().invokeLater(() -> {
-        //schemaComboBox.unhideItem("All Schemas");
         for (String schema : schemaList) {
+          LOGGER.debug("Adding new schema to dropbox: " + schema);
           schemaComboBox.addItem(schema);
         }
         stopActivityNotifier();
@@ -267,47 +297,17 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     });
   }
 
-  private void adjustColumnSizes(JTable table) {
-    int tableWidth = table.getWidth();
-
-    // Ensure that the table has columns before adjusting sizes
-    if (table.getColumnModel().getColumnCount() > 1) {
-      TableColumn column1 = table.getColumnModel().getColumn(0);
-      TableColumn column2 = table.getColumnModel().getColumn(1);
-
-      // Set each column to half of the table width
-      int columnWidth = tableWidth / 3;
-
-      column1.setPreferredWidth(2 * columnWidth);
-      column2.setPreferredWidth(columnWidth);
-    }
-  }
-
-
-  private void populateProfileObjectLitTable(Profile profile) {
-    if (profile != null) {
-      // if null: we are in the middle of a profile creation
-      profileObjListTableModel.updateItems(profile.getObjectList());
-    }
-    //adjustColumnSizes(profileObjectListTable);
-//    profileObjectListTable.addComponentListener(new ComponentAdapter() {
-//      @Override
-//      public void componentResized(ComponentEvent e) {
-//        adjustColumnSizes(profileObjectListTable);
-//      }
-//    });
-  }
-
   private void populateDatabaseObjectTable(String schema) {
-    List<DBObjectItem> objects = schemaObjectListCache.get(schema);
-    if (objects == null) {
+    DatabaseObjectListTableModel model  = schemaObjectListCache.get(schema);
+    if (model == null) {
       startActivityNotifier();
       databaseObjectsTable.setEnabled(false);
       databaseSvc.getObjectItemsForSchema(schema).thenAccept(objs->{
         ApplicationManager.getApplication().invokeLater(() -> {
-          schemaObjectListCache.put(schema,objs);
-          dbObjListTableModel.updateItems(objs);
-         // adjustColumnSizes(databaseObjectsTable);
+          DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs,!withViewsButton.isSelected());
+          schemaObjectListCache.put(schema,newModel);
+          databaseObjectsTable.setModel(newModel);
+          currentDbObjListTableModel = newModel;
           stopActivityNotifier();
           databaseObjectsTable.setEnabled(true);
         });
@@ -317,16 +317,9 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         return null;
       });
     } else {
-      dbObjListTableModel.updateItems(objects);
+      currentDbObjListTableModel = model;
+      databaseObjectsTable.setModel(model);
     }
-
-//    databaseObjectsTable.addComponentListener(new ComponentAdapter() {
-//      @Override
-//      public void componentResized(ComponentEvent e) {
-//        adjustColumnSizes(databaseObjectsTable);
-//      }
-//    });
-
   }
 
 
@@ -393,27 +386,35 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     }
 
     // Methods to manipulate the data
-    public void addItem(ProfileDBObjectItem item) {
-      data.add(item);
-      fireTableRowsInserted(data.size() - 1, data.size() - 1);
-      dbObjListTableModel.fireTableDataChanged(); // Refresh other table to update bold styling
-      fireTableDataChanged();
+    public void addItems(List<ProfileDBObjectItem> items) {
+      if (LOGGER.isDebugEnabled())
+        LOGGER.debug("ProfileObjectListTableModel.addItems: " + items);
+      int curRow=data.size();
+      data.addAll(items);
+      LOGGER.debug(
+              "ProfileObjectListTableModel.addItems triggered  fireTableRowsInserted on ("+
+                      curRow+"/"+curRow+items.size()+")");
+      fireTableRowsInserted(curRow, curRow+items.size());
     }
 
     public void removeItem(ProfileDBObjectItem item) {
+      LOGGER.debug("ProfileObjectListTableModel.removeItem: " + item);
       int index = data.indexOf(item);
       if (index >= 0) {
-        data.remove(index);
-//        fireTableRowsDeleted(index, index);
-//        fireTableDataChanged();
-
+       data.remove(index);
+        LOGGER.debug(
+                "ProfileObjectListTableModel.removeItem triggered  fireTableRowsDeleted on ("+
+                        index+"/"+index+")");
+       fireTableRowsDeleted(index,index);
       }
     }
 
     public void updateItems(List<ProfileDBObjectItem> items) {
       data.clear();
       data.addAll(items);
-      fireTableRowsInserted(0, data.size() - 1);
+      if (LOGGER.isDebugEnabled())
+        LOGGER.debug("ProfileObjectListTableModel.updateItems: " + items);
+      fireTableDataChanged();
     }
 
     // Method to get data
@@ -421,13 +422,6 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
       return data;
     }
 
-    // Method to check if the model contains a specific item
-    public boolean contains(DBObjectItem item) {
-      // check that we have already this.
-      // that means we have something that match owner/name
-      // or owner/*
-      return data.contains(item);
-    }
 
 
     public ProfileDBObjectItem getItemAt(int rowIndex) {
@@ -436,24 +430,43 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   }
 
 
-  public class DatabaseObjectListTableModel extends AbstractTableModel {
+  public static class DatabaseObjectListTableModel extends AbstractTableModel {
 
     //items that do not match the object name pattern
     private List<DBObjectItem> allItems;
 
     //items that are already selected, moved to profile object list
-    List<DBObjectItem> alreadySelectedItems;
+    //These items will be parked out so to not be displayed
+    List<DBObjectItem> parkedItems;
 
     private String[] columnNames = TABLES_COLUMN_HEADERS;
 
     public DatabaseObjectListTableModel() {
       this.allItems = new ArrayList<>();
-      this.alreadySelectedItems = new ArrayList<>();
+      this.parkedItems = new ArrayList<>();
+    }
+    public DatabaseObjectListTableModel(List<DBObjectItem> objs, boolean hideViewsByDefault) {
+      this.parkedItems = new ArrayList<>();
+      if (hideViewsByDefault) {
+        this.allItems = new ArrayList<>();
+        for (DBObjectItem obj : objs) {
+          if (obj.getType().equals(DatabaseObjectType.TABLE)) {
+            this.allItems.add(obj);
+          } else {
+            // this is a view
+            this.parkedItems.add(obj);
+          }
+        }
+
+      } else {
+        // include all
+        this.allItems = objs;
+      }
     }
 
     @Override
     public int getRowCount() {
-      return allItems.size();
+      return this.allItems.size();
     }
 
     @Override
@@ -484,13 +497,52 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
       return String.class;
     }
 
+    public void hideItemByType(DatabaseObjectType databaseObjectType) {
+      LOGGER.debug("DatabaseObjectListTableModel.hideItemByType: " + databaseObjectType);
+      List<DBObjectItem> matches = new ArrayList<>();
+      allItems.stream().filter(item -> item.getType().equals(databaseObjectType)).allMatch(
+              match -> matches.add(match)
+      );
+      if (matches.size() >0) {
+        parkedItems.addAll(matches);
+        allItems.removeAll(matches);
+        LOGGER.debug("DatabaseObjectListTableModel.hideItemByNames: triggering fireTableDataChanged");
+        fireTableDataChanged();
+      }
+    }
+    public void unhideItemByType(DatabaseObjectType databaseObjectType) {
+      LOGGER.debug("DatabaseObjectListTableModel.unhideItemByType: " + databaseObjectType);
+      List<DBObjectItem> matches = new ArrayList<>();
+      parkedItems.stream().filter(item -> item.getType().equals(databaseObjectType)).allMatch(
+              match -> matches.add(match)
+      );
+      if (matches.size() >0) {
+        parkedItems.removeAll(matches);
+        allItems.addAll(matches);
+        LOGGER.debug("DatabaseObjectListTableModel.unhideItemByType: triggering fireTableDataChanged");
+        fireTableDataChanged();
+      }
+    }
 
-    public void hideItem(DBObjectItem item) {
-      int index = allItems.indexOf(item);
-      if (index >= 0) {
-        alreadySelectedItems.add(item);
-        allItems.remove(index);
-        fireTableRowsDeleted(index, index);
+
+    /**
+     * Hide a itme from the model by its names
+     * A modle onyl contain item for a given schema, no name collision
+     * can hapen
+     * @param itemNames name of the object in the model
+     */
+    public void hideItemByNames(List<String> itemNames) {
+      if (LOGGER.isDebugEnabled())
+        LOGGER.debug("DatabaseObjectListTableModel.hideItemByNames: " + itemNames);
+      List<DBObjectItem> matches = new ArrayList<>();
+      allItems.stream().filter(item -> itemNames.contains(item.getName())).allMatch(
+              match -> matches.add(match)
+      );
+     
+      if (matches.size() >0) {
+        parkedItems.addAll(matches);
+        allItems.removeAll(matches);
+        LOGGER.debug("DatabaseObjectListTableModel.hideItemByNames: triggering fireTableDataChanged");
         fireTableDataChanged();
       }
     }
@@ -508,29 +560,28 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     private void unhideItem(String itemOwner, String itemName) {
       // first deal with wild card
       // in that case, unhide all from the owner
+      boolean removed = false;
+      List<DBObjectItem> toBoMoved;
       if (itemName == null) {
-        alreadySelectedItems.removeIf(o->o.getOwner().equalsIgnoreCase(itemOwner));
+        toBoMoved =  parkedItems.stream().filter(
+                o -> o.getOwner().equalsIgnoreCase(itemOwner)).collect(Collectors.toList());
       } else {
-        alreadySelectedItems.removeIf(o-> (
-                o.getOwner().equalsIgnoreCase(itemOwner) &&
-                o.getName().equalsIgnoreCase(itemName)));
-      }
-      fireTableRowsInserted(0, getRowCount() - 1);
-      fireTableDataChanged();
+        toBoMoved = parkedItems.stream().filter(
+                o -> o.getOwner().equalsIgnoreCase(itemOwner) &&
+                o.getName().equalsIgnoreCase(itemName)).collect(Collectors.toList());
 
+      }
+      if (toBoMoved.size() >0) {
+        parkedItems.removeAll(toBoMoved);
+        allItems.addAll(toBoMoved);
+        fireTableDataChanged();
+      }
     }
 
     public DBObjectItem getItemAt(int rowIndex) {
       return allItems.get(rowIndex);
     }
 
-    public void updateItems(List<DBObjectItem> objs) {
-      assert objs != null:"cannot be null";
-      LOGGER.debug("DatabaseObjectListTableModel.updateItems with "+ objs.size());
-      allItems.clear();
-      allItems.addAll(objs);
-      this.fireTableDataChanged();
-    }
   }
 
 
