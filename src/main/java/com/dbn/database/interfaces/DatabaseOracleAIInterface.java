@@ -5,7 +5,7 @@ import com.dbn.database.common.oracleAI.OracleQueryOutput;
 import com.dbn.database.common.oracleAI.OracleTablesList;
 import com.dbn.database.common.oracleAI.OracleViewsList;
 import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.config.ObjectListItem;
+import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
@@ -134,13 +134,14 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
   List<String> listSchemas(DBNConnection connection) throws DatabaseOperationException;
 
   /**
-   * Lists all object list items available in the current database connection.
-   * This can include tables, views, and other database objects.
+   * Lists all objects items available in the current database connection.
+   * This can include tables, views.
    *
    * @param connection The database connection object.
-   * @return A list of ObjectListItems, each representing a database object.
+   * @param schemaName the name of the schema object belong to.
+   * @return A list of database object.
    * @throws DatabaseOperationException If there is an error in retrieving the list of database objects.
    */
-  List<ObjectListItem> listObjectListItems(DBNConnection connection, String profileName) throws DatabaseOperationException;
+  List<DBObjectItem> listObjectListItems(DBNConnection connection, String schemaName) throws DatabaseOperationException;
 
 }

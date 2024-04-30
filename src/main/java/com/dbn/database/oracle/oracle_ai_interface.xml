@@ -83,14 +83,14 @@
     </statement-execution-processor>
     <statement-execution-processor id="list-tables" timeout="30">
         <statement>
-            SELECT OWNER, TABLE_NAME
-            FROM all_tables
+            SELECT TABLE_NAME
+            FROM all_tables  WHERE OWNER = '{0}'
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="list-views" timeout="30">
         <statement>
-            SELECT OWNER, VIEW_NAME
-            FROM all_views
+            SELECT VIEW_NAME
+            FROM all_views WHERE OWNER = '{0}'
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="list-schemas" timeout="20">

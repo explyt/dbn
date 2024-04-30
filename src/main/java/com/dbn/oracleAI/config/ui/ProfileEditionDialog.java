@@ -13,6 +13,7 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.WindowManager;
 import org.eclipse.sisu.Nullable;
@@ -38,6 +39,8 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
 
   static private final ResourceBundle messages =
       ResourceBundle.getBundle("Messages", Locale.getDefault());
+
+  private static final Logger LOGGER = Logger.getInstance(ProfileEditionDialog.class.getPackageName());
 
   private JPanel mainPane;
   private JPanel buttonPanel;
@@ -112,7 +115,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
     wizardProgress.setMaximum(100);
     wizardProgress.setValue(this.wizardModelView.progress());
     wizardProgress.setString(this.wizardModelView.current().getTitle());
-    System.out.println(this.wizardModelView.toString());
+    LOGGER.debug("initProgress: " + this.wizardModelView.toString());
   }
 
   /**
@@ -225,7 +228,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
     }
     CardLayout layout = (CardLayout) this.wizardMainPane.getLayout();
     layout.show(this.wizardMainPane, this.wizardModelView.current().getTitle());
-    System.out.println("onViewChange: current view " + this.wizardModelView);
+    LOGGER.debug("onViewChange: current view " + this.wizardModelView);
   }
 
   Set<WizardStepViewPortProvider> invalidSteps = new HashSet<>();

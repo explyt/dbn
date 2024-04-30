@@ -15,7 +15,7 @@
           </grid>
         </constraints>
         <properties/>
-        <border type="empty" title="AI Providers">
+        <border type="empty" title="AI Providers credential templates">
           <size top="5" left="5" bottom="5" right="5"/>
         </border>
         <children/>

@@ -45,9 +45,9 @@ public class AIProviderTypesTableModel extends DBNEditableTableModel {
 
   @Override
   public String getColumnName(int columnIndex) {
-    return columnIndex == 0 ? "HostName" :
+    return columnIndex == 0 ? "Provider credential name" :
         columnIndex == 1 ? "UserName" :
-            columnIndex == 2 ? "Key" : null;
+            columnIndex == 2 ? "Secret" : null;
   }
 
   @Override

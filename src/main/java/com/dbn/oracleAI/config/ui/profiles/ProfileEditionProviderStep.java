@@ -1,6 +1,7 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 
 import javax.swing.JComboBox;
@@ -18,10 +19,10 @@ import java.util.Objects;
 public class ProfileEditionProviderStep extends AbstractProfileEditionStep {
 
   private JPanel profileEditionProviderMainPane;
-  private JComboBox providerNameCombo;
+  private JComboBox<ProviderType> providerNameCombo;
   private JLabel providerNameLabel;
   private JLabel providerModelLabel;
-  private JComboBox providerModelCombo;
+  private JComboBox <ProviderModel> providerModelCombo;
   private JSlider temperatureSlider;
 
 
@@ -33,14 +34,22 @@ public class ProfileEditionProviderStep extends AbstractProfileEditionStep {
   public ProfileEditionProviderStep(Profile profile) {
     super();
     configureTemperatureSlider();
+    populateCombos();
     if (profile != null) {
       providerNameCombo.setSelectedItem(profile.getProvider().toString().toUpperCase());
-      if (profile.getModel() != null) providerModelCombo.setSelectedItem(profile.getModel());
+      providerModelCombo.setSelectedItem(profile.getModel());
       temperatureSlider.setValue((int) (profile.getTemperature() * 10));
-
     }
   }
-
+  private void populateCombos() {
+    for (ProviderType type :ProviderType.values()){
+      providerNameCombo.addItem(type);
+    }
+    providerNameCombo.addActionListener((e) -> {
+      providerModelCombo.removeAllItems();
+     ((ProviderType)providerNameCombo.getSelectedItem()).getModels().forEach(m->providerModelCombo.addItem(m));
+    });
+  }
   private void configureTemperatureSlider() {
     temperatureSlider.setMinimum(MIN_TEMPERATURE);
     temperatureSlider.setMaximum(MAX_TEMPERATURE);

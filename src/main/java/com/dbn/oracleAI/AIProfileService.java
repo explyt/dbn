@@ -3,11 +3,10 @@ package com.dbn.oracleAI;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.oracleAI.config.ObjectListItem;
 import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.types.ProviderType;
+import com.intellij.openapi.diagnostic.Logger;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -15,15 +14,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
-/**
- * Service to handle AI profiles
- */
+
 public class AIProfileService {
   private final ConnectionRef connectionRef;
-  private ConcurrentMap<String, ObjectListItem> objectListItemMap;
+
+  private static final Logger LOGGER = Logger.getInstance(AIProfileService.class.getPackageName());
 
 
   AIProfileService(ConnectionRef connectionRef) {
@@ -47,12 +43,16 @@ public class AIProfileService {
     }
     return CompletableFuture.supplyAsync(() -> {
       try {
+        LOGGER.debug("getting profiles");
         DBNConnection dbnConnection =
             connectionRef.get().getConnection(SessionId.ORACLE_AI);
         List<Profile> profileList = connectionRef.get().getOracleAIInterface()
             .listProfiles(dbnConnection);
+        if (LOGGER.isDebugEnabled())
+          LOGGER.debug("fetched profiles:" + profileList);
         return profileList;
       } catch (ProfileManagementException | SQLException e) {
+        LOGGER.error("error getting profiles", e);
         throw new CompletionException("Cannot get profile", e);
       }
     });
@@ -71,6 +71,7 @@ public class AIProfileService {
         DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
         connectionRef.get().getOracleAIInterface().dropProfile(connection, profileName);
       } catch (SQLException | ProfileManagementException e) {
+        LOGGER.error("error deleting profile "+ profileName, e);
         throw new CompletionException("Cannot delete profile", e);
       }
     });
@@ -89,6 +90,7 @@ public class AIProfileService {
             DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
             connectionRef.get().getOracleAIInterface().createProfile(connection, profile);
           } catch (SQLException | ProfileManagementException e) {
+            LOGGER.error("error creating profile", e);
             throw new CompletionException("Cannot create profile", e);
           }
         }
@@ -107,67 +109,11 @@ public class AIProfileService {
             DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
             connectionRef.get().getOracleAIInterface().setProfileAttributes(connection, updatedProfile);
           } catch (SQLException | ProfileManagementException e) {
+            LOGGER.error("error updating profiles", e);
             throw new CompletionException("Cannot update profile", e);
           }
         }
     );
-  }
-
-  /**
-   * Loads all schemas that are accessible for the current user asynchronously
-   */
-
-  // TODO : move this to another service
-    public CompletableFuture<List<String>> loadSchemas() {
-    return CompletableFuture.supplyAsync(() -> {
-      try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        List<String> schemas = connectionRef.get().getOracleAIInterface().listSchemas(connection);
-
-        return schemas;
-      } catch (DatabaseOperationException | SQLException e) {
-        throw new CompletionException("Cannot get schemas", e);
-      }
-    });
-  }
-
-  /**
-   * Loads object list items of a certain profile asynchronously
-   */
-  public CompletableFuture<List<ObjectListItem>> loadObjectListItems(String profileName) {
-    return CompletableFuture.supplyAsync(() -> {
-      try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        List<ObjectListItem> objectListItemsList = connectionRef.get().getOracleAIInterface().listObjectListItems(connection, profileName);
-        objectListItemMap = objectListItemsList.stream().collect(Collectors.toConcurrentMap((e) -> e.getName() + "_" + e.getOwner(), (e) -> e));
-        return objectListItemsList;
-      } catch (DatabaseOperationException | SQLException e) {
-        throw new CompletionException("Cannot list object list items", e);
-      }
-    });
-  }
-
-  /**
-   * Loads all object list item accessible to the current user asynchronously
-   */
-  public List<ObjectListItem> getObjectItems() {
-    List<ObjectListItem> data = objectListItemMap.keySet().stream()
-        .map(item -> objectListItemMap.get(item)
-        )
-        .collect(Collectors.toList());
-    return data;
-  }
-
-  /**
-   * Loads all object list items accessible to the user from a specific schema asynchronously
-   */
-  public List<ObjectListItem> getObjectItemsForSchema(String schema) {
-    List<ObjectListItem> data = objectListItemMap.keySet().stream()
-        .filter(item -> objectListItemMap.get(item).getOwner().equals(schema))
-        .map(item -> objectListItemMap.get(item)
-        )
-        .collect(Collectors.toList());
-    return data;
   }
 
 }
