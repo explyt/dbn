@@ -63,8 +63,8 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
 
     // First save the current one
     if (currConnection != null) {
-      chatBoxStates.put(currConnection,
-          oracleAIChatBox.captureState(currConnection.toString()));
+      OracleAIChatBoxState chatBoxState = oracleAIChatBox.captureState(currConnection.toString());
+      chatBoxStates.put(currConnection, chatBoxState);
     }
     // now apply the new one
     currConnection = connectionId;
@@ -102,13 +102,13 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
   }
 
   public String queryOracleAI(String text, ActionAIType action,
-                              String profile) throws QueryExecutionException, SQLException {
+                              String profile, String model) throws QueryExecutionException, SQLException {
     String output;
     DBNConnection mainConnection =
         Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
     output = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface()
         .executeQuery(mainConnection, action, profile,
-            text)
+            text, model)
         .getQueryOutput();
     return output;
 
@@ -167,6 +167,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
    * Gets a profile manager for the current connection.
    * Managers are singletons
    * Ww assume that we always have a current connection
+   *
    * @return a manager.
    */
   public synchronized AIProfileService getProfileService() {

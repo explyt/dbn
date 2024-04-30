@@ -3,11 +3,6 @@ package com.dbn.oracleAI.config;
 import com.dbn.oracleAI.types.ProviderType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
@@ -83,7 +78,6 @@ public class Profile implements AttributeInput {
   public Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
     if ("object_list".equals(attributeName)) {
       GsonBuilder builder = new GsonBuilder();
-      builder.registerTypeAdapter(DBObjectItem.class, new ProfileDBObjectItemDeserializer());
       Gson gson = builder.create();
 
       try (Reader reader = clob.getCharacterStream();
@@ -102,28 +96,6 @@ public class Profile implements AttributeInput {
         }
       }
       return sb.toString();
-    }
-  }
-
-  public class ProfileDBObjectItemDeserializer implements JsonDeserializer<ProfileDBObjectItem> {
-    @Override
-    public ProfileDBObjectItem deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-      if (!json.isJsonObject()) {
-        throw new JsonParseException("Expected JSON object");
-      }
-
-      if (LOGGER.isDebugEnabled()) {
-        LOGGER.debug("deserializing ProfileDBObjectItem from ["+json+"]");
-      }
-
-      JsonObject jsonObject = json.getAsJsonObject();
-
-      if (!jsonObject.has(PROFILE_OWNER_ATTR_NAME)) {
-        throw new JsonParseException("missing ["+PROFILE_OWNER_ATTR_NAME+"] attribute");
-      }
-      String name = jsonObject.has(PROFILE_NAME_ATTR_NAME)?jsonObject.get(PROFILE_NAME_ATTR_NAME).getAsString():null;
-
-      return new ProfileDBObjectItem(jsonObject.get(PROFILE_OWNER_ATTR_NAME).getAsString(),name);
     }
   }
 

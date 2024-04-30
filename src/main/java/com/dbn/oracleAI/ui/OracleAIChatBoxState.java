@@ -1,13 +1,20 @@
 package com.dbn.oracleAI.ui;
 
+import com.dbn.oracleAI.types.AuthorType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * This class represents the state of the OracleAIChatBox.
+ * It encapsulates the current profiles, selected profile, the current question text,
+ * a history of questions, the AI answers, and the current connection.
+ */
 @Builder
 @Setter
 @Getter
@@ -17,67 +24,70 @@ public class OracleAIChatBoxState {
   private OracleAIChatBox.AIProfileItem selectedProfile;
   private String currentQuestionText;
   private List<String> questionHistory;
-  private String aiAnswers;
+  private List<ChatMessage> aiAnswers;
   private String currConnection;
 
-  public OracleAIChatBoxState() {
-  }
-
-
+  /**
+   * Converts the state of the OracleAIChatBox into an XML Element.
+   *
+   * @return Element representing the state of the OracleAIChatBox.
+   */
   public Element toElement() {
     Element stateElement = new Element("OracleAIChatBoxState");
-
     stateElement.addContent(new Element("currConnection").setText(currConnection));
     stateElement.addContent(new Element("selectedProfile").setText(selectedProfile != null ? selectedProfile.getLabel() : ""));
     stateElement.addContent(new Element("currentQuestionText").setText(currentQuestionText));
-//    Element questionsElement = new Element("questionHistory");
-//    for (String question : questionHistory) {
-//      questionsElement.addContent(new Element("question").setText(question));
-//    }
-//    stateElement.addContent(questionsElement);
-    stateElement.addContent(new Element("aiAnswers").setText(aiAnswers));
 
     Element profilesElement = new Element("profiles");
-    for (OracleAIChatBox.AIProfileItem profile : profiles) {
+    profiles.forEach(profile -> {
       Element profileElement = new Element("profile");
       profileElement.setAttribute("label", profile.getLabel());
       profileElement.setAttribute("effective", String.valueOf(profile.isEffective()));
       profilesElement.addContent(profileElement);
-    }
+    });
     stateElement.addContent(profilesElement);
+
+    Element messagesElement = new Element("chatMessages");
+    aiAnswers.forEach(chatMessage -> {
+      Element messageElement = new Element("chatMessage");
+      messageElement.setAttribute("message", chatMessage.getMessage());
+      messageElement.setAttribute("author", chatMessage.getAuthor().toString());
+      messagesElement.addContent(messageElement);
+    });
+    stateElement.addContent(messagesElement);
 
     return stateElement;
   }
 
+  /**
+   * Reconstructs the OracleAIChatBoxState from an XML Element.
+   *
+   * @param stateElement XML element representing the state.
+   * @return OracleAIChatBoxState reconstructed from the XML.
+   */
   public static OracleAIChatBoxState fromElement(Element stateElement) {
-    OracleAIChatBoxState state = new OracleAIChatBoxState();
-
-    state.setCurrConnection(stateElement.getChildText("currConnection"));
-
+    String currConnection = stateElement.getChildText("currConnection");
     String selectedProfileLabel = stateElement.getChildText("selectedProfile");
+    String currentQuestionText = stateElement.getChildText("currentQuestionText");
 
-    state.setSelectedProfile(new OracleAIChatBox.AIProfileItem(selectedProfileLabel, true));
-
-    state.setCurrentQuestionText(stateElement.getChildText("currentQuestionText"));
-
-//    List<Element> questionElements = stateElement.getChild("questionHistory").getChildren("question");
-//    List<String> questions = questionElements.stream().map(Element::getText).collect(Collectors.toList());
-//    state.setQuestionHistory(questions);
-
-    state.setAiAnswers(stateElement.getChildText("aiAnswers"));
-
-    List<Element> profileElements = stateElement.getChild("profiles").getChildren("profile");
-    List<OracleAIChatBox.AIProfileItem> profiles = profileElements.stream()
+    List<OracleAIChatBox.AIProfileItem> profiles = stateElement.getChild("profiles").getChildren("profile").stream()
         .map(profileElement -> new OracleAIChatBox.AIProfileItem(
             profileElement.getAttributeValue("label"),
             Boolean.parseBoolean(profileElement.getAttributeValue("effective"))))
         .collect(Collectors.toList());
-    state.setProfiles(profiles);
 
-    return state;
+    List<ChatMessage> chatMessages = stateElement.getChild("chatMessages").getChildren("chatMessage").stream()
+        .map(messageElement -> new ChatMessage(
+            messageElement.getAttributeValue("message"),
+            AuthorType.valueOf(messageElement.getAttributeValue("author"))))
+        .collect(Collectors.toList());
+
+    return OracleAIChatBoxState.builder()
+        .currConnection(currConnection)
+        .selectedProfile(new OracleAIChatBox.AIProfileItem(selectedProfileLabel, true))
+        .currentQuestionText(currentQuestionText)
+        .profiles(profiles)
+        .aiAnswers(chatMessages)
+        .build();
   }
-
-
-
-  // Assuming getters and setters are implemented
 }
