@@ -25,6 +25,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.TransferHandler;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
@@ -33,6 +34,7 @@ import javax.swing.table.TableRowSorter;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.datatransfer.DataFlavor;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -54,11 +56,14 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
   private static final Logger LOGGER = Logger.getInstance(DatabaseService.class.getPackageName());
 
-  private static int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
-  private static int TABLES_COLUMN_HEADERS_OWNER_IDX = 1;
-  private static String[] TABLES_COLUMN_HEADERS = {
+  private static final int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
+  private static final int TABLES_COLUMN_HEADERS_OWNER_IDX = 1;
+  private static final String[] PROFILE_OBJ_TABLES_COLUMN_HEADERS = {
           messages.getString("profile.mgmt.obj_table.header.name"),
           messages.getString("profile.mgmt.obj_table.header.owner")
+  };
+  private static final String[] DB_OBJ_TABLES_COLUMN_HEADERS = {
+          messages.getString("profile.mgmt.obj_table.header.name")
   };
 
   private JPanel profileEditionObjectListMainPane;
@@ -115,6 +120,21 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         }
     ));
     initializeTables(profile);
+
+    this.profileObjectListTable.setTransferHandler(new TransferHandler() {
+      public boolean canImport(TransferHandler.TransferSupport info) {
+        // Check for String flavor
+        if (!info.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+          return false;
+        }
+        return true;
+      }
+      public boolean importData(TransferHandler.TransferSupport info) {
+         System.out.println();
+         return true;
+      }
+    });
+
   }
 
   private void initializeTables(@Nullable Profile profile) {
@@ -134,11 +154,13 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
             // hide all and add to profile obj list
             List<String> namesTobeHidden = new ArrayList<>(selectedRows.length);
             List<ProfileDBObjectItem> newItems = new ArrayList<>(selectedRows.length);
+
             for (int i = 0;i<selectedRows.length;i++) {
+              DBObjectItem item = currentDbObjListTableModel.getItemAt(selectedRows[i]);
               newItems.add(new ProfileDBObjectItem(
-                      (String) table.getValueAt(selectedRows[i], 1),
-                      (String) table.getValueAt(selectedRows[i], 0)));
-              namesTobeHidden.add((String) table.getValueAt(selectedRows[i], 0));
+                      item.getOwner(),
+                      item.getName()));
+              namesTobeHidden.add(item.getName());
 
             }
             profileObjListTableModel.addItems(newItems);
@@ -182,17 +204,13 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
       @Override
       public boolean include(Entry<? extends DatabaseObjectListTableModel, ? extends Integer> entry) {
-        // first : is it already selected ? if yes should be hidden
-        if (entry.getModel().parkedItems.contains(entry.getModel().getItemAt((Integer)entry.getIdentifier()))) {
-          return false;
-        }
 
-        // second : does it match selected schema ?
+        // first : does it match selected schema ?
         if (!entry.getStringValue(TABLES_COLUMN_HEADERS_OWNER_IDX).equalsIgnoreCase(schemaComboBox.getSelectedItem().toString())) {
           return false;
         }
 
-        // third : does it match the current patten if any
+        // second : does it match the current patten if any
         if ((patternFilter.getText().length() > 0) && !entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX).matches(patternFilter.getText())) {
           return false;
         }
@@ -338,7 +356,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
     private static final int NAME_COLUMN_IDX = 0;
     private static final int OWNER_COLUMN_IDX = 1;
-    private String[] columnNames = TABLES_COLUMN_HEADERS;
+    private String[] columnNames = PROFILE_OBJ_TABLES_COLUMN_HEADERS;
 
     public ProfileObjectListTableModel() {
       this.data = new ArrayList<>();
@@ -439,7 +457,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     //These items will be parked out so to not be displayed
     List<DBObjectItem> parkedItems;
 
-    private String[] columnNames = TABLES_COLUMN_HEADERS;
+    private String[] columnNames = DB_OBJ_TABLES_COLUMN_HEADERS;
 
     public DatabaseObjectListTableModel() {
       this.allItems = new ArrayList<>();
@@ -478,10 +496,8 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     public Object getValueAt(int rowIndex, int columnIndex) {
       DBObjectItem item = allItems.get(rowIndex);
       switch (columnIndex) {
-        case 0:
+        case TABLES_COLUMN_HEADERS_NAME_IDX:
           return item.getName();
-        case 1:
-          return item.getOwner();
         default:
           return null;
       }

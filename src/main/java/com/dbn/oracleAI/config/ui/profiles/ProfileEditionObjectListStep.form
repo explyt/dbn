@@ -24,7 +24,7 @@
           <model/>
         </properties>
       </component>
-      <grid id="b2cb3" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="b2cb3" layout-manager="GridLayoutManager" row-count="2" column-count="2" same-size-horizontally="true" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="3" column="0" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -41,7 +41,11 @@
             <children>
               <component id="754f9" class="javax.swing.JTable" binding="profileObjectListTable">
                 <constraints/>
-                <properties/>
+                <properties>
+                  <autoResizeMode value="4"/>
+                  <dragEnabled value="true"/>
+                  <dropMode value="INSERT_ROWS"/>
+                </properties>
               </component>
             </children>
           </scrollpane>
@@ -57,6 +61,7 @@
                 <properties>
                   <autoCreateRowSorter value="true"/>
                   <autoResizeMode value="4"/>
+                  <dragEnabled value="true"/>
                 </properties>
               </component>
             </children>
