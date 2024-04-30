@@ -23,7 +23,7 @@ public class DBObjectItem {
     DBObjectItem that = (DBObjectItem) o;
     //object name and owner ae case in-sensitive in Oracle DB
     return owner.equalsIgnoreCase(that.owner) && name.equalsIgnoreCase(that.name) &&
-            type == that.type;
+        type == that.type;
   }
 
   @Override
@@ -33,9 +33,7 @@ public class DBObjectItem {
 
   @NotNull
   public String owner;
-  @NotNull
   public String name;
-  @NotNull
   public DatabaseObjectType type;
 
 }

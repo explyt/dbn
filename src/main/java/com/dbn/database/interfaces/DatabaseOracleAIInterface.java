@@ -85,7 +85,7 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * @return The result of the AI query execution.
    * @throws QueryExecutionException If there is an error in executing the AI query.
    */
-  OracleQueryOutput executeQuery(DBNConnection connection, ActionAIType action, String profile, String text) throws QueryExecutionException;
+  OracleQueryOutput executeQuery(DBNConnection connection, ActionAIType action, String profile, String text, String model) throws QueryExecutionException;
 
   /**
    * Lists all tables available in the current database schema.

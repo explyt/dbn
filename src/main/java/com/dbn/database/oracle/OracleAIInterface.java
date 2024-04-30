@@ -93,9 +93,9 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
-  public OracleQueryOutput executeQuery(DBNConnection connection, ActionAIType action, String profile, String text) throws QueryExecutionException {
+  public OracleQueryOutput executeQuery(DBNConnection connection, ActionAIType action, String profile, String text, String model) throws QueryExecutionException {
     try {
-      return executeCall(connection, new OracleQueryOutput(), "ai-query", profile, action, text, "");
+      return executeCall(connection, new OracleQueryOutput(), "ai-query", profile, action, text.replace("'", "''"), "{\"model\":\"" + model + "\"}");
     } catch (SQLException e) {
       throw new QueryExecutionException("Failed to query\n", e);
     }
