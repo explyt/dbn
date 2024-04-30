@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.config;
 
+import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -48,7 +49,7 @@ public class Profile implements AttributeInput {
   private Integer maxTokens;
   @Builder.Default
   private List<String> stopTokens = Collections.emptyList();
-  private String model;
+  private ProviderModel model;
   @Builder.Default
   @Expose
   private Double temperature = 0.0;

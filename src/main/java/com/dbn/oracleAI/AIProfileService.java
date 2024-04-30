@@ -5,11 +5,16 @@ import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
-import com.dbn.oracleAI.types.ProviderType;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
 import com.intellij.openapi.diagnostic.Logger;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.lang.reflect.Type;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -34,12 +39,18 @@ public class AIProfileService {
    * @return a map of profile by profile name. can be empty but not null
    * @throws ProfileManagementException
    */
-  public CompletableFuture<List<Profile>> getProfiles() {
-    if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
-      List<Profile> faked = new ArrayList<>();
-      faked.add(Profile.builder().profileName("cohere").provider(
-          ProviderType.COHERE).credentialName("foo").model("foo").build());
-      return CompletableFuture.completedFuture(faked);
+  public CompletableFuture<List<Profile>> getProfiles()  {
+
+    if (Boolean.parseBoolean(System.getProperty("fake.services.profile"))) {
+       Type PROFILE_TYPE = new TypeToken<List<Profile>>() {}.getType();
+        List<Profile> profiles = null;
+        try {
+            profiles = new Gson().fromJson(new FileReader("/var/tmp/profiles.json"),PROFILE_TYPE);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        return CompletableFuture.completedFuture(profiles);
     }
     return CompletableFuture.supplyAsync(() -> {
       try {
@@ -50,10 +61,15 @@ public class AIProfileService {
             .listProfiles(dbnConnection);
         if (LOGGER.isDebugEnabled())
           LOGGER.debug("fetched profiles:" + profileList);
+        FileWriter writer = new FileWriter("/var/tmp/profiles.json");
+        new Gson().toJson(profileList,writer);
+        writer.close();
         return profileList;
       } catch (ProfileManagementException | SQLException e) {
         LOGGER.error("error getting profiles", e);
         throw new CompletionException("Cannot get profile", e);
+      } catch (IOException e) {
+          throw new RuntimeException(e);
       }
     });
   }
