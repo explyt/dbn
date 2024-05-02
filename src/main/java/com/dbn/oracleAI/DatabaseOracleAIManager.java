@@ -172,8 +172,18 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
    */
   public synchronized AIProfileService getProfileService() {
     //TODO : later find better than using "synchronized"
-    return profileManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
-        new AIProfileService(ConnectionHandler.get(currConnection).ref()));
+    AIProfileService svc = profileManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
+    if (svc != null) {
+      return svc;
+    }
+
+    if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
+      svc = new FakeAIProfileServiceImpl();
+    } else {
+      svc = new AIProfileServiceImpl(ConnectionHandler.get(currConnection).ref());
+    }
+    profileManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(),svc);
+    return svc;
   }
 
   public synchronized AICredentialService getCredentialService() {

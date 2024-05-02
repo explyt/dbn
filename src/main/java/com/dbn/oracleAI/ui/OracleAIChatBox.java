@@ -6,8 +6,7 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
-import com.dbn.oracleAI.types.CohereModelType;
-import com.dbn.oracleAI.types.OpenAIModelType;
+import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
@@ -46,6 +45,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.awt.event.InputEvent.BUTTON1_MASK;
+
 public class OracleAIChatBox extends JPanel {
 
 
@@ -58,7 +59,7 @@ public class OracleAIChatBox extends JPanel {
      *
      * @param label the label to be displayed in the combo
      */
-    public AIProfileItem(String label, ProviderType provider, String model) {
+    public AIProfileItem(String label, ProviderType provider, ProviderModel model) {
       this.label = label;
       this.provider = provider;
       this.model = model;
@@ -104,7 +105,7 @@ public class OracleAIChatBox extends JPanel {
      */
     private String label;
     private ProviderType provider;
-    private String model;
+    private ProviderModel model;
 
     /**
      * Checks that this is effective/usable profile
@@ -157,7 +158,7 @@ public class OracleAIChatBox extends JPanel {
   private JPanel companionCommandPanel;
   private JPanel MainCenter;
 
-  private JComboBox aiModelComboBox;
+  private JComboBox<ProviderModel> aiModelComboBox;
   private JPanel companionConversationPanelTop;
   private JProgressBar activityProgress;
   private JTextField chatBoxNotificationMessage;
@@ -181,8 +182,6 @@ public class OracleAIChatBox extends JPanel {
   /**
    * special profile combobox item that's a placeholder for when there is no effective profiles
    */
-  static final AIProfileItem NONE_COMBO_ITEM =
-      new AIProfileItem("<None>", false);
 
   private OracleAIChatBox() {
     initializeUI();
@@ -214,16 +213,18 @@ public class OracleAIChatBox extends JPanel {
     explainSQLCheckbox.setText(messages.getString("companion.explainSql.action"));
 
     profileComboBox.setModel(profileListModel);
+
     profileComboBox.addActionListener(e -> {
       AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
-      if (Objects.equals(currProfileItem, ADD_PROFILE_COMBO_ITEM)) {
-        profileComboBox.hidePopup();
-        profileComboBox.setSelectedIndex(0);
-        currManager.openSettings();
-      } else if (!Objects.equals(currProfileItem, NONE_COMBO_ITEM) && currProfileItem != null && currProfileItem.provider != null) {
+      if (!Objects.equals(currProfileItem, ADD_PROFILE_COMBO_ITEM)) {
         updateModelsComboBox(currProfileItem);
+      } else {
+        if (e.getModifiers() == BUTTON1_MASK) {
+          profileComboBox.hidePopup();
+          profileComboBox.setSelectedIndex(0);
+          currManager.openSettings();
+        }
       }
-
     });
     profileComboBox.setRenderer(new ProfileComboBoxRenderer());
   }
@@ -307,24 +308,21 @@ public class OracleAIChatBox extends JPanel {
     String question = promptTextArea.getText();
     if (question.length() > 0) {
       promptTextArea.setText("");
+      // TODO : do we want to append the message even in case of error
       ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
       chatMessages.add(inputChatMessage);
       appendMessageToChat(inputChatMessage);
       try {
         String output =
-            currManager.queryOracleAI(question, actionType, item.getLabel(), aiModelComboBox.getSelectedItem().toString());
+            currManager.queryOracleAI(question, actionType, item.getLabel(),
+                    ((ProviderModel)aiModelComboBox.getSelectedItem()).getApiName());
         ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
         chatMessages.add(outPutChatMessage);
         appendMessageToChat(outPutChatMessage);
-        ApplicationManager.getApplication()
-
-            .invokeLater(() -> {
-            });
         LOG.debug("Query processed successfully.");
       } catch (QueryExecutionException | SQLException e) {
         LOG.error("Error processing query", e);
         ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
-
       } finally {
         stopActivityNotifier();
       }
@@ -356,10 +354,6 @@ public class OracleAIChatBox extends JPanel {
   public void updateProfiles(List<AIProfileItem> items) {
     profileListModel.removeAllElements();
     profileListModel.addAll(items);
-    if (items.isEmpty()) {
-      profileListModel.addElement(NONE_COMBO_ITEM);
-      profileComboBox.setSelectedItem(NONE_COMBO_ITEM);
-    }
     profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
     profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
   }
@@ -435,7 +429,6 @@ public class OracleAIChatBox extends JPanel {
         finalFetchedProfiles.forEach((pn, p) -> {
           profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel()));
         });
-        if (finalFetchedProfiles.isEmpty()) profileListModel.addElement(NONE_COMBO_ITEM);
 
         profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
 
@@ -472,16 +465,14 @@ public class OracleAIChatBox extends JPanel {
 
   private void updateModelsComboBox(AIProfileItem currPofileItem) {
     aiModelComboBox.removeAllItems();
-    switch (currPofileItem.provider) {
-      case COHERE:
-        for (CohereModelType modelType : CohereModelType.values()) aiModelComboBox.addItem(modelType.getAction());
-        if (currPofileItem.model != null) aiModelComboBox.setSelectedItem(currPofileItem.model);
-        else aiModelComboBox.setSelectedItem(CohereModelType.DEFAULT_COHERE);
-        break;
-      case OPENAI:
-        for (OpenAIModelType modelType : OpenAIModelType.values()) aiModelComboBox.addItem(modelType.getAction());
-        if (currPofileItem.model != null) aiModelComboBox.setSelectedItem(currPofileItem.model);
-        else aiModelComboBox.setSelectedItem(OpenAIModelType.DEFAULT_GPT);
+    for (ProviderModel model : currPofileItem.provider.getModels()) {
+      aiModelComboBox.addItem(model);
+    }
+    if (currPofileItem.model != null) {
+      aiModelComboBox.setSelectedItem(currPofileItem.model);
+    } else {
+      // select the default
+      aiModelComboBox.setSelectedItem(currPofileItem.provider.getDefaultModel());
     }
   }
 

@@ -138,7 +138,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
       editedProfile = Profile.builder()
           .profileName("")
           .credentialName("")
-          .model("").provider(ProviderType.COHERE)
+          .model(null).provider(ProviderType.COHERE)
           .build();
       this.wizardModel.hydrate(editedProfile);
 

@@ -85,7 +85,7 @@ public class ProfileEditionProviderStep extends AbstractProfileEditionStep {
   @Override
   public void setAttributesOn(Profile p) {
     p.setProvider(ProviderType.valueOf(Objects.requireNonNull(providerNameCombo.getSelectedItem()).toString()));
-    p.setModel(Objects.requireNonNull(providerModelCombo.getSelectedItem()).toString());
+    p.setModel((ProviderModel) providerModelCombo.getSelectedItem());
     p.setTemperature((double) temperatureSlider.getValue() / 10);
   }
 

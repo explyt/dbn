@@ -22,6 +22,10 @@ public enum ProviderModel {
     COHERE_EMBED_MULTILINGUAL_LIGHT_V3_0("cohere.embed-multilingual-light-v3.0"),
     COHERE_EMBED_ENGLISH_LIGHT_V2_0("cohere.embed-english-light-v2.0");
 
+    public String getApiName() {
+        return apiName;
+    }
+
     //How this is named in profile API
     private final String apiName;
     ProviderModel(String apiName) {

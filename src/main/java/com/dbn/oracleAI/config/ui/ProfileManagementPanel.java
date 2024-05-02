@@ -208,7 +208,7 @@ public class ProfileManagementPanel extends JPanel {
       populateTable(currProfile);
       credentialField.setText(fixAttributesPresentation(currProfile.getCredentialName()));
       providerField.setText(fixAttributesPresentation(currProfile.getProvider().toString()));
-      modelField.setText(fixAttributesPresentation(currProfile.getModel()));
+      modelField.setText(currProfile.getModel() == null?fixAttributesPresentation(null):currProfile.getModel().name());
     } else {
       initializeEmptyWindow();
     }
