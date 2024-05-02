@@ -45,6 +45,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static java.awt.event.InputEvent.BUTTON1_MASK;
+
 public class OracleAIChatBox extends JPanel {
 
 
@@ -212,13 +214,12 @@ public class OracleAIChatBox extends JPanel {
 
     profileComboBox.setModel(profileListModel);
 
-
     profileComboBox.addActionListener(e -> {
       AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
       if (!Objects.equals(currProfileItem, ADD_PROFILE_COMBO_ITEM)) {
         updateModelsComboBox(currProfileItem);
       } else {
-        if (e.getModifiers() == 16) {
+        if (e.getModifiers() == BUTTON1_MASK) {
           profileComboBox.hidePopup();
           profileComboBox.setSelectedIndex(0);
           currManager.openSettings();
@@ -469,6 +470,9 @@ public class OracleAIChatBox extends JPanel {
     }
     if (currPofileItem.model != null) {
       aiModelComboBox.setSelectedItem(currPofileItem.model);
+    } else {
+      // select the default
+      aiModelComboBox.setSelectedItem(currPofileItem.provider.getDefaultModel());
     }
   }
 
