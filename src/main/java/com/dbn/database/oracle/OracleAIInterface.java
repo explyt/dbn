@@ -3,7 +3,8 @@ package com.dbn.database.oracle;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.common.oracleAI.OracleCredentialsDetailedInfo;
-import com.dbn.database.common.oracleAI.OracleProfilesDetailedInfo;
+import com.dbn.database.common.oracleAI.OracleProfilesAttributesInfo;
+import com.dbn.database.common.oracleAI.OracleProfilesMainInfo;
 import com.dbn.database.common.oracleAI.OracleQueryOutput;
 import com.dbn.database.common.oracleAI.OracleTablesList;
 import com.dbn.database.common.oracleAI.OracleViewsList;
@@ -24,6 +25,7 @@ import com.dbn.oracleAI.types.DatabaseObjectType;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class OracleAIInterface extends DatabaseInterfaceBase implements DatabaseOracleAIInterface {
 
@@ -135,7 +137,8 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public List<Profile> listProfiles(DBNConnection connection) throws ProfileManagementException {
     try {
-      List<Profile> profileList = executeCall(connection, new OracleProfilesDetailedInfo(), "list-profiles-detailed").getProfileList();
+      Map<String, Profile> profileMap = executeCall(connection, new OracleProfilesMainInfo(), "list-profiles-desc-status").getProfileMap();
+      List<Profile> profileList = executeCall(connection, new OracleProfilesAttributesInfo(profileMap), "list-profiles-attributes").getProfileList();
       return profileList;
     } catch (SQLException e) {
       throw new ProfileManagementException(e.getMessage(), e);
@@ -157,8 +160,8 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     try {
       List<DBObjectItem> DBObjectItems = new ArrayList<>();
       // TODO : should be one roundtrip
-      List<DBObjectItem> tableDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.TABLE), "list-tables",schemaName).getDBObjectListItems();
-      List<DBObjectItem> viewDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.VIEW), "list-views",schemaName).getDBObjectListItems();
+      List<DBObjectItem> tableDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.TABLE), "list-tables", schemaName).getDBObjectListItems();
+      List<DBObjectItem> viewDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.VIEW), "list-views", schemaName).getDBObjectListItems();
       DBObjectItems.addAll(tableDBObjectListItems);
       DBObjectItems.addAll(viewDBObjectListItems);
       return DBObjectItems;

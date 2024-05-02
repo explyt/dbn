@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.ui;
 
+import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.types.AuthorType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,8 +21,8 @@ import java.util.stream.Collectors;
 @Getter
 @AllArgsConstructor
 public class OracleAIChatBoxState {
-  private List<OracleAIChatBox.AIProfileItem> profiles;
-  private OracleAIChatBox.AIProfileItem selectedProfile;
+  private List<AIProfileItem> profiles;
+  private AIProfileItem selectedProfile;
   private String currentQuestionText;
   private List<String> questionHistory;
   private List<ChatMessage> aiAnswers;
@@ -70,8 +71,8 @@ public class OracleAIChatBoxState {
     String selectedProfileLabel = stateElement.getChildText("selectedProfile");
     String currentQuestionText = stateElement.getChildText("currentQuestionText");
 
-    List<OracleAIChatBox.AIProfileItem> profiles = stateElement.getChild("profiles").getChildren("profile").stream()
-        .map(profileElement -> new OracleAIChatBox.AIProfileItem(
+    List<AIProfileItem> profiles = stateElement.getChild("profiles").getChildren("profile").stream()
+        .map(profileElement -> new AIProfileItem(
             profileElement.getAttributeValue("label"),
             Boolean.parseBoolean(profileElement.getAttributeValue("effective"))))
         .collect(Collectors.toList());
@@ -84,7 +85,7 @@ public class OracleAIChatBoxState {
 
     return OracleAIChatBoxState.builder()
         .currConnection(currConnection)
-        .selectedProfile(new OracleAIChatBox.AIProfileItem(selectedProfileLabel, true))
+        .selectedProfile(new AIProfileItem(selectedProfileLabel, true))
         .currentQuestionText(currentQuestionText)
         .profiles(profiles)
         .aiAnswers(chatMessages)

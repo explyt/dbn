@@ -1,13 +1,13 @@
 package com.dbn.oracleAI.ui;
 
 import com.dbn.common.util.Messages;
+import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
-import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -50,74 +50,6 @@ import static java.awt.event.InputEvent.BUTTON1_MASK;
 public class OracleAIChatBox extends JPanel {
 
 
-  /**
-   * Holder class for profile combox box
-   */
-  static final class AIProfileItem {
-    /**
-     * Creates a new combo item
-     *
-     * @param label the label to be displayed in the combo
-     */
-    public AIProfileItem(String label, ProviderType provider, ProviderModel model) {
-      this.label = label;
-      this.provider = provider;
-      this.model = model;
-      this.effective = true;
-    }
-
-    /**
-     * Creates a new combo item
-     *
-     * @param label     the label
-     * @param effective is this effective or placeholder item ?
-     */
-    public AIProfileItem(String label, boolean effective) {
-      this.label = label;
-      this.effective = effective;
-    }
-
-    /**
-     * Gets the label of this combo item
-     *
-     * @return the label
-     */
-    public String getLabel() {
-      return label;
-    }
-
-    public boolean isEffective() {
-      return effective;
-    }
-
-    /**
-     * Used to UI fw
-     *
-     * @return the label
-     */
-    @Override
-    public String toString() {
-      return label;
-    }
-
-    /**
-     * the label of this combo item
-     */
-    private String label;
-    private ProviderType provider;
-    private ProviderModel model;
-
-    /**
-     * Checks that this is effective/usable profile
-     * basic example is that the 'New profile...' is not
-     */
-    private boolean effective;
-
-  }
-
-  /**
-   * Dedicated class for NL2SQL profile model.
-   */
   class ProfileComboBoxModel extends DefaultComboBoxModel<AIProfileItem> {
 
     /**
@@ -140,7 +72,7 @@ public class OracleAIChatBox extends JPanel {
      * @return
      */
     public List<AIProfileItem> getUsableProfiles() {
-      return this.getAllProfiles().stream().filter(aiProfileItem -> aiProfileItem.effective).collect(
+      return this.getAllProfiles().stream().filter(AIProfileItem::isEffective).collect(
           Collectors.toList());
     }
   }
@@ -217,13 +149,19 @@ public class OracleAIChatBox extends JPanel {
     profileComboBox.addActionListener(e -> {
       AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
       if (!Objects.equals(currProfileItem, ADD_PROFILE_COMBO_ITEM)) {
-        updateModelsComboBox(currProfileItem);
+        if (currProfileItem != null) updateModelsComboBox(currProfileItem);
       } else {
         if (e.getModifiers() == BUTTON1_MASK) {
           profileComboBox.hidePopup();
           profileComboBox.setSelectedIndex(0);
           currManager.openSettings();
         }
+      }
+
+      if (currProfileItem != null && !currProfileItem.isEnabled()) {
+        disableWindow("companion.chat.disabled_profile.tooltip");
+      } else {
+        enableWindow();
       }
     });
     profileComboBox.setRenderer(new ProfileComboBoxRenderer());
@@ -238,6 +176,10 @@ public class OracleAIChatBox extends JPanel {
           cellHasFocus);
       if (ADD_PROFILE_COMBO_ITEM.equals(value)) {
         setFont(getFont().deriveFont(Font.ITALIC));
+      }
+      if (value instanceof AIProfileItem) {
+        AIProfileItem item = (AIProfileItem) value;
+        setEnabled(item.isEnabled());
       }
       return this;
     }
@@ -315,7 +257,7 @@ public class OracleAIChatBox extends JPanel {
       try {
         String output =
             currManager.queryOracleAI(question, actionType, item.getLabel(),
-                    ((ProviderModel)aiModelComboBox.getSelectedItem()).getApiName());
+                ((ProviderModel) aiModelComboBox.getSelectedItem()).getApiName());
         ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
         chatMessages.add(outPutChatMessage);
         appendMessageToChat(outPutChatMessage);
@@ -355,7 +297,7 @@ public class OracleAIChatBox extends JPanel {
     profileListModel.removeAllElements();
     profileListModel.addAll(items);
     profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
-    profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
+//    profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
   }
 
   /**
@@ -384,6 +326,7 @@ public class OracleAIChatBox extends JPanel {
     LOG.debug("Restore State");
     assert state != null : "cannot be null";
     this.updateProfiles(state.getProfiles());
+    profileComboBox.setSelectedItem(state.getSelectedProfile());
     chatMessages.clear();
     chatMessages.addAll(state.getAiAnswers());
     populateChatPanel();
@@ -427,32 +370,18 @@ public class OracleAIChatBox extends JPanel {
       ApplicationManager.getApplication().invokeLater(() -> {
         profileListModel.removeAllElements();
         finalFetchedProfiles.forEach((pn, p) -> {
-          profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel()));
+          profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel() != null ? p.getModel().getApiName() : null, p.isEnabled()));
         });
 
         profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
 
         if (profileListModel.getUsableProfiles().isEmpty()) {
-          explainSQLCheckbox.setEnabled(false);
-          promptTextArea.setEnabled(false);
-          promptButton.setEnabled(false);
-          explainSQLCheckbox.setToolTipText(
-              messages.getString("companion.chat.no_profile_yet.tooltip"));
-          promptTextArea.setToolTipText(
-              messages.getString("companion.chat.no_profile_yet.tooltip"));
-          promptButton.setToolTipText(
-              messages.getString("companion.chat.no_profile_yet.tooltip"));
+          disableWindow("companion.chat.no_profile_yet.tooltip");
         } else {
-          explainSQLCheckbox.setEnabled(true);
-          promptTextArea.setEnabled(true);
-          promptButton.setEnabled(true);
-          explainSQLCheckbox.setToolTipText(
-              messages.getString("companion.explainsql.tooltip"));
-          promptTextArea.setToolTipText("");
-          promptButton.setToolTipText("");
+          enableWindow();
         }
         AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
-        if (currProfileItem != null && currProfileItem.provider != null) updateModelsComboBox(currProfileItem);
+        if (currProfileItem != null && currProfileItem.getProvider() != null) updateModelsComboBox(currProfileItem);
         stopActivityNotifier();
       });
     }).exceptionally(e -> {
@@ -463,16 +392,42 @@ public class OracleAIChatBox extends JPanel {
     });
   }
 
+  private void enableWindow() {
+    explainSQLCheckbox.setEnabled(true);
+    promptTextArea.setEnabled(true);
+    promptButton.setEnabled(true);
+    aiModelComboBox.setEnabled(true);
+    aiModelComboBox.setToolTipText("companion.chat.model.tooltip");
+    explainSQLCheckbox.setToolTipText(
+        messages.getString("companion.explainsql.tooltip"));
+    promptTextArea.setToolTipText("");
+    promptButton.setToolTipText("");
+  }
+
+  private void disableWindow(String message) {
+    explainSQLCheckbox.setEnabled(false);
+    promptTextArea.setEnabled(false);
+    promptButton.setEnabled(false);
+    aiModelComboBox.setEnabled(false);
+    explainSQLCheckbox.setToolTipText(
+        messages.getString(message));
+    aiModelComboBox.setToolTipText(messages.getString(message));
+    promptTextArea.setToolTipText(
+        messages.getString(message));
+    promptButton.setToolTipText(
+        messages.getString(message));
+  }
+
   private void updateModelsComboBox(AIProfileItem currPofileItem) {
     aiModelComboBox.removeAllItems();
-    for (ProviderModel model : currPofileItem.provider.getModels()) {
+    for (ProviderModel model : currPofileItem.getProvider().getModels()) {
       aiModelComboBox.addItem(model);
     }
-    if (currPofileItem.model != null) {
-      aiModelComboBox.setSelectedItem(currPofileItem.model);
+    if (currPofileItem.getModel() != null) {
+      aiModelComboBox.setSelectedItem(currPofileItem.getModel());
     } else {
       // select the default
-      aiModelComboBox.setSelectedItem(currPofileItem.provider.getDefaultModel());
+      aiModelComboBox.setSelectedItem(currPofileItem.getProvider().getDefaultModel());
     }
   }
 

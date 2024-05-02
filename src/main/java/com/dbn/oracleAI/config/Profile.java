@@ -53,6 +53,7 @@ public class Profile implements AttributeInput {
   @Builder.Default
   @Expose
   private Double temperature = 0.0;
+  private boolean isEnabled;
   private Boolean comments;
 
 
@@ -83,7 +84,7 @@ public class Profile implements AttributeInput {
 
       try (Reader reader = clob.getCharacterStream();
            BufferedReader br = new BufferedReader(reader)) {
-        Type listType = new TypeToken<List<DBObjectItem>>() {
+        Type listType = new TypeToken<List<ProfileDBObjectItem>>() {
         }.getType();
         return gson.fromJson(br, listType);
       }

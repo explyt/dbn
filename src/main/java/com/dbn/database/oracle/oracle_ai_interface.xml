@@ -60,9 +60,14 @@
             SELECT * FROM ALL_CREDENTIALS
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-profiles-detailed" timeout="20">
+    <statement-execution-processor id="list-profiles-attributes" timeout="20">
         <statement>
             SELECT * FROM USER_CLOUD_AI_PROFILE_ATTRIBUTES
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="list-profiles-desc-status" timeout="20">
+        <statement>
+            SELECT * FROM USER_CLOUD_AI_PROFILES
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="ai-query">
@@ -84,7 +89,7 @@
     <statement-execution-processor id="list-tables" timeout="30">
         <statement>
             SELECT TABLE_NAME
-            FROM all_tables  WHERE OWNER = '{0}'
+            FROM all_tables WHERE OWNER = '{0}'
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="list-views" timeout="30">

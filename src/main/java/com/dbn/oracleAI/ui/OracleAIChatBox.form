@@ -24,7 +24,7 @@
             </constraints>
             <properties>
               <model/>
-              <toolTipText resource-bundle="Messages" key="companion.chat.model.tooltip"/>
+              <toolTipText value=""/>
             </properties>
           </component>
           <component id="e55fc" class="javax.swing.JComboBox" binding="profileComboBox">
