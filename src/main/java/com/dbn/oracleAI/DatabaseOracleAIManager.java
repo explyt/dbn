@@ -189,7 +189,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
   public synchronized AICredentialService getCredentialService() {
     //TODO : later find better than using "synchronized"
     return credentialManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
-        new AICredentialService(ConnectionHandler.get(currConnection).ref()));
+        new AICredentialServiceImpl(ConnectionHandler.get(currConnection).ref()));
   }
 
     public synchronized DatabaseService getDatabaseService() {

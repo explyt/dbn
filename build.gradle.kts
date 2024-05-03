@@ -100,7 +100,7 @@ tasks {
   }
   runIde {
         systemProperties["idea.auto.reload.plugins"] = true
-        systemProperties["fake.services"] = false
+        systemProperties["fake.services"] = true
         systemProperties["idea.log.debug.categories"] =  "com.dbn.oracleAI, com.dbn.oracleAI.config"
         jvmArgs = listOf(
             "-Xms512m",

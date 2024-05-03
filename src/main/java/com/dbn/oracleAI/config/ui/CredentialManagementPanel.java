@@ -19,7 +19,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
@@ -51,7 +50,7 @@ public class CredentialManagementPanel extends JPanel {
   private JButton addButton;
   private JButton editButton;
   private JLabel profilesLabelTitle;
-  private JList usedByList;
+  private JList<String> usedByList;
   private JScrollPane usedByScrollPane;
   private final AICredentialService credentialSvc;
   private final AIProfileService profileSvc;
@@ -112,9 +111,21 @@ public class CredentialManagementPanel extends JPanel {
     });
     // Initializes deleteButton with its action listener for deleting selected credentials
     deleteButton.addActionListener(e -> {
+      StringBuilder detailedMessage = new StringBuilder(messages.getString("ai.settings.credential.deletion.message.prefix"));
+      detailedMessage.append(' ');
+      detailedMessage.append(credentialList.getSelectedValue().getCredentialName());
+      List<String> uses=credentialNameToProfileNameMap.get(credentialList.getSelectedValue());
+      if (uses.size() > 0) {
+        detailedMessage.append('\n');
+        detailedMessage.append(messages.getString("ai.settings.credential.deletion.message.warning"));
+        uses.forEach(c->{
+          detailedMessage.append(c);
+          detailedMessage.append(", ");
+        });
+      }
       Messages.showQuestionDialog(this.curProject,
               messages.getString("ai.settings.credential.deletion.title"),
-              messages.getString("ai.settings.credential.deletion.message.prefix") + credentialList.getSelectedValue().getCredentialName(),
+              detailedMessage.toString(),
               Messages.options(
                       messages.getString("ai.messages.yes"),
                       messages.getString("ai.messages.no")), 1,
@@ -137,6 +148,7 @@ public class CredentialManagementPanel extends JPanel {
           usedByList.setListData(used);
           usedByScrollPane.setVisible(true);
         } else {
+          usedByList.setListData(new String[]{});
           profilesLabelTitle.setText(messages.getString("credential.mgnt.notused"));
           usedByScrollPane.setVisible(false);
         }
@@ -151,9 +163,14 @@ public class CredentialManagementPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
         if (!credential.isEnabled()) {
           setFont(getFont().deriveFont(Font.ITALIC));
-          setForeground(Color.LIGHT_GRAY);
-
+          //setForeground(Color.DARK_GRAY);
+          setToolTipText(messages.getString("ai.settings.credentials.info.is_disable_tooltip"));
+        } 
+        if (credentialNameToProfileNameMap.get(credential) != null &&
+                credentialNameToProfileNameMap.get(credential).size()> 0) {
+          setFont(getFont().deriveFont(Font.BOLD));
         }
+
         return c;
       }
     });

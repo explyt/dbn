@@ -5,14 +5,10 @@ import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
-import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.intellij.openapi.diagnostic.Logger;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
-import java.lang.reflect.Type;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -34,18 +30,6 @@ public class AIProfileServiceImpl implements AIProfileService {
 
   @Override
   public CompletableFuture<List<Profile>> getProfiles()  {
-
-    if (Boolean.parseBoolean(System.getProperty("fake.services.profile"))) {
-       Type PROFILE_TYPE = new TypeToken<List<Profile>>() {}.getType();
-        List<Profile> profiles = null;
-        try {
-            profiles = new Gson().fromJson(new FileReader("/var/tmp/profiles.json"),PROFILE_TYPE);
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-
-        return CompletableFuture.completedFuture(profiles);
-    }
     return CompletableFuture.supplyAsync(() -> {
       try {
         LOGGER.debug("getting profiles");
