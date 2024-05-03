@@ -88,8 +88,6 @@ public class OracleAIChatBox extends JPanel {
   private JPanel conversationPanel;
   private JScrollPane companionConversationPan;
   private JPanel companionCommandPanel;
-  private JPanel MainCenter;
-
   private JComboBox<ProviderModel> aiModelComboBox;
   private JPanel companionConversationPanelTop;
   private JProgressBar activityProgress;
@@ -189,7 +187,6 @@ public class OracleAIChatBox extends JPanel {
    * Initializes the panel to display messages
    */
   private void configureConversationPanel() {
-    conversationPanel = new JPanel();
     conversationPanel.setLayout(new MigLayout("fillx"));
 
     companionConversationPan.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);

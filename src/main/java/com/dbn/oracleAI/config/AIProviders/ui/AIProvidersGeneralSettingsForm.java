@@ -38,7 +38,7 @@ public class AIProvidersGeneralSettingsForm extends ConfigurationEditorForm<AIPr
     decorator.setRemoveAction(anActionButton -> environmentTypesTable.removeRow());
     decorator.setMoveUpAction(anActionButton -> environmentTypesTable.moveRowUp());
     decorator.setMoveDownAction(anActionButton -> environmentTypesTable.moveRowDown());
-    decorator.addExtraAction(new AnActionButton("Revert Changes", Icons.ACTION_REVERT_CHANGES) {
+    decorator.addExtraAction(new AnActionButton("Revert Changes", Icons.ACTION_REVERT) {
       @Override
       public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
         TableCellEditor cellEditor = environmentTypesTable.getCellEditor();

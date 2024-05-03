@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class OracleAISettingsOpenAction extends AbstractConnectionAction {
 
   public OracleAISettingsOpenAction(ConnectionHandler connection) {
-    super("Oracle AI Settings", connection);
+    super(connection);
   }
 
   @Override
