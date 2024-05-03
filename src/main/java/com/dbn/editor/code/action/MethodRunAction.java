@@ -19,9 +19,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.dispose.Checks.isValid;
 
 public class MethodRunAction extends AbstractCodeEditorAction {
-    public MethodRunAction() {
-        super("Run Method", "", Icons.METHOD_EXECUTION_RUN);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
@@ -43,6 +40,7 @@ public class MethodRunAction extends AbstractCodeEditorAction {
 
         presentation.setVisible(visible);
         presentation.setText("Run Method");
+        presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
     }
 
     private static CompilerSettings getCompilerSettings(Project project) {

@@ -6,13 +6,15 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.ActionListener;
+import java.util.concurrent.TimeUnit;
 
 @UtilityClass
 public class Timers {
 
     @NotNull
-    public static Timer createNamedTimer(@NonNls @NotNull String name, int delay, @NotNull ActionListener listener) {
-        return new Timer(delay, listener) {
+    public static Timer createNamedTimer(@NonNls @NotNull String name, long delay, TimeUnit delayUnit, @NotNull ActionListener listener) {
+        int delayMillis = (int) delayUnit.toMillis(delay);
+        return new Timer(delayMillis, listener) {
             @Override
             public String toString() {
                 return name;
@@ -20,8 +22,8 @@ public class Timers {
         };
     }
 
-    public static void executeLater(String identifier, int delay, Runnable runnable) {
-        Timer timer = createNamedTimer(identifier, delay, e -> runnable.run());
+    public static void executeLater(String identifier, int delay, TimeUnit delayUnit, Runnable runnable) {
+        Timer timer = createNamedTimer(identifier, delay, delayUnit, e -> runnable.run());
         timer.setRepeats(false);
         timer.start();
     }

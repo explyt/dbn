@@ -6,16 +6,23 @@ import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.object.common.list.DBObjectList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class ReloadObjectsAction extends ProjectAction {
 
-    private DBObjectList objectList;
+    private final DBObjectList objectList;
 
     ReloadObjectsAction(DBObjectList objectList) {
-        super(objectList.isLoaded() ? "Reload" : "Load", null, Icons.ACTION_REFRESH);
         this.objectList = objectList;
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        Presentation presentation = e.getPresentation();
+        presentation.setText(objectList.isLoaded() ? "Reload" : "Load");
+        presentation.setIcon(Icons.ACTION_REFRESH);
     }
 
     @Override

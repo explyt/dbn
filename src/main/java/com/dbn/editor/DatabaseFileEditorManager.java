@@ -114,7 +114,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
             if (focusEditor) {
                 Project project = object.getProject();
                 Progress.prompt(project, object, true,
-                        "Opening object editor",
+                        "Opening " + object.getTypeName() + " editor",
                         "Opening editor for " + object.getQualifiedNameWithType(),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {
@@ -287,20 +287,27 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
         DBObjectRef<DBSchemaObject> objectRef = DBObjectRef.of(object);
         List<VirtualFile> ddlFiles = fileAttachmentManager.lookupDetachedDDLFiles(objectRef);
-        if (ddlFiles.isEmpty() && ddlFileSettings.isDdlFilesCreationEnabled()) {
+        if (!ddlFiles.isEmpty()) {
+            List<VirtualFileInfo> fileInfos = VirtualFileInfo.fromFiles(ddlFiles, project);
+            fileAttachmentManager.showFileAttachDialog(object, fileInfos, true,
+                    (dialog, exitCode) -> when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, callback));
+
+            return;
+        }
+
+        if (ddlFileSettings.isDdlFilesCreationEnabled()) {
             Messages.showQuestionDialog(
                     project, "No DDL file found",
                     "Could not find any DDL file for " + object.getQualifiedNameWithType() + ". Do you want to create one? \n" +
                             "(You can disable this check in \"DDL File\" options)", Messages.OPTIONS_YES_CANCEL, 0,
                     option -> {
                         when(option == 0, () -> fileAttachmentManager.createDDLFile(objectRef));
-                        when(option != 2, callback);
+                        when(option == 1, callback);
                     });
-        } else {
-            List<VirtualFileInfo> fileInfos = VirtualFileInfo.fromFiles(ddlFiles, project);
-            fileAttachmentManager.showFileAttachDialog(object, fileInfos, true,
-                    (dialog, exitCode) -> when(exitCode != DialogWrapper.CANCEL_EXIT_CODE, callback));
+            return;
         }
+
+        callback.run();
     }
 
     private static void prepareDatasetEditor(DBEditableObjectVirtualFile databaseFile, @NotNull Runnable callback) {
@@ -348,23 +355,20 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     }
 
     public void closeEditor(DBSchemaObject object) {
-        VirtualFile virtualFile = getFileSystem().findDatabaseFile(object);
-        if (virtualFile == null) return;
+        VirtualFile file = getFileSystem().findDatabaseFile(object);
+        if (file == null) return;
 
         DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(object.getProject());
-        databaseFileManager.closeFile(virtualFile);
+        databaseFileManager.closeFile(file);
     }
 
     public void reopenEditor(DBSchemaObject object) {
         Project project = object.getProject();
-        VirtualFile virtualFile = getFileSystem().findOrCreateDatabaseFile(object);
-        if (isNotValid(virtualFile)) return;
+        VirtualFile file = getFileSystem().findOrCreateDatabaseFile(object);
+        if (isNotValid(file)) return;
 
-        FileEditorManager editorManager = FileEditorManager.getInstance(project);
-        if (!editorManager.isFileOpen(virtualFile)) return;
-
-        editorManager.closeFile(virtualFile);
-        Editors.openFileEditor(project, virtualFile, false);
+        Editors.closeFileEditors(project, file);
+        Editors.openFileEditor(project, file, false);
     }
 
     private boolean isEditable(DBObject object) {

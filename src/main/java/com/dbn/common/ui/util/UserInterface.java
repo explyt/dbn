@@ -1,12 +1,15 @@
 package com.dbn.common.ui.util;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.lookup.Visitor;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
-import com.dbn.common.thread.Dispatch;
 import com.intellij.openapi.util.SystemInfo;
+import com.intellij.openapi.util.registry.Registry;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.border.IdeaTitledBorder;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,6 +26,9 @@ import static com.dbn.common.ui.util.Borderless.isBorderless;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class UserInterface {
+    @Compatibility
+    @Getter(lazy = true)
+    private static final boolean newUI = Unsafe.silent(false, () -> Registry.is("ide.experimental.ui"));
 
     public static void stopTableCellEditing(JComponent root) {
         visitRecursively(root, component -> {
@@ -101,14 +107,14 @@ public class UserInterface {
     }
 
     public static void repaint(JComponent component) {
-        Dispatch.run(() -> {
+        Dispatch.run(true, () -> {
             component.revalidate();
             component.repaint();
         });
     }
 
     public static void repaintAndFocus(JComponent component) {
-        Dispatch.run(() -> {
+        Dispatch.run(true, () -> {
             component.revalidate();
             component.repaint();
             component.requestFocus();
@@ -157,7 +163,11 @@ public class UserInterface {
     }
 
     public static void updateScrollPaneBorders(JComponent component) {
-        visitRecursively(component, JScrollPane.class, sp -> sp.setBorder(isBorderlessPane(sp) ? null : Borders.COMPONENT_OUTLINE_BORDER));
+        visitRecursively(component, JScrollPane.class, sp -> {
+            sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+            sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            sp.setBorder(isBorderlessPane(sp) ? null : Borders.COMPONENT_OUTLINE_BORDER);
+        });
     }
 
     private static boolean isBorderlessPane(JScrollPane scrollPane) {
@@ -201,5 +211,4 @@ public class UserInterface {
     public static void updateSplitPanes(JComponent component) {
         visitRecursively(component, JSplitPane.class, sp -> Splitters.replaceSplitPane(sp));
     }
-
 }

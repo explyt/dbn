@@ -1,16 +1,16 @@
 package com.dbn.connection.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.status.ObjectStatusManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class ObjectsStatusRefreshAction extends DumbAwareAction {
+public class ObjectsStatusRefreshAction extends BasicAction {
 
     private final ConnectionRef connection;
 

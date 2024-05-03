@@ -1,5 +1,6 @@
 package com.dbn.data.editor.ui;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
@@ -176,7 +177,7 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
         popup = replace(popup, null);
     }
 
-    private class ValueSelectAction extends AnAction {
+    private class ValueSelectAction extends BasicAction {
         private final String value;
 
         ValueSelectAction(String value) {

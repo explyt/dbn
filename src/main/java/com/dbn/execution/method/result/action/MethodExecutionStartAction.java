@@ -11,9 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MethodExecutionStartAction extends AbstractMethodExecutionResultAction {
-    public MethodExecutionStartAction() {
-        super("Execute Again", Icons.METHOD_EXECUTION_RERUN);
-    }
 
     @Override
     protected void actionPerformed(
@@ -32,9 +29,13 @@ public class MethodExecutionStartAction extends AbstractMethodExecutionResultAct
             @NotNull Project project,
             @Nullable MethodExecutionResult target) {
 
-        presentation.setEnabled(
-                target != null &&
-                        !target.getDebuggerType().isDebug() &&
-                        target.getExecutionContext().isNot(ExecutionStatus.EXECUTING));
+
+        boolean enabled = target != null &&
+                !target.getDebuggerType().isDebug() &&
+                target.getExecutionContext().isNot(ExecutionStatus.EXECUTING);
+
+        presentation.setEnabled(enabled);
+        presentation.setText("Execute Again");
+        presentation.setIcon(Icons.METHOD_EXECUTION_RERUN);
     }
 }

@@ -1,8 +1,8 @@
 package com.dbn.editor.code.action;
 
-import com.dbn.common.icon.Icons;
-import com.dbn.common.action.GroupPopupAction;
 import com.dbn.common.action.Lookups;
+import com.dbn.common.action.ProjectPopupAction;
+import com.dbn.common.icon.Icons;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.debugger.DatabaseDebuggerManager;
 import com.dbn.execution.method.MethodExecutionManager;
@@ -27,13 +27,10 @@ import java.util.List;
 
 import static com.dbn.common.util.Actions.SEPARATOR;
 
-public class ProgramMethodDebugAction extends GroupPopupAction {
-    public ProgramMethodDebugAction() {
-        super("Debug Method", "", Icons.METHOD_EXECUTION_DEBUG);
-    }
+public class ProgramMethodDebugAction extends ProjectPopupAction {
 
     @Override
-    protected AnAction[] getActions(AnActionEvent e) {
+    public AnAction[] getChildren(AnActionEvent e) {
         List<AnAction> actions = new ArrayList<>();
         Project project = e.getProject();
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
@@ -73,7 +70,7 @@ public class ProgramMethodDebugAction extends GroupPopupAction {
     }
 
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+    public void update(@NotNull AnActionEvent e, Project project) {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         Presentation presentation = e.getPresentation();
         boolean visible = false;
@@ -87,6 +84,7 @@ public class ProgramMethodDebugAction extends GroupPopupAction {
 
         presentation.setVisible(visible);
         presentation.setText("Debug Method");
+        presentation.setIcon(Icons.METHOD_EXECUTION_DEBUG);
     }
 
     public class RunMethodAction extends AnObjectAction<DBMethod> {

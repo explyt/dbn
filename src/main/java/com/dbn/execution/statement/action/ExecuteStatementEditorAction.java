@@ -26,13 +26,13 @@ public class ExecuteStatementEditorAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = Lookups.getEditor(e);
-        if (editor != null) {
-            FileEditor fileEditor = Editors.getFileEditor(editor);
-            if (fileEditor != null) {
-                StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
-                executionManager.executeStatementAtCursor(fileEditor);
-            }
-        }
+        if (isNotValid(editor)) return;
+
+        FileEditor fileEditor = Editors.getFileEditor(editor);
+        if (isNotValid(fileEditor)) return;
+
+        StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
+        executionManager.executeStatementAtCursor(fileEditor);
     }
 
     @Override

@@ -10,18 +10,18 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class BrowserNavigateBackAction extends ProjectAction {
-    public BrowserNavigateBackAction() {
-        super("Back", null, Icons.BROWSER_BACK);
-    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        Presentation presentation = e.getPresentation();
-        presentation.setText("Back");
 
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
         DatabaseBrowserTree activeTree = browserManager.getActiveBrowserTree();
-        presentation.setEnabled(activeTree != null && activeTree.getNavigationHistory().hasPrevious());
+        boolean enabled = activeTree != null && activeTree.getNavigationHistory().hasPrevious();
+
+        Presentation presentation = e.getPresentation();
+        presentation.setText("Back");
+        presentation.setIcon(Icons.BROWSER_BACK);
+        presentation.setEnabled(enabled);
     }
 
     @Override

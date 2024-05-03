@@ -1,11 +1,11 @@
 package com.dbn.language.common;
 
+import com.dbn.common.util.XmlContents;
+import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.impl.NamedElementType;
 import com.dbn.language.common.element.parser.ParserBuilder;
 import com.dbn.language.common.element.parser.ParserContext;
 import com.dbn.language.common.element.path.ParserNode;
-import com.dbn.common.util.XmlContents;
-import com.dbn.language.common.element.ElementTypeBundle;
 import com.intellij.lang.ASTNode;
 import com.intellij.lang.PsiBuilder;
 import com.intellij.lang.PsiParser;
@@ -20,25 +20,35 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 @Getter
 public abstract class DBLanguageParser implements PsiParser {
     private final DBLanguageDialect languageDialect;
-    private final ElementTypeBundle elementTypes;
-    private final TokenTypeBundle tokenTypes;
     private final String defaultParseRootId;
+    private final String tokenTypesFile;
+    private final String elementTypesFile;
+
+    private final @Getter(lazy = true) TokenTypeBundle tokenTypes = loadTokenTypes();
+    private final @Getter(lazy = true) ElementTypeBundle elementTypes = loadElementTypes();
 
     public DBLanguageParser(DBLanguageDialect languageDialect, String tokenTypesFile, String elementTypesFile, String defaultParseRootId) {
         this.languageDialect = languageDialect;
         this.defaultParseRootId = defaultParseRootId;
-
-        Document document = loadDefinition(tokenTypesFile);
-        this.tokenTypes = new TokenTypeBundle(languageDialect, document);
-
-        document = loadDefinition(elementTypesFile);
-        this.elementTypes = new ElementTypeBundle(languageDialect, tokenTypes, document);
+        this.tokenTypesFile = tokenTypesFile;
+        this.elementTypesFile = elementTypesFile;
     }
 
     @SneakyThrows
     private Document loadDefinition(String tokenTypesFile) {
         return XmlContents.fileToDocument(getResourceLookupClass(), tokenTypesFile);
     }
+
+    private TokenTypeBundle loadTokenTypes() {
+        Document document = loadDefinition(getTokenTypesFile());
+        return new TokenTypeBundle(getLanguageDialect(), document);
+    }
+
+    private ElementTypeBundle loadElementTypes() {
+        Document document = loadDefinition(getElementTypesFile());
+        return new ElementTypeBundle(getLanguageDialect(), getTokenTypes(), document);
+    }
+
 
     protected Class getResourceLookupClass() {
         return getClass();
@@ -56,6 +66,8 @@ public abstract class DBLanguageParser implements PsiParser {
         ParserBuilder builder = context.getBuilder();
         if (parseRootId == null ) parseRootId = defaultParseRootId;
         PsiBuilder.Marker marker = builder.mark();
+
+        ElementTypeBundle elementTypes = getElementTypes();
         NamedElementType root =  elementTypes.getNamedElementType(parseRootId);
         if (root == null) {
             root = elementTypes.getRootElementType();

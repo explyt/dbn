@@ -1,13 +1,12 @@
 package com.dbn.common.util;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.file.util.VirtualFiles;
 import com.dbn.common.navigation.NavigationInstructions;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.*;
-import com.dbn.vfs.file.*;
 import com.dbn.common.ui.form.DBNToolbarForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.editor.text.TextContentType;
@@ -21,6 +20,7 @@ import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.vfs.file.*;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
@@ -68,24 +68,24 @@ import static com.dbn.common.dispose.Checks.isValid;
 @UtilityClass
 public class Editors {
 
-    public static FileEditor selectEditor(@NotNull Project project, @Nullable FileEditor fileEditor, @NotNull VirtualFile virtualFile, EditorProviderId editorProviderId, NavigationInstructions instructions) {
+    public static FileEditor selectEditor(@NotNull Project project, @Nullable FileEditor fileEditor, @NotNull VirtualFile file, EditorProviderId editorProviderId, NavigationInstructions instructions) {
         if (fileEditor != null) {
             if (fileEditor instanceof DDLFileEditor) {
                 DDLFileAttachmentManager attachmentManager = DDLFileAttachmentManager.getInstance(project);
-                DBSchemaObject editableObject = attachmentManager.getMappedObject(virtualFile);
+                DBSchemaObject editableObject = attachmentManager.getMappedObject(file);
                 if (editableObject != null) {
-                    virtualFile = editableObject.getVirtualFile();
+                    file = editableObject.getVirtualFile();
                 }
             }
-            openFileEditor(project, virtualFile, instructions.isFocus());
+            openFileEditor(project, file, instructions.isFocus());
 
             if (fileEditor instanceof BasicTextEditor) {
                 BasicTextEditor<?> basicTextEditor = (BasicTextEditor<?>) fileEditor;
                 editorProviderId = basicTextEditor.getEditorProviderId();
-                selectEditor(project, virtualFile, editorProviderId);
+                selectEditor(project, file, editorProviderId);
             }
         } else if (editorProviderId != null) {
-            DBEditableObjectVirtualFile objectFile = VirtualFiles.resolveObjectFile(project, virtualFile);
+            DBEditableObjectVirtualFile objectFile = VirtualFiles.resolveObjectFile(project, file);
 
             if (isValid(objectFile)) {
                 FileEditor[] fileEditors;
@@ -100,11 +100,11 @@ public class Editors {
                     fileEditor = findTextEditor(fileEditors, editorProviderId);
                 }
             }
-        } else if (virtualFile.isInLocalFileSystem()) {
+        } else if (file.isInLocalFileSystem()) {
             if (instructions.isOpen()) {
-                fileEditor = Commons.firstOrNull(openFileEditor(project, virtualFile, instructions.isFocus()));
+                fileEditor = Commons.firstOrNull(openFileEditor(project, file, instructions.isFocus()));
             } else {
-                fileEditor = Commons.firstOrNull(getFileEditors(project, virtualFile));
+                fileEditor = Commons.firstOrNull(getFileEditors(project, file));
             }
         }
 
@@ -144,8 +144,8 @@ public class Editors {
     }
 
 
-    public static void setEditorProviderIcon(@NotNull Project project, @NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, Icon icon) {
-        JBTabsImpl tabs = getEditorTabComponent(project, virtualFile, fileEditor);
+    public static void setEditorProviderIcon(@NotNull Project project, @NotNull VirtualFile file, @NotNull FileEditor fileEditor, Icon icon) {
+        JBTabsImpl tabs = getEditorTabComponent(project, file, fileEditor);
         if (tabs == null) return;
 
         TabInfo tabInfo = getEditorTabInfo(tabs, fileEditor.getComponent());
@@ -155,13 +155,13 @@ public class Editors {
     }
 
     @Nullable
-    private static JBTabsImpl getEditorTabComponent(@NotNull Project project, @NotNull VirtualFile virtualFile, FileEditor fileEditor) {
+    private static JBTabsImpl getEditorTabComponent(@NotNull Project project, @NotNull VirtualFile file, FileEditor fileEditor) {
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-        FileEditor selectedEditor = fileEditorManager.getSelectedEditor(virtualFile);
+        FileEditor selectedEditor = fileEditorManager.getSelectedEditor(file);
         if (selectedEditor == null) {
-            if (virtualFile.isInLocalFileSystem()) {
+            if (file.isInLocalFileSystem()) {
                 DDLFileAttachmentManager ddlFileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-                DBSchemaObject schemaObject = ddlFileAttachmentManager.getMappedObject(virtualFile);
+                DBSchemaObject schemaObject = ddlFileAttachmentManager.getMappedObject(file);
                 if (schemaObject != null) {
                     DBEditableObjectVirtualFile objectVirtualFile = schemaObject.getEditableVirtualFile();
                     selectedEditor = fileEditorManager.getSelectedEditor(objectVirtualFile);
@@ -277,11 +277,11 @@ public class Editors {
             Dispatch.run(true, () -> {
                 Color background = readonly ?
                         Colors.getReadonlyEditorBackground() :
-                        Colors.getEditorBackground();
+                        null; // Colors.getEditorBackground();
 
                 Color caretRowBackground = readonly ?
                         Colors.getReadonlyEditorCaretRowBackground() :
-                        Colors.getEditorCaretRowBackground();
+                        null; // Colors.getEditorCaretRowBackground();
 
                 editorEx.setBackgroundColor(background);
                 scheme.setColor(EditorColors.CARET_ROW_COLOR, caretRowBackground);
@@ -295,8 +295,8 @@ public class Editors {
         if (contentFile instanceof DBSourceCodeVirtualFile) {
             DBSourceCodeVirtualFile sourceCodeFile = (DBSourceCodeVirtualFile) contentFile;
             for (SourceCodeEditor sourceCodeEditor: getFileEditors(project, SourceCodeEditor.class)) {
-                DBSourceCodeVirtualFile virtualFile = sourceCodeEditor.getVirtualFile();
-                if (virtualFile.equals(sourceCodeFile)) {
+                DBSourceCodeVirtualFile file = sourceCodeEditor.getVirtualFile();
+                if (file.equals(sourceCodeFile)) {
                     setEditorReadonly(sourceCodeEditor.getEditor(), readonly);
                 }
             }
@@ -358,12 +358,12 @@ public class Editors {
     /**
      * get all open editors for a virtual file including the attached ddl files
      */
-    public static List<FileEditor> getScriptFileEditors(Project project, VirtualFile virtualFile) {
-        assert virtualFile.isInLocalFileSystem();
+    public static List<FileEditor> getScriptFileEditors(Project project, VirtualFile file) {
+        assert file.isInLocalFileSystem();
 
         List<FileEditor> scriptFileEditors = new ArrayList<>();
         FileEditorManager editorManager = FileEditorManager.getInstance(project);
-        FileEditor[] fileEditors = editorManager.getAllEditors(virtualFile);
+        FileEditor[] fileEditors = editorManager.getAllEditors(file);
         for (FileEditor fileEditor : fileEditors) {
             if (fileEditor instanceof TextEditor) {
                 TextEditor textEditor = (TextEditor) fileEditor;
@@ -371,7 +371,7 @@ public class Editors {
             }
         }
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-        DBSchemaObject schemaObject = fileAttachmentManager.getMappedObject(virtualFile);
+        DBSchemaObject schemaObject = fileAttachmentManager.getMappedObject(file);
         if (schemaObject != null) {
             DBEditableObjectVirtualFile editableObjectFile = schemaObject.getEditableVirtualFile();
             fileEditors = editorManager.getAllEditors(editableObjectFile);
@@ -380,7 +380,7 @@ public class Editors {
                     DDLFileEditor ddlFileEditor = (DDLFileEditor) fileEditor;
                     Editor editor = ddlFileEditor.getEditor();
                     PsiFile psiFile = PsiUtil.getPsiFile(project, editor.getDocument());
-                    if (psiFile != null && psiFile.getVirtualFile().equals(virtualFile)) {
+                    if (psiFile != null && psiFile.getVirtualFile().equals(file)) {
                         scriptFileEditors.add(ddlFileEditor);
                     }
                 }
@@ -408,8 +408,8 @@ public class Editors {
         Editor editor = Editors.getSelectedEditor(project);
         if (editor == null) return null;
 
-        VirtualFile virtualFile = Documents.getVirtualFile(editor);
-        if (virtualFile != null && virtualFile.getFileType().equals(fileType)) {
+        VirtualFile file = Documents.getVirtualFile(editor);
+        if (file != null && file.getFileType().equals(fileType)) {
             return editor;
         }
         return null;
@@ -498,7 +498,13 @@ public class Editors {
         editorManager.addTopComponent(fileEditor, toolbarComponent);
     }
 
-    @Nullable
+    public static void closeFileEditors(Project project, VirtualFile file) {
+        FileEditorManager editorManager = FileEditorManager.getInstance(project);
+        if (!editorManager.isFileOpen(file)) return;
+
+        editorManager.closeFile(file);
+    }
+
     public static FileEditor[] openFileEditor(Project project, VirtualFile file, boolean focus) {
         AtomicReference<FileEditor[]> fileEditors = new AtomicReference<>();
         openFileEditor(project, file, focus, editors -> fileEditors.set(editors));

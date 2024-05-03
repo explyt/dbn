@@ -14,7 +14,7 @@ import com.dbn.common.content.loader.DynamicContentLoader;
 import com.dbn.common.content.loader.DynamicContentLoaderImpl;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.filter.CompoundFilter;
+import com.dbn.common.filter.CompositeFilter;
 import com.dbn.common.filter.Filter;
 import com.dbn.common.range.Range;
 import com.dbn.common.ref.WeakRefCache;
@@ -119,7 +119,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
         Filter<T> configFilter = getConfigFilter();
         ObjectQuickFilter<T> quickFilter = getQuickFilter();
 
-        if (configFilter != null && quickFilter != null) return CompoundFilter.of(configFilter, quickFilter);
+        if (configFilter != null && quickFilter != null) return CompositeFilter.from(configFilter, quickFilter);
         if (configFilter != null) return configFilter;
         return quickFilter;
     }
@@ -513,10 +513,6 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
     /*********************************************************
      *                 ItemPresentation                      *
      *********************************************************/
-    @Override
-    public String getLocationString() {
-        return null;
-    }
 
     @Override
     public Icon getIcon(boolean open) {

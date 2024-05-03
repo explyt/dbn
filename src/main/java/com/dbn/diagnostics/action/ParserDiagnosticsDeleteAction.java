@@ -14,9 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.util.Conditional.when;
 
 public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsAction {
-    public ParserDiagnosticsDeleteAction() {
-        super("Delete Result", Icons.ACTION_DELETE);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
@@ -41,6 +38,7 @@ public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsActi
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ParserDiagnosticsForm form) {
         presentation.setText("Delete Result");
+        presentation.setIcon(Icons.ACTION_DELETE);
         if (form != null) {
             ParserDiagnosticsResult result = form.getSelectedResult();
             presentation.setEnabled(result != null);

@@ -43,7 +43,7 @@ public class GenericNativeDataTypes extends DatabaseNativeDataTypes {
         createNumericDefinition("DECIMAL", BigDecimal.class, Types.DECIMAL);
         createNumericDefinition("DEC", BigDecimal.class, Types.DECIMAL);
 
-        createDateTimeDefinition("DATE", Timestamp.class, Types.DATE);
+        createDateTimeDefinition("DATE", Date.class, Types.DATE);
         createDateTimeDefinition("DATETIME", Timestamp.class, Types.TIMESTAMP);
         createDateTimeDefinition("TIMESTAMP", Timestamp.class, Types.TIMESTAMP);
         createDateTimeDefinition("TIME", Timestamp.class, Types.TIME);

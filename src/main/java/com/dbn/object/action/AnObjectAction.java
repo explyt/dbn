@@ -9,19 +9,10 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-
 public abstract class AnObjectAction<T extends DBObject> extends ContextAction<T> {
     private final DBObjectRef<T> object;
-    private boolean custom;
 
-    public AnObjectAction(String text, Icon icon, @NotNull T object) {
-        super(text, null, icon);
-        this.object = DBObjectRef.of(object);
-        custom = true;
-    }
     public AnObjectAction(@NotNull T object) {
-        super(object.getName(), null, object.getIcon());
         this.object = DBObjectRef.of(object);
     }
 
@@ -42,8 +33,8 @@ public abstract class AnObjectAction<T extends DBObject> extends ContextAction<T
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable T target) {
-        if (custom) return;
         if (target == null) return;
         presentation.setText(target.getName(), false);
+        presentation.setIcon(target.getIcon());
     }
 }

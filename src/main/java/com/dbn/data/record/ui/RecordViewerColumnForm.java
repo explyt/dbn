@@ -3,6 +3,7 @@ package com.dbn.data.record.ui;
 import com.dbn.common.color.Colors;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.data.record.DatasetRecord;
 import com.dbn.data.type.DBDataType;
 import com.dbn.object.DBColumn;
@@ -16,7 +17,7 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
-public class RecordViewerColumnForm extends DBNFormBase {
+public class RecordViewerColumnForm extends DBNFormBase implements ComponentAligner.Form {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
     private JLabel dataTypeLabel;
@@ -85,16 +86,11 @@ public class RecordViewerColumnForm extends DBNFormBase {
         return column.ensure();
     }
 
-    protected int[] getMetrics(@NotNull int[] metrics) {
-        return new int[] {
-                Math.max(metrics[0], (int) columnLabel.getPreferredSize().getWidth()),
-                Math.max(metrics[1], (int) dataTypeLabel.getPreferredSize().getWidth())};
+    @Override
+    public Component[] getAlignableComponents() {
+        return new Component[]{columnLabel, dataTypeLabel};
     }
 
-    protected void adjustMetrics(@NotNull int[] metrics) {
-        columnLabel.setPreferredSize(new Dimension(metrics[0], columnLabel.getHeight()));
-        dataTypeLabel.setPreferredSize(new Dimension(metrics[1], dataTypeLabel.getHeight()));
-    }
 
 /*    public Object getEditorValue() throws ParseException {
         DBDataType dataType = cell.getColumnInfo().getDataType();

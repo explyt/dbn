@@ -12,9 +12,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 public class ConsoleDeleteAction extends ProjectAction {
-    ConsoleDeleteAction() {
-        super("Delete Console", null, Icons.ACTION_CLOSE);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -30,9 +27,12 @@ public class ConsoleDeleteAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile virtualFile = Lookups.getVirtualFile(e);
+        boolean enabled = virtualFile instanceof DBConsoleVirtualFile;
 
         Presentation presentation = e.getPresentation();
-        presentation.setEnabled(virtualFile instanceof DBConsoleVirtualFile);
+        presentation.setEnabled(enabled);
+        presentation.setText("Delete Console");
+        presentation.setIcon(Icons.ACTION_CLOSE);
     }
 
 

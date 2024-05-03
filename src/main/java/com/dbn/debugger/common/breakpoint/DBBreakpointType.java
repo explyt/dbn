@@ -113,11 +113,6 @@ public class DBBreakpointType extends XLineBreakpointType<XBreakpointProperties>
         return createBreakpointProperties(null);
     }
 
-    @Override
-    public XDebuggerEditorsProvider getEditorsProvider() {
-        return DBJdbcDebuggerEditorsProvider.INSTANCE;
-    }
-
     @Nullable
     @Override
     public XDebuggerEditorsProvider getEditorsProvider(@NotNull XLineBreakpoint<XBreakpointProperties> breakpoint, @NotNull Project project) {

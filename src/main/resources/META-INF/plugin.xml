@@ -1,7 +1,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.4.2700.0</version>
+    <version>3.4.3211.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -31,6 +31,14 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.4.3211</b>
+            <ul>
+                <li>Prompted background-capable DB operations
+                <li>Ide startup optimisations (lazy component initialisation)
+                <li>Expression-based object filters
+                <li>New UI adaptations and icons (WIP)
+                <li>Bug fixes
+            </ul>
             <li><b>3.4.2700</b>
             <ul>
                 <li>IDE startup optimisations
@@ -363,7 +371,6 @@
         <projectService serviceImplementation="com.dbn.object.common.operation.DatabaseOperationManager"/>
         <projectService serviceImplementation="com.dbn.object.factory.DatabaseObjectFactory"/>
         <projectService serviceImplementation="com.dbn.object.factory.VirtualObjectFactory"/>
-        <projectService serviceImplementation="com.dbn.object.filter.name.ObjectNameFilterManager"/>
         <projectService serviceImplementation="com.dbn.object.filter.quick.ObjectQuickFilterManager"/>
         <projectService serviceImplementation="com.dbn.object.dependency.ObjectDependencyManager"/>
         <projectService serviceImplementation="com.dbn.object.status.ObjectStatusManager"/>
@@ -390,11 +397,11 @@
             <add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="after"/>
         </group>
         <group id="DBNavigator.ActionGroup.ConnectionSettings" text="Connections Settings">
-            <action id="DBNavigator.Actions.ConnectionSettings.CreateConnection" class="com.dbn.connection.config.action.CreateConnectionDropdownAction" text="Connection Setup - Create Connection" icon="/img/action/AddMore.png"/>
-            <action id="DBNavigator.Actions.ConnectionSettings.RemoveConnection" class="com.dbn.connection.config.action.ConnectionRemoveAction" text="Connection Setup - Remove Connection" icon="/img/action/Remove.png"/>
-            <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsUp" class="com.dbn.connection.config.action.ConnectionMoveUpAction" text="Connection Setup - Move Connections Up" icon="/img/action/MoveUp.png"/>
-            <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsDown" class="com.dbn.connection.config.action.ConnectionMoveDownAction" text="Connection Setup - Move Connections Down" icon="/img/action/MoveDown.png"/>
-            <action id="DBNavigator.Actions.ConnectionSettings.DuplicateConnection" class="com.dbn.connection.config.action.ConnectionDuplicateAction" text="Connection Setup - Duplicate Connection" icon="/img/action/Copy.png"/>
+            <group id="DBNavigator.Actions.ConnectionSettings.CreateConnection" class="com.dbn.connection.config.action.CreateConnectionDropdownAction" text="Connection Setup - Create Connection" icon="AllIcons.General.Add"/>
+            <action id="DBNavigator.Actions.ConnectionSettings.RemoveConnection" class="com.dbn.connection.config.action.ConnectionRemoveAction" text="Connection Setup - Remove Connection" icon="AllIcons.General.Remove"/>
+            <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsUp" class="com.dbn.connection.config.action.ConnectionMoveUpAction" text="Connection Setup - Move Connections Up" icon="/img/action/MoveUp.svg"/>
+            <action id="DBNavigator.Actions.ConnectionSettings.MoveConnectionsDown" class="com.dbn.connection.config.action.ConnectionMoveDownAction" text="Connection Setup - Move Connections Down" icon="/img/action/MoveDown.svg"/>
+            <action id="DBNavigator.Actions.ConnectionSettings.DuplicateConnection" class="com.dbn.connection.config.action.ConnectionDuplicateAction" text="Connection Setup - Duplicate Connection" icon="AllIcons.Actions.Copy"/>
             <separator/>
             <action id="DBNavigator.Actions.ConnectionSettings.CopyConnections" class="com.dbn.connection.config.action.ConnectionsCopyAction" text="Connection Setup - Copy To Clipboard" icon="/img/action/CopyConnection.png"/>
             <action id="DBNavigator.Actions.ConnectionSettings.PasteConnections" class="com.dbn.connection.config.action.ConnectionPasteAction" text="Connection Setup - Paste From Clipboard" icon="/img/action/PasteConnection.png"/>
@@ -408,26 +415,26 @@
             <action id="DBNavigator.Actions.Commit" class="com.dbn.language.editor.action.TransactionCommitAction" text="Script Editor - Commit Transaction" icon="/img/action/ConnectionCommit.svg"/>
             <action id="DBNavigator.Actions.Rollback" class="com.dbn.language.editor.action.TransactionRollbackAction" text="Script Editor - Rollback Transaction" icon="/img/action/ConnectionRollback.svg"/>
             <separator/>
-            <action id="DBNavigator.Actions.Execute" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction" text="Script Editor - Execute Statement" icon="/img/action/StatementExecution.png">
+            <action id="DBNavigator.Actions.Execute" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction" text="Script Editor - Execute Statement" icon="AllIcons.Actions.Execute">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl ENTER"/>
             </action>
-            <action id="DBNavigator.Actions.DebugStatement" class="com.dbn.debugger.common.action.DebugStatementEditorAction" text="Script Editor - Debug Statement" icon="/img/action/StatementDebug.png"/>
+            <action id="DBNavigator.Actions.DebugStatement" class="com.dbn.debugger.common.action.DebugStatementEditorAction" text="Script Editor - Debug Statement" icon="/actions/startDebugger.svg"/>
             <action id="DBNavigator.Actions.ExplainPlan" class="com.dbn.execution.explain.action.ExplainPlanEditorAction" text="Script Editor - Explain Plan" icon="/img/action/StatementExplain.png">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift ENTER"/>
             </action>
             <separator/>
             <action id="DBNavigator.Actions.ExecuteAsScript" class="com.dbn.execution.script.action.ExecuteScriptEditorAction" text="Script Editor - Execute as Script" icon="/img/action/ExecuteAsScript.png"/>
             <separator/>
-            <action id="DBNavigator.Actions.EditorOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Script Editor - Local Settings" icon="/img/action/Options.png" />
+            <group id="DBNavigator.Actions.EditorOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Script Editor - Local Settings" icon="/general/gear.svg" />
             <action id="DBNavigator.Actions.EditorSettings" class="com.dbn.language.editor.action.EditorSettingsOpenAction" text="Script Editor - Settings"/>
         </group>
         <group id="DBNavigator.Actions.MainMenu" text="_DB Navigator" popup="true">
             <action class="com.dbn.menu.action.DatabaseBrowserOpenAction" text="Database Browser" id="DBNavigator.Actions.MainMenu.DatabaseBrowser"/>
             <separator/>
-            <action class="com.dbn.menu.action.SQLConsoleOpenAction" text="Open SQL Console..." id="DBNavigator.Actions.MainMenu.OpenSQLConsole" icon="/img/file/SQLConsole.png">
+            <action class="com.dbn.menu.action.SQLConsoleOpenAction" text="Open SQL Console..." id="DBNavigator.Actions.MainMenu.OpenSQLConsole" icon="/img/tools/SQLConsole.svg">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift C"/>
             </action>
-            <action class="com.dbn.menu.action.SessionBrowserOpenAction" text="Open Session Browser..." id="DBNavigator.Actions.MainMenu.OpenSessionBrowser" icon="/img/file/SessionBrowser.png">
+            <action class="com.dbn.menu.action.SessionBrowserOpenAction" text="Open Session Browser..." id="DBNavigator.Actions.MainMenu.OpenSessionBrowser" icon="/img/tools/SessionBrowser.svg">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl shift S"/>
             </action>
             <action class="com.dbn.menu.action.MethodExecutionHistoryAction" text="Method Execution History" id="DBNavigator.Actions.MainMenu.MethodExecutionHistory">
@@ -466,17 +473,17 @@
             <action id="DBNavigator.Actions.CodeEditor.CompareWithOriginal" class="com.dbn.editor.code.action.CompareWithOriginalAction" text="Code Editor - Compare with Original"/>
             <action id="DBNavigator.Actions.CodeEditor.CompareWithDatabase" class="com.dbn.editor.code.action.CompareWithDatabaseAction" text="Code Editor - Compare with Database"/>
             <separator/>
-            <action id="DBNavigator.Actions.CodeEditor.RunMethod" class="com.dbn.editor.code.action.MethodRunAction" text="Code Editor - Run Method" icon="/img/action/ExecuteMethod.png"/>
-            <action id="DBNavigator.Actions.CodeEditor.DebugMethod" class="com.dbn.editor.code.action.MethodDebugAction" text="Code Editor - Debug Method" icon="/img/action/DebugMethod.png"/>
-            <action id="DBNavigator.Actions.CodeEditor.RunProgramMethod" class="com.dbn.editor.code.action.ProgramMethodRunAction" text="Code Editor - Run Method" icon="/img/action/ExecuteMethod.png"/>
-            <action id="DBNavigator.Actions.CodeEditor.DebugProgramMethod" class="com.dbn.editor.code.action.ProgramMethodDebugAction" text="Code Editor - Run Method" icon="/img/action/DebugMethod.png"/>
+            <action id="DBNavigator.Actions.CodeEditor.RunMethod" class="com.dbn.editor.code.action.MethodRunAction" text="Code Editor - Run Method" icon="AllIcons.Actions.Execute"/>
+            <action id="DBNavigator.Actions.CodeEditor.DebugMethod" class="com.dbn.editor.code.action.MethodDebugAction" text="Code Editor - Debug Method" icon="/actions/startDebugger.svg"/>
+            <action id="DBNavigator.Actions.CodeEditor.RunProgramMethod" class="com.dbn.editor.code.action.ProgramMethodRunAction" text="Code Editor - Run Method" icon="AllIcons.Actions.Execute"/>
+            <action id="DBNavigator.Actions.CodeEditor.DebugProgramMethod" class="com.dbn.editor.code.action.ProgramMethodDebugAction" text="Code Editor - Run Method" icon="/actions/startDebugger.svg"/>
             <separator/>
             <action id="DBNavigator.Actions.CodeEditor.LinkDdlFile" class="com.dbn.editor.code.action.CodeEditorDDLFileAction" text="Code Editor - DDL Files"/>
             <separator/>
             <action id="DBNavigator.Actions.CodeEditor.OpenSettings" class="com.dbn.editor.code.action.CodeEditorSettingsAction" text="Code Editor - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.SessionBrowser" text="Session Browser Controls">
-            <action id="DBNavigator.Actions.SessionBrowser.Find" class="com.dbn.editor.session.action.DataFindAction" text="Session Browser - Find..." icon="/img/action/Find.png">
+            <action id="DBNavigator.Actions.SessionBrowser.Find" class="com.dbn.editor.session.action.DataFindAction" text="Session Browser - Find..." icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
             <separator/>
@@ -496,7 +503,7 @@
         <group id="DBNavigator.ActionGroup.DataEditor" text="Data Editor Controls">
             <action id="DBNavigator.Actions.DataEditor.SwitchEditableStatus" class="com.dbn.editor.data.action.DataEditingLockToggleAction" text="Data Editor - Lock / Unlock Editing"/>
             <separator/>
-            <action id="DBNavigator.Actions.DataEditor.FindData" class="com.dbn.editor.data.action.DataFindAction" text="Data Editor - Find..." icon="/img/action/Find.png">
+            <action id="DBNavigator.Actions.DataEditor.FindData" class="com.dbn.editor.data.action.DataFindAction" text="Data Editor - Find..." icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
             <action id="DBNavigator.Actions.DataEditor.EditRecord" class="com.dbn.editor.data.action.RecordEditAction" text="Data Editor - Edit Record"/>
@@ -521,18 +528,18 @@
             <action id="DBNavigator.Actions.DataEditor.Export" class="com.dbn.editor.data.action.DataExportAction" text="Data Editor - Export"/>
             <action id="DBNavigator.Actions.DataEditor.Import" class="com.dbn.editor.data.action.DataImportAction" text="Data Editor - Import"/>
             <separator/>
-            <action id="DBNavigator.Actions.DataEditor.Options" class="com.dbn.editor.data.action.DatasetEditorOptionsAction" text="Data Editor - Options"/>
+            <group id="DBNavigator.Actions.DataEditor.Options" class="com.dbn.editor.data.action.DatasetEditorOptionsAction" text="Data Editor - Options"/>
         </group>
         <group id="DBNavigator.ActionGroup.StatementExecutionResult">
-            <action id="DBNavigator.Actions.ExecutionResult.Close" class="com.dbn.execution.statement.result.action.ExecutionResultCloseAction" text="Execution Result - Close" icon="/img/action/Close.png"/>
-            <action id="DBNavigator.Actions.ExecutionResult.ViewStatement" class="com.dbn.execution.statement.result.action.ExecutionResultViewStatementAction" text="Execution Result - View Statement" icon="/img/action/Preview.png"/>
-            <action id="DBNavigator.Actions.ExecutionResult.ViewRecord" class="com.dbn.execution.statement.result.action.ExecutionResultViewRecordAction" text="Execution Result - View Record" icon="/img/RecordViewer.png"/>
+            <action id="DBNavigator.Actions.ExecutionResult.Close" class="com.dbn.execution.statement.result.action.ExecutionResultCloseAction" text="Execution Result - Close" icon="/actions/close.svg"/>
+            <action id="DBNavigator.Actions.ExecutionResult.ViewStatement" class="com.dbn.execution.statement.result.action.ExecutionResultViewStatementAction" text="Execution Result - View Statement" icon="AllIcons.Actions.Preview"/>
+            <action id="DBNavigator.Actions.ExecutionResult.ViewRecord" class="com.dbn.execution.statement.result.action.ExecutionResultViewRecordAction" text="Execution Result - View Record" icon="/img/tools/RecordViewer.svg"/>
             <separator/>
             <action id="DBNavigator.Actions.ExecutionResult.OpenVariablesDialog" class="com.dbn.execution.statement.result.action.ExecutionResultVariablesDialogAction" text="Execution Result - Open Variables Dialog"/>
-            <action id="DBNavigator.Actions.ExecutionResult.RerunStatement" class="com.dbn.execution.statement.result.action.ExecutionResultRerunAction" text="Execution Result - Rerun Statement"/>
             <action id="DBNavigator.Actions.ExecutionResult.FetchNextRecords" class="com.dbn.execution.statement.result.action.ExecutionResultResumeAction" text="Execution Result - Fetch Next Records"/>
+            <action id="DBNavigator.Actions.ExecutionResult.RerunStatement" class="com.dbn.execution.statement.result.action.ExecutionResultRerunAction" text="Execution Result - Rerun Statement"/>
             <separator/>
-            <action id="DBNavigator.Actions.ExecutionResult.FindData" class="com.dbn.execution.statement.result.action.ExecutionResultFindDataAction" text="Execution Result - Find Data" icon="/img/action/Find.png">
+            <action id="DBNavigator.Actions.ExecutionResult.FindData" class="com.dbn.execution.statement.result.action.ExecutionResultFindDataAction" text="Execution Result - Find Data" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
             <action id="DBNavigator.Actions.ExecutionResult.ExportData" class="com.dbn.execution.statement.result.action.ExecutionResultExportAction" text="Execution Result - Export Data" icon="/img/action/DataExport.png"/>
@@ -540,45 +547,45 @@
             <action id="DBNavigator.Actions.ExecutionResult.Settings" class="com.dbn.execution.statement.result.action.ExecutionResultSettingsAction" text="Execution Result - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.MethodExecutionResult">
-            <action id="DBNavigator.Actions.MethodExecutionResult.Close" class="com.dbn.execution.method.result.action.ExecutionResultCloseAction" text="Method Execution Result - Close" icon="/img/action/Close.png"/>
-            <action id="DBNavigator.Actions.MethodExecutionResult.EditMethod" class="com.dbn.execution.method.result.action.MethodEditAction" text="Method Execution Result - Edit Method" icon="/img/EditSource.png"/>
-            <action id="DBNavigator.Actions.MethodExecutionResult.ExecuteAgain" class="com.dbn.execution.method.result.action.MethodExecutionStartAction" text="Method Execution Result - Execute Again" icon="/img/RerunMethodExecution.png"/>
+            <action id="DBNavigator.Actions.MethodExecutionResult.Close" class="com.dbn.execution.method.result.action.ExecutionResultCloseAction" text="Method Execution Result - Close" icon="/actions/close.svg"/>
+            <action id="DBNavigator.Actions.MethodExecutionResult.EditMethod" class="com.dbn.execution.method.result.action.MethodEditAction" text="Method Execution Result - Edit Method" icon="/img/action/EditSource.svg"/>
             <action id="DBNavigator.Actions.MethodExecutionResult.OpenExecutionDialog" class="com.dbn.execution.method.result.action.MethodExecutionPromptAction" text="Method Execution Result - Open Execution Dialog" icon="/img/ExecuteMethodDialog.png"/>
-            <action id="DBNavigator.Actions.MethodExecutionResult.StopExecution" class="com.dbn.execution.method.result.action.MethodExecutionStopAction" text="Method Execution Result - Stop Execution" icon="/img/action/ExecutionStop.png"/>
+            <action id="DBNavigator.Actions.MethodExecutionResult.ExecuteAgain" class="com.dbn.execution.method.result.action.MethodExecutionStartAction" text="Method Execution Result - Execute Again" icon="AllIcons.Actions.Rerun"/>
+            <action id="DBNavigator.Actions.MethodExecutionResult.StopExecution" class="com.dbn.execution.method.result.action.MethodExecutionStopAction" text="Method Execution Result - Stop Execution" icon="AllIcons.Actions.Suspend"/>
             <separator/>
-            <action id="DBNavigator.Actions.MethodExecutionResult.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" text="Method Execution Result - Open Execution Dialog" icon="/img/action/Options.png"/>
+            <action id="DBNavigator.Actions.MethodExecutionResult.Settings" class="com.dbn.execution.method.result.action.ExecutionEngineSettingsAction" text="Method Execution Result - Open Execution Dialog" icon="AllIcons.General.GearPlain"/>
         </group>
         <group id="DBNavigator.ActionGroup.MethodExecutionCursorResult">
-            <action id="DBNavigator.Actions.MethodExecutionCursorResult.Find" class="com.dbn.execution.method.result.action.CursorResultFindAction" text="Method Execution Cursor Result - Find Data" icon="/img/action/Find.png">
+            <action id="DBNavigator.Actions.MethodExecutionCursorResult.Find" class="com.dbn.execution.method.result.action.CursorResultFindAction" text="Method Execution Cursor Result - Find Data" icon="AllIcons.Actions.Find">
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl F"/>
             </action>
-            <action id="DBNavigator.Actions.MethodExecutionCursorResult.FetchNextRecords" class="com.dbn.execution.method.result.action.CursorResultFetchNextRecordsAction" text="Method Execution Cursor Result - Fetch Next Records" icon="/img/action/ExecutionResume.png"/>
-            <action id="DBNavigator.Actions.MethodExecutionCursorResult.ViewRecord" class="com.dbn.execution.method.result.action.CursorResultViewRecordAction" text="Method Execution Cursor Result - View Record" icon="/img/RecordViewer.png"/>
+            <action id="DBNavigator.Actions.MethodExecutionCursorResult.FetchNextRecords" class="com.dbn.execution.method.result.action.CursorResultFetchNextRecordsAction" text="Method Execution Cursor Result - Fetch Next Records" icon="AllIcons.Actions.Resume"/>
+            <action id="DBNavigator.Actions.MethodExecutionCursorResult.ViewRecord" class="com.dbn.execution.method.result.action.CursorResultViewRecordAction" text="Method Execution Cursor Result - View Record" icon="/img/tools/RecordViewer.svg"/>
             <separator/>
             <action id="DBNavigator.Actions.MethodExecutionCursorResult.Export" class="com.dbn.execution.method.result.action.CursorResultExportAction" text="Method Execution Cursor Result - Export" icon="/img/action/DataExport.png"/>
         </group>
 
 
         <group id="DBNavigator.ActionGroup.ExplainPlanResult">
-            <action id="DBNavigator.Actions.ExplainPlanResult.Close" class="com.dbn.execution.explain.result.action.ExplainPlanResultCloseAction" text="Explain Plan Result - Close" icon="/img/action/Close.png"/>
-            <action id="DBNavigator.Actions.ExplainPlanResult.ViewStatement" class="com.dbn.execution.explain.result.action.ExplainPlanResultViewStatementAction" text="Explain Plan Result - View Statement" icon="/img/action/Preview.png"/>
+            <action id="DBNavigator.Actions.ExplainPlanResult.Close" class="com.dbn.execution.explain.result.action.ExplainPlanResultCloseAction" text="Explain Plan Result - Close" icon="/actions/close.svg"/>
+            <action id="DBNavigator.Actions.ExplainPlanResult.ViewStatement" class="com.dbn.execution.explain.result.action.ExplainPlanResultViewStatementAction" text="Explain Plan Result - View Statement" icon="AllIcons.Actions.Preview"/>
             <separator/>
-            <action id="DBNavigator.Actions.ExplainPlanResult.ExpandAll" class="com.dbn.execution.explain.result.action.ExplainPlanResultExpandAllAction" text="Explain Plan Result - Expand All" icon="/img/action/ExpandAll.png"/>
-            <action id="DBNavigator.Actions.ExplainPlanResult.CollapseAll" class="com.dbn.execution.explain.result.action.ExplainPlanResultCollapseAllAction" text="Explain Plan Result - Collapse All" icon="/img/action/CollapseAll.png"/>
+            <action id="DBNavigator.Actions.ExplainPlanResult.ExpandAll" class="com.dbn.execution.explain.result.action.ExplainPlanResultExpandAllAction" text="Explain Plan Result - Expand All"  icon="AllIcons.Actions.Expandall"/>
+            <action id="DBNavigator.Actions.ExplainPlanResult.CollapseAll" class="com.dbn.execution.explain.result.action.ExplainPlanResultCollapseAllAction" text="Explain Plan Result - Collapse All" icon="AllIcons.Actions.Collapseall"/>
             <separator/>
             <action id="DBNavigator.Actions.ExplainPlanResult.Settings" class="com.dbn.execution.explain.result.action.ExplainPlanResultSettingsAction" text="Explain Plan - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.DatabaseLogOutput">
-            <action id="DBNavigator.Actions.DatabaseLogOutput.Close" class="com.dbn.execution.logging.action.DatabaseLogOutputCloseAction" text="Database Log Output - Close" icon="/img/action/Close.png"/>
-            <action id="DBNavigator.Actions.DatabaseLogOutput.RerunProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputRerunAction" text="Database Log Output - Rerun Process" icon="/img/action/Rerun.png"/>
-            <action id="DBNavigator.Actions.DatabaseLogOutput.KillProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputKillAction" text="Database Log Output - Kill Process" icon="/img/action/KillProcess.png"/>
+            <action id="DBNavigator.Actions.DatabaseLogOutput.Close" class="com.dbn.execution.logging.action.DatabaseLogOutputCloseAction" text="Database Log Output - Close" icon="/actions/close.svg"/>
+            <action id="DBNavigator.Actions.DatabaseLogOutput.RerunProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputRerunAction" text="Database Log Output - Rerun Process" icon="AllIcons.Actions.Rerun"/>
+            <action id="DBNavigator.Actions.DatabaseLogOutput.KillProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputKillAction" text="Database Log Output - Kill Process" icon="AllIcons.Debugger.KillProcess"/>
             <action id="DBNavigator.Actions.DatabaseLogOutput.Settings" class="com.dbn.execution.logging.action.DatabaseLogOutputSettingsAction" text="Database Log Output - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.ParserDiagnostics">
-            <action id="DBNavigator.Actions.ParserDiagnostics.Close" class="com.dbn.diagnostics.action.ParserDiagnosticsCloseAction" text="Parser Diagnostics - Close" icon="/img/action/Close.png"/>
-            <action id="DBNavigator.Actions.ParserDiagnostics.Run" class="com.dbn.diagnostics.action.ParserDiagnosticsRunAction" text="Parser Diagnostics - Run" icon="/img/action/Execute.png"/>
-            <action id="DBNavigator.Actions.ParserDiagnostics.Save" class="com.dbn.diagnostics.action.ParserDiagnosticsSaveAction" text="Parser Diagnostics - Save" icon="/img/action/Save.png"/>
-            <action id="DBNavigator.Actions.ParserDiagnostics.Delete" class="com.dbn.diagnostics.action.ParserDiagnosticsDeleteAction" text="Parser Diagnostics - Delete" icon="/img/action/Delete.png"/>
+            <action id="DBNavigator.Actions.ParserDiagnostics.Close" class="com.dbn.diagnostics.action.ParserDiagnosticsCloseAction" text="Parser Diagnostics - Close" icon="/actions/close.svg"/>
+            <action id="DBNavigator.Actions.ParserDiagnostics.Run" class="com.dbn.diagnostics.action.ParserDiagnosticsRunAction" text="Parser Diagnostics - Run" icon="AllIcons.Actions.Execute"/>
+            <action id="DBNavigator.Actions.ParserDiagnostics.Save" class="com.dbn.diagnostics.action.ParserDiagnosticsSaveAction" text="Parser Diagnostics - Save" icon="AllIcons.Actions.Menu_saveall"/>
+            <action id="DBNavigator.Actions.ParserDiagnostics.Delete" class="com.dbn.diagnostics.action.ParserDiagnosticsDeleteAction" text="Parser Diagnostics - Delete" icon="AllIcons.Actions.GC"/>
         </group>
         <group id="DBNavigator.ActionGroup.Browser.ObjectProperties" text="Browser Object Properties">
             <action id="DBNavigator.Actions.Browser.HideObjectProperties" class="com.dbn.browser.action.ObjectPropertiesHideAction" text="Hide Properties"/>
@@ -590,7 +597,7 @@
         </action>
 
         <group id="DBNavigator.ActionGroup.Browser.Controls" text="Browser Object Properties">
-            <action id="DBNavigator.Actions.Browser.NewConnection" class="com.dbn.browser.action.ConnectionCreateDropdownAction" text="Browser - New Connection"/>
+            <group id="DBNavigator.Actions.Browser.NewConnection" class="com.dbn.browser.action.ConnectionCreateDropdownAction" text="Browser - New Connection"/>
             <separator/>
             <action id="DBNavigator.Actions.Browser.NavigateBack" class="com.dbn.browser.action.BrowserNavigateBackAction" text="Browser - Back"/>
             <action id="DBNavigator.Actions.Browser.NavigateForward" class="com.dbn.browser.action.BrowserNavigateForwardAction" text="Browser - Forward"/>
@@ -598,14 +605,14 @@
             <action id="DBNavigator.Actions.Browser.AutoscrollToEditor" class="com.dbn.language.action.browser.AutoscrollToEditorAction" text="Browser - Autoscroll to editor"/>
             <action id="DBNavigator.Actions.Browser.AutoscrollFromEditor" class="com.dbn.language.action.browser.AutoscrollFromEditorAction" text="Browser - Autoscroll from editor"/>
 -->
-            <action id="DBNavigator.Actions.Browser.ExpandTree" class="com.dbn.browser.action.BrowserTreeExpandAction" text="Browser - Expand All"/>
-            <action id="DBNavigator.Actions.Browser.CollapseTree" class="com.dbn.browser.action.BrowserTreeCollapseAction" text="Browser - Collapse All"/>
+            <action id="DBNavigator.Actions.Browser.ExpandTree" class="com.dbn.browser.action.BrowserTreeExpandAction" text="Browser - Expand All"  icon="AllIcons.Actions.Expandall"/>
+            <action id="DBNavigator.Actions.Browser.CollapseTree" class="com.dbn.browser.action.BrowserTreeCollapseAction" text="Browser - Collapse All" icon="AllIcons.Actions.Collapseall"/>
+            <separator/>
             <action id="DBNavigator.Actions.Browser.ShowObjectProperties" class="com.dbn.browser.action.ObjectPropertiesShowAction" text="Browser - Show Object Properties"/>
+            <action id="DBNavigator.Actions.Browser.OpenSessionBrowser" class="com.dbn.browser.action.SessionBrowserOpenAction" text="Browser - Session Browser" icon="/img/tools/SessionBrowser.svg"/>
+            <action id="DBNavigator.Actions.Browser.OpenSQLConsole" class="com.dbn.browser.action.SQLConsoleOpenAction" text="Browser - SQL Console" icon="/img/tools/SQLConsole.svg"/>
             <separator/>
-            <action id="DBNavigator.Actions.Browser.OpenSQLConsole" class="com.dbn.browser.action.SQLConsoleOpenAction" text="Browser - SQL Console" icon="/img/file/SQLConsole.png"/>
-            <action id="DBNavigator.Actions.Browser.OpenSessionBrowser" class="com.dbn.browser.action.SessionBrowserOpenAction" text="Browser - Session Browser" icon="/img/file/SessionBrowser.png"/>
-            <separator/>
-            <action id="DBNavigator.Actions.Browser.OpenSettings" class="com.dbn.browser.action.BrowserOptionsAction" text="Browser - Options"/>
+            <group id="DBNavigator.Actions.Browser.OpenSettings" class="com.dbn.browser.action.BrowserOptionsAction" text="Browser - Options"/>
         </group>
 
         <group id="DBNavigator.ActionGroup.Calendar.Controls" text="Calendar Controls">
@@ -709,6 +716,9 @@
         <lang.syntaxHighlighterFactory language="DBN-SQL" implementationClass="com.dbn.language.common.DBSyntaxHighlighterFactory"/>
         <lang.syntaxHighlighterFactory language="DBN-PSQL" implementationClass="com.dbn.language.common.DBSyntaxHighlighterFactory"/>
 
+        <defaultHighlightingSettingProvider id="DBNavigator.DefaultHighlightingSettingProvider"
+                                            implementation="com.dbn.language.common.DefaultHighlightingSettingProvider"/>
+
         <codeStyleSettingsProvider implementation="com.dbn.code.sql.style.options.SQLCodeStyleSettingsProvider"/>
         <codeStyleSettingsProvider implementation="com.dbn.code.psql.style.options.PSQLCodeStyleSettingsProvider"/>
 
@@ -750,6 +760,7 @@
 
         <breadcrumbsInfoProvider implementation="com.dbn.language.psql.PSQLBreadcrumbsInfoProvider"/>
         <renamePsiElementProcessor implementation="com.dbn.language.common.psi.PsiElementRenameProcessor" order="first"/>
+        <!--<refactoring.moveHandler implementation="com.dbn.code.refactoring.MoveDatabaseFileHandler" order="first"/>-->
 
         <elementSignatureProvider order="last" implementation="com.dbn.language.common.DBLanguageElementSignatureProvider"/>
 

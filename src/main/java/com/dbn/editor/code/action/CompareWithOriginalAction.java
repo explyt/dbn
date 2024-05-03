@@ -13,9 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.dispose.Checks.isValid;
 
 public class CompareWithOriginalAction extends AbstractCodeEditorDiffAction {
-    public CompareWithOriginalAction() {
-        super("Compare with original", null, Icons.CODE_EDITOR_DIFF);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
@@ -27,6 +24,7 @@ public class CompareWithOriginalAction extends AbstractCodeEditorDiffAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project, @Nullable SourceCodeEditor fileEditor, @Nullable DBSourceCodeVirtualFile sourceCodeFile) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Compare with Original");
+        presentation.setIcon(Icons.CODE_EDITOR_DIFF);
         if (isValid(sourceCodeFile)) {
             EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
             boolean readonly = environmentManager.isReadonly(sourceCodeFile);

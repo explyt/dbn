@@ -14,7 +14,9 @@ import com.dbn.common.ui.table.TableSelectionRestorer;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Conditional;
 import com.dbn.common.util.MathResult;
+import com.dbn.common.util.Safe;
 import com.dbn.data.grid.color.DataGridTextAttributes;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.model.ColumnInfo;
@@ -51,6 +53,9 @@ import java.awt.event.MouseMotionAdapter;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
+import static com.dbn.common.util.Conditional.when;
+
 @Getter
 public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutter<T> implements EditorColorsListener, Disposable {
     private final BasicTableCellRenderer cellRenderer;
@@ -73,10 +78,9 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         ApplicationEvents.subscribe(this, EditorColorsManager.TOPIC, this);
         Color bgColor = displayAttributes.getPlainData(false, false).getBgColor();
         setBackground(bgColor == null ? Colors.getTableBackground() : bgColor);
-        addMouseListener(Mouse.listener().onClick(e -> {
-            if (e.getClickCount() == 1 && e.getButton() == MouseEvent.BUTTON1 && valuePopup == null) {
-                showCellValuePopup();
-            }}));
+        addMouseListener(Mouse.listener().onClick(
+                e -> when(isMainSingleClick(e) && valuePopup == null,
+                () -> showCellValuePopup())));
 
         addPropertyChangeListener(e -> {
             Object newProperty = e.getNewValue();
@@ -232,13 +236,17 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         T model = getModel();
         int rowCount = model.getRowCount();
         int columnCount = model.getColumnCount();
-        if (rowCount > index && columnCount > 0) {
-            clearSelection();
-            int lastColumnIndex = Math.max(0, columnCount - 1);
-            setColumnSelectionInterval(0, lastColumnIndex);
-            getSelectionModel().setSelectionInterval(index, index);
-            scrollRectToVisible(getCellRect(index, 0, true));
-        }
+
+        if (rowCount <= index) return;
+        if (columnCount <= 0) return;
+
+        clearSelection();
+        int lastColumnIndex = Math.max(0, columnCount - 1);
+        setColumnSelectionInterval(0, lastColumnIndex);
+        getSelectionModel().setSelectionInterval(index, index);
+        Safe.run(getTableGutter(), g -> g.setSelectedIndex(index));
+
+        scrollRectToVisible(getCellRect(index, 0, true));
     }
 
     protected ColumnInfo getColumnInfo(int columnIndex) {

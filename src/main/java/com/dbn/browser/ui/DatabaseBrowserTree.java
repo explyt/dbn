@@ -344,7 +344,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                         actionGroup = new ObjectListActionGroup(objectList);
                     } else if (lastPathEntity instanceof DBObject) {
                         DBObject object = (DBObject) lastPathEntity;
-                        Progress.modal(
+                        Progress.prompt(
                                 getProject(),
                                 object,
                                 true,

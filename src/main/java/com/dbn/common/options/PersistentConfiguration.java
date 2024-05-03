@@ -8,4 +8,10 @@ public interface PersistentConfiguration {
     void writeConfiguration(Element element);
 
     default void validate() throws ConfigurationException {};
+
+    default void applyTo(PersistentConfiguration configuration) {
+        Element element = new Element("configuration");
+        writeConfiguration(element);
+        configuration.readConfiguration(element);
+    }
 }

@@ -7,6 +7,7 @@ import com.dbn.connection.SchemaId;
 import com.dbn.connection.SessionId;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jdom.CDATA;
 import org.jdom.Content;
 import org.jdom.Element;
 import org.jdom.Text;
@@ -172,17 +173,21 @@ public final class Settings {
         return SchemaId.get(stringAttribute(element, name));
     }
 
-    public static String readCdata(Element parent) {
+    public static String readCdata(Element element) {
         StringBuilder builder = new StringBuilder();
-        int contentSize = parent.getContentSize();
+        int contentSize = element.getContentSize();
         for (int i=0; i<contentSize; i++) {
-            Content content = parent.getContent(i);
+            Content content = element.getContent(i);
             if (content instanceof Text) {
                 Text cdata = (Text) content;
                 builder.append(cdata.getText());
             }
         }
         return builder.toString();
+    }
+
+    public void writeCdata(Element element, String content) {
+        element.setContent(new CDATA(content));
     }
 
 

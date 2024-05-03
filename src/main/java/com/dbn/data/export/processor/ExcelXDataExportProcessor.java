@@ -1,10 +1,8 @@
 package com.dbn.data.export.processor;
 
 import com.dbn.data.export.DataExportFormat;
-import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.apache.poi.xssf.usermodel.XSSFRichTextString;
 
 public class ExcelXDataExportProcessor extends ExcelDataExportProcessor{
 
@@ -29,10 +27,5 @@ public class ExcelXDataExportProcessor extends ExcelDataExportProcessor{
     @Override
     protected Workbook createWorkbook() {
         return new SXSSFWorkbook();
-    }
-
-    @Override
-    protected RichTextString createRichText(String string) {
-        return new XSSFRichTextString(string);
     }
 }

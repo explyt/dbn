@@ -1,5 +1,6 @@
 package com.dbn.database.oracle.execution;
 
+import com.dbn.common.util.Safe;
 import com.dbn.connection.jdbc.DBNCallableStatement;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.data.type.DBDataType;
@@ -17,6 +18,7 @@ import com.dbn.object.DBTypeAttribute;
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 
 public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl {
@@ -43,7 +45,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
             if (dataType.isPurelyDeclared()) {
                 buffer.append("    ");
                 appendVariableName(buffer, argument);
-                buffer.append(" ").append(dataType.getDeclaredType().getQualifiedName()).append(";\n");
+                buffer.append(" ").append(dataType.getQualifiedName()).append(";\n");
             } else if (isBoolean(dataType)) {
                 appendVariableName(buffer, argument);
                 buffer.append(" boolean;\n");
@@ -56,23 +58,23 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
         // input variable initialization
         for (DBArgument argument : arguments) {
+            if (!argument.isInput()) continue;
+
             DBDataType dataType = argument.getDataType();
-
-            if (argument.isInput()) {
-                if (dataType.isPurelyDeclared()) {
-                    List<DBTypeAttribute> attributes = dataType.getDeclaredType().getAttributes();
-                    for (DBTypeAttribute attribute : attributes) {
-                        buffer.append("    ");
-                        appendVariableName(buffer, argument);
-                        buffer.append(".").append(attribute.getName()).append(" := ?;\n");
-                    }
-                } else if(isBoolean(dataType)) {
-                    String stringValue = parseBoolean(argument.getName(), executionInput.getInputValue(argument));
-
+            if (dataType.isPurelyDeclared()) {
+                DBType declaredType = dataType.getDeclaredType();
+                List<DBTypeAttribute> attributes = declaredType.getAttributes();
+                for (DBTypeAttribute attribute : attributes) {
                     buffer.append("    ");
                     appendVariableName(buffer, argument);
-                    buffer.append(" := ").append(stringValue).append(";\n");
+                    buffer.append(".").append(attribute.getName()).append(" := ?;\n");
                 }
+            } else if(isBoolean(dataType)) {
+                String stringValue = parseBoolean(argument.getName(), executionInput.getInputValue(argument));
+
+                buffer.append("    ");
+                appendVariableName(buffer, argument);
+                buffer.append(" := ").append(stringValue).append(";\n");
             }
         }
 
@@ -104,26 +106,27 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
         // output variable initialization
         for (DBArgument argument : arguments) {
-            if (argument.isOutput()) {
-                DBDataType dataType = argument.getDataType();
-                if (dataType.isPurelyDeclared()) {
-                    if (dataType.getDeclaredType().isCollection()) {
-                        buffer.append("    open ? for select * from table (");
-                        appendVariableName(buffer, argument);
-                        buffer.append(");");
-                    } else {
-                        List<DBTypeAttribute> attributes = dataType.getDeclaredType().getAttributes();
-                        for (DBTypeAttribute attribute : attributes) {
-                            buffer.append("    ? := ");
-                            appendVariableName(buffer, argument);
-                            buffer.append(".").append(attribute.getName()).append(";\n");
-                        }
-                    }
-                } else if (isBoolean(dataType)) {
-                    buffer.append("    ? := case when ");
+            if (!argument.isOutput()) continue;
+
+            DBDataType dataType = argument.getDataType();
+            if (dataType.isPurelyDeclared()) {
+                DBType declaredType = dataType.getDeclaredType();
+                if (declaredType.isCollection()) {
+                    buffer.append("    open ? for select * from table (");
                     appendVariableName(buffer, argument);
-                    buffer.append(" then 'true' else 'false' end;\n");
+                    buffer.append(");");
+                } else {
+                    List<DBTypeAttribute> attributes = declaredType.getAttributes();
+                    for (DBTypeAttribute attribute : attributes) {
+                        buffer.append("    ? := ");
+                        appendVariableName(buffer, argument);
+                        buffer.append(".").append(attribute.getName()).append(";\n");
+                    }
                 }
+            } else if (isBoolean(dataType)) {
+                buffer.append("    ? := case when ");
+                appendVariableName(buffer, argument);
+                buffer.append(" then 'true' else 'false' end;\n");
             }
         }
 
@@ -146,16 +149,16 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
         // bind input variables
         int parameterIndex = 1;
         for (DBArgument argument : getArguments()) {
-            if (argument.isInput()) {
-                DBDataType dataType = argument.getDataType();
-                DBType type = dataType.getDeclaredType();
-                if (dataType.isPurelyDeclared()) {
-                    List<DBTypeAttribute> attributes = type.getAttributes();
-                    for (DBTypeAttribute attribute : attributes) {
-                        String stringValue = executionInput.getInputValue(argument, attribute);
-                        setParameterValue(callableStatement, parameterIndex, attribute.getDataType(), stringValue);
-                        parameterIndex++;
-                    }
+            if (!argument.isInput()) continue;
+
+            DBDataType dataType = argument.getDataType();
+            DBType type = dataType.getDeclaredType();
+            if (dataType.isPurelyDeclared()) {
+                List<DBTypeAttribute> attributes = type.getAttributes();
+                for (DBTypeAttribute attribute : attributes) {
+                    String stringValue = executionInput.getInputValue(argument, attribute);
+                    setParameterValue(callableStatement, parameterIndex, attribute.getDataType(), stringValue);
+                    parameterIndex++;
                 }
             }
         }
@@ -186,24 +189,24 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
         // bind output variables
         for (DBArgument argument : getArguments()) {
+            if (!argument.isOutput()) continue;
+
             DBDataType dataType = argument.getDataType();
-            if (argument.isOutput()) {
-                if (dataType.isPurelyDeclared()) {
-                    DBType declaredType = dataType.getDeclaredType();
-                    if (declaredType.isCollection()) {
-                        callableStatement.registerOutParameter(parameterIndex, OracleTypes.CURSOR);
-                        parameterIndex++;
-                    } else {
-                        List<DBTypeAttribute> attributes = declaredType.getAttributes();
-                        for (DBTypeAttribute attribute : attributes) {
-                            callableStatement.registerOutParameter(parameterIndex, attribute.getDataType().getSqlType());
-                            parameterIndex++;
-                        }
-                    }
-                } else if (isBoolean(dataType)){
-                    callableStatement.registerOutParameter(parameterIndex, dataType.getSqlType());
+            if (dataType.isPurelyDeclared()) {
+                DBType declaredType = dataType.getDeclaredType();
+                if (declaredType.isCollection()) {
+                    callableStatement.registerOutParameter(parameterIndex, OracleTypes.CURSOR);
                     parameterIndex++;
+                } else {
+                    List<DBTypeAttribute> attributes = declaredType.getAttributes();
+                    for (DBTypeAttribute attribute : attributes) {
+                        callableStatement.registerOutParameter(parameterIndex, attribute.getDataType().getSqlType());
+                        parameterIndex++;
+                    }
                 }
+            } else if (isBoolean(dataType)){
+                callableStatement.registerOutParameter(parameterIndex, dataType.getSqlType());
+                parameterIndex++;
             }
         }
     }
@@ -253,36 +256,37 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
 
         // get output variable values
         for (DBArgument argument : getArguments()) {
+            if (!argument.isOutput()) continue;
+
             DBDataType dataType = argument.getDataType();
-            if (argument.isOutput()) {
-                if (dataType.isPurelyDeclared()) {
-                    if (dataType.getDeclaredType().isCollection()) {
-                        DBNativeDataType nativeDataType = dataType.getNativeType();
+            if (dataType.isPurelyDeclared()) {
+                DBType declaredType = dataType.getDeclaredType();
+                if (declaredType.isCollection()) {
+                    DBNativeDataType nativeDataType = dataType.getNativeType();
+                    Object result = nativeDataType == null ?
+                            callableStatement.getObject(parameterIndex) :
+                            nativeDataType.getValueFromStatement(callableStatement, parameterIndex);
+                    executionResult.addArgumentValue(argument, result);
+                    parameterIndex++;
+                } else {
+                    executionResult.addArgumentValue(argument, null);
+                    List<DBTypeAttribute> attributes = declaredType.getAttributes();
+                    for (DBTypeAttribute attribute : attributes) {
+                        // TODO assuming type attributes are all native
+                        DBNativeDataType nativeDataType = attribute.getDataType().getNativeType();
                         Object result = nativeDataType == null ?
                                 callableStatement.getObject(parameterIndex) :
                                 nativeDataType.getValueFromStatement(callableStatement, parameterIndex);
-                        executionResult.addArgumentValue(argument, result);
+
+                        executionResult.addArgumentValue(argument, attribute, result);
                         parameterIndex++;
-                    } else {
-                        executionResult.addArgumentValue(argument, null);
-                        List<DBTypeAttribute> attributes = dataType.getDeclaredType().getAttributes();
-                        for (DBTypeAttribute attribute : attributes) {
-                            // TODO assuming type attributes are all native
-                            DBNativeDataType nativeDataType = attribute.getDataType().getNativeType();
-                            Object result = nativeDataType == null ?
-                                    callableStatement.getObject(parameterIndex) :
-                                    nativeDataType.getValueFromStatement(callableStatement, parameterIndex);
-
-                            executionResult.addArgumentValue(argument, attribute, result);
-                            parameterIndex++;
-                        }
                     }
-                } else if (isBoolean(dataType)) {
-                    Object result = dataType.getNativeType().getValueFromStatement(callableStatement, parameterIndex);
-                    executionResult.addArgumentValue(argument, result);
-                    parameterIndex++;
-
                 }
+            } else if (isBoolean(dataType)) {
+                Object result = dataType.getNativeType().getValueFromStatement(callableStatement, parameterIndex);
+                executionResult.addArgumentValue(argument, result);
+                parameterIndex++;
+
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.dbn.menu.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Actions;
@@ -23,8 +24,12 @@ import java.util.Collection;
 import java.util.List;
 
 public class SQLConsoleOpenAction extends ProjectAction {
-    public SQLConsoleOpenAction() {
-        super("Open SQL console...", null, Icons.FILE_SQL_CONSOLE);
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        Presentation presentation = e.getPresentation();
+        presentation.setText("Open SQL Console...");
+        presentation.setIcon(Icons.SQL_CONSOLE);
     }
 
     @Override
@@ -33,7 +38,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         ConnectionBundle connectionBundle = connectionManager.getConnectionBundle();
         List<ConnectionHandler> connections = connectionBundle.getConnections();
-        if (connections.size() == 0) {
+        if (connections.isEmpty()) {
             connectionManager.promptMissingConnection();
             return;
         }
@@ -105,7 +110,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
         }
     }
 
-    private static class SelectConsoleAction extends AnAction{
+    private static class SelectConsoleAction extends BasicAction {
         private ConnectionRef connection;
         private DBConsole console;
         private DBConsoleType consoleType;

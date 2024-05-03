@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -18,9 +19,9 @@ public class ArgumentValue {
     private DBObjectRef<DBTypeAttribute> attributeRef;
     private ArgumentValueHolder valueHolder;
 
-    public ArgumentValue(@NotNull DBArgument argument, @Nullable DBTypeAttribute attributeRef, ArgumentValueHolder valueHolder) {
+    public ArgumentValue(@NotNull DBArgument argument, @Nullable DBTypeAttribute attribute, ArgumentValueHolder valueHolder) {
         this.argumentRef = DBObjectRef.of(argument);
-        this.attributeRef = DBObjectRef.of(attributeRef);
+        this.attributeRef = DBObjectRef.of(attribute);
         this.valueHolder = valueHolder;
     }
 
@@ -67,6 +68,14 @@ public class ArgumentValue {
         }
 
         return false;
+    }
+
+    public boolean matches(DBArgument argument) {
+        return Objects.equals(argument.ref(), this.argumentRef);
+    }
+
+    public boolean matches(DBTypeAttribute attribute) {
+        return Objects.equals(attribute.ref(), this.attributeRef);
     }
 
     public boolean isCursor() {

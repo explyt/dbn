@@ -1,5 +1,6 @@
 package com.dbn.navigation.action;
 
+import com.dbn.common.action.PerformableActionGroup;
 import com.dbn.common.clipboard.Clipboard;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.util.TextFields;
@@ -130,11 +131,10 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
     }
 
 
-    private class SelectConnectionAction extends ActionGroup {
+    private class SelectConnectionAction extends PerformableActionGroup {
         private final ConnectionRef connection;
 
         private SelectConnectionAction(ConnectionHandler connection) {
-            super();
             this.connection = ConnectionRef.of(connection);
             Presentation presentation = getTemplatePresentation();
             presentation.setText(connection.getName(), false);
@@ -144,11 +144,6 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
 
         public ConnectionHandler getConnection() {
             return connection.ensure();
-        }
-
-        //@Override
-        public boolean canBePerformed(@NotNull DataContext context) {
-            return true;
         }
 
         @Override

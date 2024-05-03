@@ -52,7 +52,7 @@ public class ObjectQuickFilterForm extends DBNFormBase {
 
         addHeader(objectList);
         this.conditionsPanel.setLayout(new BoxLayout(conditionsPanel, BoxLayout.Y_AXIS));
-        conditionsPanel.setBorder(new CompoundBorder(Borders.BOTTOM_LINE_BORDER, JBUI.Borders.emptyBottom(4)));
+        this.conditionsPanel.setBorder(new CompoundBorder(Borders.BOTTOM_LINE_BORDER, JBUI.Borders.emptyBottom(4)));
         this.filter = objectList.getQuickFilter();
         if (this.filter == null) {
             this.filter = new ObjectQuickFilter<>(objectList.getObjectType());

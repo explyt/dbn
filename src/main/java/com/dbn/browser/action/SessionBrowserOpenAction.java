@@ -13,10 +13,6 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class SessionBrowserOpenAction extends ProjectAction {
-    public SessionBrowserOpenAction() {
-        super("Open Session Browser", "", Icons.FILE_SESSION_BROWSER);
-    }
-
     private static ConnectionHandler getConnection(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);
         if (project != null) {
@@ -38,6 +34,7 @@ public class SessionBrowserOpenAction extends ProjectAction {
             presentation.setEnabled(false);
         }
         presentation.setText("Open Session Browser");
+        presentation.setIcon(Icons.SESSION_BROWSER);
     }
 
     @Override

@@ -1,12 +1,12 @@
 package com.dbn.execution.method.browser.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.execution.method.browser.ui.MethodExecutionBrowserForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class ConnectionSelectAction extends DumbAwareAction {
+public class ConnectionSelectAction extends BasicAction {
     private final ConnectionHandler connection;
     private MethodExecutionBrowserForm browserComponent;
 

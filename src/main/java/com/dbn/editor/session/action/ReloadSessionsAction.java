@@ -8,10 +8,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class ReloadSessionsAction extends AbstractSessionBrowserAction {
 
-    public ReloadSessionsAction() {
-        super("Reload", Icons.DATA_EDITOR_RELOAD_DATA);
-    }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         SessionBrowser sessionBrowser = getSessionBrowser(e);
@@ -26,6 +22,7 @@ public class ReloadSessionsAction extends AbstractSessionBrowserAction {
         SessionBrowser sessionBrowser = getSessionBrowser(e);
         presentation.setEnabled(sessionBrowser != null && !sessionBrowser.isLoading());
         presentation.setText("Reload");
+        presentation.setIcon(Icons.DATA_EDITOR_RELOAD_DATA);
         presentation.setEnabled(true);
 
     }

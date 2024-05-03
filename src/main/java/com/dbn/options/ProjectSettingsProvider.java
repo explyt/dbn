@@ -4,7 +4,6 @@ import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.util.Unsafe;
 import com.intellij.openapi.extensions.ExtensionPoint;
-import com.intellij.openapi.extensions.ExtensionsArea;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurableEP;
 import com.intellij.openapi.options.ConfigurableProvider;
@@ -12,6 +11,8 @@ import com.intellij.openapi.options.ex.ConfigurableWrapper;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.Reflection.invokeMethod;
 
 public class ProjectSettingsProvider extends ConfigurableProvider{
     public static final String PROJECT_CONFIGURABLE = "com.intellij.projectConfigurable";
@@ -28,10 +29,11 @@ public class ProjectSettingsProvider extends ConfigurableProvider{
      * (initialize the provider upfront)
      */
     @Workaround // https://youtrack.jetbrains.com/issue/IDEA-313711
+    @Deprecated // TODO decommission
     public static void init(Project project) {
         Unsafe.silent(() -> {
-            ExtensionsArea extensionArea = project.getExtensionArea();
-            ExtensionPoint<ConfigurableEP<?>> projectConfigEP = extensionArea.getExtensionPoint(PROJECT_CONFIGURABLE);
+            Object extensionArea = invokeMethod(project, "getExtensionArea");
+            ExtensionPoint<ConfigurableEP<?>> projectConfigEP = invokeMethod(extensionArea, "getExtensionPoint", PROJECT_CONFIGURABLE);
             ConfigurableEP<?>[] extensions = projectConfigEP.getExtensions();
             for (ConfigurableEP<?> extension : extensions) {
                 if (ProjectSettingsProvider.class.getName().equals(extension.providerClass)) {

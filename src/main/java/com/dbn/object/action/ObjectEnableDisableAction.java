@@ -19,7 +19,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
     ObjectEnableDisableAction(DBSchemaObject object) {
-        super("Enable/Disable", null, object);
+        super(object);
     }
 
     @Override
@@ -55,7 +55,6 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
             @NotNull Project project,
             @Nullable DBSchemaObject target) {
 
-        super.update(e, presentation, project, target);
         if (isValid(target)) {
             boolean enabled = target.getStatus().is(DBObjectStatus.ENABLED);
             presentation.setText(!enabled ? "Enable" : "Disable");

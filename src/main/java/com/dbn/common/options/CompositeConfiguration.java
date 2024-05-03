@@ -6,24 +6,16 @@ import com.dbn.options.TopLevelConfig;
 import com.intellij.openapi.options.ConfigurationException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import org.jdom.Element;
 
-@Getter
-@Setter
 @EqualsAndHashCode(callSuper = false)
 public abstract class CompositeConfiguration<P extends Configuration, E extends CompositeConfigurationEditorForm>
         extends BasicConfiguration<P, E> {
 
-    private Configuration[] configurations;
+    private final @Getter(lazy = true) Configuration[] configurations = createConfigurations();
 
     public CompositeConfiguration(P parent) {
         super(parent);
-    }
-
-    public final Configuration[] getConfigurations() {
-        if (configurations == null) configurations = createConfigurations();
-        return configurations;
     }
 
     protected abstract Configuration[] createConfigurations();

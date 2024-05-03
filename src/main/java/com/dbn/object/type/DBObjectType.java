@@ -2,7 +2,9 @@ package com.dbn.object.type;
 
 import com.dbn.common.content.DynamicContentType;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Characters;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -21,7 +23,7 @@ import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Getter
-public enum DBObjectType implements DynamicContentType<DBObjectType> {
+public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentable {
     
     ATTRIBUTE(DatabaseObjectTypeId.ATTRIBUTE, "attribute", "attribute", Icons.DBO_ATTRIBUTE, null, Icons.DBO_ATTRIBUTES, false),
     ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, null, Icons.DBO_ARGUMENTS, false),
@@ -358,6 +360,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType> {
         PACKAGE_TYPE.addParent(PACKAGE);
         PROCEDURE.addParent(SCHEMA);
         PROCEDURE.addParent(PACKAGE);
+        PROGRAM.addParent(SCHEMA);
+        PROGRAM.addParent(PACKAGE);
         METHOD.addParent(SCHEMA);
         METHOD.addParent(PACKAGE);
         SEQUENCE.addParent(SCHEMA);
@@ -471,12 +475,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType> {
     }
 
     public static String toCsv(List<DBObjectType> objectTypes) {
-        StringBuilder buffer = new StringBuilder();
-        for (DBObjectType objectType : objectTypes) {
-            if (buffer.length() != 0) buffer.append(", ");
-            buffer.append(objectType.name);
-        }
-        return buffer.toString();
+        return Lists.toCsv(objectTypes, ", ", ot -> ot.name);
     }
 
     public static List<DBObjectType> fromCsv(String objectTypes) {

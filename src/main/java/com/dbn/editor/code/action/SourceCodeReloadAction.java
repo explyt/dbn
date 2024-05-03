@@ -16,9 +16,6 @@ import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
 import static com.dbn.vfs.file.status.DBFileStatus.MODIFIED;
 
 public class SourceCodeReloadAction extends AbstractCodeEditorAction {
-    public SourceCodeReloadAction() {
-        super("", null, Icons.CODE_EDITOR_RELOAD);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
@@ -29,6 +26,8 @@ public class SourceCodeReloadAction extends AbstractCodeEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project, @Nullable SourceCodeEditor fileEditor, @Nullable DBSourceCodeVirtualFile sourceCodeFile) {
         Presentation presentation = e.getPresentation();
+        presentation.setIcon(Icons.CODE_EDITOR_RELOAD);
+
         if (Checks.isValid(sourceCodeFile)) {
             DBContentType contentType = sourceCodeFile.getContentType();
             String text =

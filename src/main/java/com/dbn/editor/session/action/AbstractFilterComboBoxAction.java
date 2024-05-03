@@ -1,5 +1,6 @@
 package com.dbn.editor.session.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.ui.misc.DBNComboBoxAction;
@@ -10,7 +11,10 @@ import com.dbn.editor.session.SessionBrowserFilter;
 import com.dbn.editor.session.SessionBrowserFilterType;
 import com.dbn.editor.session.model.SessionBrowserModel;
 import com.dbn.editor.session.options.SessionBrowserSettings;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
@@ -33,17 +37,17 @@ public abstract class AbstractFilterComboBoxAction extends DBNComboBoxAction imp
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         actionGroup.add(new SelectFilterValueAction(null));
         actionGroup.addSeparator();
-        if (sessionBrowser != null) {
-            SessionBrowserModel model = sessionBrowser.getTableModel();
-            if (model != null) {
-                SessionBrowserFilter filter = model.getFilter();
-                String selectedFilterValue = filter == null ? null : filter.getFilterValue(filterType);
-                List<String> filterValues = model.getDistinctValues(filterType, selectedFilterValue);
-                for (String filterValue : filterValues) {
-                    SelectFilterValueAction action = new SelectFilterValueAction(filterValue);
-                    actionGroup.add(action);
-                }
-            }
+        if (sessionBrowser == null) return actionGroup;
+
+        SessionBrowserModel model = sessionBrowser.getTableModel();
+        if (model == null) return actionGroup;
+
+        SessionBrowserFilter filter = model.getFilter();
+        String selectedFilterValue = filter == null ? null : filter.getFilterValue(filterType);
+        List<String> filterValues = model.getDistinctValues(filterType, selectedFilterValue);
+        for (String filterValue : filterValues) {
+            SelectFilterValueAction action = new SelectFilterValueAction(filterValue);
+            actionGroup.add(action);
         }
         return actionGroup;
     }
@@ -77,28 +81,25 @@ public abstract class AbstractFilterComboBoxAction extends DBNComboBoxAction imp
     public static SessionBrowser getSessionBrowser(JComponent component) {
         DataContext dataContext = Context.getDataContext(component);
         SessionBrowser sessionBrowser = DataKeys.SESSION_BROWSER.getData(dataContext);
-        if (sessionBrowser == null) {
-            FileEditor fileEditor = Lookups.getFileEditor(dataContext);
-            if (fileEditor instanceof SessionBrowser) {
-                sessionBrowser = (SessionBrowser) fileEditor;
-            }
-        }
-        return sessionBrowser;
+        if (sessionBrowser != null) return sessionBrowser;
+
+        FileEditor fileEditor = Lookups.getFileEditor(dataContext);
+        if (fileEditor instanceof SessionBrowser) return (SessionBrowser) fileEditor;
+        return null;
     }
 
     @Nullable
     public static SessionBrowser getSessionBrowser(AnActionEvent e) {
         SessionBrowser sessionBrowser = e.getData((DataKeys.SESSION_BROWSER));
-        if (sessionBrowser == null) {
-            FileEditor fileEditor = Lookups.getFileEditor(e);
-            if (fileEditor instanceof SessionBrowser) {
-                sessionBrowser = (SessionBrowser) fileEditor;
-            }
-        }
-        return sessionBrowser;
+        if (sessionBrowser != null) return sessionBrowser;
+
+        FileEditor fileEditor = Lookups.getFileEditor(e);
+        if (fileEditor instanceof SessionBrowser) return (SessionBrowser) fileEditor;
+
+        return null;
     }
 
-    private class SelectFilterValueAction extends AnAction {
+    private class SelectFilterValueAction extends BasicAction {
         private final String filterValue;
 
         public SelectFilterValueAction(String filterValue) {
@@ -109,28 +110,27 @@ public abstract class AbstractFilterComboBoxAction extends DBNComboBoxAction imp
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             SessionBrowser sessionBrowser = getSessionBrowser(e);
-            if (sessionBrowser != null) {
-                SessionBrowserModel model = sessionBrowser.getTableModel();
-                if (model !=  null) {
-                    SessionBrowserFilter modelFilter = model.getFilter();
-                    if (modelFilter != null) {
-                        modelFilter.setFilterValue(filterType, filterValue);
-                        SessionBrowserSettings sessionBrowserSettings = sessionBrowser.getSettings();
-                        if (sessionBrowserSettings.isReloadOnFilterChange()) {
-                            sessionBrowser.loadSessions(false);
-                        } else {
-                            sessionBrowser.refreshTable();
-                        }
-                    }
-                }
+            if (sessionBrowser == null) return;
+
+            SessionBrowserModel model = sessionBrowser.getTableModel();
+            if (model == null) return;
+
+            SessionBrowserFilter modelFilter = model.getFilter();
+            if (modelFilter == null) return;
+
+            modelFilter.setFilterValue(filterType, filterValue);
+            SessionBrowserSettings sessionBrowserSettings = sessionBrowser.getSettings();
+            if (sessionBrowserSettings.isReloadOnFilterChange()) {
+                sessionBrowser.loadSessions(false);
+            } else {
+                sessionBrowser.refreshTable();
             }
         }
 
         @Override
         public void update(@NotNull AnActionEvent e) {
-            if (filterValue != null) {
-                e.getPresentation().setText(filterValue, false);
-            }
+            if (filterValue == null) return;
+            e.getPresentation().setText(filterValue, false);
         }
     }
  }

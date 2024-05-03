@@ -9,15 +9,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-
 import static com.dbn.common.dispose.Checks.isNotValid;
 
 public abstract class AbstractExplainPlanResultAction extends ContextAction<ExplainPlanResult> {
-    AbstractExplainPlanResultAction(String text, Icon icon) {
-        super(text, null, icon);
-    }
-
     protected ExplainPlanResult getTarget(@NotNull AnActionEvent e) {
         ExplainPlanResult result = e.getData(DataKeys.EXPLAIN_PLAN_RESULT);
         if (result != null) return result;

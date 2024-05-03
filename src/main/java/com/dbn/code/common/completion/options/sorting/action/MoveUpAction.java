@@ -1,15 +1,15 @@
 package com.dbn.code.common.completion.options.sorting.action;
 
 import com.dbn.code.common.completion.options.sorting.CodeCompletionSortingSettings;
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.ListUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class MoveUpAction extends AnAction {
+public class MoveUpAction extends BasicAction {
     private final CodeCompletionSortingSettings settings;
     private final JList list;
 

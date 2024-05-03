@@ -1,5 +1,6 @@
 package com.dbn.data.preview;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.color.Colors;
@@ -13,12 +14,11 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
-import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.data.editor.ui.UserValueHolder;
+import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.data.value.LargeObjectValue;
 import com.dbn.editor.data.DatasetEditorManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -329,7 +329,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         }
     }
 
-    private class LoadReloadAction extends AnAction {
+    private class LoadReloadAction extends BasicAction {
         private LoadReloadAction() {
             super("Load / Reload Content", null, Icons.ACTION_RERUN);
         }
@@ -347,7 +347,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
         }
     }
 
-    private class CloseAction extends AnAction {
+    private class CloseAction extends BasicAction {
         private CloseAction() {
             super("Close", null, Icons.ACTION_CLOSE);
         }

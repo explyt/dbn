@@ -14,10 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public abstract class MethodExecutionCursorResultAction extends ProjectAction {
-    MethodExecutionCursorResultAction(String text, Icon icon) {
-        super(text, null, icon);
-    }
-
     @Nullable
     ResultSetTable getResultSetTable(AnActionEvent e) {
         MethodExecutionCursorResultForm cursorResultForm = getCursorResultForm(e);

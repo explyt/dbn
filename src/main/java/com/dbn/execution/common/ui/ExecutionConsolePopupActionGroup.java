@@ -1,5 +1,6 @@
 package com.dbn.execution.common.ui;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.util.Dialogs;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
@@ -36,7 +37,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
         return null;
     }
 
-    private final AnAction rename = new AnAction("Rename Result...") {
+    private final AnAction rename = new BasicAction("Rename Result...") {
         @Override
         public void update(@NotNull AnActionEvent e) {
             TabInfo tabInfo = getTabInfo(e);
@@ -62,7 +63,7 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
         }
     };
 
-    private final AnAction close = new AnAction("Close") {
+    private final AnAction close = new BasicAction("Close") {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             TabInfo tabInfo = getTabInfo(e);
@@ -72,14 +73,14 @@ public class ExecutionConsolePopupActionGroup extends DefaultActionGroup {
         }
     };
 
-    private final AnAction closeAll = new AnAction("Close All") {
+    private final AnAction closeAll = new BasicAction("Close All") {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             getExecutionConsoleForm().removeAllTabs();
         }
     };
 
-    private final AnAction closeAllButThis = new AnAction("Close All But This") {
+    private final AnAction closeAllButThis = new BasicAction("Close All But This") {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             TabInfo tabInfo = getTabInfo(e);

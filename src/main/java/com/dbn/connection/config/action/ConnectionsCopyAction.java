@@ -9,9 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ConnectionsCopyAction extends ConnectionSettingsAction {
-    public ConnectionsCopyAction() {
-        super("Copy to Clipboard", Icons.CONNECTION_COPY);
-    }
 
     @Override
     protected void actionPerformed(
@@ -30,7 +27,10 @@ public class ConnectionsCopyAction extends ConnectionSettingsAction {
             @NotNull Project project,
             @Nullable ConnectionBundleSettingsForm target) {
 
-        presentation.setEnabled(target != null && target.getSelectionSize() > 0);
+        boolean enabled = target != null && target.getSelectionSize() > 0;
 
+        presentation.setEnabled(enabled);
+        presentation.setText("Copy to Clipboard");
+        presentation.setIcon(Icons.CONNECTION_COPY);
     }
 }

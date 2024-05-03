@@ -1,16 +1,16 @@
 package com.dbn.object.common.list.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.factory.DatabaseObjectFactory;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class CreateObjectAction extends AnAction {
+public class CreateObjectAction extends BasicAction {
 
     private final WeakRef<DBObjectList> objectList;
 

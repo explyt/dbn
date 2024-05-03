@@ -1,5 +1,8 @@
 package com.dbn.options;
 
+import lombok.Getter;
+
+@Getter
 public enum ConfigId {
   BROWSER("Database Browser"),
   NAVIGATION("Navigation"),
@@ -15,13 +18,9 @@ public enum ConfigId {
   AI_CREDNETIALS("AI Credentials"),
   GENERAL("General");
 
-  private String name;
+    private final String name;
 
-  ConfigId(String name) {
-    this.name = name;
-  }
-
-  public String getName() {
-    return name;
-  }
+    ConfigId(String name) {
+        this.name = name;
+    }
 }

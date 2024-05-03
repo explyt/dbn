@@ -84,8 +84,10 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
         registerComponent(mainPanel);
 
         if (filter.getError() == null) {
+            errorLabel.setVisible(false);
             errorLabel.setText("");
         } else {
+            errorLabel.setVisible(true);
             errorLabel.setText(filter.getError());
             errorLabel.setIcon(Icons.EXEC_MESSAGES_ERROR);
         }
@@ -132,27 +134,28 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
 
     private void updateGeneratedName() {
-        if (!isDisposed() && (!isCustomNamed || nameTextField.getText().trim().length() == 0)) {
-            getConfiguration().setCustomNamed(false);
-            boolean addSeparator = false;
-            StringBuilder buffer = new StringBuilder();
-            for (DatasetBasicFilterConditionForm conditionForm : conditionForms) {
-                if (conditionForm.isActive()) {
-                    if (addSeparator) buffer.append(getSelection(joinTypeComboBox) == ConditionJoinType.AND ? " & " : " | ");
-                    addSeparator = true;
-                    buffer.append(conditionForm.getValue());
-                    if (buffer.length() > 40) {
-                        buffer.setLength(40);
-                        buffer.append("...");
-                        break;
-                    }
-                }
-            }
+        if (isDisposed()) return;
+        if (isCustomNamed && !nameTextField.getText().trim().isEmpty()) return;
 
-            String name = buffer.length() > 0 ? buffer.toString() : getConfiguration().getFilterGroup().createFilterName("Filter");
-            nameTextField.setText(name);
-            nameTextField.setForeground(UIUtil.getInactiveTextColor());
+        getConfiguration().setCustomNamed(false);
+        boolean addSeparator = false;
+        StringBuilder buffer = new StringBuilder();
+        for (DatasetBasicFilterConditionForm conditionForm : conditionForms) {
+            if (!conditionForm.isActive()) continue;
+
+            if (addSeparator) buffer.append(getSelection(joinTypeComboBox) == ConditionJoinType.AND ? " & " : " | ");
+            addSeparator = true;
+            buffer.append(conditionForm.getValue());
+            if (buffer.length() > 40) {
+                buffer.setLength(40);
+                buffer.append("...");
+                break;
+            }
         }
+
+        String name = buffer.length() > 0 ? buffer.toString() : getConfiguration().getFilterGroup().createFilterName("Filter");
+        nameTextField.setText(name);
+        nameTextField.setForeground(UIUtil.getInactiveTextColor());
     }
 
     public void updateNameAndPreview() {
@@ -192,8 +195,6 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             Editors.setEditorReadonly(this.viewer, true);
 
             JScrollPane viewerScrollPane = this.viewer.getScrollPane();
-            viewerScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            viewerScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             //viewerScrollPane.setBorder(null);
             viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.getReadonlyEditorBackground(), 4));
 
@@ -205,6 +206,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             settings.setDndEnabled(false);
             settings.setAdditionalLinesCount(2);
             settings.setRightMarginShown(false);
+            settings.setCaretRowShown(false);
             this.viewer.getComponent().setFocusable(false);
             previewPanel.add(this.viewer.getComponent(), BorderLayout.CENTER);
 

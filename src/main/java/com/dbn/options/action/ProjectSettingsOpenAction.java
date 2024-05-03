@@ -14,10 +14,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class ProjectSettingsOpenAction extends ProjectAction {
     private final ConfigId configId;
+    private final boolean showIcon;
 
     public ProjectSettingsOpenAction(ConfigId configId, boolean showIcon) {
-        super("Settings...", null, showIcon ? Icons.ACTION_OPTIONS : null);
         this.configId = configId;
+        this.showIcon = showIcon;
     }
 
     @Override
@@ -38,7 +39,7 @@ public class ProjectSettingsOpenAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        //presentation.setIcon(Icons.ACTION_SETTINGS);
+        presentation.setIcon(showIcon ? Icons.ACTION_OPTIONS : null);
         presentation.setText("Settings...");
     }
 }

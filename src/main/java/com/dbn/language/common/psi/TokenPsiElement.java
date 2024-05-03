@@ -63,12 +63,6 @@ public class TokenPsiElement extends LeafPsiElement<TokenElementType> {
 
     @Override
     @Nullable
-    public String getLocationString() {
-        return null;
-    }
-
-    @Override
-    @Nullable
     public Icon getIcon(boolean open) {
         return null;
     }

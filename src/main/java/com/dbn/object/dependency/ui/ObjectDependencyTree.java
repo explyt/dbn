@@ -1,5 +1,6 @@
 package com.dbn.object.dependency.ui;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
@@ -26,7 +27,6 @@ import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
@@ -168,7 +168,7 @@ public class ObjectDependencyTree extends DBNTree{
         loadInProgressRegistry.register(loadInProgressNode);
     }
 
-    public class SelectObjectAction extends DumbAwareAction {
+    public class SelectObjectAction extends BasicAction {
         private final DBObjectRef<DBSchemaObject> objectRef;
         SelectObjectAction(DBSchemaObject object) {
             super("Select");
@@ -194,7 +194,6 @@ public class ObjectDependencyTree extends DBNTree{
         private final DBObjectRef<DBSchemaObject> object;
 
         EditObjectAction(DBSchemaObject object) {
-            super("Edit", null, Icons.ACTION_EDIT);
             this.object = DBObjectRef.of(object);
         }
 

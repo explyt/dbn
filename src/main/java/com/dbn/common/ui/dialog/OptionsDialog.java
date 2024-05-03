@@ -30,9 +30,9 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
         this.selectedOption = selectedOption;
 
         setDefaultSize(600, 300);
+        setActionsEnabled(selectedOption != null);
         //setResizable(false);
         init();
-        setActionsEnabled(selectedOption != null);
     }
 
     @Override
@@ -44,13 +44,14 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
     @Override
     @NotNull
     protected final Action[] createActions() {
-        actions = new Action[this.actionNames.length + 1];
+        Action[] actions = new Action[this.actionNames.length + 1];
         String[] strings = this.actionNames;
         for (int i = 0; i < strings.length; i++) {
             String action = strings[i];
             actions[i] = createAction(action, i);
         }
         actions[this.actionNames.length] = getCancelAction();
+        this.actions = actions;
         return actions;
     }
 
@@ -67,6 +68,8 @@ public class OptionsDialog<O extends Presentable> extends DBNDialog<OptionsDialo
     }
 
     public void setActionsEnabled(boolean enabled) {
+        Action[] actions = this.actions;
+        if (actions == null) return;
         for (Action action : actions) {
             if (action == getCancelAction()) continue;
             action.setEnabled(enabled);

@@ -103,8 +103,6 @@ public class PendingTransactionDialogForm extends DBNFormBase {
 
         Editors.initEditorHighlighter(viewer, SQLLanguage.INSTANCE, connection);
         viewer.setBackgroundColor(Colors.lafDarker(viewer.getBackgroundColor(), 1));
-        viewerScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        viewerScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         //viewerScrollPane.setBorder(null);
         viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.getEditorBackground(), 4));
 

@@ -55,17 +55,8 @@ public class DBDataType {
 
     public DBDataType() {}
 
-
-    public boolean isSet() {
-        return set;
-    }
-
     public DBType getDeclaredType() {
         return DBObjectRef.get(declaredType);
-    }
-
-    public void setDeclaredType(DBType declaredType) {
-        this.declaredType = DBObjectRef.of(declaredType);
     }
 
     public boolean isDeclared() {

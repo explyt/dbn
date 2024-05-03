@@ -9,26 +9,21 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-
 public abstract class AbstractMethodExecutionResultAction extends ContextAction<MethodExecutionResult> {
-    AbstractMethodExecutionResultAction(String text, Icon icon) {
-        super(text, null, icon);
-    }
 
     protected MethodExecutionResult getTarget(@NotNull AnActionEvent e) {
         MethodExecutionResult result = e.getData(DataKeys.METHOD_EXECUTION_RESULT);
-        if (result == null ) {
-            Project project = e.getProject();
-            if (project != null) {
-                ExecutionManager executionManager = ExecutionManager.getInstance(project);
-                ExecutionResult executionResult = executionManager.getSelectedExecutionResult();
-                if (executionResult instanceof MethodExecutionResult) {
-                    return (MethodExecutionResult) executionResult;
-                }
-            }
+        if (result != null) return result;
+
+        Project project = e.getProject();
+        if (project == null) return result;
+
+        ExecutionManager executionManager = ExecutionManager.getInstance(project);
+        ExecutionResult executionResult = executionManager.getSelectedExecutionResult();
+        if (executionResult instanceof MethodExecutionResult) {
+            return (MethodExecutionResult) executionResult;
         }
 
-        return result;
+        return null;
     }
 }

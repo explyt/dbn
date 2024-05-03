@@ -21,10 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import java.awt.datatransfer.StringSelection;
 
 public abstract class GenerateStatementAction extends ProjectAction implements DatabaseContextBase {
-    GenerateStatementAction(String text) {
-        super(text);
-    }
-
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ConnectionAction.invoke("generating the statement", false, this,

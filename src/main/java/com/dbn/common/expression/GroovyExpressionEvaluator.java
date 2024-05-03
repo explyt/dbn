@@ -1,11 +1,19 @@
 package com.dbn.common.expression;
 
-import com.dbn.common.util.Unsafe;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.script.*;
-import java.util.Map;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import java.util.Objects;
 
-public class GroovyExpressionEvaluator {
+import static com.dbn.common.expression.SqlToGroovyExpressionConverter.cachedSqlToGroovy;
+import static com.dbn.common.expression.SqlToGroovyExpressionConverter.sqlToGroovy;
+import static com.dbn.common.util.Unsafe.cast;
+
+@Slf4j
+public class GroovyExpressionEvaluator implements ExpressionEvaluator{
     private final ScriptEngine scriptEngine;
 
     public GroovyExpressionEvaluator() {
@@ -13,15 +21,58 @@ public class GroovyExpressionEvaluator {
         scriptEngine = manager.getEngineByName("Groovy");
     }
 
-    public boolean evaluateBooleanExpression(String expression, Map<String, Object> bindVariables) throws ScriptException {
-        Object result = evaluateExpression(expression, bindVariables);
-        return Unsafe.cast(result);
+    @Override
+    public boolean verifyExpression(String expression, ExpressionEvaluatorContext context) {
+        return verifyExpression(expression, context, null);
     }
 
-    public <T> T evaluateExpression(String expression, Map<String, Object> bindVariables) throws ScriptException {
-        expression = SqlToGroovyExpressionConverter.cachedSqlToGroovy(expression);
-        ScriptContext scriptContext = new SimpleScriptContext();
-        bindVariables.forEach((k, v) -> scriptContext.setAttribute(k, v, ScriptContext.ENGINE_SCOPE));
-        return Unsafe.cast(scriptEngine.eval(expression, scriptContext));
+    @Override
+    public boolean verifyExpression(String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome) {
+        evaluate(expression, context, expectedOutcome, true);
+        return context.isValid();
+    }
+
+    @Override
+    public <T> T evaluateExpression(String expression, ExpressionEvaluatorContext context) {
+        try {
+            return evaluate(expression, context, null, false);
+        } catch (Throwable e) {
+            log.error("Failed to evaluate expression: {}", expression, e);
+            return null;
+        }
+    }
+
+    @Override
+    public boolean evaluateBooleanExpression(String expression, ExpressionEvaluatorContext context) {
+        Object result = evaluateExpression(expression, context);
+        return result == null || Objects.equals(result, Boolean.TRUE);
+    }
+
+    @SneakyThrows
+    private <T> T evaluate(String expression, ExpressionEvaluatorContext context, Class<?> expectedOutcome, boolean silent) {
+        try {
+            expression = context.isTemporary() ? sqlToGroovy(expression) : cachedSqlToGroovy(expression);
+            context.setExpression(expression);
+            context.setError(null);
+
+            ScriptContext scriptContext = context.createScriptContext();
+            Object result = scriptEngine.eval(expression, scriptContext);
+
+            verifyResult(result, expectedOutcome);
+            return cast(result);
+        } catch (Throwable e) {
+            context.setError(e);
+            if (!silent) throw e;
+            return null;
+        }
+    }
+
+
+    private static void verifyResult(Object result, Class<?> expectedType) {
+        if (result == null) return;
+        if (expectedType == null) return;
+        if (expectedType.isAssignableFrom(result.getClass())) return;
+
+        throw new ClassCastException("Expected " + expectedType + " but got " + result.getClass());
     }
 }

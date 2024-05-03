@@ -1,26 +1,27 @@
 package com.dbn.data.grid.ui.table.resultSet.record;
 
-import com.dbn.common.icon.Icons;
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
+import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
+import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.model.resultSet.ResultSetDataModelCell;
 import com.dbn.data.model.resultSet.ResultSetDataModelRow;
 import com.dbn.data.record.ColumnSortingType;
 import com.dbn.data.record.RecordViewInfo;
-import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.editor.data.DatasetEditorManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBTextField;
@@ -32,9 +33,10 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
-public class ResultSetRecordViewerForm extends DBNFormBase {
+public class ResultSetRecordViewerForm extends DBNFormBase implements ComponentAligner.Container {
     private JPanel actionsPanel;
     private JPanel columnsPanel;
     private JPanel mainPanel;
@@ -90,15 +92,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
         ColumnSortingType columnSortingType = DatasetEditorManager.getInstance(project).getRecordViewColumnSortingType();
         sortColumns(columnSortingType);
-
-        int[] metrics = new int[]{0, 0};
-        for (ResultSetRecordViewerColumnForm columnForm : columnForms) {
-            metrics = columnForm.getMetrics(metrics);
-        }
-
-        for (ResultSetRecordViewerColumnForm columnForm : columnForms) {
-            columnForm.adjustMetrics(metrics);
-        }
+        alignFormComponents(this);
 
         Dimension preferredSize = mainPanel.getPreferredSize();
         int width = (int) preferredSize.getWidth() + 24;
@@ -110,6 +104,11 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
 
         int scrollUnitIncrement = (int) columnForms.get(0).getComponent().getPreferredSize().getHeight();
         columnsPanelScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+    }
+
+    @Override
+    public List<ResultSetRecordViewerColumnForm> getAlignableForms() {
+        return columnForms;
     }
 
     private void filterColumForms() {
@@ -231,7 +230,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
     }
 
-    private class FirstRecordAction extends AnAction {
+    private class FirstRecordAction extends BasicAction {
         private FirstRecordAction() {
             super("First Record", null, Icons.DATA_EDITOR_FIRST_RECORD);
         }
@@ -252,7 +251,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
     }
 
-    private class PreviousRecordAction extends AnAction {
+    private class PreviousRecordAction extends BasicAction {
         private PreviousRecordAction() {
             super("Previous Record", null, Icons.DATA_EDITOR_PREVIOUS_RECORD);
         }
@@ -261,14 +260,14 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         public void actionPerformed(@NotNull AnActionEvent e) {
             ResultSetDataModelRow<?, ?> row = getRow();
             int index = row.getIndex();
-            if (index > 0) {
-                index--;
-                ResultSetDataModelRow<?, ?> previousRow = row.getModel().getRowAtIndex(index);
-                if (previousRow != null) {
-                    setRow(previousRow);
-                    table.selectRow(index);
-                }
-            }
+            if (index <= 0) return;
+
+            index--;
+            ResultSetDataModelRow<?, ?> previousRow = row.getModel().getRowAtIndex(index);
+            if (previousRow == null) return;
+
+            setRow(previousRow);
+            table.selectRow(index);
         }
 
         @Override
@@ -277,7 +276,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
     }
 
-    private class NextRecordAction extends AnAction {
+    private class NextRecordAction extends BasicAction {
         private NextRecordAction() {
             super("Next Record", null, Icons.DATA_EDITOR_NEXT_RECORD);
         }
@@ -286,14 +285,14 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         public void actionPerformed(@NotNull AnActionEvent e) {
             ResultSetDataModelRow<?, ?> row = getRow();
             ResultSetDataModel<?, ?> model = row.getModel();
-            if (row.getIndex() < model.getRowCount() -1) {
-                int index = row.getIndex() + 1;
-                ResultSetDataModelRow<?, ?> nextRow = model.getRowAtIndex(index);
-                if (nextRow != null) {
-                    setRow(nextRow);
-                    table.selectRow(index);
-                }
-            }
+            if (row.getIndex() >= model.getRowCount() - 1) return;
+
+            int index = row.getIndex() + 1;
+            ResultSetDataModelRow<?, ?> nextRow = model.getRowAtIndex(index);
+            if (nextRow == null) return;
+
+            setRow(nextRow);
+            table.selectRow(index);
         }
 
         @Override
@@ -302,7 +301,7 @@ public class ResultSetRecordViewerForm extends DBNFormBase {
         }
     }
 
-    private class LastRecordAction extends AnAction {
+    private class LastRecordAction extends BasicAction {
         private LastRecordAction() {
             super("Last Record", null, Icons.DATA_EDITOR_LAST_RECORD);
         }

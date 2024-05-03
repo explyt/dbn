@@ -1,5 +1,7 @@
 package com.dbn.project;
 
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.debugger.ExecutionConfigManager;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
@@ -10,6 +12,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.startup.StartupActivity;
 import org.jetbrains.annotations.NotNull;
 
+@Compatibility
 public class ProjectStartupActivity implements StartupActivity {
     //@Override
     public void runActivity(@NotNull Project project) {

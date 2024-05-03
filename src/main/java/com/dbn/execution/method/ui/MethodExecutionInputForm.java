@@ -7,7 +7,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
-import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.UserInterface;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.common.ui.ExecutionOptionsForm;
 import com.dbn.execution.method.MethodExecutionInput;
@@ -67,7 +67,6 @@ public class MethodExecutionInputForm extends DBNFormBase {
 
         if (debuggerType.isDebug()) {
             versionPanel.setVisible(true);
-            versionPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
             debuggerTypeLabel.setText(debuggerType.name());
             debuggerVersionLabel.setText("...");
             Dispatch.background(
@@ -82,6 +81,8 @@ public class MethodExecutionInputForm extends DBNFormBase {
         executionOptionsForm = new ExecutionOptionsForm(this, executionInput, debuggerType);
 
         DBNCollapsiblePanel collapsiblePanel = new DBNCollapsiblePanel(this, executionOptionsForm, false);
+        collapsiblePanel.setExpanded(executionInput.isContextExpanded());
+        collapsiblePanel.addToggleListener(expanded -> executionInput.setContextExpanded(expanded));
         executionOptionsPanel.add(collapsiblePanel.getComponent());
         //executionOptionsPanel.add(executionOptionsForm.getComponent());
 
@@ -124,15 +125,14 @@ public class MethodExecutionInputForm extends DBNFormBase {
         argumentsPanel.setLayout(new BoxLayout(argumentsPanel, BoxLayout.Y_AXIS));
         int[] metrics = new int[]{0, 0, 0};
 
-        //topSeparator.setVisible(false);
-        noArgumentsLabel.setVisible(arguments.isEmpty());
+        boolean noArguments = true;
         for (DBArgument argument: arguments) {
             if (argument.isInput()) {
                 metrics = addArgumentPanel(argument, metrics);
-                //topSeparator.setVisible(true);
+                noArguments = false;
             }
         }
-        argumentsContainerPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
+        noArgumentsLabel.setVisible(noArguments);
 
         for (MethodExecutionInputArgumentForm component : argumentForms) {
             component.adjustMetrics(metrics);
@@ -162,6 +162,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
         int width = (int) preferredSize.getWidth() + 24;
         int height = (int) Math.min(preferredSize.getHeight(), 380);
         mainPanel.setPreferredSize(new Dimension(width, height));
+        UserInterface.repaint(mainPanel);
     }
 
     private List<DBArgument> getMethodArguments() {

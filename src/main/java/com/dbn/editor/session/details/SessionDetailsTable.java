@@ -3,6 +3,7 @@ package com.dbn.editor.session.details;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNTable;
+import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import org.jetbrains.annotations.NotNull;
@@ -17,6 +18,7 @@ public class SessionDetailsTable extends DBNTable<SessionDetailsTableModel> {
     public SessionDetailsTable(@NotNull DBNComponent parent) {
         super(parent, new SessionDetailsTableModel(), false);
         setDefaultRenderer(Object.class, cellRenderer);
+        setCellSelectionEnabled(true);
         adjustRowHeight(3);
     }
 
@@ -36,6 +38,7 @@ public class SessionDetailsTable extends DBNTable<SessionDetailsTableModel> {
             } else{
                 setIcon(null);
             }
+            setBorder(Borders.TEXT_FIELD_INSETS);
 
             return component;
         }

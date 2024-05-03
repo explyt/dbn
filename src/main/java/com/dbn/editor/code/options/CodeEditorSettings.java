@@ -9,15 +9,12 @@ import com.dbn.options.TopLevelConfig;
 import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
-@Setter
 @EqualsAndHashCode(callSuper = false)
 public class CodeEditorSettings extends CompositeProjectConfiguration<ProjectSettings, CodeEditorSettingsForm> implements TopLevelConfig {
-    private final CodeEditorGeneralSettings generalSettings           = new CodeEditorGeneralSettings(this);
-    private final CodeEditorConfirmationSettings confirmationSettings = new CodeEditorConfirmationSettings(this);
+    private final @Getter(lazy = true) CodeEditorGeneralSettings generalSettings           = new CodeEditorGeneralSettings(this);
+    private final @Getter(lazy = true) CodeEditorConfirmationSettings confirmationSettings = new CodeEditorConfirmationSettings(this);
 
     public CodeEditorSettings(ProjectSettings parent) {
         super(parent);
@@ -71,7 +68,7 @@ public class CodeEditorSettings extends CompositeProjectConfiguration<ProjectSet
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-            generalSettings,
-            confirmationSettings};
+            getGeneralSettings(),
+            getConfirmationSettings()};
     }
 }

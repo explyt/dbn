@@ -1,10 +1,14 @@
 package com.dbn.diagnostics.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.diagnostics.data.ParserDiagnosticsFilter;
 import com.dbn.diagnostics.data.StateTransition;
 import com.dbn.diagnostics.ui.ParserDiagnosticsForm;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +46,7 @@ public class ParserDiagnosticsStateFilterAction extends DBNComboBoxAction implem
         return form.getManager().getResultFilter();
     }
 
-    private class SelectFilterValueAction extends AnAction {
+    private class SelectFilterValueAction extends BasicAction {
         private final StateTransition.Category stateCategory;
 
         public SelectFilterValueAction(StateTransition.Category transitionCategory) {

@@ -390,7 +390,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     @Nullable
     public static DBLanguagePsiFile createFromText(@NotNull Project project, String fileName, @NotNull DBLanguageDialect languageDialect, String text, ConnectionHandler activeConnection, SchemaId currentSchema) {
         PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(project);
-        PsiFile rawPsiFile = psiFileFactory.createFileFromText(fileName, languageDialect, text);
+        PsiFile rawPsiFile = Read.call(psiFileFactory, f -> f.createFileFromText(fileName, languageDialect, text));
         if (rawPsiFile instanceof DBLanguagePsiFile) {
             DBLanguagePsiFile psiFile = (DBLanguagePsiFile) rawPsiFile;
             psiFile.setConnection(activeConnection);
@@ -401,7 +401,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
     }
 
     public void lookupVariableDefinition(int offset, Consumer<BasePsiElement> consumer) {
-        BasePsiElement scope = PsiUtil.lookupElementAtOffset(this, ElementTypeAttribute.SCOPE_DEMARCATION, offset);
+        BasePsiElement<?> scope = PsiUtil.lookupElementAtOffset(this, ElementTypeAttribute.SCOPE_DEMARCATION, offset);
         while (scope != null) {
             PsiLookupAdapter lookupAdapter = LookupAdapters.identifierDefinition(DBObjectType.ARGUMENT);
             scope.collectPsiElements(lookupAdapter, 0, consumer);
@@ -411,7 +411,7 @@ public abstract class DBLanguagePsiFile extends PsiFileImpl implements DatabaseC
 
             PsiElement parent = scope.getParent();
             if (parent instanceof BasePsiElement) {
-                BasePsiElement basePsiElement = (BasePsiElement) parent;
+                BasePsiElement<?> basePsiElement = (BasePsiElement<?>) parent;
                 scope = basePsiElement.findEnclosingElement(ElementTypeAttribute.SCOPE_DEMARCATION);
                 if (scope == null) scope = basePsiElement.findEnclosingElement(ElementTypeAttribute.SCOPE_ISOLATION);
             } else {

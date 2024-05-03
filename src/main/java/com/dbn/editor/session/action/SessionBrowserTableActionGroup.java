@@ -1,5 +1,6 @@
 package com.dbn.editor.session.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.util.Strings;
@@ -17,7 +18,6 @@ import com.dbn.editor.session.options.SessionBrowserSettings;
 import com.dbn.editor.session.ui.table.SessionBrowserTable;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -82,7 +82,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         return getSessionBrowser().getConnection();
     }
 
-    private class ReloadSessionsAction extends DumbAwareAction {
+    private class ReloadSessionsAction extends BasicAction {
         private ReloadSessionsAction() {
             super("Reload", null, Icons.ACTION_REFRESH);
         }
@@ -93,7 +93,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class KillSessionAction extends DumbAwareAction {
+    private class KillSessionAction extends BasicAction {
         private KillSessionAction(boolean multiple) {
             super(multiple ? "Kill Sessions" : "Kill Session", null, Icons.ACTION_KILL_SESSION);
         }
@@ -110,7 +110,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class DisconnectSessionAction extends DumbAwareAction {
+    private class DisconnectSessionAction extends BasicAction {
         private DisconnectSessionAction(boolean multiple) {
             super(multiple ? "Disconnect Sessions" : "Disconnect Session", null, Icons.ACTION_DISCONNECT_SESSION);
         }
@@ -126,7 +126,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class ClearFilterAction extends DumbAwareAction {
+    private class ClearFilterAction extends BasicAction {
         private ClearFilterAction() {
             super("Clear Filter", null, Icons.DATASET_FILTER_CLEAR);
         }
@@ -137,7 +137,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class FilterByAction extends DumbAwareAction {
+    private class FilterByAction extends BasicAction {
         private final SessionBrowserFilterType filterType;
         private final String name;
         private FilterByAction(SessionBrowserFilterType filterType, String name) {

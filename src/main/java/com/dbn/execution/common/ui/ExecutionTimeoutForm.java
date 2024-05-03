@@ -1,6 +1,8 @@
 package com.dbn.execution.common.ui;
 
-import com.dbn.common.action.GroupPopupAction;
+import com.dbn.common.action.BasicAction;
+import com.dbn.common.action.ProjectActionGroup;
+import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -106,26 +108,24 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         return hasErrors;
     }
 
-    public class SettingsAction extends GroupPopupAction {
-        SettingsAction() {
-            super("Settings", null, Icons.ACTION_OPTIONS_MENU);
-        }
+    public class SettingsAction extends ProjectPopupAction {
         @Override
-        protected AnAction[] getActions(AnActionEvent e) {
+        public AnAction[] getChildren(AnActionEvent e) {
             return new AnAction[]{
                     new SaveToSettingsAction(),
-                    new ReloadDefaultAction()
-            };
+                    new ReloadDefaultAction()};
         }
 
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
+            presentation.setText("Settings");
+            presentation.setIcon(Icons.ACTION_OPTIONS);
             presentation.setEnabled(!hasErrors && timeout != getSettingsTimeout());
         }
     }
 
-    class SaveToSettingsAction extends AnAction {
+    class SaveToSettingsAction extends BasicAction {
         SaveToSettingsAction() {
             super("Save to Settings");
         }
@@ -148,7 +148,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
         }
     }
 
-    class ReloadDefaultAction extends AnAction {
+    class ReloadDefaultAction extends BasicAction {
 
         ReloadDefaultAction() {
             super("Reload from Settings");

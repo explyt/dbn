@@ -1,8 +1,8 @@
 package com.dbn.common.ui.util;
 
+import com.intellij.openapi.ui.popup.IPopupChooserBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
-import com.intellij.openapi.ui.popup.PopupChooserBuilder;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.ui.popup.list.ListPopupImpl;
@@ -11,6 +11,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.awt.*;
+import java.util.List;
 
 public class Popups {
     public static void showUnderneathOf(@NotNull JBPopup popup, @NotNull Component sourceComponent, int verticalShift, int maxHeight) {
@@ -33,27 +34,26 @@ public class Popups {
         popup.show(new RelativePoint(sourceComponent, new Point(0, sourceComponent.getHeight() + verticalShift)));
     }
 
-    public static void showCompletionPopup(
+    public static <T> void showCompletionPopup(
             JComponent toolbarComponent,
-            JList list,
+            List<T> elements,
             String title,
-            @NotNull JTextComponent textField,
+            JTextComponent textField,
             String adText) {
 
-        PopupChooserBuilder builder = JBPopupFactory.getInstance().createListPopupBuilder(list);
-        if (title != null) {
-            builder.setTitle(title);
-        }
+        JBPopupFactory popupFactory = JBPopupFactory.getInstance();
+        IPopupChooserBuilder<T> builder = popupFactory.createPopupChooserBuilder(elements);
+        if (title != null) builder.setTitle(title);
+
         JBPopup popup = builder.
                 setMovable(false).
                 setResizable(false).
                 setRequestFocus(true).
-                setItemChoosenCallback(() -> {
-                    String selectedValue = (String)list.getSelectedValue();
-                    if (selectedValue != null) {
-                        textField.setText(selectedValue);
-                        IdeFocusManager.getGlobalInstance().requestFocus(textField, false);
-                    }
+                setItemChosenCallback(e -> {
+                    if (e == null) return;
+
+                    textField.setText(e.toString());
+                    IdeFocusManager.getGlobalInstance().requestFocus(textField, false);
                 }).
                 createPopup();
 

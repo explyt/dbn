@@ -1,5 +1,6 @@
 package com.dbn.editor.data.ui;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
@@ -29,7 +30,6 @@ import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -244,7 +244,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         return getEditorTable();
     }
 
-    private class CancelLoadingAction extends AnAction {
+    private class CancelLoadingAction extends BasicAction {
         CancelLoadingAction() {
             super("Cancel", null, Icons.DATA_EDITOR_STOP_LOADING);
         }

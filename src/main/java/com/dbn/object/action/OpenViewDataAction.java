@@ -7,6 +7,7 @@ import com.dbn.editor.EditorProviderId;
 import com.dbn.object.DBView;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,9 +16,15 @@ public class OpenViewDataAction extends ProjectAction {
     private final DBObjectRef<DBView> view;
 
     public OpenViewDataAction(DBView view) {
-        super("View Data", null, Icons.OBEJCT_VIEW_DATA);
         this.view = DBObjectRef.of(view);
         setDefaultIcon(true);
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        Presentation presentation = e.getPresentation();
+        presentation.setText("View Data");
+        presentation.setIcon(Icons.OBEJCT_VIEW_DATA);
     }
 
     public DBView getView() {

@@ -10,6 +10,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Predicate;
 
+import static com.dbn.common.dispose.Failsafe.guarded;
+
 @UtilityClass
 public class SlowOps {
 
@@ -26,14 +28,14 @@ public class SlowOps {
         return valid;
     }
 
-    public static boolean isValid(@Nullable DBObjectRef ref) {
+    public static boolean isValid(@Nullable DBObjectRef<?> ref) {
         if (ref == null) return false;
 
         DBObject object = ref.value();
         if (object != null && object.isValid()) return true;
         if (object == null && ThreadMonitor.isTimeSensitiveThread()) return true; // assume valid without loading
 
-        object = ref.get();
+        object = guarded(null, ref, r -> r.get());
         return object != null && object.isValid();
     }
 }

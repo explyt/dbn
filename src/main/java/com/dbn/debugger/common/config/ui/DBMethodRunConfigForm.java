@@ -1,7 +1,7 @@
 package com.dbn.debugger.common.config.ui;
 
-import com.dbn.common.action.GroupPopupAction;
 import com.dbn.common.action.ProjectAction;
+import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.icon.Icons;
@@ -22,6 +22,7 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
@@ -64,37 +65,45 @@ public class DBMethodRunConfigForm extends DBProgramRunConfigForm<DBMethodRunCon
         return mainPanel;
     }
 
-    public class SelectMethodAction extends GroupPopupAction {
-        SelectMethodAction()  {
-            super("Select method", "Select method", Icons.DBO_METHOD);
-        }
-
+    public class SelectMethodAction extends ProjectPopupAction {
         @Override
-        protected AnAction[] getActions(AnActionEvent e) {
+        public AnAction[] getChildren(AnActionEvent e) {
             return new AnAction[]{
                     new MethodHistoryOpenAction(),
                     new MethodBrowserOpenAction()
             };
         }
+
+
+        @Override
+        public void update(@NotNull AnActionEvent e, Project project) {
+            Presentation presentation = e.getPresentation();
+            presentation.setText("Select Method");
+            presentation.setIcon(Icons.DBO_METHOD);
+        }
     }
 
     public class MethodBrowserOpenAction extends ProjectAction {
-        MethodBrowserOpenAction() {
-            super("Method Browser");
-        }
-
         @Override
         protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
             MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);
             executionManager.promptMethodBrowserDialog(getExecutionInput(), true,
                     (executionInput) -> setExecutionInput(executionInput, true));
         }
+
+        @Override
+        protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+            e.getPresentation().setText("Method Browser");
+        }
     }
     public class MethodHistoryOpenAction extends ProjectAction {
-        MethodHistoryOpenAction() {
-            super("Execution History", null, Icons.METHOD_EXECUTION_HISTORY);
-        }
 
+        @Override
+        protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+            Presentation presentation = e.getPresentation();
+            presentation.setText("Execution History");
+            presentation.setIcon(Icons.METHOD_EXECUTION_HISTORY);
+        }
 
         @Override
         protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {

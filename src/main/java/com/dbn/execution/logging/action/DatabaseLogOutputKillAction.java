@@ -14,9 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.util.Conditional.when;
 
 public class DatabaseLogOutputKillAction extends AbstractDatabaseLoggingAction implements ComponentBase {
-    public DatabaseLogOutputKillAction() {
-        super("Kill Process", Icons.KILL_PROCESS);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatabaseLoggingResult loggingResult) {
@@ -37,6 +34,7 @@ public class DatabaseLogOutputKillAction extends AbstractDatabaseLoggingAction i
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatabaseLoggingResult loggingResult) {
         presentation.setText("Kill Process");
+        presentation.setIcon(Icons.KILL_PROCESS);
 
         LogOutputContext context = loggingResult == null ? null : loggingResult.getContext();
         boolean enabled = context != null && context.isActive();

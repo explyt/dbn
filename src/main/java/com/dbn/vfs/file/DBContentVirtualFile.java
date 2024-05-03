@@ -105,13 +105,13 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
     }
 
     public DBLanguageDialect getLanguageDialect() {
-        DBSchemaObject object = getObject();
-        DBLanguage language =
-                object instanceof DBView ?
-                        SQLLanguage.INSTANCE :
-                        PSQLLanguage.INSTANCE;
-        
-        return object.getLanguageDialect(language);
+        DBObjectType objectType = getObjectRef().getObjectType();
+
+        boolean view = objectType.isOneOf(DBObjectType.VIEW, DBObjectType.MATERIALIZED_VIEW);
+        DBLanguage language = view ? SQLLanguage.INSTANCE : PSQLLanguage.INSTANCE;
+
+        ConnectionHandler connection = getConnection();
+        return connection.getLanguageDialect(language);
     }
 
     /*********************************************************

@@ -63,12 +63,6 @@ public class ExecVariablePsiElement extends LeafPsiElement<ExecVariableElementTy
 
     @Override
     @Nullable
-    public String getLocationString() {
-        return null;
-    }
-
-    @Override
-    @Nullable
     public Icon getIcon(boolean open) {
         return null;
     }

@@ -6,6 +6,7 @@ import com.dbn.common.message.MessageBundle;
 import com.dbn.common.message.MessageCallback;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.progress.ProgressDialogHandler;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
@@ -14,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @UtilityClass
@@ -108,6 +110,7 @@ public class Messages {
 
         Dispatch.run(() -> {
             if (project != null) nd(project);
+            closeProgressDialogs();
             int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);
             if (callback != null) {
                 callback.accept(option);

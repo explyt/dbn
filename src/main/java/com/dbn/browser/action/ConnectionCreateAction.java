@@ -5,6 +5,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.options.ProjectSettingsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,16 +16,14 @@ public class ConnectionCreateAction extends ProjectAction {
     private final DatabaseType databaseType;
 
     ConnectionCreateAction(@Nullable DatabaseType databaseType) {
-        super(getName(databaseType), null, getIcon(databaseType));
         this.databaseType = databaseType;
     }
 
-    private static Icon getIcon(@Nullable DatabaseType databaseType) {
-        return databaseType == null ? null : databaseType.getIcon();
-    }
-
-    private static String getName(@Nullable DatabaseType databaseType) {
-        return databaseType == null ? "Custom..." : databaseType.getName();
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        Presentation presentation = e.getPresentation();
+        presentation.setText(databaseType == null ? "Custom..." : databaseType.getName());
+        presentation.setIcon(databaseType == null ? null : databaseType.getIcon());
     }
 
     @Override

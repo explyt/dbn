@@ -1,5 +1,6 @@
 package com.dbn.execution.script.options.ui;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditorUtil;
 import com.dbn.connection.DatabaseType;
@@ -10,7 +11,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -67,7 +67,7 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         popup.show(point);
     }
 
-    public class CreateInterfaceAction extends DumbAwareAction {
+    public class CreateInterfaceAction extends BasicAction {
         private final DatabaseType databaseType;
         CreateInterfaceAction(DatabaseType databaseType) {
             super();

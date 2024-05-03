@@ -1,6 +1,5 @@
 package com.dbn.common.load;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProgressIndicator;
 import org.jetbrains.annotations.NotNull;
@@ -115,13 +114,5 @@ class DevNullProgressIndicator implements ProgressIndicator {
     public boolean isShowing() {
         return false;
     }
-
-    @Override
-    @Compatibility
-    public void startNonCancelableSection() {}
-
-    @Override
-    @Compatibility
-    public void finishNonCancelableSection() {}
 
 }

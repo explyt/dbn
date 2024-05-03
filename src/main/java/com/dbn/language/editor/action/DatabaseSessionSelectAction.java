@@ -13,9 +13,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 public class DatabaseSessionSelectAction extends ProjectAction {
-    private DatabaseSession session;
+    private final DatabaseSession session;
     DatabaseSessionSelectAction(DatabaseSession session) {
-        super(session.getName(), null, session.getIcon());
         this.session = session;
     }
 
@@ -29,10 +28,10 @@ public class DatabaseSessionSelectAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = Lookups.getEditor(e);
-        if (editor != null) {
-            FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-            contextManager.setDatabaseSession(editor, session);
-        }
+        if (editor == null) return;
+
+        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+        contextManager.setDatabaseSession(editor, session);
     }
 
     @Override
@@ -61,6 +60,8 @@ public class DatabaseSessionSelectAction extends ProjectAction {
         }
 
         Presentation presentation = e.getPresentation();
+        presentation.setText(session.getName());
+        presentation.setIcon(session.getIcon());
         if (session.isMain()) {
             presentation.setDescription("Execute statements using main connection");
         } else if (session.isPool()) {

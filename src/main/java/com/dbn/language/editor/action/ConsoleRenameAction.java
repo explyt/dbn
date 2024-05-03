@@ -12,9 +12,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 public class ConsoleRenameAction extends ProjectAction {
-    ConsoleRenameAction() {
-        super("Rename Console", null, Icons.ACTION_EDIT);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -30,9 +27,12 @@ public class ConsoleRenameAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile virtualFile = Lookups.getVirtualFile(e);
+        boolean enabled = virtualFile instanceof DBConsoleVirtualFile;
 
         Presentation presentation = e.getPresentation();
-        presentation.setEnabled(virtualFile instanceof DBConsoleVirtualFile);
+        presentation.setEnabled(enabled);
+        presentation.setText("Rename Console");
+        presentation.setIcon(Icons.ACTION_EDIT);
     }
 
 

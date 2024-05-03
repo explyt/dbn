@@ -12,14 +12,11 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class ConnectionFilterSettingsOpenAction extends ProjectAction {
-    ConnectionFilterSettingsOpenAction() {
-        super("Object Filter Settings...", null, Icons.DATASET_FILTER);
-    }
-
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Object Filter Settings...");
+        presentation.setText("Object Filters...");
+        presentation.setIcon(Icons.DATASET_FILTER);
 
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
         ConnectionHandler activeConnection = browserManager.getActiveConnection();

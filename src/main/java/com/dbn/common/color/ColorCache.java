@@ -3,7 +3,7 @@ package com.dbn.common.color;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
-import gnu.trove.TIntObjectHashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 import javax.swing.*;
 import java.awt.*;

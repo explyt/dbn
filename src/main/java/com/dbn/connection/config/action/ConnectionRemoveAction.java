@@ -9,9 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ConnectionRemoveAction extends ConnectionSettingsAction {
-    public ConnectionRemoveAction() {
-        super("Remove connection", Icons.ACTION_REMOVE);
-    }
 
     @Override
     protected void actionPerformed(
@@ -32,5 +29,6 @@ public class ConnectionRemoveAction extends ConnectionSettingsAction {
         int length = target == null ? 0 : target.getSelectionSize();
         presentation.setEnabled(length > 0);
         presentation.setText(length == 1 ? "Remove Connections" : "Remove Connection");
+        presentation.setIcon(Icons.ACTION_REMOVE);
     }
 }

@@ -1,5 +1,6 @@
 package com.dbn.object.factory.ui.common;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.component.DBNComponent;
@@ -8,10 +9,9 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.object.type.DBObjectType;
 import com.dbn.object.factory.ObjectFactoryInput;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -85,9 +85,9 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         return objectFactoryInputs;
     }
 
-    public class CreateObjectAction extends AnAction {
+    public class CreateObjectAction extends BasicAction {
         CreateObjectAction() {
-            super("Add " + getObjectType().getName(), null, Icons.DATASET_FILTER_CONDITION_NEW);
+            super("Add " + getObjectType().getName(), null, Icons.ACTION_ADD);
         }
 
         @Override

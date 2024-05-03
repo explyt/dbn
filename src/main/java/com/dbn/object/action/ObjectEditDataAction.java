@@ -7,6 +7,7 @@ import com.dbn.editor.EditorProviderId;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,9 +16,15 @@ public class ObjectEditDataAction extends ProjectAction {
     private final DBObjectRef<DBSchemaObject> object;
 
     public ObjectEditDataAction(DBSchemaObject object) {
-        super("Edit Data", null, Icons.OBEJCT_EDIT_DATA);
         this.object = DBObjectRef.of(object);
         setDefaultIcon(true);
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        Presentation presentation = e.getPresentation();
+        presentation.setText("Edit Data");
+        presentation.setIcon(Icons.OBEJCT_EDIT_DATA);
     }
 
     public DBSchemaObject getObject() {

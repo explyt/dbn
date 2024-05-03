@@ -123,10 +123,6 @@ public class LoadInProgressTreeNode extends StatefulDisposableBase implements Br
     /*********************************************************
     *                    ItemPresentation                    *
     *********************************************************/
-    @Override
-    public String getLocationString() {
-        return null;
-    }
 
     @Override
     public Icon getIcon(boolean open) {

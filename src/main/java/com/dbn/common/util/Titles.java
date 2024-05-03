@@ -2,6 +2,7 @@ package com.dbn.common.util;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.context.DatabaseContext;
+import com.dbn.connection.session.DatabaseSession;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -21,7 +22,12 @@ public final class Titles {
         ConnectionHandler connection = databaseContext.getConnection();
         if (connection == null) return title;
 
-        return title + " - " + connection.getName();
+        title = title + " - " + connection.getName();
+
+        DatabaseSession session = databaseContext.getSession();
+        if (session == null) return title;
+
+        return title + " (" + session + ")";
     }
 
     public static String prefixed(String title, @Nullable DatabaseContext databaseContext) {

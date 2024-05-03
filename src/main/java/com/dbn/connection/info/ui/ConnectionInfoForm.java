@@ -132,7 +132,7 @@ public class ConnectionInfoForm extends DBNFormBase {
         initValueField(infoUserNameLabel, infoUserNameTextField, connectionInfo.getUserName());
 
         statusMessageLabel.setText("Connection successful");
-        statusMessageLabel.setIcon(Icons.EXEC_MESSAGES_INFO);
+        statusMessageLabel.setIcon(Icons.COMMON_CHECK);
     }
 
     private void initSetupPanel(ConnectionHandler connection) {

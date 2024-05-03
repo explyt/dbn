@@ -57,12 +57,6 @@ public class RootPsiElement extends NamedPsiElement implements ExecutableBundleP
 
     @Override
     @Nullable
-    public String getLocationString() {
-        return null;
-    }
-
-    @Override
-    @Nullable
     public Icon getIcon(boolean open) {
         return super.getIcon(open);
     }

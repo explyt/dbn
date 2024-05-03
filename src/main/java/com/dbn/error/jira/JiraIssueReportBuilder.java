@@ -63,7 +63,8 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         if (connectionInfo != null) {
             DatabaseType databaseType = connectionInfo.getDatabaseType();
             report.setDatabaseType(databaseType.name());
-            report.setDatabaseVersion(databaseType.name() + " " + connectionInfo.getProductVersion());
+            report.setDatabaseName(connectionInfo.getProductName());
+            report.setDatabaseVersion(connectionInfo.getProductVersion());
             report.setDatabaseDriver(connectionInfo.getDriverVersion());
         } else {
             ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
@@ -101,6 +102,7 @@ public class JiraIssueReportBuilder implements IssueReportBuilder {
         addEnvironmentInfo(description, "IDE Version", report.getIdeVersion());
         addEnvironmentInfo(description, "Plugin Version", report.getPluginVersion());
         addEnvironmentInfo(description, "Database Type", report.getDatabaseType());
+        addEnvironmentInfo(description, "Database Name", report.getDatabaseName());
         addEnvironmentInfo(description, "Database Version", report.getDatabaseVersion());
         addEnvironmentInfo(description, "Database Driver", report.getDatabaseDriver());
         addEnvironmentInfo(description, "Last Action Id", report.getLastActionId());

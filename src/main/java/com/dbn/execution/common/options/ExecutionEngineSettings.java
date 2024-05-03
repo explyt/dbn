@@ -4,9 +4,9 @@ import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.common.options.ui.ExecutionEngineSettingsForm;
+import com.dbn.execution.method.options.MethodExecutionSettings;
 import com.dbn.execution.script.options.ScriptExecutionSettings;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
-import com.dbn.execution.method.options.MethodExecutionSettings;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
@@ -15,12 +15,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 @EqualsAndHashCode(callSuper = false)
 public class ExecutionEngineSettings extends CompositeProjectConfiguration<ProjectSettings, ExecutionEngineSettingsForm> implements TopLevelConfig {
-    private final StatementExecutionSettings statementExecutionSettings = new StatementExecutionSettings(this);
-    private final ScriptExecutionSettings scriptExecutionSettings       = new ScriptExecutionSettings(this);
-    private final MethodExecutionSettings methodExecutionSettings       = new MethodExecutionSettings(this);
+    private final @Getter(lazy = true) StatementExecutionSettings statementExecutionSettings = new StatementExecutionSettings(this);
+    private final @Getter(lazy = true) ScriptExecutionSettings scriptExecutionSettings       = new ScriptExecutionSettings(this);
+    private final @Getter(lazy = true) MethodExecutionSettings methodExecutionSettings       = new MethodExecutionSettings(this);
 
     public ExecutionEngineSettings(ProjectSettings parent) {
         super(parent);
@@ -84,8 +83,8 @@ public class ExecutionEngineSettings extends CompositeProjectConfiguration<Proje
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-                statementExecutionSettings,
-                scriptExecutionSettings,
-                methodExecutionSettings};
+                getStatementExecutionSettings(),
+                getScriptExecutionSettings(),
+                getMethodExecutionSettings()};
     }
 }

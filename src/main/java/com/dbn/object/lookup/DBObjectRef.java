@@ -1,6 +1,7 @@
 package com.dbn.object.lookup;
 
 import com.dbn.common.Reference;
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.state.PersistentStateElement;
@@ -16,6 +17,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.navigation.ItemPresentation;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +27,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -44,7 +47,7 @@ import static com.dbn.vfs.DatabaseFileSystem.PSS;
 @Slf4j
 @Getter
 @Setter
-public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?>>, Reference<T>, PersistentStateElement, DatabaseContextBase {
+public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?>>, Reference<T>, PersistentStateElement, DatabaseContextBase, ItemPresentation {
     private static final Pattern PATH_TOKENIZER = Pattern.compile("[^/\"]+|\"([^\"]*)\"");
     private static final String QUOTE = "\"";
 
@@ -570,4 +573,21 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         return Checks.isValid(object);
     }
 
+    @Override
+    @Nullable
+    public String getPresentableText() {
+        return getObjectName();
+    }
+
+    @Override
+    @Nullable
+    @Compatibility
+    public String getLocationString() {
+        return null;
+    }
+
+    @Override
+    public @Nullable Icon getIcon(boolean unused) {
+        return getObjectType().getIcon();
+    }
 }

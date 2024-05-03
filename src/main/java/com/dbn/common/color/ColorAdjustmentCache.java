@@ -1,6 +1,7 @@
 package com.dbn.common.color;
 
-import gnu.trove.TIntObjectHashMap;
+
+import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.awt.*;
 import java.util.EnumMap;

@@ -18,6 +18,7 @@ import java.util.Map;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.lang.Math.min;
 
 public class DBNResultSet extends DBNResource<ResultSet> implements ResultSet, CloseableResource {
     private WeakRef<DBNStatement> statement;
@@ -435,7 +436,8 @@ public class DBNResultSet extends DBNResource<ResultSet> implements ResultSet, C
 
     @Override
     public void setFetchSize(int rows) throws SQLException {
-        handled(() -> inner.setFetchSize(rows));
+        // do not allow more than 50 record blocks to avoid network packet-size limits (socket closed exceptions)
+        handled(() -> inner.setFetchSize(min(rows, 50)));
     }
 
     @Override

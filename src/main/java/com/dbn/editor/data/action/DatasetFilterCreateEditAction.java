@@ -16,9 +16,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.dispose.Checks.isValid;
 
 public class DatasetFilterCreateEditAction extends AbstractDataEditorAction {
-    public DatasetFilterCreateEditAction() {
-        super("Create / Edit Filter", Icons.DATASET_FILTER_NEW);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {

@@ -1,5 +1,6 @@
 package com.dbn.execution.statement;
 
+import com.dbn.common.dispose.Checks;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.message.MessageType;
@@ -11,6 +12,8 @@ import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
+
+import static com.dbn.common.dispose.Checks.isNotValid;
 
 @Getter
 @Setter
@@ -32,6 +35,7 @@ public class StatementExecutionMessage extends ConsoleMessage {
     }
 
     public boolean isOrphan() {
+        if (isNotValid(executionResult)) return true;
         StatementExecutionProcessor executionProcessor = executionResult.getExecutionProcessor();
         return executionProcessor.isDirty() ||
                 executionProcessor.getExecutionResult() != executionResult; // overwritten result

@@ -1,6 +1,5 @@
 package com.dbn.common.action;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.connection.mapping.FileConnectionContext;
@@ -8,19 +7,12 @@ import com.dbn.diagnostics.data.DiagnosticCategory;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.language.common.DBLanguageDialect;
 import com.intellij.debugger.ui.breakpoints.LineBreakpoint;
-import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 
 import java.util.List;
 
-import static com.dbn.common.util.Commons.nvl;
-import static com.dbn.common.util.Unsafe.cast;
-
 public interface UserDataKeys {
-    @Compatibility
-    Key<TextEditor> TEXT_EDITOR_KEY = nvl(cast(Key.findKeyByName("textEditor")), () -> Key.create("textEditor"));
-
     Key<Boolean> INVALID_ENTITY = Key.create("DBNavigator.InvalidEntity");
     Key<String> ACTION_PLACE = Key.create("DBNavigator.ActionPlace");
     Key<Boolean> PROJECT_SETTINGS_LOADED = Key.create("DBNavigator.ProjectSettingsLoaded");

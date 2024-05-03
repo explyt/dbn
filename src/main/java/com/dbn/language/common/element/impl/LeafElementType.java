@@ -28,7 +28,7 @@ import static com.dbn.language.common.element.util.ElementTypeAttribute.STATEMEN
 public abstract class LeafElementType extends ElementTypeBase implements Indexable {
     private TokenType tokenType;
     private boolean optional;
-    private int idx;
+    private short idx;
 
     LeafElementType(ElementTypeBundle bundle, ElementType parent, String id, Element def) throws ElementTypeDefinitionException {
         super(bundle, parent, id, def);
@@ -43,7 +43,7 @@ public abstract class LeafElementType extends ElementTypeBase implements Indexab
     }
 
     @Override
-    public int index() {
+    public short index() {
         return idx;
     }
 

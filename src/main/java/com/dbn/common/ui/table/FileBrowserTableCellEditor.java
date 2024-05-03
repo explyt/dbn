@@ -18,6 +18,8 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.io.File;
 
+import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
+
 public class FileBrowserTableCellEditor extends AbstractCellEditor implements TableCellEditor{
     private final JPanel mainPanel = new JPanel();
     private final JTextField textField = new JTextField();
@@ -40,13 +42,13 @@ public class FileBrowserTableCellEditor extends AbstractCellEditor implements Ta
     }
 
     private void openFileChooser(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
-            FileChooserDialog fileChooser = FileChooserFactory.getInstance().createFileChooser(fileChooserDescriptor, null, null);
-            VirtualFile file = LocalFileSystem.getInstance().findFileByIoFile(new File(textField.getText()));
-            VirtualFile[] virtualFiles = fileChooser.choose(null, file);
-            if (virtualFiles.length > 0) {
-                textField.setText(new File(virtualFiles[0].getPath()).getPath());
-            }
+        if (!isMainSingleClick(e)) return;
+
+        FileChooserDialog fileChooser = FileChooserFactory.getInstance().createFileChooser(fileChooserDescriptor, null, null);
+        VirtualFile file = LocalFileSystem.getInstance().findFileByIoFile(new File(textField.getText()));
+        VirtualFile[] virtualFiles = fileChooser.choose(null, file);
+        if (virtualFiles.length > 0) {
+            textField.setText(new File(virtualFiles[0].getPath()).getPath());
         }
     }
 

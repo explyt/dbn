@@ -15,24 +15,28 @@ public class DatabaseSessionCreateAction extends ProjectAction {
     private final ConnectionRef connection;
 
     DatabaseSessionCreateAction(ConnectionHandler connection) {
-        super("New Session...");
         this.connection = connection.ref();
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = Lookups.getEditor(e);
-        if (editor != null) {
-            DatabaseSessionManager sessionManager = DatabaseSessionManager.getInstance(project);
-            ConnectionHandler connection = this.connection.ensure();
-            sessionManager.showCreateSessionDialog(
-                    connection,
-                    (session) -> {
-                        if (session != null) {
-                            FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-                            contextManager.setDatabaseSession(editor, session);
-                        }
-                    });
-        }
+        if (editor == null) return;
+
+        DatabaseSessionManager sessionManager = DatabaseSessionManager.getInstance(project);
+        ConnectionHandler connection = this.connection.ensure();
+        sessionManager.showCreateSessionDialog(
+                connection,
+                (session) -> {
+                    if (session != null) {
+                        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+                        contextManager.setDatabaseSession(editor, session);
+                    }
+                });
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setText("New Session...");
     }
 }

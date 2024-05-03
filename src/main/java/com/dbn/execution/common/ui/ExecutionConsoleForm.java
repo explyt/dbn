@@ -181,6 +181,7 @@ public class ExecutionConsoleForm extends DBNFormBase {
             if (canScrollToSource) {
                 if (newSelection != null) {
                     ExecutionResult<?> executionResult = getExecutionResult(newSelection);
+                    if (isNotValid(executionResult)) return;
                     if (executionResult instanceof StatementExecutionResult) {
                         StatementExecutionResult statementExecutionResult = (StatementExecutionResult) executionResult;
                         statementExecutionResult.navigateToEditor(NavigationInstructions.create(FOCUS, SCROLL));

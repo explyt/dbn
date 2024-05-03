@@ -77,8 +77,8 @@
         <mkdir dir="${compiler.output.dir}"/>
         <javac2 srcdir="${source.dir}/main/java"
                 destdir="${compiler.output.dir}"
-                source="1.8"
-                target="1.8"
+                source="11"
+                target="11"
                 debug="true"
                 fork="true"
                 >

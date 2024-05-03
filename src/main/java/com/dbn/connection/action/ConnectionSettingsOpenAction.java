@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 public class ConnectionSettingsOpenAction extends AbstractConnectionAction {
 
     ConnectionSettingsOpenAction(ConnectionHandler connection) {
-        super("Settings", "Connection settings", Icons.ACTION_EDIT, connection);
+        super("Settings", "Connection settings", Icons.ACTION_OPTIONS, connection);
     }
 
     @Override

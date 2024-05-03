@@ -15,10 +15,6 @@ import static com.dbn.common.dispose.Checks.isValid;
 
 public class DataImportAction extends AbstractDataEditorAction {
 
-    public DataImportAction() {
-        super("Import Data", Icons.DATA_IMPORT);
-    }
-
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         Messages.showInfoDialog(project, "Not implemented", "Data import is not implemented yet.");
@@ -27,6 +23,8 @@ public class DataImportAction extends AbstractDataEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         presentation.setText("Import Data");
+        presentation.setIcon(Icons.DATA_IMPORT);
+
         if (isValid(datasetEditor)) {
             EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
             boolean isEnvironmentReadonlyData = environmentManager.isReadonly(datasetEditor.getDataset(), DBContentType.DATA);

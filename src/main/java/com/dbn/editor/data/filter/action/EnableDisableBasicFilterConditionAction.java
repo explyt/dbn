@@ -1,12 +1,12 @@
 package com.dbn.editor.data.filter.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.filter.ui.DatasetBasicFilterConditionForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class EnableDisableBasicFilterConditionAction extends DumbAwareAction {
+public class EnableDisableBasicFilterConditionAction extends BasicAction {
     private DatasetBasicFilterConditionForm conditionForm;
 
     public EnableDisableBasicFilterConditionAction(DatasetBasicFilterConditionForm conditionForm) {

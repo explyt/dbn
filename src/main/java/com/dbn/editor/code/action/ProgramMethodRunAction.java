@@ -1,8 +1,8 @@
 package com.dbn.editor.code.action;
 
-import com.dbn.common.icon.Icons;
-import com.dbn.common.action.GroupPopupAction;
 import com.dbn.common.action.Lookups;
+import com.dbn.common.action.ProjectPopupAction;
+import com.dbn.common.icon.Icons;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.execution.method.ui.MethodExecutionHistory;
@@ -26,13 +26,10 @@ import java.util.List;
 
 import static com.dbn.common.util.Actions.SEPARATOR;
 
-public class ProgramMethodRunAction extends GroupPopupAction {
-    public ProgramMethodRunAction() {
-        super("Run Method", "", Icons.METHOD_EXECUTION_RUN);
-    }
+public class ProgramMethodRunAction extends ProjectPopupAction {
 
     @Override
-    protected AnAction[] getActions(AnActionEvent e) {
+    public AnAction[] getChildren(AnActionEvent e) {
         List<AnAction> actions = new ArrayList<>();
         Project project = e.getProject();
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
@@ -71,8 +68,9 @@ public class ProgramMethodRunAction extends GroupPopupAction {
         return virtualFile instanceof DBSourceCodeVirtualFile ? (DBSourceCodeVirtualFile) virtualFile : null;
     }
 
+
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+    public void update(@NotNull AnActionEvent e, Project project) {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         Presentation presentation = e.getPresentation();
         boolean visible = false;
@@ -85,6 +83,7 @@ public class ProgramMethodRunAction extends GroupPopupAction {
 
         presentation.setVisible(visible);
         presentation.setText("Run Method");
+        presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
     }
 
     public class RunMethodAction extends AnObjectAction<DBMethod> {

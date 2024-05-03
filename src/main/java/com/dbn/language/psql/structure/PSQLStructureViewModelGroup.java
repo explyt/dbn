@@ -5,23 +5,14 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.ide.util.treeView.smartTree.Group;
 import com.intellij.ide.util.treeView.smartTree.TreeElement;
 import com.intellij.navigation.ItemPresentation;
-import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class PSQLStructureViewModelGroup implements Group {
-    private static final TextAttributesKey TEXT_ATTRIBUTES_KEY =
-            TextAttributesKey.createTextAttributesKey(
-                    "PSQLStructureViewModelGroup",
-                    new TextAttributes(JBColor.BLACK, null, null, null, Font.BOLD));
-
     private final DBObjectType objectType;
     private final List<TreeElement> children = new ArrayList<>();
 
@@ -61,10 +52,6 @@ public class PSQLStructureViewModelGroup implements Group {
         @Override
         public Icon getIcon(boolean open) {
             return null;//objectType.getListIcon();
-        }
-
-        public TextAttributesKey getTextAttributesKey() {
-            return TEXT_ATTRIBUTES_KEY;
         }
     };
 }

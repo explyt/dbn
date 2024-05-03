@@ -2,6 +2,7 @@ package com.dbn.execution.common.message.ui.tree.node;
 
 import com.dbn.execution.common.message.ui.tree.MessagesTreeLeafNode;
 import com.dbn.execution.compiler.CompilerMessage;
+import com.dbn.execution.compiler.CompilerResult;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import org.jetbrains.annotations.Nullable;
 

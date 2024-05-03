@@ -1,6 +1,5 @@
 package com.dbn.editor.code.action;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.editor.DBContentType;
@@ -24,9 +23,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class ProgramCompileAction extends AbstractCodeEditorAction {
-    public ProgramCompileAction() {
-        super("", "", Icons.OBEJCT_COMPILE);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {

@@ -38,8 +38,6 @@ public class ObjectPropertiesForm extends DBNFormBase {
         //ActionToolbar objectPropertiesActionToolbar = ActionUtil.createActionToolbar("", true, "DBNavigator.ActionGroup.Browser.ObjectProperties");
         //closeActionPanel.add(objectPropertiesActionToolbar.getComponent(), BorderLayout.CENTER);
         objectPropertiesTable = new ObjectPropertiesTable(this, new ObjectPropertiesTableModel());
-        objectPropertiesTable.setRowSelectionAllowed(false);
-        objectPropertiesTable.setCellSelectionEnabled(true);
         objectPropertiesScrollPane.setViewportView(objectPropertiesTable);
         objectTypeLabel.setText("Object properties:");
         objectLabel.setText("(no object selected)");

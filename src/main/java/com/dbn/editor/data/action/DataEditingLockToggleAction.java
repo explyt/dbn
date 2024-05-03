@@ -13,10 +13,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class DataEditingLockToggleAction extends ToggleAction implements DumbAware {
 
-    public DataEditingLockToggleAction() {
-        super("Lock / Unlock Editing", null, Icons.DATA_EDITOR_LOCK_EDITING);
-    }
-
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
         DatasetEditor datasetEditor = getDatasetEditor(e);
@@ -37,13 +33,18 @@ public class DataEditingLockToggleAction extends ToggleAction implements DumbAwa
         Project project = e.getProject();
         if (project == null || datasetEditor == null) {
             presentation.setEnabled(false);
+            presentation.setIcon(Icons.DATA_EDITOR_LOCKED);
+            presentation.setText("Lock / Unlock Editing");
         } else {
             boolean isEnvironmentReadonlyData = datasetEditor.getDataset().getEnvironmentType().isReadonlyData();
             presentation.setVisible(!datasetEditor.isReadonlyData() && !isEnvironmentReadonlyData);
-            presentation.setText(isSelected(e) ? "Unlock Editing" : "Lock Editing");
+            boolean selected = isSelected(e);
+            presentation.setText(selected ? "Unlock Editing" : "Lock Editing");
+            presentation.setIcon(selected ? Icons.DATA_EDITOR_LOCKED : Icons.DATA_EDITOR_UNLOCKED);
             boolean enabled = !datasetEditor.isInserting();
             presentation.setEnabled(enabled);
         }
+
     }
 
     private static DatasetEditor getDatasetEditor(AnActionEvent e) {

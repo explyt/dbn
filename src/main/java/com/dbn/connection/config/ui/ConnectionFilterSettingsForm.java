@@ -18,15 +18,15 @@ import java.awt.*;
 public class ConnectionFilterSettingsForm extends CompositeConfigurationEditorForm<ConnectionFilterSettings> {
     private JPanel mainPanel;
     private JPanel objectTypesFilterPanel;
-    private JPanel objectNameFiltersPanel;
+    private JPanel objectCustomFiltersPanel;
     private JCheckBox hideEmptySchemasCheckBox;
     private JCheckBox hideAuditColumnsCheckBox;
     private JCheckBox hidePseudoColumnsCheckBox;
 
     public ConnectionFilterSettingsForm(ConnectionFilterSettings settings) {
         super(settings);
+        objectCustomFiltersPanel.add(settings.getObjectFilterSettings().createComponent(), BorderLayout.CENTER);
         objectTypesFilterPanel.add(settings.getObjectTypeFilterSettings().createComponent(), BorderLayout.CENTER);
-        objectNameFiltersPanel.add(settings.getObjectNameFilterSettings().createComponent(), BorderLayout.CENTER);
 
         hideEmptySchemasCheckBox.setSelected(settings.isHideEmptySchemas());
         hideAuditColumnsCheckBox.setSelected(settings.isHideAuditColumns());

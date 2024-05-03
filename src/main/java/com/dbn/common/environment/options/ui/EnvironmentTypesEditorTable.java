@@ -31,6 +31,7 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
         setDefaultRenderer(Color.class, new EnvironmentTypesTableCellRenderer());
         setDefaultRenderer(Boolean.class, new BooleanTableCellRenderer());
         setDefaultEditor(Boolean.class, new BooleanTableCellEditor());
+        adjustRowHeight(3);
 
         setFixedWidth(columnModel.getColumn(2), 100);
         setFixedWidth(columnModel.getColumn(3), 100);

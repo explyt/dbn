@@ -11,15 +11,14 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 @EqualsAndHashCode(callSuper = false)
 public class DataEditorSettings extends CompositeProjectConfiguration<ProjectSettings, DataEditorSettingsForm> implements TopLevelConfig {
-    private final DataEditorPopupSettings popupSettings                       = new DataEditorPopupSettings(this);
-    private final DataEditorValueListPopupSettings valueListPopupSettings     = new DataEditorValueListPopupSettings(this);
-    private final DataEditorFilterSettings filterSettings                     = new DataEditorFilterSettings(this);
-    private final DataEditorGeneralSettings generalSettings                   = new DataEditorGeneralSettings(this);
-    private final DataEditorQualifiedEditorSettings qualifiedEditorSettings   = new DataEditorQualifiedEditorSettings(this);
-    private final DataEditorRecordNavigationSettings recordNavigationSettings = new DataEditorRecordNavigationSettings(this);
+    private final @Getter(lazy = true) DataEditorPopupSettings popupSettings                       = new DataEditorPopupSettings(this);
+    private final @Getter(lazy = true) DataEditorValueListPopupSettings valueListPopupSettings     = new DataEditorValueListPopupSettings(this);
+    private final @Getter(lazy = true) DataEditorFilterSettings filterSettings                     = new DataEditorFilterSettings(this);
+    private final @Getter(lazy = true) DataEditorGeneralSettings generalSettings                   = new DataEditorGeneralSettings(this);
+    private final @Getter(lazy = true) DataEditorQualifiedEditorSettings qualifiedEditorSettings   = new DataEditorQualifiedEditorSettings(this);
+    private final @Getter(lazy = true) DataEditorRecordNavigationSettings recordNavigationSettings = new DataEditorRecordNavigationSettings(this);
 
     public DataEditorSettings(ProjectSettings parent) {
         super(parent);
@@ -73,11 +72,11 @@ public class DataEditorSettings extends CompositeProjectConfiguration<ProjectSet
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-                popupSettings,
-                valueListPopupSettings,
-                generalSettings,
-                filterSettings,
-                qualifiedEditorSettings,
-                recordNavigationSettings};
+                getPopupSettings(),
+                getValueListPopupSettings(),
+                getGeneralSettings(),
+                getFilterSettings(),
+                getQualifiedEditorSettings(),
+                getRecordNavigationSettings()};
     }
 }

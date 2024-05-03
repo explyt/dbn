@@ -1,16 +1,16 @@
 package com.dbn.editor.data.state.sorting.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.data.sorting.SortingInstruction;
 import com.dbn.editor.data.state.sorting.ui.DatasetSortingColumnForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class ChangeSortingDirectionAction extends DumbAwareAction {
+public class ChangeSortingDirectionAction extends BasicAction {
     private final DatasetSortingColumnForm form;
 
     public ChangeSortingDirectionAction(DatasetSortingColumnForm form) {

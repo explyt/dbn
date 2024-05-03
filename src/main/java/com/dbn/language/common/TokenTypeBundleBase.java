@@ -8,7 +8,7 @@ import com.dbn.common.util.Strings;
 import com.intellij.lang.Language;
 import com.intellij.psi.tree.IElementType;
 import com.intellij.psi.tree.TokenSet;
-import gnu.trove.THashMap;
+import gnu.trove.map.hash.THashMap;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jdom.Document;
@@ -69,15 +69,16 @@ public abstract class TokenTypeBundleBase {
         return tokenRegistry.size();
     }
 
-    protected int nextIndex() {
-        return tokenIndexer.incrementAndGet();
+    protected short nextIndex() {
+        int index = tokenIndexer.incrementAndGet();
+        return (short) index;
     }
 
     protected void registerToken(TokenType tokenType) {
         tokenRegistry.add(tokenType);
     }
 
-    public TokenType getTokenType(int index) {
+    public TokenType getTokenType(short index) {
         return tokenRegistry.get(index);
     }
 
@@ -95,7 +96,7 @@ public abstract class TokenTypeBundleBase {
 
         } catch (Exception e) {
             conditionallyLog(e);
-            log.error("[DBN] Failed to build token-type bundle for " + language.getID(), e);
+            log.error("[DBN] Failed to build token-type bundle for {}", language.getID(), e);
         }
     }
 
@@ -112,7 +113,7 @@ public abstract class TokenTypeBundleBase {
             String tokenTypeId = stringAttribute(o, "id");
             boolean registered = isRegisteredToken(tokenSetIds, tokenTypeId);
             SimpleTokenType tokenType = new SimpleTokenType(o, language, this, registered);
-            log.debug("Creating token type '" + tokenType.getId() + "'");
+            log.debug("Creating token type '{}'", tokenType.getId());
             tokenTypes.put(tokenType.getId(), tokenType);
             switch(tokenType.getCategory()) {
                 case KEYWORD: keywordList.add(tokenType); break;

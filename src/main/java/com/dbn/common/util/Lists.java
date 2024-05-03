@@ -10,7 +10,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import static com.dbn.common.util.Commons.nvl;
+import static java.lang.Math.max;
 
 @UtilityClass
 public class Lists {
@@ -160,5 +160,28 @@ public class Lists {
 
     public static boolean isOutOfBounds(List<?> list, int index) {
         return index < 0 || index >= list.size();
+    }
+
+    public static <T> String toCsv(List<T> elements, Function<T, String> toString) {
+        return toCsv(elements, ", ", toString);
+    }
+
+    public static <T> String toCsv(List<T> elements, String separator, Function<T, String> toString) {
+        StringBuilder buffer = new StringBuilder();
+        for (T element : elements) {
+            if (buffer.length() != 0) buffer.append(separator);
+            buffer.append(toString.apply(element));
+        }
+        return buffer.toString();
+    }
+
+    public static <T> int greatest(List<T> elements, Function<T, Integer> size) {
+        int greatest = 0;
+
+        for (T element : elements) {
+            Integer s = size.apply(element);
+            greatest = max(greatest, s);
+        }
+        return greatest;
     }
 }

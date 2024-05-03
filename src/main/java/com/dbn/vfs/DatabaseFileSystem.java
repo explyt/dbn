@@ -19,10 +19,7 @@ import com.dbn.vfs.file.*;
 import com.intellij.openapi.components.NamedComponent;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.openapi.vfs.VirtualFileListener;
-import com.intellij.openapi.vfs.VirtualFileManager;
-import com.intellij.openapi.vfs.VirtualFileSystem;
+import com.intellij.openapi.vfs.*;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -41,7 +38,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.vfs.DatabaseFileSystem.FilePathType.*;
 
 @Slf4j
-public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysicalFileSystem, */NamedComponent {
+public class DatabaseFileSystem extends VirtualFileSystem implements NonPhysicalFileSystem, NamedComponent {
     public static final char PS = '/';
     public static final String PSS = "" + '/';
     private static final String PROTOCOL = "db";
@@ -53,6 +50,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         CONSOLES("consoles", "consoles"),
         SESSION_BROWSERS("session_browsers", "session browsers"),
         SESSION_STATEMENTS("session_statements", "session statements"),
+        FILTER_EXPRESSIONS("filter_expressions", "filter expressions"),
         DATASET_FILTERS("dataset_filters", "dataset filters"),
         LOOSE_CONTENTS("loose_contents", "loose contents");
 
@@ -332,6 +330,11 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
             if (virtualFile instanceof DBSessionStatementVirtualFile) {
                 DBSessionStatementVirtualFile file = (DBSessionStatementVirtualFile) virtualFile;
                 return connectionId + PSS + SESSION_STATEMENTS + file.getName();
+            }
+
+            if (virtualFile instanceof DBObjectFilterExpressionFile) {
+                DBObjectFilterExpressionFile file = (DBObjectFilterExpressionFile) virtualFile;
+                return connectionId + PSS + FILTER_EXPRESSIONS + PSS + file.getName();
             }
 
             if (virtualFile instanceof DBLooseContentVirtualFile) {

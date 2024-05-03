@@ -13,9 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MethodExecutionPromptAction extends AbstractMethodExecutionResultAction {
-    public MethodExecutionPromptAction() {
-        super("Open Execution Dialog", Icons.METHOD_EXECUTION_DIALOG);
-    }
 
     @Override
     protected void actionPerformed(
@@ -40,5 +37,7 @@ public class MethodExecutionPromptAction extends AbstractMethodExecutionResultAc
                 target.getExecutionContext().isNot(ExecutionStatus.EXECUTING);
 
         presentation.setEnabled(enabled);
+        presentation.setText("Open Execution Dialog");
+        presentation.setIcon(Icons.METHOD_EXECUTION_DIALOG);
     }
 }

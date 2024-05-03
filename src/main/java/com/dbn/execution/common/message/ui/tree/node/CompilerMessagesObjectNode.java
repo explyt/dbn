@@ -48,17 +48,18 @@ public class CompilerMessagesObjectNode extends MessagesTreeBundleNode<CompilerM
 
     TreePath addCompilerMessage(CompilerMessage compilerMessage) {
         List<CompilerMessageNode> children = getChildren();
-        if (children.size() > 0) {
-            CompilerMessageNode firstChild = children.get(0);
-            if (firstChild.getMessage().getCompilerResult() != compilerMessage.getCompilerResult()) {
-                clearChildren();
-            }
-        }
+
+        children.removeIf(n -> isOverwrite(n.getMessage(), compilerMessage));
         CompilerMessageNode messageNode = new CompilerMessageNode(this, compilerMessage);
         addChild(messageNode);
 
         getTreeModel().notifyTreeModelListeners(this, TreeEventType.STRUCTURE_CHANGED);
         return Trees.createTreePath(messageNode);
+    }
+
+    private static boolean isOverwrite(CompilerMessage oldMessage, CompilerMessage newMessage) {
+        // if message is not part of the same result and target is the same, the old message can be overwritten
+        return !oldMessage.isSameResult(newMessage) && oldMessage.isSameTarget(newMessage);
     }
 
     @Nullable

@@ -6,8 +6,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 abstract class AbstractCodeEditorDiffAction extends AbstractCodeEditorAction {
-    AbstractCodeEditorDiffAction(String text, String description, javax.swing.Icon icon) {
-        super(text, description, icon);
+    public AbstractCodeEditorDiffAction() {
     }
 
     void openDiffWindow(

@@ -23,7 +23,7 @@ import static com.dbn.common.options.setting.Settings.*;
 @Slf4j
 @Getter
 public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType implements TokenType {
-    private int idx;
+    private short idx;
     private String id;
     private String value;
     private String description;
@@ -75,7 +75,7 @@ public class SimpleTokenType<T extends SimpleTokenType<T>> extends IElementType 
     }
 
     @Override
-    public int index() {
+    public short index() {
         return idx;
     }
 

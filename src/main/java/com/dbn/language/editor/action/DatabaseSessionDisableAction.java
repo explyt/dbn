@@ -17,7 +17,6 @@ public class DatabaseSessionDisableAction extends ProjectAction {
     private final ConnectionRef connection;
 
     DatabaseSessionDisableAction(ConnectionHandler connection) {
-        super("Disable Session Support...");
         this.connection = connection.ref();
     }
 
@@ -37,5 +36,10 @@ public class DatabaseSessionDisableAction extends ProjectAction {
                     ConnectionDetailSettings detailSettings = connection.getSettings().getDetailSettings();
                     detailSettings.setEnableSessionManagement(false);
                 }));
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setText("Disable Session Support...");
     }
 }

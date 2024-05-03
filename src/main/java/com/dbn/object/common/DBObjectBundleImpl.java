@@ -16,6 +16,7 @@ import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.Background;
+import com.dbn.common.thread.Read;
 import com.dbn.common.ui.tree.TreeEventType;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.*;
@@ -113,7 +114,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
 
     private PsiFile createFakePsiFile() {
         PsiFileFactory psiFileFactory = PsiFileFactory.getInstance(getProject());
-        return psiFileFactory.createFileFromText("object", SQLLanguage.INSTANCE, "");
+        return Read.call(psiFileFactory, f -> f.createFileFromText("object", SQLLanguage.INSTANCE, ""));
     }
 
     @NotNull
@@ -486,10 +487,6 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
     /*********************************************************
      *                   NavigationItem                      *
      *********************************************************/
-    @Override
-    public String getLocationString() {
-        return null;
-    }
 
     @Override
     public Icon getIcon(boolean open) {

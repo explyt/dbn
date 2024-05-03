@@ -40,6 +40,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -59,11 +60,12 @@ import static com.dbn.common.util.Messages.*;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
+@Slf4j
+@Getter
 @State(
     name = ConnectionManager.COMPONENT_NAME,
     storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
-@Slf4j
 public class ConnectionManager extends ProjectComponentBase implements PersistentState, ProjectManagerListener {
 
     public static final String COMPONENT_NAME = "DBNavigator.Project.ConnectionManager";
@@ -137,10 +139,6 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
     /*********************************************************
     *                        Custom                         *
     *********************************************************/
-    public ConnectionBundle getConnectionBundle() {
-        return connectionBundle;
-    }
-
     public static void testConnection(ConnectionHandler connection, SchemaId schemaId, SessionId sessionId, boolean showSuccessMessage, boolean showErrorMessage) {
         Project project = connection.getProject();
         Progress.prompt(project, connection, true,

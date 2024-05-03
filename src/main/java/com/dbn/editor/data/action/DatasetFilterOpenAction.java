@@ -1,15 +1,15 @@
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.editor.data.filter.DatasetFilterType;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class DatasetFilterOpenAction extends DumbAwareAction {
+public class DatasetFilterOpenAction extends BasicAction {
     private DatasetEditor datasetEditor;
     DatasetFilterOpenAction(DatasetEditor datasetEditor) {
         super("Manage Filters...", null, Icons.ACTION_EDIT);

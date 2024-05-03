@@ -78,11 +78,6 @@ public class DBObjectLookupModel extends StatefulDisposableBase implements Choos
     }
 
     @Override
-    public char getCheckBoxMnemonic() {
-        return 0;
-    }
-
-    @Override
     public boolean loadInitialCheckBoxState() {
         return false;
     }

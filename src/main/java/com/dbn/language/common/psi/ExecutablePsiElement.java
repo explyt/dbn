@@ -211,12 +211,6 @@ public class ExecutablePsiElement extends NamedPsiElement implements Cloneable<E
 
     @Override
     @Nullable
-    public String getLocationString() {
-        return null;
-    }
-
-    @Override
-    @Nullable
     public Icon getIcon(boolean open) {
         return super.getIcon(open);
     }

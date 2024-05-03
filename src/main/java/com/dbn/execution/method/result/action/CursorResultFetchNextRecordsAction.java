@@ -17,9 +17,6 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class CursorResultFetchNextRecordsAction extends MethodExecutionCursorResultAction {
-    public CursorResultFetchNextRecordsAction() {
-        super("Fetch Next Records", Icons.EXEC_RESULT_RESUME);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -53,6 +50,8 @@ public class CursorResultFetchNextRecordsAction extends MethodExecutionCursorRes
         ResultSetTable resultSetTable = getResultSetTable(e);
         Presentation presentation = e.getPresentation();
         presentation.setText("Fetch Next Records");
+        presentation.setIcon(Icons.EXEC_RESULT_RESUME);
+
         if (resultSetTable != null) {
             ResultSetDataModel model = resultSetTable.getModel();
             boolean enabled = !model.isResultSetExhausted();

@@ -1,16 +1,16 @@
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.editor.data.DatasetEditorManager;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class DatasetFilterSelectAction extends DumbAwareAction {
+public class DatasetFilterSelectAction extends BasicAction {
     private DBDataset dataset;
     private DatasetFilter filter;
 

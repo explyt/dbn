@@ -12,9 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class MethodExecutionStopAction extends AbstractMethodExecutionResultAction {
-    public MethodExecutionStopAction() {
-        super("Stop Execution", Icons.METHOD_EXECUTION_STOP);
-    }
 
     @Override
     protected void actionPerformed(
@@ -37,11 +34,14 @@ public class MethodExecutionStopAction extends AbstractMethodExecutionResultActi
             @NotNull Project project,
             @Nullable MethodExecutionResult target) {
 
-        presentation.setEnabled(
-                target != null &&
-                        !target.getDebuggerType().isDebug() &&
-                        target.getExecutionContext().is(ExecutionStatus.EXECUTING) &&
-                        target.getExecutionContext().isNot(ExecutionStatus.CANCELLED) &&
-                        target.getExecutionContext().isNot(ExecutionStatus.CANCEL_REQUESTED)) ;
+        boolean enabled = target != null &&
+                !target.getDebuggerType().isDebug() &&
+                target.getExecutionContext().is(ExecutionStatus.EXECUTING) &&
+                target.getExecutionContext().isNot(ExecutionStatus.CANCELLED) &&
+                target.getExecutionContext().isNot(ExecutionStatus.CANCEL_REQUESTED);
+
+        presentation.setEnabled(enabled) ;
+        presentation.setText("Stop Execution");
+        presentation.setIcon(Icons.METHOD_EXECUTION_STOP);
     }
 }

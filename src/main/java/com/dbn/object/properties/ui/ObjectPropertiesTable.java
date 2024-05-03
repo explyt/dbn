@@ -22,6 +22,7 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
         super(parent, tableModel, false);
         setDefaultRenderer(String.class, cellRenderer);
         setDefaultRenderer(PresentableProperty.class, cellRenderer);
+        setCellSelectionEnabled(true);
         adjustRowHeight(3);
 
         addMouseListener(mouseListener);

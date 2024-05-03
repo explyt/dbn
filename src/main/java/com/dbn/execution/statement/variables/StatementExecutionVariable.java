@@ -2,11 +2,11 @@ package com.dbn.execution.statement.variables;
 
 import com.dbn.common.list.MostRecentStack;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Strings;
 import com.dbn.data.type.GenericDataType;
 import com.dbn.language.common.psi.ExecVariablePsiElement;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.logging.log4j.util.Strings;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 

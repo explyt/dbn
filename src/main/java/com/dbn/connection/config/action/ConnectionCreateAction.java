@@ -4,6 +4,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,10 +12,9 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 public class ConnectionCreateAction extends ConnectionSettingsAction {
-    private DatabaseType databaseType;
+    private final DatabaseType databaseType;
 
     ConnectionCreateAction(@Nullable DatabaseType databaseType) {
-        super(getName(databaseType), getIcon(databaseType));
         this.databaseType = databaseType;
     }
 
@@ -41,4 +41,12 @@ public class ConnectionCreateAction extends ConnectionSettingsAction {
 
         target.createNewConnection(databaseType, configType);
     }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionBundleSettingsForm target) {
+        presentation.setText(getName(databaseType));
+        presentation.setIcon(getIcon(databaseType));
+    }
 }
+
+

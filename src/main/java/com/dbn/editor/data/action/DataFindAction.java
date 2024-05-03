@@ -9,9 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DataFindAction extends AbstractDataEditorAction {
-    public DataFindAction() {
-        super("Find...", Icons.ACTION_FIND);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
@@ -32,6 +29,7 @@ public class DataFindAction extends AbstractDataEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         presentation.setText("Find Data...");
+        presentation.setIcon(Icons.ACTION_FIND);
 
         if (datasetEditor == null) {
             presentation.setEnabled(false);

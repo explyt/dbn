@@ -11,9 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ParserDiagnosticsSaveAction extends AbstractParserDiagnosticsAction {
-    public ParserDiagnosticsSaveAction() {
-        super("Save Result", Icons.ACTION_SAVE_CHANGES);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
@@ -29,6 +26,7 @@ public class ParserDiagnosticsSaveAction extends AbstractParserDiagnosticsAction
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ParserDiagnosticsForm form) {
         presentation.setText("Save Result");
+        presentation.setIcon(Icons.ACTION_SAVE);
         if (form != null) {
             ParserDiagnosticsResult result = form.getSelectedResult();
             presentation.setEnabled(result != null && result.isDraft());

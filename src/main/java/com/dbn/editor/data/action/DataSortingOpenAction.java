@@ -14,10 +14,6 @@ import static com.dbn.common.dispose.Checks.isValid;
 
 public class DataSortingOpenAction extends AbstractDataEditorAction {
 
-    DataSortingOpenAction() {
-        super("Data Sorting...", Icons.DATA_SORTING);
-    }
-
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         DBDataset dataset = datasetEditor.getDataset();
@@ -28,6 +24,7 @@ public class DataSortingOpenAction extends AbstractDataEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         presentation.setText("Data Sorting...");
+        presentation.setIcon(Icons.DATA_SORTING);
 
         boolean enabled =
                 isValid(datasetEditor) &&

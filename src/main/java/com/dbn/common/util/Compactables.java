@@ -1,8 +1,7 @@
 package com.dbn.common.util;
 
 import com.dbn.common.list.FilteredList;
-import gnu.trove.THashMap;
-import gnu.trove.THashSet;
+import gnu.trove.impl.hash.THash;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -41,10 +40,10 @@ public class Compactables {
                     return Unsafe.cast(Collections.emptySet());
                 } else if (single) {
                     return Unsafe.cast(Collections.singleton(elements.stream().findFirst().orElse(null)));
-                } else if (elements instanceof THashSet){
-                    THashSet<?> hashSet = (THashSet<?>) elements;
-                    hashSet.trimToSize();
-                    return Unsafe.cast(hashSet);
+                } else if (elements instanceof THash){
+                    THash hash = (THash) elements;
+                    hash.compact();
+                    return Unsafe.cast(hash);
                 }
             }
         }
@@ -63,9 +62,9 @@ public class Compactables {
                 K key = elements.keySet().stream().findFirst().orElse(null);
                 V value = elements.get(key);
                 return Unsafe.cast(Collections.singletonMap(key, value));
-            } else if (elements instanceof THashMap) {
-                THashMap map = (THashMap) elements;
-                map.compact();
+            } else if (elements instanceof THash) {
+                THash hash = (THash) elements;
+                hash.compact();
             }
         }
         return elements;

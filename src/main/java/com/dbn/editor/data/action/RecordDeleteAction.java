@@ -1,8 +1,8 @@
 package com.dbn.editor.data.action;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.environment.EnvironmentManager;
+import com.dbn.common.icon.Icons;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.model.DatasetEditorModelRow;
@@ -17,9 +17,6 @@ import static com.dbn.editor.data.model.RecordStatus.DELETED;
 
 public class RecordDeleteAction extends AbstractDataEditorAction {
 
-    public RecordDeleteAction() {
-        super("Delete records", Icons.DATA_EDITOR_DELETE_RECORD);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
@@ -29,6 +26,8 @@ public class RecordDeleteAction extends AbstractDataEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         presentation.setText("Delete Records");
+        presentation.setIcon(Icons.DATA_EDITOR_DELETE_RECORD);
+
         if (Checks.isValid(datasetEditor) && datasetEditor.getConnection().isConnected()) {
             EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
             boolean isEnvironmentReadonlyData = environmentManager.isReadonly(datasetEditor.getDataset(), DBContentType.DATA);

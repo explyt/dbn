@@ -1,5 +1,6 @@
 package com.dbn.connection.config;
 
+import com.dbn.common.filter.CompositeFilter;
 import com.dbn.common.filter.Filter;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.options.CompositeProjectConfiguration;
@@ -9,9 +10,10 @@ import com.dbn.connection.config.ui.ConnectionFilterSettingsForm;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.filter.generic.CompositeColumnFilter;
+import com.dbn.object.filter.custom.ObjectFilter;
+import com.dbn.object.filter.custom.ObjectFilterSettings;
+import com.dbn.object.filter.generic.FeaturedColumnsFilter;
 import com.dbn.object.filter.generic.NonEmptySchemaFilter;
-import com.dbn.object.filter.name.ObjectNameFilterSettings;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBObjectType;
 import lombok.EqualsAndHashCode;
@@ -29,28 +31,27 @@ import static com.dbn.common.util.Unsafe.cast;
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class ConnectionFilterSettings extends CompositeProjectConfiguration<ConnectionSettings, ConnectionFilterSettingsForm> {
-    private final ObjectTypeFilterSettings objectTypeFilterSettings;
-    private final ObjectNameFilterSettings objectNameFilterSettings;
+    
+    private final @Getter(lazy = true) ObjectFilterSettings objectFilterSettings = new ObjectFilterSettings(this, getConnectionId());
+    private final @Getter(lazy = true) ObjectTypeFilterSettings objectTypeFilterSettings = new ObjectTypeFilterSettings(this, getConnectionId());
+    //private final @Getter(lazy = true) ObjectNameFilterSettings objectNameFilterSettings = new ObjectNameFilterSettings(this, getConnectionId());;
+    
     private boolean hideEmptySchemas = false;
     private boolean hidePseudoColumns = false;
     private boolean hideAuditColumns = false;
 
-    private transient final Latent<Filter<DBSchema>> schemaFilter = Latent.mutable(
-            () -> hideEmptySchemas,
-            () -> loadSchemaFilter());
-
-    private transient final Latent<Filter<DBColumn>> columnFilter = Latent.mutable(
-            () -> CompositeColumnFilter.signature(hidePseudoColumns, hideAuditColumns),
-            () -> loadColumnFilter());
+    private transient final Latent<Filter<DBSchema>> schemaFilter = Latent.basic(() -> loadSchemaFilter());
+    private transient final Latent<Filter<DBColumn>> columnFilter = Latent.basic(() -> loadColumnFilter());
 
     @Nullable
     private Filter<DBSchema> loadSchemaFilter() {
-        Filter<DBSchema> filter = getObjectNameFilterSettings().getFilter(DBObjectType.SCHEMA);
+        ObjectFilterSettings objectFilterSettings = getObjectFilterSettings();
+        ObjectFilter<DBSchema> filter = objectFilterSettings.getFilter(DBObjectType.SCHEMA);
         if (filter == null) {
             return hideEmptySchemas ? NonEmptySchemaFilter.INSTANCE : null;
         } else {
             if (hideEmptySchemas) {
-                return schema -> NonEmptySchemaFilter.INSTANCE.accepts(schema) && filter.accepts(schema);
+                return CompositeFilter.from(NonEmptySchemaFilter.INSTANCE, filter);
             } else {
                 return filter;
             }
@@ -59,13 +60,14 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
 
     @Nullable
     private Filter<DBColumn> loadColumnFilter() {
-        Filter<DBColumn> filter = getObjectNameFilterSettings().getFilter(DBObjectType.COLUMN);
-        Filter<DBColumn> compositeFilter = CompositeColumnFilter.get(hidePseudoColumns, hideAuditColumns);
+        ObjectFilterSettings objectFilterSettings = getObjectFilterSettings();
+        ObjectFilter<DBColumn> filter = objectFilterSettings.getFilter(DBObjectType.COLUMN);
+        Filter<DBColumn> featuredFilter = FeaturedColumnsFilter.get(hidePseudoColumns, hideAuditColumns);
         if (filter == null) {
-            return compositeFilter;
+            return featuredFilter;
         } else {
-            if (compositeFilter != null) {
-                return column -> compositeFilter.accepts(column) && filter.accepts(column);
+            if (featuredFilter != null) {
+                return CompositeFilter.from(featuredFilter, filter);
             } else {
                 return filter;
             }
@@ -74,8 +76,6 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
 
     ConnectionFilterSettings(ConnectionSettings connectionSettings) {
         super(connectionSettings);
-        objectTypeFilterSettings = new ObjectTypeFilterSettings(this, connectionSettings.getConnectionId());
-        objectNameFilterSettings = new ObjectNameFilterSettings(this, connectionSettings.getConnectionId());
     }
 
     public ConnectionId getConnectionId() {
@@ -109,8 +109,9 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-                objectTypeFilterSettings,
-                objectNameFilterSettings};
+                getObjectFilterSettings(),
+                getObjectTypeFilterSettings()/*,
+                getObjectNameFilterSettings()*/};
     }
 
     @Override
@@ -119,6 +120,9 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
         hidePseudoColumns = booleanAttribute(element, "hide-pseudo-columns", hidePseudoColumns);
         hideAuditColumns = booleanAttribute(element, "hide-audit-columns", hideAuditColumns);
         super.readConfiguration(element);
+
+        schemaFilter.reset();
+        columnFilter.reset();
     }
 
     @Override
@@ -134,6 +138,14 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
         return
             objectType == DBObjectType.SCHEMA ? cast(schemaFilter.get()) :
             objectType == DBObjectType.COLUMN ? cast(columnFilter.get()):
-                cast(objectNameFilterSettings.getFilter(objectType));
+                cast(getObjectFilterSettings().getFilter(objectType));
+    }
+
+    public ConnectionFilterSettings clone() {
+        Element element = new Element(getConfigElementName());
+        writeConfiguration(element);
+        ConnectionFilterSettings settings = new ConnectionFilterSettings(getParent());
+        settings.readConfiguration(element);
+        return settings;
     }
 }

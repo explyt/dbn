@@ -9,20 +9,23 @@ public class SqlToGroovyExpressionConverter {
     private static final Map<String, String> cache = new ConcurrentHashMap<>();
 
     public static String cachedSqlToGroovy(String expression) {
-        return cache.computeIfAbsent(expression, e -> SqlToGroovyExpressionConverter.sqlToGroovy(e));
+        return cache.computeIfAbsent(expression, e -> sqlToGroovy(e));
     }
 
     public static String sqlToGroovy(String expression) {
         expression = expression.replaceAll("(?i)\\bOR\\b", "||");
         expression = expression.replaceAll("(?i)\\bAND\\b", "&&");
-        expression = expression.replaceAll("(?i)\\bIS\\s+NULL\\b", "== NULL");
-        expression = expression.replaceAll("(?i)\\bIS\\s+NOT\\s+NULL\\b", "!= NULL");
+        expression = expression.replaceAll("(?i)\\bIS\\s+NULL\\b", "== null");
+        expression = expression.replaceAll("(?i)\\bIS\\s+NOT\\s+NULL\\b", "!= null");
 
         expression = replace_EQUALS(expression);
+        expression = replace_NOT_LIKE(expression);
         expression = replace_LIKE(expression);
+        expression = replace_NOT_IN(expression);
         expression = replace_IN(expression);
+        expression = expression.replaceAll("(?i)\\bNOT\\b", "!");
 
-        return expression;
+        return expression.replaceAll("\\s+", " ").trim();
     }
 
     private static String replace_EQUALS(String expression) {
@@ -32,15 +35,48 @@ public class SqlToGroovyExpressionConverter {
         return expression;
     }
 
-    private static String replace_LIKE(String expression) {
-        Pattern p = Pattern.compile("(\\w+)\\s+LIKE\\s+'(%?)([^%]+)%'");
+    private static String replace_NOT_LIKE(String expression) {
+        Pattern p = Pattern.compile("(?i)(\\w+)\\s+NOT\\s+LIKE\\s+('[^']*')");
         Matcher m = p.matcher(expression);
-        StringBuffer result = new StringBuffer();
+        StringBuilder result = new StringBuilder();
         while (m.find()) {
             String name = m.group(1);
-            String suffix = m.group(2);
-            String value = m.group(3);
-            String transformed = String.format("%s.toLowerCase().indexOf('%s'.toLowerCase()) " + (suffix.isEmpty() ? "== 0" : "> 0"), name, value);
+            String value = "/(?i)" + m.group(2)
+                    .replaceAll("'", "")
+                    .replaceAll("[%*]", ".*") + "/";
+            String transformed = String.format("!(%s ==~ %s)", name, value);
+            m.appendReplacement(result, transformed);
+        }
+        m.appendTail(result);
+        expression = result.toString();
+        return expression;
+    }
+
+    private static String replace_LIKE(String expression) {
+        Pattern p = Pattern.compile("(?i)(\\w+)\\s+LIKE\\s+('[^']*')");
+        Matcher m = p.matcher(expression);
+        StringBuilder result = new StringBuilder();
+        while (m.find()) {
+            String name = m.group(1);
+            String value = "/(?i)" + m.group(2)
+                    .replaceAll("'", "")
+                    .replaceAll("[%*]", ".*") + "/";
+            String transformed = String.format("%s ==~ %s", name, value);
+            m.appendReplacement(result, transformed);
+        }
+        m.appendTail(result);
+        expression = result.toString();
+        return expression;
+    }
+
+    private static String replace_NOT_IN(String expression) {
+        Pattern p = Pattern.compile("(?i)(\\w+)\\s+NOT\\s+IN\\s+\\((.*?)\\)");
+        Matcher m = p.matcher(expression);
+        StringBuilder result = new StringBuilder();
+        while (m.find()) {
+            String name = m.group(1);
+            String values = m.group(2);
+            String transformed = String.format("![%s].contains(%s)", values, name);
             m.appendReplacement(result, transformed);
         }
         m.appendTail(result);
@@ -49,9 +85,9 @@ public class SqlToGroovyExpressionConverter {
     }
 
     private static String replace_IN(String expression) {
-        Pattern p = Pattern.compile("(\\w+)\\s+IN\\s+\\((.*?)\\)");
+        Pattern p = Pattern.compile("(?i)(\\w+)\\s+IN\\s+\\((.*?)\\)");
         Matcher m = p.matcher(expression);
-        StringBuffer result = new StringBuffer(); // Java 8 compatibility
+        StringBuilder result = new StringBuilder();
         while (m.find()) {
             String name = m.group(1);
             String values = m.group(2);

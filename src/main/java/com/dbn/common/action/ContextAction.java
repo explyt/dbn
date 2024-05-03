@@ -14,10 +14,7 @@ public abstract class ContextAction<T> extends ProjectAction {
 
     public ContextAction() {}
 
-    public ContextAction(@Nullable String text) {
-        super(text);
-    }
-
+    @Deprecated // TODO move presentation in "update"
     public ContextAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
         super(text, description, icon);
     }

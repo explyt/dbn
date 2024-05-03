@@ -1,13 +1,13 @@
 package com.dbn.object.common.list.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.filter.quick.ObjectQuickFilterManager;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class ObjectListFilterAction extends AnAction {
+public class ObjectListFilterAction extends BasicAction {
 
     private DBObjectList objectList;
 

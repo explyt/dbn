@@ -7,10 +7,12 @@ import com.dbn.common.latent.Latent;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.object.DBPackage;
+import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBType;
 import com.dbn.object.common.DBObjectBundle;
+import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBObjectType;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
 
@@ -80,7 +82,7 @@ public final class DBDataTypeBundle extends StatefulDisposableBase implements Un
     private DBDataType createDataType(DBDataTypeDefinition def) {
         checkDisposed();
         String name = null;
-        DBType declaredType = null;
+        DBObjectRef<DBType> declaredType = null;
         DBNativeDataType nativeDataType = null;
 
         DBObjectBundle objectBundle = getConnection().getObjectBundle();
@@ -90,27 +92,15 @@ public final class DBDataTypeBundle extends StatefulDisposableBase implements Un
         String dataTypeName = def.getDataTypeName();
 
         if (declaredTypeOwner != null) {
-            DBSchema typeSchema = objectBundle.getSchema(declaredTypeOwner);
-            if (typeSchema != null) {
-
-                if (declaredTypeProgram != null) {
-                    DBPackage packagee = typeSchema.getPackage(declaredTypeProgram);
-                    if (packagee != null) {
-                        declaredType = packagee.getType(declaredTypeName);
-                    } /*else {
-                        DBType type = typeSchema.getType(declaredTypeProgram);
-                        if (type != null) {
-                            declaredType = packagee.getType(declaredTypeName);
-                        }
-                    }*/
-                } else {
-                    declaredType = typeSchema.getType(declaredTypeName);
-                }
-            }
-            if (declaredType == null) {
-                name = declaredTypeName;
+            DBObjectRef<DBSchema> schema = new DBObjectRef<>(getConnection().getConnectionId(), DBObjectType.SCHEMA, declaredTypeOwner);
+            if (declaredTypeProgram != null) {
+                DBObjectRef<DBProgram> program = new DBObjectRef<>(schema, DBObjectType.PROGRAM, declaredTypeProgram);
+                declaredType = new DBObjectRef<>(program, DBObjectType.TYPE, declaredTypeName);
+            } else {
+                declaredType = new DBObjectRef<>(schema, DBObjectType.TYPE, declaredTypeName);
             }
 
+            name = declaredTypeName;
             DBNativeDataType nDataType = objectBundle.getNativeDataType(dataTypeName);
             if (nDataType != null && nDataType.getDefinition().isPseudoNative()) {
                 nativeDataType = nDataType;

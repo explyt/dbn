@@ -15,7 +15,6 @@ public class ProjectSettingsAction extends ProjectAction {
     private final ConfigId configId;
 
     ProjectSettingsAction(ConfigId configId) {
-        super(configId.getName() + "...");
         this.configId = configId;
     }
 
@@ -37,6 +36,7 @@ public class ProjectSettingsAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
+        presentation.setText(configId.getName() + "...");
     /*
             presentation.setIcon(Icons.ACTION_SETTINGS);
             presentation.setText("Settings");

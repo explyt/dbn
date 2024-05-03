@@ -2,6 +2,7 @@ package com.dbn.execution.method.result.ui;
 
 import com.dbn.common.action.Lookups;
 import com.dbn.common.action.ProjectAction;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.common.util.*;
@@ -110,6 +111,8 @@ public class MethodExecutionLargeValueResultForm extends DBNFormBase {
             presentation.setIcon(contentType.getIcon());
         }
 
+
+
         @Override
         @NotNull
         protected DefaultActionGroup createPopupActionGroup(@NotNull JComponent button, @NotNull DataContext dataContext) {
@@ -139,8 +142,14 @@ public class MethodExecutionLargeValueResultForm extends DBNFormBase {
         private final TextContentType contentType;
 
         ContentTypeSelectAction(TextContentType contentType) {
-            super(contentType.getName(), null, contentType.getIcon());
             this.contentType = contentType;
+        }
+
+        @Override
+        protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+            Presentation presentation = e.getPresentation();
+            presentation.setText(contentType.getName());
+            presentation.setIcon(contentType.getIcon());
         }
 
         @Override

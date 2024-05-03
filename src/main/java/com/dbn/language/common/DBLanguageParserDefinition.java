@@ -52,12 +52,6 @@ public abstract class DBLanguageParserDefinition implements ParserDefinition {
 
     @NotNull
     @Override
-    public SpaceRequirements spaceExistanceTypeBetweenTokens(ASTNode left, ASTNode right) {
-        return SpaceRequirements.MAY;
-    }
-
-    @NotNull
-    @Override
     public IFileElementType getFileNodeType() {
         return getParser().getLanguageDialect().getBaseLanguage().getFileElementType();
         /*DBLanguageDialect languageDialect = parser.getLanguageDialect();

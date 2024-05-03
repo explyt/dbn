@@ -12,10 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class DisconnectSessionsAction extends AbstractSessionBrowserAction {
 
-    public DisconnectSessionsAction() {
-        super("Disconnect Sessions", Icons.ACTION_DISCONNECT_SESSION);
-    }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         SessionBrowser sessionBrowser = getSessionBrowser(e);
@@ -40,5 +36,6 @@ public class DisconnectSessionsAction extends AbstractSessionBrowserAction {
         presentation.setText("Disconnect Sessions");
         presentation.setVisible(visible);
         presentation.setEnabled(enabled);
+        presentation.setIcon(Icons.ACTION_DISCONNECT_SESSION);
     }
 }

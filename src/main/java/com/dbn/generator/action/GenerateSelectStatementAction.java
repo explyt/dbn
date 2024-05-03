@@ -5,7 +5,9 @@ import com.dbn.generator.StatementGenerationManager;
 import com.dbn.generator.StatementGeneratorResult;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -14,8 +16,12 @@ public class GenerateSelectStatementAction extends GenerateStatementAction {
     private final List<DBObjectRef<DBObject>> selectedObjectRefs;
 
     GenerateSelectStatementAction(List<DBObject> selectedObjects) {
-        super("SELECT Statement");
         this.selectedObjectRefs = DBObjectRef.from(selectedObjects);
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setText("SELECT Statement");
     }
 
     @Override

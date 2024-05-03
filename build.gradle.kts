@@ -1,3 +1,5 @@
+// import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
   id("java")
   id("org.jetbrains.kotlin.jvm") version "1.9.20"
@@ -5,7 +7,7 @@ plugins {
 }
 
 group = "com.dbn"
-version = "3.4.1710.0"
+version = "3.4.3211.0"
 
 repositories {
   mavenCentral()
@@ -15,11 +17,21 @@ dependencies {
   testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
   implementation("org.projectlombok:lombok:1.18.30")
-  implementation("org.dom4j:dom4j:2.1.4")
-  implementation("org.apache.poi:poi:5.2.3")
-  implementation("org.apache.poi:poi-ooxml:5.2.3")
+  implementation("com.github.mwiede:jsch:0.2.17")
+  implementation("net.sf.trove4j:trove4j:3.0.3")
+
+  // poi libraries (xls export)
+  implementation("org.apache.poi:poi:4.1.2")
+  implementation("org.apache.poi:poi-ooxml:4.1.2")
   implementation("org.apache.poi:poi-ooxml-schemas:4.1.2")
-  implementation("com.github.mwiede:jsch:0.2.11")
+
+  // poi library dependencies
+  implementation("org.apache.commons:commons-io:2.15.1")
+  implementation("org.apache.commons:commons-math3:3.6.1")
+  implementation("org.apache.commons:commons-compress:1.26.0")
+  implementation("org.apache.commons:commons-collections4:4.4")
+  implementation("org.apache.logging.log4j:log4j-api:2.23.0")
+  implementation("org.apache.xmlbeans:xmlbeans:3.1.0")
 }
 
 sourceSets{
@@ -48,7 +60,7 @@ intellij {
   version.set("LATEST-EAP-SNAPSHOT")
   type.set("IC") // Target IDE Platform
 
-  plugins.set(listOf("java"))
+  plugins.set(listOf("java", "copyright"))
 
 }
 
@@ -72,9 +84,12 @@ tasks {
     sourceCompatibility = "11"
     targetCompatibility = "11"
   }
-//  withType<KotlinCompile> {
-//    kotlinOptions.jvmTarget = "11"
-//  }
+
+/* no kotlin code yet
+withType<KotlinCompile> {
+  kotlinOptions.jvmTarget = "11"
+}
+*/
 
   withType<JavaCompile>{
     copy {
@@ -86,7 +101,7 @@ tasks {
 
   patchPluginXml {
     sinceBuild.set("200.0001")
-//    untilBuild.set("233.*")
+    untilBuild.set("241.*")
   }
 
   signPlugin {

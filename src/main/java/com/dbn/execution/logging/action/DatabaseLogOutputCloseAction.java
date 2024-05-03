@@ -5,15 +5,14 @@ import com.dbn.common.util.Messages;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.logging.DatabaseLoggingResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Conditional.when;
 
 public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction {
-    public DatabaseLogOutputCloseAction() {
-        super("Close", Icons.EXEC_RESULT_CLOSE);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatabaseLoggingResult loggingResult) {
@@ -33,5 +32,11 @@ public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction 
         loggingResult.getContext().close();
         ExecutionManager executionManager = ExecutionManager.getInstance(project);
         executionManager.removeResultTab(loggingResult);
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatabaseLoggingResult target) {
+        presentation.setText("Close");
+        presentation.setIcon(Icons.EXEC_RESULT_CLOSE);
     }
 }

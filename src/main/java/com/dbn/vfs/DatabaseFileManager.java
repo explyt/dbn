@@ -16,10 +16,10 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
-import com.dbn.connection.config.ConnectionDetailSettings;
 import com.dbn.editor.DatabaseFileEditorManager;
 import com.dbn.editor.code.SourceCodeManager;
 import com.dbn.editor.code.diff.SourceCodeDiffManager;
+import com.dbn.editor.code.options.CodeEditorChangesOption;
 import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
 import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.object.DBConsole;
@@ -34,12 +34,12 @@ import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
+import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.val;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -85,7 +85,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
             @Override
             public void whenFileOpened(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
                 if (file instanceof DBObjectVirtualFile) {
-                    DBObjectVirtualFile databaseFile = (DBObjectVirtualFile) file;
+                    DBObjectVirtualFile<?> databaseFile = (DBObjectVirtualFile<?>) file;
                     openFiles.add(databaseFile);
                 }
             }
@@ -93,7 +93,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
             @Override
             public void whenFileClosed(@NotNull FileEditorManager source, @NotNull VirtualFile file) {
                 if (file instanceof DBObjectVirtualFile) {
-                    DBObjectVirtualFile databaseFile = (DBObjectVirtualFile) file;
+                    DBObjectVirtualFile<?> databaseFile = (DBObjectVirtualFile<?>) file;
                     openFiles.remove(databaseFile);
                 }
             }
@@ -131,28 +131,31 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
                 CodeEditorConfirmationSettings confirmationSettings = CodeEditorSettings.getInstance(project).getConfirmationSettings();
                 confirmationSettings.getExitOnChanges().resolve(
                         list(objectDescription),
-                        option -> {
-                            SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
-                            switch (option) {
-                                case CANCEL: break;
-                                case SAVE: sourceCodeManager.saveSourceCodeChanges(databaseFile, () -> closeFile(file)); break;
-                                case DISCARD: sourceCodeManager.revertSourceCodeChanges(databaseFile, () -> closeFile(file)); break;
-                                case SHOW: {
-                                    List<DBSourceCodeVirtualFile> sourceCodeFiles = databaseFile.getSourceCodeFiles();
-                                    for (DBSourceCodeVirtualFile sourceCodeFile : sourceCodeFiles) {
-                                        if (sourceCodeFile.isModified()) {
-                                            SourceCodeDiffManager diffManager = SourceCodeDiffManager.getInstance(project);
-                                            diffManager.opedDatabaseDiffWindow(sourceCodeFile);
-                                        }
-                                    }
-                                }
-                            }
-                        });
+                        option -> processCodeChangeOption(databaseFile, option));
                 // TODO fix - this prevents the other files from being closed in a "close all.." bulk action
                 throw new ProcessDeferredException();
 
             }
         };
+    }
+
+    private void processCodeChangeOption(DBEditableObjectVirtualFile file, CodeEditorChangesOption option) {
+        Project project = getProject();
+        SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);
+        switch (option) {
+            case CANCEL: break;
+            case SAVE: sourceCodeManager.saveSourceCodeChanges(file, () -> closeFile(file)); break;
+            case DISCARD: sourceCodeManager.revertSourceCodeChanges(file, () -> closeFile(file)); break;
+            case SHOW: {
+                List<DBSourceCodeVirtualFile> sourceCodeFiles = file.getSourceCodeFiles();
+                for (DBSourceCodeVirtualFile sourceCodeFile : sourceCodeFiles) {
+                    if (sourceCodeFile.isModified()) {
+                        SourceCodeDiffManager diffManager = SourceCodeDiffManager.getInstance(project);
+                        diffManager.opedDatabaseDiffWindow(sourceCodeFile);
+                    }
+                }
+            }
+        }
     }
 
     public boolean isFileOpened(@NotNull DBObject object) {
@@ -164,7 +167,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
     }
 
     private void closeFiles(ConnectionId connectionId) {
-        for (DBObjectVirtualFile file : openFiles) {
+        for (DBObjectVirtualFile<?> file : openFiles) {
             if (file.getConnectionId() == connectionId) {
                 closeFile(file);
             }
@@ -223,7 +226,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
             if (objectRef == null) continue;
 
             ConnectionId connectionId = objectRef.getConnectionId();
-            val objectRefs = pendingOpenFiles.computeIfAbsent(connectionId, id -> new ArrayList<>());
+            var objectRefs = pendingOpenFiles.computeIfAbsent(connectionId, id -> new ArrayList<>());
             objectRefs.add(objectRef);
         }
     }
@@ -232,47 +235,50 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
         if (pendingOpenFiles == null || pendingOpenFiles.isEmpty()) return;
 
         // overwrite and nullify
-        val pendingOpenFiles = this.pendingOpenFiles;
+        var pendingOpenFiles = this.pendingOpenFiles;
         this.pendingOpenFiles = null;
 
-        for (val entry : pendingOpenFiles.entrySet()) {
+        for (var entry : pendingOpenFiles.entrySet()) {
             ConnectionId connectionId = entry.getKey();
             ConnectionHandler connection = ConnectionHandler.get(connectionId);
             if (connection == null) continue;
 
-            ConnectionDetailSettings connectionDetailSettings = connection.getSettings().getDetailSettings();
+            var connectionDetailSettings = connection.getSettings().getDetailSettings();
             if (!connectionDetailSettings.isRestoreWorkspace()) continue;
 
             reopenDatabaseEditors(entry.getValue(), connection);
         }
     }
 
-    private static void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBSchemaObject>> objectRefs, @NotNull ConnectionHandler connection) {
+    private static void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBSchemaObject>> objects, @NotNull ConnectionHandler connection) {
         Project project = connection.getProject();
         ConnectionAction.invoke("opening database editors", false, connection, action ->
                 ThreadMonitor.surround(project, ThreadProperty.WORKSPACE_RESTORE, () ->
                         Progress.background(project, connection, true,
                                 "Restoring database workspace",
                                 "Opening database editors for connection " + connection.getName(),
-                                progress -> {
-                                    progress.setIndeterminate(true);
-                                    DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(project);
+                                progress -> reopenDatabaseEditors(objects, connection, progress))));
+    }
 
-                                    for (DBObjectRef<DBSchemaObject> objectRef : objectRefs) {
-                                        if (progress.isCanceled()) continue;
-                                        if (!connection.canConnect()) continue;
+    private static void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBSchemaObject>> objects, @NotNull ConnectionHandler connection, ProgressIndicator progress) {
+        Project project = connection.getProject();
+        progress.setIndeterminate(true);
+        var editorManager = DatabaseFileEditorManager.getInstance(project);
 
-                                        DBObject object = objectRef.get();
-                                        if (object == null) continue;
+        for (DBObjectRef<DBSchemaObject> objectRef : objects) {
+            if (progress.isCanceled()) continue;
+            if (!connection.canConnect()) continue;
 
-                                        progress.setText2(connection.getName() + " - " + objectRef.getQualifiedNameWithType());
-                                        if (object instanceof DBConsole) {
-                                            DBConsole console = (DBConsole) object;
-                                            editorManager.openDatabaseConsole(console, false, false);
-                                        } else {
-                                            editorManager.openEditor(object, null, false, false);
-                                        }
-                                    }
-                                })));
+            DBObject object = objectRef.get();
+            if (object == null) continue;
+
+            progress.setText2(connection.getName() + " - " + objectRef.getQualifiedNameWithType());
+            if (object instanceof DBConsole) {
+                DBConsole console = (DBConsole) object;
+                editorManager.openDatabaseConsole(console, false, false);
+            } else {
+                editorManager.openEditor(object, null, false, false);
+            }
+        }
     }
 }

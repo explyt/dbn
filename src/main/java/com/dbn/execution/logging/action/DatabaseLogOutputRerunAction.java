@@ -12,9 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class DatabaseLogOutputRerunAction extends AbstractDatabaseLoggingAction {
-    public DatabaseLogOutputRerunAction() {
-        super("Rerun Script", Icons.STMT_EXECUTION_RERUN);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatabaseLoggingResult loggingResult) {
@@ -29,6 +26,7 @@ public class DatabaseLogOutputRerunAction extends AbstractDatabaseLoggingAction 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatabaseLoggingResult loggingResult) {
         presentation.setText("Rerun Script");
+        presentation.setIcon(Icons.STMT_EXECUTION_RERUN);
 
         LogOutputContext context = loggingResult == null ? null : loggingResult.getContext();
         boolean enabled = context != null && context.getSourceFile() != null && !context.isActive();

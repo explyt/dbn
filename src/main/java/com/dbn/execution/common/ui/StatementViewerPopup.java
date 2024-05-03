@@ -38,8 +38,6 @@ public class StatementViewerPopup implements Disposable {
         viewer.setBackgroundColor(Colors.getEditorCaretRowBackground());
 
         JScrollPane viewerScrollPane = viewer.getScrollPane();
-        viewerScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-        viewerScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
         viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.getEditorCaretRowBackground(), 4));
         viewerScrollPane.setBorder(null);
 

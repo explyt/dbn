@@ -63,14 +63,16 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementType> exten
 
     @Override
     public Set<TokenType> getFirstPossibleTokens() {
-        TokenTypeBundle tokenTypes = elementType.getLanguageDialect().getParserTokenTypes();
-        return firstPossibleTokens.elements(index -> tokenTypes.getTokenType(index));
+        return firstPossibleTokens.elements(index -> getParserTokenTypes().getTokenType(index));
     }
 
     @Override
     public Set<TokenType> getFirstRequiredTokens() {
-        TokenTypeBundle tokenTypes = elementType.getLanguageDialect().getParserTokenTypes();
-        return firstRequiredTokens.elements(index -> tokenTypes.getTokenType(index));
+        return firstRequiredTokens.elements(index -> getParserTokenTypes().getTokenType(index));
+    }
+
+    private TokenTypeBundle getParserTokenTypes() {
+        return elementType.getLanguageDialect().getParserTokenTypes();
     }
 
     @Override

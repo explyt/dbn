@@ -5,14 +5,20 @@ import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DatabaseInformationOpenAction extends AbstractConnectionAction {
 
     DatabaseInformationOpenAction(ConnectionHandler connection) {
-        super("Connection Info", connection);
-        //getTemplatePresentation().setEnabled(connection.getConnectionStatus().isConnected());
+        super(connection);
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
+        presentation.setText("Connection Info");
     }
 
     @Override

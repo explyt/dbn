@@ -45,7 +45,7 @@ public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHead
             public DBNForm createContentForm() {
                 ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(ensureProject());
                 ConnectionSettings connectionSettings = settingsManager.getConnectionSettings().getConnectionSettings(connection.getConnectionId());
-                filterSettings = connectionSettings.getFilterSettings();
+                filterSettings = connectionSettings.getFilterSettings().clone();
                 configurationEditor = filterSettings.createConfigurationEditor();
                 return configurationEditor;
             }
@@ -67,6 +67,11 @@ public class ConnectionFilterSettingsDialog extends DBNDialog<DBNContentWithHead
             // !!workaround!! apply settings is normally cascaded from top level settings
             configurationEditor.applyFormChanges();
             filterSettings.apply();
+
+            ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(ensureProject());
+            ConnectionSettings connectionSettings = settingsManager.getConnectionSettings().getConnectionSettings(connection.getConnectionId());
+            filterSettings.applyTo(connectionSettings.getFilterSettings());
+
             ConfigurationHandle.notifyChanges();
             super.doOKAction();
         } catch (ConfigurationException e) {

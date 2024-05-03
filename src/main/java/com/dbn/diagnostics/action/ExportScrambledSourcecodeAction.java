@@ -5,6 +5,7 @@ import com.dbn.common.thread.Progress;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.diagnostics.ParserDiagnosticsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.fileChooser.FileChooser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
@@ -19,10 +20,6 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
     public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false).
             withTitle("Select Destination Directory").
             withDescription("Select destination directory for the scrambled sources");
-
-    public ExportScrambledSourcecodeAction() {
-        super("Export Scrambled Sourcecode");
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -41,7 +38,9 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        e.getPresentation().setVisible(Diagnostics.isBulkActionsEnabled());
+        Presentation presentation = e.getPresentation();
+        presentation.setVisible(Diagnostics.isBulkActionsEnabled());
+        presentation.setText("Export Scrambled Sourcecode");
     }
 
 

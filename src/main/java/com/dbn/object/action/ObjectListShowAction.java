@@ -2,6 +2,7 @@ package com.dbn.object.action;
 
 import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.ui.DatabaseBrowserTree;
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
@@ -12,7 +13,6 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -27,7 +27,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
-public abstract class ObjectListShowAction extends DumbAwareAction {
+public abstract class ObjectListShowAction extends BasicAction {
     private final DBObjectRef<?> sourceObject;
     private RelativePoint popupLocation;
 

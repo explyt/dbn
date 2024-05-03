@@ -262,12 +262,6 @@ public class DBVirtualObjectBundle extends StatefulDisposableBase implements DBO
 
     @Nullable
     @Override
-    public String getLocationString() {
-        return null;
-    }
-
-    @Nullable
-    @Override
     public Icon getIcon(boolean unused) {
         return null;
     }

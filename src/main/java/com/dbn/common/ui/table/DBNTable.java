@@ -40,7 +40,7 @@ import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-public abstract class DBNTable<T extends DBNTableModel> extends JTable implements StatefulDisposable, UserDataHolder {
+public class DBNTable<T extends DBNTableModel> extends JTable implements StatefulDisposable, UserDataHolder {
     private static final int MAX_COLUMN_WIDTH = 300;
     private static final int MIN_COLUMN_WIDTH = 10;
 
@@ -61,7 +61,7 @@ public abstract class DBNTable<T extends DBNTableModel> extends JTable implement
         setGridColor(Colors.getTableGridColor());
         Font font = getFont();//UIUtil.getListFont();
         setFont(font);
-        setBackground(Colors.getTextFieldBackground());
+        setBackground(Colors.getListBackground());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
 
         adjustRowHeight(1);

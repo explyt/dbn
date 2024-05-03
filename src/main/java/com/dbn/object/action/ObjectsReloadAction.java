@@ -1,13 +1,13 @@
 package com.dbn.object.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.thread.Background;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.object.common.list.DBObjectList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class ObjectsReloadAction extends DumbAwareAction {
+public class ObjectsReloadAction extends BasicAction {
 
     private final DBObjectList<?> objectList;
 

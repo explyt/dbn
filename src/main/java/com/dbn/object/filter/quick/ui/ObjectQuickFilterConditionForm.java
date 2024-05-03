@@ -55,7 +55,7 @@ public class ObjectQuickFilterConditionForm extends DBNFormBase {
         onTextChange(patternTextField, e -> condition.setPattern(patternTextField.getText().trim()));
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,
-                "DBNavigator.DataEditor.SimpleFilter.Condition", true,
+                "DBNavigator.QuickFilter.Condition", true,
                 new EnableDisableQuickFilterConditionAction(this),
                 new DeleteQuickFilterConditionAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);

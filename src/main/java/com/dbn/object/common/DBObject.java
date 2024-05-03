@@ -56,9 +56,6 @@ public interface DBObject extends
     boolean isOfType(DBObjectType objectType);
 
     DBLanguageDialect getLanguageDialect(DBLanguage language);
-    
-    DBObjectAttribute[] getObjectAttributes();
-    DBObjectAttribute getNameAttribute();
 
     String getQuotedName(boolean quoteAlways);
     boolean needsNameQuoting();

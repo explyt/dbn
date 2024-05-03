@@ -21,10 +21,6 @@ import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
 public class DatabaseLoggingToggleAction extends ToggleAction implements DumbAware {
 
-    public DatabaseLoggingToggleAction() {
-        super("Enable / Disable Database Logging", null, Icons.EXEC_LOG_OUTPUT_CONSOLE);
-    }
-
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
         ConnectionHandler activeConnection = getConnection(e);
@@ -71,6 +67,7 @@ public class DatabaseLoggingToggleAction extends ToggleAction implements DumbAwa
         }
         presentation.setText(name);
         presentation.setVisible(visible);
+        presentation.setIcon(Icons.ACTION_TOGGLE_LOGGING);
     }
 
     public static boolean isVisible(AnActionEvent e) {

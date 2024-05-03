@@ -14,7 +14,6 @@ public class ConsoleCreateAction extends ProjectAction {
     private final ConnectionRef connection;
 
     ConsoleCreateAction(ConnectionHandler connection, DBConsoleType consoleType) {
-        super("New " + consoleType.getName() + "...");
         this.connection = connection.ref();
         this.consoleType = consoleType;
 
@@ -24,5 +23,10 @@ public class ConsoleCreateAction extends ProjectAction {
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DatabaseConsoleManager consoleManager = DatabaseConsoleManager.getInstance(project);
         consoleManager.showCreateConsoleDialog(connection.get(), consoleType);
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setText("New " + consoleType.getName() + "...");
     }
 }

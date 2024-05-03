@@ -1,8 +1,8 @@
 package com.dbn.editor.data.action;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.dispose.Checks;
 import com.dbn.common.environment.EnvironmentManager;
+import com.dbn.common.icon.Icons;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.data.DatasetEditor;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
@@ -14,10 +14,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class RecordDuplicateAction extends AbstractDataEditorAction {
 
-    public RecordDuplicateAction() {
-        super("Duplicate record", Icons.DATA_EDITOR_DUPLICATE_RECORD);
-    }
-
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         datasetEditor.duplicateRecord();
@@ -26,6 +22,8 @@ public class RecordDuplicateAction extends AbstractDataEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         presentation.setText("Duplicate Record");
+        presentation.setIcon(Icons.DATA_EDITOR_DUPLICATE_RECORD);
+
         if (Checks.isValid(datasetEditor) && datasetEditor.getConnection().isConnected()) {
             presentation.setEnabled(true);
             EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);

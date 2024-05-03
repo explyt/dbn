@@ -1,12 +1,16 @@
 package com.dbn.editor.session.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.common.util.Context;
 import com.dbn.editor.session.SessionBrowser;
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
@@ -83,7 +87,7 @@ public class TimedReloadComboBoxAction extends DBNComboBoxAction implements Dumb
         return sessionBrowser;
     }
 
-    private static class SelectRefreshTimeAction extends AnAction {
+    private static class SelectRefreshTimeAction extends BasicAction {
         private final int seconds;
 
         SelectRefreshTimeAction(int seconds) {

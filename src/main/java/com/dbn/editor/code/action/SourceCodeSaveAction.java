@@ -5,11 +5,11 @@ import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.option.ConfirmationOptionHandler;
 import com.dbn.common.ui.shortcut.ComplementaryShortcutInterceptor;
-import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
+import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
+import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -21,9 +21,6 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 
 public class SourceCodeSaveAction extends AbstractCodeEditorAction {
-    public SourceCodeSaveAction() {
-        super("", null, Icons.CODE_EDITOR_SAVE_TO_DATABASE);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
@@ -46,6 +43,8 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project, @Nullable SourceCodeEditor fileEditor, @Nullable DBSourceCodeVirtualFile sourceCodeFile) {
         Presentation presentation = e.getPresentation();
+        presentation.setIcon(Icons.CODE_EDITOR_SAVE_TO_DATABASE);
+
         if (Checks.isValid(sourceCodeFile)) {
             EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
             boolean readonly = environmentManager.isReadonly(sourceCodeFile);

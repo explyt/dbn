@@ -13,18 +13,15 @@ import com.dbn.options.TopLevelConfig;
 import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.SneakyThrows;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
-@Setter
 @EqualsAndHashCode(callSuper = false)
 public class CodeCompletionSettings extends CompositeProjectConfiguration<ProjectSettings, CodeCompletionSettingsForm> implements TopLevelConfig {
-    private final CodeCompletionFiltersSettings filterSettings = new CodeCompletionFiltersSettings(this);
-    private final CodeCompletionSortingSettings sortingSettings = new CodeCompletionSortingSettings(this);
-    private final CodeCompletionFormatSettings formatSettings = new CodeCompletionFormatSettings(this);
+    private final @Getter(lazy = true) CodeCompletionFiltersSettings filterSettings = new CodeCompletionFiltersSettings(this);
+    private final @Getter(lazy = true) CodeCompletionSortingSettings sortingSettings = new CodeCompletionSortingSettings(this);
+    private final @Getter(lazy = true) CodeCompletionFormatSettings formatSettings = new CodeCompletionFormatSettings(this);
 
     public CodeCompletionSettings(ProjectSettings parent) {
         super(parent);
@@ -91,8 +88,8 @@ public class CodeCompletionSettings extends CompositeProjectConfiguration<Projec
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[]{
-                filterSettings,
-                sortingSettings,
-                formatSettings};
+                getFilterSettings(),
+                getSortingSettings(),
+                getFormatSettings()};
     }
 }

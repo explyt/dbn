@@ -10,6 +10,7 @@ import lombok.Setter;
 import org.jdom.Element;
 
 import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.execution.ExecutionOption.*;
 
 @Getter
 @Setter
@@ -23,7 +24,7 @@ public abstract class LocalExecutionInput extends ExecutionInput{
         ConnectionHandler connection = getConnection();
         if (connection != null) {
             if (DatabaseFeature.DATABASE_LOGGING.isSupported(connection)) {
-                options.set(ExecutionOption.ENABLE_LOGGING, connection.isLoggingEnabled());
+                options.set(ENABLE_LOGGING, connection.isLoggingEnabled());
             }
         }
     }
@@ -40,6 +41,14 @@ public abstract class LocalExecutionInput extends ExecutionInput{
 
     public abstract boolean isDatabaseLogProducer();
 
+    public void setContextExpanded(boolean expanded) {
+        options.set(CONTEXT_EXPANDED, expanded);
+    }
+
+    public boolean isContextExpanded() {
+        return options.is(CONTEXT_EXPANDED);
+    }
+
     /*********************************************************
      *                 PersistentConfiguration               *
      *********************************************************/
@@ -47,15 +56,17 @@ public abstract class LocalExecutionInput extends ExecutionInput{
     public void readConfiguration(Element element) {
         super.readConfiguration(element);
         targetSessionId = sessionIdAttribute(element, "session-id", targetSessionId);
-        options.set(ExecutionOption.ENABLE_LOGGING, booleanAttribute(element, "enable-logging", true));
-        options.set(ExecutionOption.COMMIT_AFTER_EXECUTION, booleanAttribute(element, "commit-after-execution", true));
+        options.set(CONTEXT_EXPANDED, booleanAttribute(element, "context-expanded", false));
+        options.set(ENABLE_LOGGING, booleanAttribute(element, "enable-logging", true));
+        options.set(COMMIT_AFTER_EXECUTION, booleanAttribute(element, "commit-after-execution", true));
     }
 
     @Override
     public void writeConfiguration(Element element) {
         super.writeConfiguration(element);
         element.setAttribute("session-id", targetSessionId.id());
-        setBooleanAttribute(element, "enable-logging", options.is(ExecutionOption.ENABLE_LOGGING));
-        setBooleanAttribute(element, "commit-after-execution", options.is(ExecutionOption.COMMIT_AFTER_EXECUTION));
+        setBooleanAttribute(element, "context-expanded", options.is(CONTEXT_EXPANDED));
+        setBooleanAttribute(element, "enable-logging", options.is(ENABLE_LOGGING));
+        setBooleanAttribute(element, "commit-after-execution", options.is(COMMIT_AFTER_EXECUTION));
     }
 }

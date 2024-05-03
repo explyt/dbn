@@ -3,6 +3,7 @@ package com.dbn.data.grid.ui.table.resultSet.record;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.resultSet.ResultSetDataModelCell;
@@ -17,7 +18,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.text.ParseException;
 
-public class ResultSetRecordViewerColumnForm extends DBNFormBase {
+public class ResultSetRecordViewerColumnForm extends DBNFormBase implements ComponentAligner.Form {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
     private JLabel dataTypeLabel;
@@ -84,15 +85,9 @@ public class ResultSetRecordViewerColumnForm extends DBNFormBase {
         return cell;
     }
 
-    protected int[] getMetrics(int[] metrics) {
-        return new int[] {
-            (int) Math.max(metrics[0], columnLabel.getPreferredSize().getWidth()),
-            (int) Math.max(metrics[1], dataTypeLabel.getPreferredSize().getWidth())};
-    }
-
-    protected void adjustMetrics(int[] metrics) {
-        columnLabel.setPreferredSize(new Dimension(metrics[0], columnLabel.getHeight()));
-        dataTypeLabel.setPreferredSize(new Dimension(metrics[1], valueFieldPanel.getHeight()));
+    @Override
+    public Component[] getAlignableComponents() {
+        return new Component[] {columnLabel, dataTypeLabel};
     }
 
     public Object getEditorValue() throws ParseException {

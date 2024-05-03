@@ -1,15 +1,15 @@
 package com.dbn.object.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.editor.data.filter.global.DataDependencyPath;
 import com.dbn.editor.data.filter.global.DataDependencyPathBuilder;
 import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class TestAction extends AnAction {
+public class TestAction extends BasicAction {
     private final DBObject object;
     public TestAction(DBObject object) {
         super("Test", "Test", null);

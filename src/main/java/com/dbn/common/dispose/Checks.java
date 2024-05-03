@@ -62,6 +62,11 @@ public final class Checks {
         return true;
     }
 
+    @Nullable
+    public static <T> T invalidToNull(@Nullable T object) {
+        return isValid(object) ? object : null;
+    }
+
     public static boolean isTrue(@Nullable Boolean bool) {
         return bool != null && bool;
     }

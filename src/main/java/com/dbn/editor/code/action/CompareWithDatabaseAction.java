@@ -13,9 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.dispose.Checks.isValid;
 
 public class CompareWithDatabaseAction extends AbstractCodeEditorDiffAction {
-    public CompareWithDatabaseAction() {
-        super("Compare with database", null, Icons.CODE_EDITOR_DIFF_DB);
-    }
 
     @Override
     protected void actionPerformed(
@@ -33,5 +30,6 @@ public class CompareWithDatabaseAction extends AbstractCodeEditorDiffAction {
         Presentation presentation = e.getPresentation();
         presentation.setText("Compare with Database");
         presentation.setEnabled(isValid(fileEditor) && isValid(sourceCodeFile));
+        presentation.setIcon(Icons.CODE_EDITOR_DIFF_DB);
     }
 }

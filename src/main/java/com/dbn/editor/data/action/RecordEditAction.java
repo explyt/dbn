@@ -1,7 +1,7 @@
 package com.dbn.editor.data.action;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.dispose.Checks;
+import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.DatasetEditor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -11,10 +11,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class RecordEditAction extends AbstractDataEditorAction {
 
-    public RecordEditAction() {
-        super("Edit Record", Icons.DATA_EDITOR_EDIT_RECORD);
-    }
-
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         datasetEditor.openRecordEditor();
@@ -23,6 +19,7 @@ public class RecordEditAction extends AbstractDataEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         presentation.setText("Edit Record");
+        presentation.setIcon(Icons.DATA_EDITOR_EDIT_RECORD);
 
         boolean enabled =
                 Checks.isValid(datasetEditor) &&

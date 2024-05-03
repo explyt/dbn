@@ -10,11 +10,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 @EqualsAndHashCode(callSuper = false)
 public class CodeCompletionFiltersSettings extends CompositeConfiguration<CodeCompletionSettings, CodeCompletionFiltersSettingsForm> {
-    private final CodeCompletionFilterSettings basicFilterSettings = new CodeCompletionFilterSettings(this, false);
-    private final CodeCompletionFilterSettings extendedFilterSettings = new CodeCompletionFilterSettings(this, true);;
+    private final @Getter(lazy = true) CodeCompletionFilterSettings basicFilterSettings = new CodeCompletionFilterSettings(this, false);
+    private final @Getter(lazy = true) CodeCompletionFilterSettings extendedFilterSettings = new CodeCompletionFilterSettings(this, true);
 
     public CodeCompletionFiltersSettings(CodeCompletionSettings parent) {
         super(parent);
@@ -29,7 +28,7 @@ public class CodeCompletionFiltersSettings extends CompositeConfiguration<CodeCo
     *                         Custom                        *
     *********************************************************/
     public CodeCompletionFilterSettings getFilterSettings(boolean extended) {
-        return extended ? extendedFilterSettings : basicFilterSettings;
+        return extended ? getExtendedFilterSettings() : getBasicFilterSettings();
     }
 
     boolean acceptRootObjects(boolean extended, DBObjectType objectType) {
@@ -69,7 +68,7 @@ public class CodeCompletionFiltersSettings extends CompositeConfiguration<CodeCo
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-                basicFilterSettings,
-                extendedFilterSettings};
+                getBasicFilterSettings(),
+                getExtendedFilterSettings()};
     }
 }

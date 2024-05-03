@@ -1,7 +1,9 @@
 package com.dbn.object.type;
 
 import com.dbn.common.constant.Constant;
+import lombok.Getter;
 
+@Getter
 public enum DBConstraintType implements Constant<DBConstraintType> {
     CHECK("check"),
     DEFAULT("default"),
@@ -12,13 +14,9 @@ public enum DBConstraintType implements Constant<DBConstraintType> {
     VIEW_CHECK("view check"),
     VIEW_READONLY("view readonly");
 
-    private String name;
+    private final String name;
 
     DBConstraintType(String name) {
         this.name = name;
-    }
-
-    public String getName() {
-        return name;
     }
 }

@@ -50,6 +50,7 @@ import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.OpenFileDescriptor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.search.LocalSearchScope;
@@ -60,6 +61,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -669,5 +671,8 @@ public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPs
         return compatibility.getIdentifierQuotes();
     }
 
+    public boolean matchesTextRange(TextRange textRange) {
+        return Objects.equals(textRange, getTextRange());
+    }
 
 }

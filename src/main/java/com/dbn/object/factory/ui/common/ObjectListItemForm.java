@@ -1,10 +1,10 @@
 package com.dbn.object.factory.ui.common;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,7 +43,7 @@ public class ObjectListItemForm extends DBNFormBase {
         objectDetailsComponent = (JPanel) inputForm.getComponent();
     }
 
-    public class RemoveObjectAction extends AnAction {
+    public class RemoveObjectAction extends BasicAction {
         RemoveObjectAction() {
             super("Remove " + getParentForm().getObjectType().getName(), null, Icons.ACTION_CLOSE);
         }

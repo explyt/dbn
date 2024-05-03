@@ -13,17 +13,17 @@ public class BasicLatent<T> implements Latent<T> {
     }
 
     public final T get(){
-        if (shouldLoad()) {
-            synchronized (this) {
-                if (shouldLoad()) {
-                    beforeLoad();
-                    T newValue = loader == null ? value : loader.load();
-                    if (value != newValue) {
-                        value = newValue;
-                    }
-                    afterLoad(newValue);
-                }
+        if (!shouldLoad()) return value;
+
+        synchronized (this) {
+            if (!shouldLoad()) return value;
+
+            beforeLoad();
+            T newValue = loader == null ? value : loader.load();
+            if (value != newValue) {
+                value = newValue;
             }
+            afterLoad(newValue);
         }
         return value;
     }

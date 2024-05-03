@@ -3,6 +3,7 @@ package com.dbn.execution;
 import com.dbn.common.property.Property;
 
 public enum ExecutionOption implements Property.IntBase {
+    CONTEXT_EXPANDED,
     ENABLE_LOGGING,
     COMMIT_AFTER_EXECUTION;
 

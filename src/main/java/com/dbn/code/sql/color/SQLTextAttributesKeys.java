@@ -5,7 +5,6 @@ import com.intellij.openapi.editor.DefaultLanguageHighlighterColors;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.CodeInsightColors;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
-import com.intellij.openapi.editor.markup.TextAttributes;
 
 public interface SQLTextAttributesKeys {
     TextAttributesKey LINE_COMMENT       = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.LineComment",       DefaultLanguageHighlighterColors.LINE_COMMENT);
@@ -23,7 +22,7 @@ public interface SQLTextAttributesKeys {
     TextAttributesKey PARENTHESIS        = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Parenthesis",       DefaultLanguageHighlighterColors.PARENTHESES);
     TextAttributesKey BRACKET            = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Brackets",          DefaultLanguageHighlighterColors.BRACKETS);
     TextAttributesKey UNKNOWN_IDENTIFIER = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.UnknownIdentifier", CodeInsightColors.WARNINGS_ATTRIBUTES);
-    TextAttributesKey CHAMELEON          = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Chameleon",         new TextAttributes(null, null, null, null, 0));
+    TextAttributesKey CHAMELEON          = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Chameleon",         (TextAttributesKey) null);
     TextAttributesKey VARIABLE           = TextAttributesKey.createTextAttributesKey("DBNavigator.TextAttributes.SQL.Variable",          TemplateColors.TEMPLATE_VARIABLE_ATTRIBUTES);
     TextAttributesKey BAD_CHARACTER      = HighlighterColors.BAD_CHARACTER;
 }

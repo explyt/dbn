@@ -11,15 +11,11 @@ import org.jetbrains.annotations.NotNull;
 
 public class BrowserTreeExpandAction extends ProjectAction {
 
-    public BrowserTreeExpandAction() {
-        super("Expand all", null, Icons.ACTION_EXPAND_ALL);
-    }
-
-
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Expand All");
+        presentation.setIcon(Icons.ACTION_EXPAND_ALL);
     }
 
     @Override

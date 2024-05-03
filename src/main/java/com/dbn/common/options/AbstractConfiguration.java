@@ -68,5 +68,4 @@ public abstract class AbstractConfiguration<P extends Configuration, E extends C
         }
         return null;
     }
-
 }

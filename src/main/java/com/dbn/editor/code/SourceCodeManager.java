@@ -4,6 +4,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.component.ProjectManagerListener;
+import com.dbn.common.dispose.Checks;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.editor.document.OverrideReadonlyFragmentModificationHandler;
@@ -43,6 +44,7 @@ import com.dbn.language.psql.PSQLFile;
 import com.dbn.object.DBDatasetTrigger;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
@@ -73,6 +75,7 @@ import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.component.ApplicationMonitor.checkAppExitRequested;
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.navigation.NavigationInstruction.*;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Conditional.when;
@@ -613,16 +616,16 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             if (openFile instanceof DBEditableObjectVirtualFile) {
                 DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) openFile;
                 if (!databaseFile.isModified()) continue;
-
                 if (databaseFile.isSaving()) continue;
 
-                DBSchemaObject object = databaseFile.getObject();
-                String objectDescription = object.getQualifiedNameWithType();
+                DBObjectRef object = databaseFile.getObjectRef();
                 Project objectProject = object.getProject();
+                if (isNotValid(objectProject)) continue;
 
                 CodeEditorSettings codeEditorSettings = CodeEditorSettings.getInstance(objectProject);
                 CodeEditorConfirmationSettings confirmationSettings = codeEditorSettings.getConfirmationSettings();
 
+                String objectDescription = object.getQualifiedNameWithType();
                 boolean exitApp = checkAppExitRequested();
                 confirmationSettings.getExitOnChanges().resolve(
                         list(objectDescription),

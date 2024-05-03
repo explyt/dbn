@@ -1,23 +1,23 @@
 package com.dbn.object.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class ObjectDropAction extends DumbAwareAction {
-    private DBObjectRef<DBSchemaObject> objectRef;
+public class ObjectDropAction extends BasicAction {
+    private DBObjectRef<DBSchemaObject> object;
 
     public ObjectDropAction(DBSchemaObject object) {
         super("Drop...", null, Icons.ACTION_CLOSE);
-        objectRef = DBObjectRef.of(object);
+        this.object = DBObjectRef.of(object);
     }
 
     public DBSchemaObject getObject() {
-        return DBObjectRef.ensure(objectRef);
+        return DBObjectRef.ensure(object);
     }
 
     @Override

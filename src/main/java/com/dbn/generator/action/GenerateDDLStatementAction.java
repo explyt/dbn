@@ -6,6 +6,7 @@ import com.dbn.ddl.DDLManager;
 import com.dbn.generator.StatementGeneratorResult;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -18,9 +19,12 @@ public class GenerateDDLStatementAction extends GenerateStatementAction {
     private final DBObjectRef object;
 
     GenerateDDLStatementAction(DBObject object) {
-        super("DDL Statement");
         this.object = DBObjectRef.of(object);
+    }
 
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setText("DDL Statement");
     }
 
     @Nullable
@@ -28,8 +32,6 @@ public class GenerateDDLStatementAction extends GenerateStatementAction {
     public ConnectionHandler getConnection() {
         return getObject().getConnection();
     }
-
-
 
     @NotNull
     public DBObject getObject() {

@@ -1,13 +1,13 @@
 package com.dbn.object.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class NavigateToObjectAction extends DumbAwareAction {
+public class NavigateToObjectAction extends BasicAction {
     private final DBObjectRef<DBObject> objectRef;
 
     public NavigateToObjectAction(DBObject object) {

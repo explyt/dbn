@@ -44,7 +44,7 @@ public class TokenTypeBundle extends TokenTypeBundleBase {
         this.dataType  = getTokenType("DATA_TYPE");
     }
 
-    public TokenType getTokenType(int index) {
+    public TokenType getTokenType(short index) {
         TokenType tokenType = super.getTokenType(index);
         if (tokenType == null ){
             return getSharedTokenTypes().getTokenType(index);

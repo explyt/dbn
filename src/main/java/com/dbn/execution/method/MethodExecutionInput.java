@@ -2,7 +2,6 @@ package com.dbn.execution.method;
 
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -161,13 +160,9 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
         return (String) argumentValue.getValue();
     }
 
-    public List<ArgumentValue> getArgumentValues() {
-        return argumentValues;
-    }
-
     private ArgumentValue getArgumentValue(@NotNull DBArgument argument) {
         for (ArgumentValue argumentValue : argumentValues) {
-            if (Commons.match(argument, argumentValue.getArgument())) {
+            if (argumentValue.matches(argument)) {
                 return argumentValue;
             }
         }
@@ -179,8 +174,7 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
 
     private ArgumentValue getArgumentValue(DBArgument argument, DBTypeAttribute attribute) {
         for (ArgumentValue argumentValue : argumentValues) {
-            if (Commons.match(argumentValue.getArgument(), argument) &&
-                    Commons.match(argumentValue.getAttribute(), attribute)) {
+            if (argumentValue.matches(argument)  && argumentValue.matches(attribute)) {
                 return argumentValue;
             }
         }
@@ -200,19 +194,6 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
         MethodExecutionArgumentValue executionVariable = new MethodExecutionArgumentValue(name);
         argumentValueHistory.put(executionVariable.getName(), executionVariable);
         return executionVariable;
-    }
-
-    public Map<String, MethodExecutionArgumentValue> getArgumentValueHistory() {
-        return argumentValueHistory;
-    }
-
-    @Nullable
-    public MethodExecutionResult getExecutionResult() {
-        return executionResult;
-    }
-
-    public void setExecutionResult(MethodExecutionResult executionResult) {
-        this.executionResult = executionResult;
     }
 
     /*********************************************************

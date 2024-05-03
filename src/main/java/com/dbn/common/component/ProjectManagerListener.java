@@ -1,6 +1,5 @@
 package com.dbn.common.component;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.VetoableProjectManagerListener;
@@ -28,12 +27,6 @@ public interface ProjectManagerListener {
             VetoableProjectManagerListener projectManagerListener = new VetoableProjectManagerListener() {
                 @Override
                 public boolean canClose(@NotNull Project project) {
-                    return !isSupported(project) || listener.canCloseProject();
-                }
-
-                @Override
-                @Compatibility
-                public boolean canCloseProject(@NotNull Project project) {
                     return !isSupported(project) || listener.canCloseProject();
                 }
 

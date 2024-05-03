@@ -8,6 +8,8 @@ import javax.swing.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import static com.dbn.common.ui.util.Mouse.isMainDoubleClick;
+
 public class SessionBrowserTableGutter extends BasicTableGutter<SessionBrowserTable> {
     public SessionBrowserTableGutter(SessionBrowserTable table) {
         super(table);
@@ -20,7 +22,7 @@ public class SessionBrowserTableGutter extends BasicTableGutter<SessionBrowserTa
     }
 
     MouseListener mouseListener = Mouse.listener().onClick(e -> {
-        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2) {
+        if (isMainDoubleClick(e)) {
             // TODO
         }
     });

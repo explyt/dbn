@@ -12,16 +12,13 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.dispose.Checks.isValid;
 
 public class ExecutionResultViewRecordAction extends AbstractExecutionResultAction {
-    public ExecutionResultViewRecordAction() {
-        super("View Record", Icons.EXEC_RESULT_VIEW_RECORD);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
         ResultSetTable resultTable = executionResult.getResultTable();
-        if (resultTable != null) {
-            resultTable.showRecordViewDialog();
-        }
+        if (resultTable == null) return;
+
+        resultTable.showRecordViewDialog();
     }
 
     @Override
@@ -36,5 +33,6 @@ public class ExecutionResultViewRecordAction extends AbstractExecutionResultActi
 
         presentation.setEnabled(enabled);
         presentation.setText("View Record");
+        presentation.setIcon(Icons.EXEC_RESULT_VIEW_RECORD);
     }
 }

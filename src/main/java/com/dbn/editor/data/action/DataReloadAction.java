@@ -16,10 +16,6 @@ public class DataReloadAction extends AbstractDataEditorAction {
 
     private static final DatasetLoadInstructions LOAD_INSTRUCTIONS = new DatasetLoadInstructions(USE_CURRENT_FILTER, PRESERVE_CHANGES, DELIBERATE_ACTION);
 
-    public DataReloadAction() {
-        super("Reload", Icons.DATA_EDITOR_RELOAD_DATA);
-    }
-
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         datasetEditor.loadData(LOAD_INSTRUCTIONS);
@@ -28,6 +24,7 @@ public class DataReloadAction extends AbstractDataEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         presentation.setText("Reload");
+        presentation.setIcon(Icons.DATA_EDITOR_RELOAD_DATA);
 
         boolean enabled =
                 isValid(datasetEditor) &&

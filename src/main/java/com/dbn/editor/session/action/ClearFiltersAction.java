@@ -11,10 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class ClearFiltersAction extends AbstractSessionBrowserAction {
 
-    public ClearFiltersAction() {
-        super("Clear Filter", Icons.DATASET_FILTER_CLEAR);
-    }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         SessionBrowser sessionBrowser = getSessionBrowser(e);
@@ -33,6 +29,7 @@ public class ClearFiltersAction extends AbstractSessionBrowserAction {
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Clear Filter");
+        presentation.setIcon(Icons.DATASET_FILTER_CLEAR);
 
         boolean enabled = false;
         SessionBrowser sessionBrowser = getSessionBrowser(e);

@@ -5,15 +5,22 @@ import com.dbn.common.icon.Icons;
 import com.dbn.connection.console.DatabaseConsoleManager;
 import com.dbn.object.DBConsole;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class ConsoleRenameAction extends ProjectAction {
-    private DBConsole console;
+    private final DBConsole console;
 
     public ConsoleRenameAction(DBConsole console) {
-        super("Rename Console", null, Icons.ACTION_EDIT);
         this.console = console;
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        Presentation presentation = e.getPresentation();
+        presentation.setText("Rename Console");
+        presentation.setIcon(Icons.ACTION_EDIT);
     }
 
     @Override

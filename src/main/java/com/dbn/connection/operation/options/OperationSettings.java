@@ -14,12 +14,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 @EqualsAndHashCode(callSuper = false)
 public class OperationSettings extends CompositeProjectConfiguration<ProjectSettings, OperationsSettingsForm> implements TopLevelConfig {
-    private final TransactionManagerSettings transactionManagerSettings = new TransactionManagerSettings(this);
-    private final SessionBrowserSettings sessionBrowserSettings         = new SessionBrowserSettings(this);
-    private final CompilerSettings compilerSettings                     = new CompilerSettings(this);
+    private final @Getter(lazy = true) TransactionManagerSettings transactionManagerSettings = new TransactionManagerSettings(this);
+    private final @Getter(lazy = true) SessionBrowserSettings sessionBrowserSettings         = new SessionBrowserSettings(this);
+    private final @Getter(lazy = true) CompilerSettings compilerSettings                     = new CompilerSettings(this);
 
 
     public OperationSettings(ProjectSettings parent) {
@@ -74,8 +73,8 @@ public class OperationSettings extends CompositeProjectConfiguration<ProjectSett
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-                transactionManagerSettings,
-                sessionBrowserSettings,
-                compilerSettings};
+                getTransactionManagerSettings(),
+                getSessionBrowserSettings(),
+                getCompilerSettings()};
     }
 }

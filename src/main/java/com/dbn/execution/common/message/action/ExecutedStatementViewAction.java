@@ -1,9 +1,9 @@
 package com.dbn.execution.common.message.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.execution.common.ui.StatementViewerPopup;
 import com.dbn.execution.common.message.ui.tree.MessagesTree;
 import com.dbn.execution.common.message.ui.tree.node.StatementExecutionMessageNode;
+import com.dbn.execution.common.ui.StatementViewerPopup;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -17,7 +17,7 @@ import static com.dbn.common.dispose.Checks.isValid;
 
 public class ExecutedStatementViewAction extends AbstractExecutionMessagesAction {
     public ExecutedStatementViewAction(MessagesTree messagesTree) {
-        super(messagesTree, "View SQL statement", Icons.EXEC_RESULT_VIEW_STATEMENT);
+        super(messagesTree);
     }
 
     @Override
@@ -46,6 +46,9 @@ public class ExecutedStatementViewAction extends AbstractExecutionMessagesAction
                 isValid(target) &&
                 target.getSelectionPath() != null &&
                 target.getSelectionPath().getLastPathComponent() instanceof StatementExecutionMessageNode;
+
         presentation.setEnabled(enabled);
+        presentation.setText("View SQL Statement");
+        presentation.setIcon(Icons.EXEC_RESULT_VIEW_STATEMENT);
     }
 }

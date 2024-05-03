@@ -141,10 +141,6 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
     }
 
     public class DeleteHistoryEntryAction extends ProjectAction {
-        DeleteHistoryEntryAction() {
-            super("Delete", null, Icons.ACTION_REMOVE);
-        }
-
         @Override
         protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
             getTree().removeSelectedEntries();
@@ -153,6 +149,8 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
+            presentation.setText("Delete");
+            presentation.setIcon(Icons.ACTION_REMOVE);
             presentation.setEnabled(!getTree().isSelectionEmpty());
             presentation.setVisible(getParentDialog().isEditable());
         }

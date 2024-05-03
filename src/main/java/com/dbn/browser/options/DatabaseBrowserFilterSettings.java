@@ -8,12 +8,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 @EqualsAndHashCode(callSuper = false)
 public class DatabaseBrowserFilterSettings
         extends CompositeProjectConfiguration<DatabaseBrowserSettings, DatabaseBrowserFilterSettingsForm> {
 
-    private final ObjectTypeFilterSettings objectTypeFilterSettings = new ObjectTypeFilterSettings(this, null);
+    private final @Getter(lazy = true) ObjectTypeFilterSettings objectTypeFilterSettings = new ObjectTypeFilterSettings(this, null);
 
     DatabaseBrowserFilterSettings(DatabaseBrowserSettings parent) {
         super(parent);
@@ -46,6 +45,6 @@ public class DatabaseBrowserFilterSettings
 
     @Override
     protected Configuration[] createConfigurations() {
-        return new Configuration[] {objectTypeFilterSettings};
+        return new Configuration[]{getObjectTypeFilterSettings()};
     }
 }

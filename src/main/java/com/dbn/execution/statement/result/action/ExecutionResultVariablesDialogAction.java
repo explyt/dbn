@@ -5,10 +5,10 @@ import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.debugger.DBDebuggerType;
-import com.dbn.execution.statement.processor.StatementExecutionCursorProcessor;
-import com.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
 import com.dbn.execution.statement.StatementExecutionManager;
+import com.dbn.execution.statement.processor.StatementExecutionCursorProcessor;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
+import com.dbn.execution.statement.variables.StatementExecutionVariablesBundle;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -21,9 +21,6 @@ import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class ExecutionResultVariablesDialogAction extends AbstractExecutionResultAction {
-    public ExecutionResultVariablesDialogAction() {
-        super("Open Variables Dialog", Icons.EXEC_RESULT_OPEN_EXEC_DIALOG);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
@@ -61,5 +58,6 @@ public class ExecutionResultVariablesDialogAction extends AbstractExecutionResul
         }
         presentation.setVisible(visible);
         presentation.setText("Open Variables Dialog");
+        presentation.setIcon(Icons.EXEC_RESULT_OPEN_EXEC_DIALOG);
     }
 }

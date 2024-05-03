@@ -10,6 +10,7 @@ import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Viewers;
@@ -39,7 +40,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
-public class StatementExecutionInputForm extends DBNFormBase {
+public class StatementExecutionInputForm extends DBNFormBase implements ComponentAligner.Container {
     private JPanel mainPanel;
     private JPanel variablesPanel;
     private JPanel executionOptionsPanel;
@@ -47,10 +48,7 @@ public class StatementExecutionInputForm extends DBNFormBase {
     private JPanel debuggerVersionPanel;
     private JLabel debuggerVersionLabel;
     private JLabel debuggerTypeLabel;
-    private JPanel splitPreviewPanel;
     private JPanel previewPanel;
-    private JPanel splitPanel;
-    private JSplitPane splitPane;
     private DBNScrollPane variablesScrollPane;
 
     private StatementExecutionProcessor executionProcessor;
@@ -73,7 +71,6 @@ public class StatementExecutionInputForm extends DBNFormBase {
 
         if (debuggerType.isDebug()) {
             debuggerVersionPanel.setVisible(true);
-            debuggerVersionPanel.setBorder(Borders.BOTTOM_LINE_BORDER);
             debuggerTypeLabel.setText(debuggerType.name());
             debuggerVersionLabel.setText("...");
 
@@ -97,8 +94,6 @@ public class StatementExecutionInputForm extends DBNFormBase {
 
         StatementExecutionVariablesBundle executionVariables = executionProcessor.getExecutionVariables();
         if (executionVariables != null) {
-            mainPanel.remove(previewPanel);
-
             List<StatementExecutionVariable> variables = new ArrayList<>(executionVariables.getVariables());
             variables.sort(StatementExecutionVariablesBundle.NAME_COMPARATOR);
 
@@ -110,21 +105,11 @@ public class StatementExecutionInputForm extends DBNFormBase {
 
                 onTextChange(variableValueForm.getEditorComponent(), e -> updatePreview());
             }
-            splitPane.setDividerLocation((int)variablesPanel.getPreferredSize().getHeight());
             Dimension preferredSize = variablesScrollPane.getPreferredSize();
             preferredSize.setSize(preferredSize.getWidth() + 20, preferredSize.getHeight());
             variablesScrollPane.setPreferredSize(preferredSize);
 
-            int[] metrics = new int[]{0, 0};
-            for (StatementExecutionVariableValueForm variableValueForm : variableValueForms) {
-                metrics = variableValueForm.getMetrics(metrics);
-            }
-
-            for (StatementExecutionVariableValueForm variableValueForm : variableValueForms) {
-                variableValueForm.adjustMetrics(metrics);
-            }
-        } else {
-            mainPanel.remove(splitPanel);
+            ComponentAligner.alignFormComponents(this);
         }
 
         executionOptionsForm = new ExecutionOptionsForm(this, executionInput, debuggerType);
@@ -141,6 +126,11 @@ public class StatementExecutionInputForm extends DBNFormBase {
         } else {
             reuseVariablesCheckBox.setVisible(false);
         }
+    }
+
+    @Override
+    public List<StatementExecutionVariableValueForm> getAlignableForms() {
+        return variableValueForms;
     }
 
     @NotNull
@@ -210,8 +200,6 @@ public class StatementExecutionInputForm extends DBNFormBase {
             Editors.setEditorReadonly(viewer, true);
 
             JScrollPane viewerScrollPane = viewer.getScrollPane();
-            viewerScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-            viewerScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             //viewerScrollPane.setBorder(null);
             viewerScrollPane.setViewportBorder(Borders.lineBorder(Colors.getReadonlyEditorBackground(), 4));
 
@@ -224,10 +212,7 @@ public class StatementExecutionInputForm extends DBNFormBase {
             settings.setAdditionalLinesCount(2);
             settings.setRightMarginShown(false);
             JComponent viewerComponent = viewer.getComponent();
-            if (executionVariables == null)
-                previewPanel.add(viewerComponent, BorderLayout.CENTER); else
-                splitPreviewPanel.add(viewerComponent, BorderLayout.CENTER);
-
+            previewPanel.add(viewerComponent, BorderLayout.CENTER);
         } else {
             Documents.setText(previewDocument, previewText);
         }

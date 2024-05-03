@@ -18,19 +18,20 @@ public class IssueReport {
     private final String message;
     private final Consumer<SubmittedReportInfo> consumer;
 
-    String osVersion;
-    String ideVersion;
-    String javaVersion;
-    String pluginVersion;
+    private String osVersion;
+    private String ideVersion;
+    private String javaVersion;
+    private String pluginVersion;
 
 
-    String databaseType;
-    String databaseVersion;
-    String databaseDriver;
+    private String databaseType;
+    private String databaseName;
+    private String databaseVersion;
+    private String databaseDriver;
 
-    String summary;
-    String description;
-    String clientId;
+    private String summary;
+    private String description;
+    private String clientId;
     
     public IssueReport(
             Project project,
@@ -51,6 +52,10 @@ public class IssueReport {
 
     public String getDatabaseType() {
         return nvl(databaseType, "NA");
+    }
+
+    public String getDatabaseName() {
+        return nvl(databaseName, "NA");
     }
 
     public String getDatabaseVersion() {

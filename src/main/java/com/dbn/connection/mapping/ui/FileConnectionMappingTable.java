@@ -1,5 +1,6 @@
 package com.dbn.connection.mapping.ui;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
@@ -22,7 +23,6 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -115,7 +115,6 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
     public class MouseListener extends MouseAdapter {
         @Override
         public void mouseClicked(MouseEvent e) {
-            int clickCount = e.getClickCount();
             if (e.getButton() != MouseEvent.BUTTON1) return;
 
             int selectedRow = getSelectedRow();
@@ -128,6 +127,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
             VirtualFile file = mapping.getFile();
             if (file == null) return;
 
+            int clickCount = e.getClickCount();
             if (selectedColumn == 0 && clickCount == 2) {
                 Editors.openFileEditor(getProject(), file, true);
             } else if (selectedColumn == 1) {
@@ -220,7 +220,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
 
 
 
-    private class ConnectionAction extends AnAction implements DumbAware {
+    private class ConnectionAction extends BasicAction {
         private final VirtualFile virtualFile;
         private final ConnectionRef connection;
         private ConnectionAction(VirtualFile virtualFile, ConnectionHandler connection) {
@@ -250,7 +250,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
     }
 
     @Getter
-    private class SchemaAction extends AnAction implements DumbAware {
+    private class SchemaAction extends BasicAction {
         private final VirtualFile virtualFile;
         private final SchemaId schemaId;
         private SchemaAction(VirtualFile virtualFile, SchemaId schemaId) {
@@ -267,7 +267,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
     }
 
     @Getter
-    private class SessionAction extends AnAction implements DumbAware {
+    private class SessionAction extends BasicAction {
         private final VirtualFile virtualFile;
         private final DatabaseSession session;
         private SessionAction(VirtualFile virtualFile, DatabaseSession session) {

@@ -12,6 +12,10 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import static com.dbn.database.DatabaseFeature.OBJECT_SOURCE_EDITING;
+import static com.dbn.editor.DBContentType.CODE;
+import static com.dbn.editor.DBContentType.CODE_AND_DATA;
+
 public class SourceCodeEditorProvider extends SourceCodeEditorProviderBase {
 
     @Override
@@ -20,10 +24,8 @@ public class SourceCodeEditorProvider extends SourceCodeEditorProviderBase {
             DBEditableObjectVirtualFile databaseFile = (DBEditableObjectVirtualFile) virtualFile;
 
             DBContentType contentType = databaseFile.getContentType();
-            return contentType.isOneOf(
-                    DBContentType.CODE,
-                    DBContentType.CODE_AND_DATA) &&
-                        DatabaseFeature.OBJECT_SOURCE_EDITING.isSupported(databaseFile.getObject());
+            return contentType.isOneOf(CODE, CODE_AND_DATA) &&
+                    OBJECT_SOURCE_EDITING.isSupported(databaseFile);
 
         }
         return super.accept(project, virtualFile);
@@ -32,7 +34,7 @@ public class SourceCodeEditorProvider extends SourceCodeEditorProviderBase {
 
     @Override
     public DBContentType getContentType() {
-        return DBContentType.CODE;
+        return CODE;
     }
 
     @Override

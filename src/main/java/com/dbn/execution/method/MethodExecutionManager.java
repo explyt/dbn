@@ -110,7 +110,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
         DBObjectRef<DBMethod> methodRef = executionInput.getMethodRef();
 
         ConnectionAction.invoke("the method execution", false, executionInput,
-                action -> Progress.modal(project, action, true,
+                action -> Progress.prompt(project, action, true,
                         "Loading method details",
                         "Loading details of " + methodRef.getQualifiedNameWithType(),
                         progress -> {
@@ -149,7 +149,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
             Consumer<MethodExecutionInput> callback) {
 
         Project project = getProject();
-        Progress.modal(project, selection, true,
+        Progress.prompt(project, selection, true,
                 "Loading data dictionary",
                 "Loading method execution history",
                 progress -> {
@@ -269,11 +269,11 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
             @Nullable MethodExecutionInput executionInput, boolean debug,
             @Nullable Consumer<MethodExecutionInput> callback) {
 
-        Project project = getProject();
-        Progress.modal(project, executionInput, true,
+        Progress.prompt(getProject(), executionInput, true,
                 "Loading data dictionary",
                 "Loading executable elements",
                 progress -> {
+                    Project project = getProject();
                     MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);
                     MethodBrowserSettings settings = executionManager.getBrowserSettings();
                     DBMethod currentMethod = executionInput == null ? null : executionInput.getMethod();

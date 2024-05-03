@@ -7,12 +7,7 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-
 abstract class AbstractDatabaseLoggingAction extends ContextAction<DatabaseLoggingResult> {
-    AbstractDatabaseLoggingAction(String text, Icon icon) {
-        super(text, null, icon);
-    }
 
     @Nullable
     protected DatabaseLoggingResult getTarget(@NotNull AnActionEvent e) {

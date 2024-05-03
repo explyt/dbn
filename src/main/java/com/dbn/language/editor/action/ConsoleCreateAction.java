@@ -15,7 +15,6 @@ import org.jetbrains.annotations.NotNull;
 public class ConsoleCreateAction extends ProjectAction {
     private final DBConsoleType consoleType;
     ConsoleCreateAction(DBConsoleType consoleType) {
-        super("New " + consoleType.getName() + "...");
         this.consoleType = consoleType;
 
     }

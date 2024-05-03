@@ -1,5 +1,6 @@
 package com.dbn.execution.compiler.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.execution.compiler.CompileType;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
@@ -7,11 +8,10 @@ import com.dbn.execution.compiler.options.CompilerSettings;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class CompileInvalidObjectsAction extends DumbAwareAction {
+public class CompileInvalidObjectsAction extends BasicAction {
     private DBObjectRef<DBSchema> schemaRef;
     public CompileInvalidObjectsAction(DBSchema schema) {
         super("Compile invalid objects");

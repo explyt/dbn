@@ -1,5 +1,6 @@
 package com.dbn.execution.compiler.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.compiler.CompileType;
@@ -13,11 +14,10 @@ import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-public class CompileObjectAction extends DumbAwareAction {
+public class CompileObjectAction extends BasicAction {
     private DBObjectRef<DBSchemaObject> objectRef;
     private DBContentType contentType;
     private CompileType compileType;

@@ -1,7 +1,10 @@
 package com.dbn.common.ui;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.property.PropertyHolder;
+import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Popups;
@@ -10,11 +13,8 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Context;
 import com.dbn.common.util.Strings;
-import com.dbn.common.property.PropertyHolder;
-import com.dbn.common.property.PropertyHolderBase;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.Gray;
@@ -211,7 +211,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         return getName(value);
     }
 
-    public class SelectValueAction extends DumbAwareAction {
+    public class SelectValueAction extends BasicAction {
         private final T value;
 
         SelectValueAction(T value) {
@@ -232,7 +232,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         }
     }
 
-    private class AddValueAction extends DumbAwareAction {
+    private class AddValueAction extends BasicAction {
         AddValueAction() {
             super(valueFactory.getActionName(), null, Icons.ACTION_ADD);
         }

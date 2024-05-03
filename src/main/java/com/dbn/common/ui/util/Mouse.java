@@ -53,6 +53,14 @@ public class Mouse {
         return new Listener();
     }
 
+    public static boolean isMainSingleClick(MouseEvent e) {
+        return e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1;
+    }
+
+    public static boolean isMainDoubleClick(MouseEvent e) {
+        return e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 2;
+    }
+
     public static class Listener implements MouseListener, MouseMotionListener {
         private Consumer<MouseEvent> clickConsumer;
         private Consumer<MouseEvent> pressConsumer;

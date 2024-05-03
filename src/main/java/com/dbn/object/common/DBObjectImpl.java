@@ -285,11 +285,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         ttb.append(false, connection.getName(), false);
     }
 
-    @Override
-    public DBObjectAttribute[] getObjectAttributes(){return null;}
-    @Override
-    public DBObjectAttribute getNameAttribute(){return null;}
-
     @NotNull
     @Override
     public ConnectionId getConnectionId() {
@@ -544,10 +539,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     /*********************************************************
      *                   NavigationItem                      *
      *********************************************************/
-    public FileStatus getFileStatus() {
-        return FileStatus.UNKNOWN;
-    }
-
     @Override
     public ItemPresentation getPresentation() {
         return this;
@@ -555,11 +546,6 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     public TextAttributesKey getTextAttributesKey() {
         return SQLTextAttributesKeys.IDENTIFIER;
-    }
-
-    @Override
-    public String getLocationString() {
-        return null;
     }
 
     @Override

@@ -1,15 +1,16 @@
 package com.dbn.common.index;
 
-import gnu.trove.TIntObjectHashMap;
+
+import gnu.trove.map.hash.TShortObjectHashMap;
 
 public class IndexRegistry<T extends Indexable> {
-    private final TIntObjectHashMap<T> INDEX = new TIntObjectHashMap<>();
+    private final TShortObjectHashMap<T> INDEX = new TShortObjectHashMap<>();
 
     public void add(T element) {
         INDEX.put(element.index(), element);
     }
 
-    public T get(int index) {
+    public T get(short index) {
         return INDEX.get(index);
     }
 

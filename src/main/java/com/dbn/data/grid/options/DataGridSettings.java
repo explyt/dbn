@@ -9,16 +9,13 @@ import com.dbn.options.TopLevelConfig;
 import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
-@Setter
 @EqualsAndHashCode(callSuper = false)
 public class DataGridSettings extends CompositeProjectConfiguration<ProjectSettings, DataGridSettingsForm> implements TopLevelConfig {
-    private final DataGridGeneralSettings generalSettings = new DataGridGeneralSettings(this);
-    private final DataGridSortingSettings sortingSettings = new DataGridSortingSettings(this);
-    private final DataGridAuditColumnSettings auditColumnSettings = new DataGridAuditColumnSettings(this);
+    private final @Getter(lazy = true) DataGridGeneralSettings generalSettings = new DataGridGeneralSettings(this);
+    private final @Getter(lazy = true) DataGridSortingSettings sortingSettings = new DataGridSortingSettings(this);
+    private final @Getter(lazy = true) DataGridAuditColumnSettings auditColumnSettings = new DataGridAuditColumnSettings(this);
 
     public DataGridSettings(ProjectSettings parent) {
         super(parent);
@@ -77,9 +74,9 @@ public class DataGridSettings extends CompositeProjectConfiguration<ProjectSetti
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-                generalSettings,
-                sortingSettings,
-                auditColumnSettings
+                getGeneralSettings(),
+                getSortingSettings(),
+                getAuditColumnSettings()
         };
     }
 }

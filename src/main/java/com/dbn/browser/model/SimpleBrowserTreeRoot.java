@@ -181,10 +181,6 @@ public final class SimpleBrowserTreeRoot extends StatefulDisposableBase implemen
     /*********************************************************
      *                 ItemPresentation                      *
      *********************************************************/
-    @Override
-    public String getLocationString() {
-        return null;
-    }
 
     @Override
     public Icon getIcon(boolean open) {

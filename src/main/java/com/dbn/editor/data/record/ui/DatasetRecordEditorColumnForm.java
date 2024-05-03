@@ -4,6 +4,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.data.editor.ui.*;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.type.DBDataType;
@@ -32,7 +33,7 @@ import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.model.RecordStatus.DELETED;
 
-public class DatasetRecordEditorColumnForm extends DBNFormBase {
+public class DatasetRecordEditorColumnForm extends DBNFormBase implements ComponentAligner.Form {
     private JLabel columnLabel;
     private JPanel valueFieldPanel;
     private JLabel dataTypeLabel;
@@ -176,15 +177,9 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase {
         return cell;
     }
 
-    protected int[] getMetrics(int[] metrics) {
-        return new int[] {
-            Math.max(metrics[0], (int) columnLabel.getPreferredSize().getWidth()),
-            Math.max(metrics[1], (int) dataTypeLabel.getPreferredSize().getWidth())};
-    }
-
-    protected void adjustMetrics(int[] metrics) {
-        columnLabel.setPreferredSize(new Dimension(metrics[0], columnLabel.getHeight()));
-        dataTypeLabel.setPreferredSize(new Dimension(metrics[1], valueFieldPanel.getHeight()));
+    @Override
+    public Component[] getAlignableComponents() {
+        return new Component[]{columnLabel, dataTypeLabel};
     }
 
     public JComponent getEditorComponent() {

@@ -5,6 +5,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.listener.ComboBoxSelectionKeyListener;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.util.Strings;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldPopupType;
@@ -31,7 +32,7 @@ import java.util.Set;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 
-public class StatementExecutionVariableValueForm extends DBNFormBase {
+public class StatementExecutionVariableValueForm extends DBNFormBase implements ComponentAligner.Form {
     private JPanel mainPanel;
     private JLabel variableNameLabel;
     private JPanel valueFieldPanel;
@@ -159,17 +160,10 @@ public class StatementExecutionVariableValueForm extends DBNFormBase {
         executionManager.cacheVariable(executionProcessor.getVirtualFile(), variable);
     }
 
-    protected int[] getMetrics(int[] metrics) {
-        return new int[] {
-            Math.max(metrics[0], (int) variableNameLabel.getPreferredSize().getWidth()),
-            Math.max(metrics[1], (int) valueFieldPanel.getPreferredSize().getWidth())};
+    @Override
+    public Component[] getAlignableComponents() {
+        return new Component[]{variableNameLabel, valueFieldPanel};
     }
-
-    protected void adjustMetrics(int[] metrics) {
-        variableNameLabel.setPreferredSize(new Dimension(metrics[0], variableNameLabel.getHeight()));
-        valueFieldPanel.setPreferredSize(new Dimension(metrics[1], valueFieldPanel.getHeight()));
-    }
-
 
     @NotNull
     @Override

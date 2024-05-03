@@ -157,7 +157,7 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
 
     @Override
     public Icon getIcon(int flags) {
-        return Icons.PROJECT;
+        return Icons.CONNECTIONS;
     }
 
     @Override
@@ -215,11 +215,6 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
     @Override
     public String getName() {
         return Commons.nvl(getPresentableText(), "Connection Bundle");
-    }
-
-    @Override
-    public String getLocationString() {
-        return null;
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -64,10 +65,6 @@ public class CompilerMessage extends ConsoleMessage implements Comparable<Compil
 
         subjectIdentifier = extractIdentifier(text, '\'');
         if (subjectIdentifier == null) subjectIdentifier = extractIdentifier(text, '"');
-    }
-
-    public String getSubjectIdentifier() {
-        return subjectIdentifier;
     }
 
     private static String extractIdentifier(String message, char identifierQuoteChar) {
@@ -126,6 +123,19 @@ public class CompilerMessage extends ConsoleMessage implements Comparable<Compil
             return line - that.line;
         }
         return that.getType().compareTo(this.getType());
+    }
+
+    public boolean isSameResult(CompilerMessage that) {
+        return this.getCompilerResult() == that.getCompilerResult();
+    }
+    public boolean isSameTarget(CompilerMessage that) {
+        if (this.contentType != that.contentType) return false;
+
+        var thisObject = this.compilerResult.getObjectRef();
+        var thatObject = that.compilerResult.getObjectRef();
+        if (!Objects.equals(thisObject, thatObject)) return false;
+
+        return true;
     }
 
     @Override

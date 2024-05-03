@@ -12,9 +12,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.dispose.Checks.isValid;
 
 public class ExecutionResultRerunAction extends AbstractExecutionResultAction {
-    public ExecutionResultRerunAction() {
-        super("Rerun Statement", Icons.EXEC_RESULT_RERUN);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
@@ -33,5 +30,6 @@ public class ExecutionResultRerunAction extends AbstractExecutionResultAction {
 
         presentation.setEnabled(enabled);
         presentation.setText("Rerun Statement");
+        presentation.setIcon(Icons.EXEC_RESULT_RERUN);
     }
 }

@@ -11,16 +11,15 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 @EqualsAndHashCode(callSuper = false)
 public class DatabaseBrowserSettings
         extends CompositeProjectConfiguration<ProjectSettings, DatabaseBrowserSettingsForm>
         implements TopLevelConfig {
 
-    private final DatabaseBrowserGeneralSettings generalSettings = new DatabaseBrowserGeneralSettings(this);
-    private final DatabaseBrowserFilterSettings filterSettings   = new DatabaseBrowserFilterSettings(this);
-    private final DatabaseBrowserSortingSettings sortingSettings = new DatabaseBrowserSortingSettings(this);
-    private final DatabaseBrowserEditorSettings editorSettings   = new DatabaseBrowserEditorSettings(this);
+    private final @Getter(lazy = true) DatabaseBrowserGeneralSettings generalSettings = new DatabaseBrowserGeneralSettings(this);
+    private final @Getter(lazy = true) DatabaseBrowserFilterSettings filterSettings   = new DatabaseBrowserFilterSettings(this);
+    private final @Getter(lazy = true) DatabaseBrowserSortingSettings sortingSettings = new DatabaseBrowserSortingSettings(this);
+    private final @Getter(lazy = true) DatabaseBrowserEditorSettings editorSettings   = new DatabaseBrowserEditorSettings(this);
 
     public DatabaseBrowserSettings(ProjectSettings parent) {
         super(parent);
@@ -70,10 +69,10 @@ public class DatabaseBrowserSettings
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-                generalSettings,
-                filterSettings,
-                sortingSettings,
-                editorSettings};
+                getGeneralSettings(),
+                getFilterSettings(),
+                getSortingSettings(),
+                getEditorSettings()};
     }
 
     @Override

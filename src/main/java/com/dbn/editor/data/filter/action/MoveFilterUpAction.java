@@ -4,12 +4,13 @@ import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.ui.DatasetFilterList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
 public class MoveFilterUpAction extends AbstractFilterListAction {
 
     public MoveFilterUpAction(DatasetFilterList filterList) {
-        super(filterList, "Move selection up", Icons.ACTION_MOVE_UP);
+        super(filterList);
     }
 
     @Override
@@ -23,6 +24,11 @@ public class MoveFilterUpAction extends AbstractFilterListAction {
     @Override
     public void update(AnActionEvent e) {
         int[] index = getFilterList().getSelectedIndices();
-        e.getPresentation().setEnabled(index.length == 1 && index[0] > 0);
+        boolean enabled = index.length == 1 && index[0] > 0;
+
+        Presentation presentation = e.getPresentation();
+        presentation.setEnabled(enabled);
+        presentation.setText("Move Selection Up");
+        presentation.setIcon(Icons.ACTION_MOVE_UP);
     }
 }

@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class MiscellaneousConnectionAction extends AbstractConnectionAction {
     public MiscellaneousConnectionAction(@NotNull ConnectionHandler connection) {
-        super("Dev Test", connection);
+        super(connection);
     }
 
     @Override
@@ -22,5 +22,6 @@ public class MiscellaneousConnectionAction extends AbstractConnectionAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler connection) {
         presentation.setVisible(Diagnostics.isBulkActionsEnabled());
+        presentation.setText("Dev Test");
     }
 }

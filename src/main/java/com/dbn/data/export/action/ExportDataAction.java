@@ -1,5 +1,6 @@
 package com.dbn.data.export.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.util.Dialogs;
@@ -7,11 +8,10 @@ import com.dbn.data.export.ui.ExportDataDialog;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.object.DBDataset;
 import com.dbn.object.lookup.DBObjectRef;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
-public class ExportDataAction extends AnAction {
+public class ExportDataAction extends BasicAction {
     private final WeakRef<ResultSetTable<?>> table;
     private final DBObjectRef<DBDataset> dataset;
 

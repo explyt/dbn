@@ -12,10 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class KillSessionsAction extends AbstractSessionBrowserAction {
 
-    public KillSessionsAction() {
-        super("Kill Sessions", Icons.ACTION_KILL_SESSION);
-    }
-
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
         SessionBrowser sessionBrowser = getSessionBrowser(e);
@@ -38,6 +34,7 @@ public class KillSessionsAction extends AbstractSessionBrowserAction {
 
         Presentation presentation = e.getPresentation();
         presentation.setText("Kill Sessions");
+        presentation.setIcon(Icons.ACTION_KILL_SESSION);
         presentation.setVisible(visible);
         presentation.setEnabled(enabled);
     }

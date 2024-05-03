@@ -16,6 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import static com.dbn.connection.jdbc.ResourceStatus.ACTIVE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.lang.Math.min;
 
 @Getter
 @Setter
@@ -295,7 +296,8 @@ public class DBNStatement<T extends Statement> extends DBNResource<T> implements
 
     @Override
     public void setFetchSize(int rows) {
-        Unsafe.silent(this, s -> s.inner.setFetchSize(Math.max(rows, 100)));
+        // do not allow more than 50 record blocks to avoid network packet-size limits (socket closed exceptions)
+        Unsafe.silent(this, s -> s.inner.setFetchSize(min(rows, 50)));
     }
 
     @Override

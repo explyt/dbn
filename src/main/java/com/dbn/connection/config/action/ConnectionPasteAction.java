@@ -10,9 +10,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ConnectionPasteAction extends ConnectionSettingsAction {
-    public ConnectionPasteAction() {
-        super("Paste From Clipboard", Icons.CONNECTION_PASTE);
-    }
 
     @Override
     protected void actionPerformed(
@@ -31,6 +28,10 @@ public class ConnectionPasteAction extends ConnectionSettingsAction {
             @Nullable ConnectionBundleSettingsForm target) {
 
         String clipboardString = Clipboard.getStringContent();
-        presentation.setEnabled(clipboardString != null && clipboardString.contains("connection-configurations"));
+        boolean enabled = clipboardString != null && clipboardString.contains("connection-configurations");
+
+        presentation.setEnabled(enabled);
+        presentation.setText("Paste From Clipboard");
+        presentation.setIcon(Icons.CONNECTION_PASTE);
     }
 }

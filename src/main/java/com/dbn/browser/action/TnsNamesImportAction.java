@@ -9,8 +9,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class TnsNamesImportAction extends ProjectAction {
-    TnsNamesImportAction() {
-        super("Import TNS Names", null, null);
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setText("Import TNS Names");
     }
 
     @Override

@@ -1,9 +1,11 @@
 package com.dbn.common.project;
 
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.routine.Consumer;
-import com.dbn.common.util.Unsafe;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.util.Unsafe;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
@@ -12,6 +14,7 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.util.Conditional.when;
 
 @UtilityClass
 public final class Projects {
@@ -65,4 +68,11 @@ public final class Projects {
         return ProjectManager.getInstance().getDefaultProject();
     }
 
+
+    public static Disposable closeAwareDisposable(Project project) {
+        // void disposable - nothing to dispose, used in the disposal chains as parent-disposable
+        Disposable disposable = () -> {};
+        projectClosed(p -> when(p == project, () -> Disposer.dispose(disposable)));
+        return disposable;
+    }
 }

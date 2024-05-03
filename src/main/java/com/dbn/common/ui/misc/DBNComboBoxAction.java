@@ -1,18 +1,18 @@
 package com.dbn.common.ui.misc;
 
+import com.dbn.common.action.BackgroundUpdatedAction;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.util.Context;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAware;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
 
-public abstract class DBNComboBoxAction extends ComboBoxAction implements DumbAware {
+public abstract class DBNComboBoxAction extends ComboBoxAction implements BackgroundUpdatedAction {
     @NotNull
     @Override
     public JComponent createCustomComponent(@NotNull Presentation presentation) {

@@ -16,7 +16,6 @@ public class ObjectNavigationListShowAllAction extends ProjectAction {
     private final DBObject parentObject;
 
     ObjectNavigationListShowAllAction(DBObject parentObject, DBObjectNavigationList navigationList) {
-        super("Show all...");
         this.parentObject = parentObject;
         this.navigationList = navigationList;
     }
@@ -39,5 +38,10 @@ public class ObjectNavigationListShowAllAction extends ProjectAction {
             popup.showInCenterOf(activeBrowserTree);
         }
         //popup.show(DatabaseBrowserComponent.getInstance(project).getBrowserPanel().getTree());
+    }
+
+    @Override
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        e.getPresentation().setText("Show All...");
     }
 }

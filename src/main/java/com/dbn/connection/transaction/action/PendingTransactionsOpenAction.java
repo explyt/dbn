@@ -12,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 public class PendingTransactionsOpenAction extends AbstractConnectionAction {
 
     public PendingTransactionsOpenAction(ConnectionHandler connection) {
-        super("Show uncommitted changes", connection);
+        super(connection);
 
     }
 
@@ -27,5 +27,6 @@ public class PendingTransactionsOpenAction extends AbstractConnectionAction {
         boolean enabled = connection != null && connection.hasUncommittedChanges();
 
         presentation.setEnabled(enabled);
+        presentation.setText("Show Uncommitted Changes");
     }
 }

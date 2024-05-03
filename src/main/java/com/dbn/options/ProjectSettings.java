@@ -39,19 +39,19 @@ public class ProjectSettings
         extends CompositeProjectConfiguration<ProjectConfiguration, ProjectSettingsForm>
         implements SearchableConfigurable.Parent, Cloneable<ProjectSettings> {
 
-    private final GeneralProjectSettings generalSettings           = new GeneralProjectSettings(this);
-    private final DatabaseBrowserSettings browserSettings          = new DatabaseBrowserSettings(this);
-    private final NavigationSettings navigationSettings            = new NavigationSettings(this);
-    private final DataGridSettings dataGridSettings                = new DataGridSettings(this);
-    private final DataEditorSettings dataEditorSettings            = new DataEditorSettings(this);
-    private final CodeEditorSettings codeEditorSettings            = new CodeEditorSettings(this);
-    private final CodeCompletionSettings codeCompletionSettings    = new CodeCompletionSettings(this);
-    private final ProjectCodeStyleSettings codeStyleSettings       = new ProjectCodeStyleSettings(this);
-    private final ExecutionEngineSettings executionEngineSettings  = new ExecutionEngineSettings(this);
-    private final OperationSettings operationSettings              = new OperationSettings(this);
-    private final DDLFileSettings ddlFileSettings                  = new DDLFileSettings(this);
-    private final ConnectionBundleSettings connectionSettings      = new ConnectionBundleSettings(this);
-    private final AIProvidersSettings aiProvidersSettings          = new AIProvidersSettings(this);
+    private final @Getter(lazy = true) GeneralProjectSettings generalSettings           = new GeneralProjectSettings(this);
+    private final @Getter(lazy = true) DatabaseBrowserSettings browserSettings          = new DatabaseBrowserSettings(this);
+    private final @Getter(lazy = true) NavigationSettings navigationSettings            = new NavigationSettings(this);
+    private final @Getter(lazy = true) DataGridSettings dataGridSettings                = new DataGridSettings(this);
+    private final @Getter(lazy = true) DataEditorSettings dataEditorSettings            = new DataEditorSettings(this);
+    private final @Getter(lazy = true) CodeEditorSettings codeEditorSettings            = new CodeEditorSettings(this);
+    private final @Getter(lazy = true) CodeCompletionSettings codeCompletionSettings    = new CodeCompletionSettings(this);
+    private final @Getter(lazy = true) ProjectCodeStyleSettings codeStyleSettings       = new ProjectCodeStyleSettings(this);
+    private final @Getter(lazy = true) ExecutionEngineSettings executionEngineSettings  = new ExecutionEngineSettings(this);
+    private final @Getter(lazy = true) OperationSettings operationSettings              = new OperationSettings(this);
+    private final @Getter(lazy = true) DDLFileSettings ddlFileSettings                  = new DDLFileSettings(this);
+    private final @Getter(lazy = true) ConnectionBundleSettings connectionSettings      = new ConnectionBundleSettings(this);
+    private final @Getter(lazy = true) AIProvidersSettings aiProvidersSettings          = new AIProvidersSettings(this);
 
     public ProjectSettings(Project project) {
         super(project);
@@ -136,19 +136,19 @@ public class ProjectSettings
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-                connectionSettings,
-                browserSettings,
-                navigationSettings,
-                //codeStyleSettings,
-                dataGridSettings,
-                dataEditorSettings,
-                codeEditorSettings,
-                codeCompletionSettings,
-                executionEngineSettings,
-                operationSettings,
-                ddlFileSettings,
-                generalSettings,
-                aiProvidersSettings};
+                getConnectionSettings(),
+                getBrowserSettings(),
+                getNavigationSettings(),
+                //getCodeStyleSettings(),
+                getDataGridSettings(),
+                getDataEditorSettings(),
+                getCodeEditorSettings(),
+                getCodeCompletionSettings(),
+                getExecutionEngineSettings(),
+                getOperationSettings(),
+                getDdlFileSettings(),
+                getGeneralSettings(),
+                getAiProvidersSettings()};
     }
 
     /*********************************************************

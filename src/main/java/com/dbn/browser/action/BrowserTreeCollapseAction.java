@@ -10,14 +10,12 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class BrowserTreeCollapseAction extends ProjectAction {
-    public BrowserTreeCollapseAction() {
-        super("Collapse all", null, Icons.ACTION_COLLAPSE_ALL);
-    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Collapse All");
+        presentation.setIcon(Icons.ACTION_COLLAPSE_ALL);
     }
 
     @Override

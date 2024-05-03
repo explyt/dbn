@@ -1,5 +1,6 @@
 package com.dbn.connection.resource.ui;
 
+import com.dbn.common.action.BasicActionButton;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
@@ -21,7 +22,6 @@ import com.dbn.connection.transaction.TransactionListener;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.AnActionButton;
-import com.intellij.ui.DumbAwareActionButton;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
@@ -112,7 +112,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         rollbackButton.setEnabled(enabled);
     }
 
-    private final AnActionButton disconnectAction = new DumbAwareActionButton("Disconnect", null, Icons.ACTION_DISCONNECT_SESSION) {
+    private final AnActionButton disconnectAction = new BasicActionButton("Disconnect", null, Icons.ACTION_DISCONNECT_SESSION) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
@@ -145,7 +145,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
 
     };
 
-    private final AnActionButton deleteSessionAction = new DumbAwareActionButton("Delete Session", null, Icons.ACTION_DELETE) {
+    private final AnActionButton deleteSessionAction = new BasicActionButton("Delete Session", null, Icons.ACTION_DELETE) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
@@ -173,7 +173,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         }
     };
 
-    private final AnActionButton renameSessionAction = new DumbAwareActionButton("Rename Session", null, Icons.ACTION_EDIT) {
+    private final AnActionButton renameSessionAction = new BasicActionButton("Rename Session", null, Icons.ACTION_EDIT) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();

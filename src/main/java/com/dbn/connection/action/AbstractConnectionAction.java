@@ -14,13 +14,10 @@ import javax.swing.*;
 public abstract class AbstractConnectionAction extends ContextAction<ConnectionHandler> {
     private final ConnectionRef connection;
 
-    public AbstractConnectionAction(String text, @NotNull ConnectionHandler connection) {
-        this(text, null, connection);
+    public AbstractConnectionAction(@NotNull ConnectionHandler connection) {
+        this.connection = connection.ref();
+    }
 
-    }
-    public AbstractConnectionAction(String text, Icon icon, @NotNull ConnectionHandler connection) {
-        this(text, null, icon, connection);
-    }
     public AbstractConnectionAction(String text, String description, Icon icon, @NotNull ConnectionHandler connection) {
         super(text, description, icon);
         this.connection = connection.ref();

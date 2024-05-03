@@ -9,9 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ConnectionDuplicateAction extends ConnectionSettingsAction {
-    public ConnectionDuplicateAction() {
-        super("Duplicate Connection", Icons.ACTION_COPY);
-    }
 
     @Override
     protected void actionPerformed(
@@ -30,5 +27,7 @@ public class ConnectionDuplicateAction extends ConnectionSettingsAction {
             @Nullable ConnectionBundleSettingsForm target) {
 
         presentation.setEnabled(target != null && target.getSelectionSize() == 1);
+        presentation.setText("Duplicate Connection");
+        presentation.setIcon(Icons.ACTION_COPY);
     }
 }

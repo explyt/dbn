@@ -13,9 +13,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ParserDiagnosticsRunAction extends AbstractParserDiagnosticsAction {
-    public ParserDiagnosticsRunAction() {
-        super("Run Diagnostics", Icons.ACTION_EXECUTE);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
@@ -32,8 +29,10 @@ public class ParserDiagnosticsRunAction extends AbstractParserDiagnosticsAction 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ParserDiagnosticsForm form) {
         ParserDiagnosticsManager manager = getManager(project);
+        boolean enabled = !manager.isRunning() && !manager.hasDraftResults();
 
         presentation.setText("Run Diagnostics");
-        presentation.setEnabled(!manager.isRunning() && !manager.hasDraftResults());
+        presentation.setIcon(Icons.ACTION_EXECUTE);
+        presentation.setEnabled(enabled);
     }
 }

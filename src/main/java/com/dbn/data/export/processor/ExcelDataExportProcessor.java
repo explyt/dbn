@@ -169,10 +169,6 @@ public class ExcelDataExportProcessor extends DataExportProcessor{
         return new HSSFWorkbook();
     }
 
-    protected RichTextString createRichText(String string) {
-        return new HSSFRichTextString(string);
-    }
-
     private class CellStyleCache {
         private final Workbook workbook;
         private final Formatter formatter;

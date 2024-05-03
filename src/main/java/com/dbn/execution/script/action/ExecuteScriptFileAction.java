@@ -14,10 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class ExecuteScriptFileAction extends ProjectAction {
 
-    public ExecuteScriptFileAction() {
-        super("Execute SQL Script", null, Icons.EXECUTE_SQL_SCRIPT);
-    }
-
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         VirtualFile virtualFile = Lookups.getVirtualFile(e);
@@ -35,10 +31,12 @@ public class ExecuteScriptFileAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        Presentation presentation = e.getPresentation();
         VirtualFile virtualFile = Lookups.getVirtualFile(e);
-        presentation.setVisible(isAvailableFor(virtualFile));
-        presentation.setIcon(Icons.EXECUTE_SQL_SCRIPT);
+        boolean visible = isAvailableFor(virtualFile);
+
+        Presentation presentation = e.getPresentation();
+        presentation.setVisible(visible);
         presentation.setText("Execute SQL Script");
+        presentation.setIcon(Icons.EXECUTE_SQL_SCRIPT);
     }
 }

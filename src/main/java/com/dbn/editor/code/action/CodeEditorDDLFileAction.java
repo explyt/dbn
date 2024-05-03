@@ -1,7 +1,7 @@
 package com.dbn.editor.code.action;
 
-import com.dbn.common.action.GroupPopupAction;
 import com.dbn.common.action.Lookups;
+import com.dbn.common.action.ProjectPopupAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.ddl.action.DDLFileAttachAction;
 import com.dbn.ddl.action.DDLFileCreateAction;
@@ -17,13 +17,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-public class CodeEditorDDLFileAction extends GroupPopupAction {
-    public CodeEditorDDLFileAction() {
-        super("DDL File", "DDL File", Icons.CODE_EDITOR_DDL_FILE);
-    }
-
+public class CodeEditorDDLFileAction extends ProjectPopupAction {
     @Override
-    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+    public void update(@NotNull AnActionEvent e, Project project) {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.CODE_EDITOR_DDL_FILE);
@@ -32,7 +28,7 @@ public class CodeEditorDDLFileAction extends GroupPopupAction {
     }
 
     @Override
-    protected AnAction[] getActions(AnActionEvent e) {
+    public AnAction[] getChildren(AnActionEvent e) {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         if (sourceCodeFile != null) {
             DBSchemaObject object = sourceCodeFile.getObject();

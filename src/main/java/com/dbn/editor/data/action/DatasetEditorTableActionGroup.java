@@ -1,5 +1,6 @@
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
@@ -19,7 +20,6 @@ import com.dbn.object.common.list.DBObjectNavigationList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ide.CopyPasteManager;
-import com.intellij.openapi.project.DumbAwareAction;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -152,7 +152,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         return datasetEditor.ensure();
     }
 
-    private class HideColumnAction extends DumbAwareAction {
+    private class HideColumnAction extends BasicAction {
         private HideColumnAction() {
             super("Hide Column");
         }
@@ -165,7 +165,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class HideAuditColumnsAction extends DumbAwareAction {
+    private class HideAuditColumnsAction extends BasicAction {
         private HideAuditColumnsAction() {
             super("Hide Audit Columns");
         }
@@ -177,7 +177,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class ShowAuditColumnsAction extends DumbAwareAction {
+    private class ShowAuditColumnsAction extends BasicAction {
         private ShowAuditColumnsAction() {
             super("Show Audit Columns");
         }
@@ -189,7 +189,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class SortAscendingAction extends DumbAwareAction {
+    private class SortAscendingAction extends BasicAction {
         private SortAscendingAction() {
             super("Sort Ascending", null, Icons.ACTION_SORT_ASC);
         }
@@ -203,7 +203,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class SortDescendingAction extends DumbAwareAction {
+    private class SortDescendingAction extends BasicAction {
         private SortDescendingAction() {
             super("Sort Descending", null, Icons.ACTION_SORT_DESC);
         }
@@ -217,7 +217,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class CreateFilterAction extends DumbAwareAction {
+    private class CreateFilterAction extends BasicAction {
         private final boolean filterByValue;
         private CreateFilterAction(boolean filterByValue) {
             super(filterByValue ? "Filter by This Value" : "Filter by Column...");
@@ -233,7 +233,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class CreateClipboardFilterAction extends DumbAwareAction {
+    private class CreateClipboardFilterAction extends BasicAction {
         private final String text;
         private final boolean like;
         private CreateClipboardFilterAction(String text, boolean like) {
@@ -252,7 +252,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         }
     }
 
-    private class CreateAdditionalConditionAction extends DumbAwareAction {
+    private class CreateAdditionalConditionAction extends BasicAction {
         private CreateAdditionalConditionAction() {
             super(columnValue == null ?
                     "Add Column to Filter..." :

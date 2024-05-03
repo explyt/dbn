@@ -25,6 +25,8 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
+
 public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel> {
 
     CmdLineInterfacesTable(DBNForm parent, CmdLineInterfaceBundle environmentTypes) {
@@ -55,20 +57,20 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
     }
 
     private final MouseListener mouseListener = Mouse.listener().onClick(e -> {
-        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
-            Point point = e.getPoint();
-            int rowIndex = rowAtPoint(point);
-            int columnIndex = columnAtPoint(point);
-            DatabaseType databaseType = (DatabaseType) getValueAt(rowIndex, 0);
-            if (columnIndex == 2) {
-                Project project = getProject();
-                String executablePath = (String) getValueAt(rowIndex, 2);
-                ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
-                VirtualFile virtualFile = scriptExecutionManager.selectCmdLineExecutable(databaseType, executablePath);
-                if (virtualFile != null) {
-                    setValueAt(virtualFile.getPath(), rowIndex, 2);
-                }
-            }
+        if (!isMainSingleClick(e)) return;
+
+        Point point = e.getPoint();
+        int rowIndex = rowAtPoint(point);
+        int columnIndex = columnAtPoint(point);
+        if (columnIndex != 2) return;
+
+        DatabaseType databaseType = (DatabaseType) getValueAt(rowIndex, 0);
+        Project project = getProject();
+        String executablePath = (String) getValueAt(rowIndex, 2);
+        ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
+        VirtualFile virtualFile = scriptExecutionManager.selectCmdLineExecutable(databaseType, executablePath);
+        if (virtualFile != null) {
+            setValueAt(virtualFile.getPath(), rowIndex, 2);
         }
     });
 
@@ -80,7 +82,7 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
     }
 
 
-    private ListSelectionListener selectionListener = e -> {
+    private final ListSelectionListener selectionListener = e -> {
         if (!e.getValueIsAdjusting()) {
             startCellEditing();
         }

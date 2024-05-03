@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
+
+<svg
+   width="16"
+   height="16"
+   viewBox="0 0 16 16"
+   fill="none"
+   version="1.1"
+   id="svg1"
+   sodipodi:docname="Execute_01.svg"
+   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs1" />
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="true"
+     inkscape:zoom="32"
+     inkscape:cx="0.171875"
+     inkscape:cy="7.640625"
+     inkscape:window-width="2560"
+     inkscape:window-height="1377"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg1">
+    <inkscape:grid
+       id="grid1"
+       units="px"
+       originx="0"
+       originy="0"
+       spacingx="0.1"
+       spacingy="0.1"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       dotted="false"
+       gridanglex="30"
+       gridanglez="30"
+       visible="true" />
+  </sodipodi:namedview>
+  <path
+     style="color:#000000;fill:#f2fcf3;-inkscape-stroke:none"
+     d="m 12.999988,7.133958 c 0.6667,0.38491 0.6667,1.34715 0,1.73205 l -9.0000005,5.19618 c -0.66667,0.3849 -1.5,-0.0962 -1.5,-0.866 V 2.803838 c 0,-0.7698 0.83333,-1.25093 1.5,-0.86603 z"
+     id="path2" />
+  <path
+     style="color:#000000;fill:#208a3c;stroke-width:1.02284;-inkscape-stroke:none"
+     d="M 4.25,1.203807 C 3.2708312,0.61237095 2,1.3818067 2,2.5646804 V 13.435323 c 0,1.182873 1.2708409,1.952303 2.25,1.360873 l 9,-5.437366 c 0.979192,-0.5914236 0.979186,-2.1262246 0,-2.7176598 l -0.5,0.9052055 c 0.354213,0.2139472 0.354207,0.6933109 0,0.9072488 l -9,5.4353215 C 3.3958204,14.102878 3,13.863166 3,13.435323 V 2.5646804 C 3,2.136831 3.3958301,1.8971307 3.75,2.1110561 l 9,5.4353196 0.5,-0.9052055 z"
+     id="path3"
+     sodipodi:nodetypes="cssccccccsscccc" />
+</svg>

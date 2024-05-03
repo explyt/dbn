@@ -12,7 +12,7 @@ import com.dbn.language.common.TokenType;
 import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.ElementTypeBundle;
 import com.dbn.language.common.element.util.NextTokenResolver;
-import gnu.trove.THashSet;
+import gnu.trove.set.hash.THashSet;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;

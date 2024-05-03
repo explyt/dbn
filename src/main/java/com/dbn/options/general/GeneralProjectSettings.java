@@ -5,19 +5,18 @@ import com.dbn.common.locale.options.RegionalSettings;
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
 import com.dbn.options.ConfigId;
-import com.dbn.options.TopLevelConfig;
 import com.dbn.options.ProjectSettings;
+import com.dbn.options.TopLevelConfig;
 import com.dbn.options.general.ui.GeneralProjectSettingsForm;
 import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 @EqualsAndHashCode(callSuper = false)
 public class GeneralProjectSettings extends CompositeProjectConfiguration<ProjectSettings, GeneralProjectSettingsForm> implements TopLevelConfig {
-    private final RegionalSettings regionalSettings       = new RegionalSettings(this);
-    private final EnvironmentSettings environmentSettings = new EnvironmentSettings(this);
+    private final @Getter(lazy = true) RegionalSettings regionalSettings       = new RegionalSettings(this);
+    private final @Getter(lazy = true) EnvironmentSettings environmentSettings = new EnvironmentSettings(this);
 
     public GeneralProjectSettings(ProjectSettings parent) {
         super(parent);
@@ -65,7 +64,9 @@ public class GeneralProjectSettings extends CompositeProjectConfiguration<Projec
 
     @Override
     protected Configuration[] createConfigurations() {
-        return new Configuration[] {regionalSettings, environmentSettings};
+        return new Configuration[] {
+                getRegionalSettings(),
+                getEnvironmentSettings()};
     }
 
 }

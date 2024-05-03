@@ -6133,7 +6133,7 @@
     <element-def attributes="SPECIFIC" description="CREATE USER statement" id="create_user">
         <token id="03521" type-id="KW_USER" />
         <object-def attributes="SUBJECT" id="03522" type="USER" />
-        <one-of id="03523">
+        <one-of id="03523" optional="true">
             <sequence id="03524">
                 <token id="03525" type-id="KW_IDENTIFIED" />
                 <one-of id="03526">

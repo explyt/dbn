@@ -169,7 +169,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
     }
 
     public void updateFieldVisibility() {
-        DatabaseUrlType urlType = getUrlType();
+        DatabaseUrlType urlType = nvl(getUrlType(), DatabaseUrlType.CUSTOM);
 
         boolean tnsVisible = urlType == DatabaseUrlType.TNS;
         boolean flsVisible = urlType == DatabaseUrlType.FILE;

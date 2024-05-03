@@ -13,9 +13,9 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.console.DatabaseConsoleBundle;
-import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.connection.info.ConnectionInfo;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.database.DatabaseCompatibility;
 import com.dbn.database.interfaces.DatabaseInterfaceQueue;
 import com.dbn.database.interfaces.DatabaseInterfaces;
@@ -54,6 +54,7 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
     private final ConnectionRef ref;
     private final DBObjectBundle objectBundle;
     private final ConnectionInstructions instructions = new ConnectionInstructions();
+
     private final DatabaseCompatibility compatibility = DatabaseCompatibility.noFeatures();
     private final DatabaseSessionBundle sessionBundle = new DatabaseSessionBundle(this);
 

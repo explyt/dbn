@@ -77,10 +77,6 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
         return connectionId == null;
     }
 
-    public ConnectionId getConnectionId() {
-        return connectionId;
-    }
-
     @NotNull
     @Override
     public ObjectTypeFilterSettingsForm createConfigurationEditor() {

@@ -13,10 +13,6 @@ import org.jetbrains.annotations.Nullable;
 
 public class DataExportAction extends AbstractDataEditorAction {
 
-    DataExportAction() {
-        super("Export Data", Icons.DATA_EXPORT);
-    }
-
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull DatasetEditor datasetEditor) {
         DBDataset dataset = datasetEditor.getDataset();
@@ -26,6 +22,7 @@ public class DataExportAction extends AbstractDataEditorAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatasetEditor datasetEditor) {
         presentation.setText("Export Data");
+        presentation.setIcon(Icons.DATA_EXPORT);
 
         boolean enabled =
                 datasetEditor != null &&

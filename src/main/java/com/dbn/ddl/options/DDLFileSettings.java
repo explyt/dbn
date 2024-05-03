@@ -11,11 +11,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 @EqualsAndHashCode(callSuper = false)
 public class DDLFileSettings extends CompositeProjectConfiguration<ProjectSettings, DDFileSettingsForm> implements TopLevelConfig {
-    private final DDLFileExtensionSettings extensionSettings = new DDLFileExtensionSettings(this);
-    private final DDLFileGeneralSettings generalSettings = new DDLFileGeneralSettings(this);
+    private final @Getter(lazy = true) DDLFileExtensionSettings extensionSettings = new DDLFileExtensionSettings(this);
+    private final @Getter(lazy = true) DDLFileGeneralSettings generalSettings = new DDLFileGeneralSettings(this);
 
     public DDLFileSettings(ProjectSettings parent) {
         super(parent);
@@ -69,7 +68,7 @@ public class DDLFileSettings extends CompositeProjectConfiguration<ProjectSettin
     @Override
     protected Configuration[] createConfigurations() {
         return new Configuration[] {
-                extensionSettings,
-                generalSettings};
+                getExtensionSettings(),
+                getGeneralSettings()};
     }
 }

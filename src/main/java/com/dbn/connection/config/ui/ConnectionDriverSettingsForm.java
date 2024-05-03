@@ -25,6 +25,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.ComboBoxes.*;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 
 public class ConnectionDriverSettingsForm extends DBNFormBase {
@@ -87,7 +88,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             }
             reloadDriversCheckLabel.setVisible(true);
 
-            Timers.executeLater("TemporaryLabelTimeout", 3000, () -> {
+            Timers.executeLater("TemporaryLabelTimeout", 3, SECONDS, () -> {
                 updateDriverReloadLink();
                 reloadDriversCheckLabel.setVisible(false);
             });

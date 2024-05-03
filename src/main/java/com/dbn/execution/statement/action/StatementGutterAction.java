@@ -1,20 +1,20 @@
 package com.dbn.execution.statement.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.execution.ExecutionStatus;
+import com.dbn.execution.statement.StatementExecutionContext;
+import com.dbn.execution.statement.StatementExecutionManager;
 import com.dbn.execution.statement.processor.StatementExecutionCursorProcessor;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.dbn.execution.statement.result.StatementExecutionStatus;
-import com.dbn.execution.statement.StatementExecutionContext;
-import com.dbn.execution.statement.StatementExecutionManager;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.dbn.language.common.PsiElementRef;
 import com.dbn.language.common.PsiFileRef;
+import com.dbn.language.common.psi.BasePsiElement;
 import com.dbn.language.common.psi.ExecutablePsiElement;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Document;
@@ -22,7 +22,8 @@ import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.util.TextRange;
+import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,13 +32,13 @@ import javax.swing.*;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Checks.isValid;
 
-public class StatementGutterAction extends AnAction {
+public class StatementGutterAction extends BasicAction {
     private final PsiFileRef<DBLanguagePsiFile> psiFile;
-    private final PsiElementRef<ExecutablePsiElement> psiElement;
+    private ExecutablePsiElement psiElement;
 
-    public StatementGutterAction(ExecutablePsiElement executablePsiElement) {
-        psiFile = PsiFileRef.of(executablePsiElement.getFile());
-        psiElement = PsiElementRef.of(executablePsiElement);
+    public StatementGutterAction(ExecutablePsiElement psiElement) {
+        this.psiFile = PsiFileRef.of(psiElement.getFile());
+        this.psiElement = psiElement;
     }
 
     @Nullable
@@ -45,40 +46,39 @@ public class StatementGutterAction extends AnAction {
         return psiFile.get();
     }
 
-    private VirtualFile getVirtualFile() {
-        DBLanguagePsiFile psiFile = getPsiFile();
-        return psiFile == null ? null : psiFile.getVirtualFile();
+    @Nullable
+    public ExecutablePsiElement getPsiElement() {
+        if (isValid(psiElement)) return psiElement;
+
+        // try to restore orphaned gutter actions
+        psiElement = resolvePsiElement();
+        return psiElement;
     }
 
     @Nullable
-    public ExecutablePsiElement getExecutablePsiElement() {
-        ExecutablePsiElement executablePsiElement = PsiElementRef.get(psiElement);
-        if (isValid(executablePsiElement)) return executablePsiElement;
+    private synchronized ExecutablePsiElement resolvePsiElement() {
+        DBLanguagePsiFile psiFile = getPsiFile();
+        if (psiFile == null) return null;
 
-        return null;
+        ExecutablePsiElement psiElement = this.psiElement;
+        if (psiElement == null) return null;
 
-/*
-        return Read.call(this, a -> {
-            DBLanguagePsiFile psiFile = a.getPsiFile();
-            if (isNotValid(psiFile)) return null;
+        TextRange textRange = psiElement.getTextRange();
+        PsiElement psiElementAtOffset = psiFile.findElementAt(textRange.getStartOffset());
 
-            PsiElement elementAtOffset = psiFile.findElementAt(a.elementOffset);
-            if (elementAtOffset != null && !(elementAtOffset instanceof BasePsiElement)) {
-                elementAtOffset = elementAtOffset.getParent();
-            }
-            if (elementAtOffset instanceof ExecutablePsiElement) {
-                return (ExecutablePsiElement) elementAtOffset;
-            } else if (elementAtOffset instanceof BasePsiElement) {
-                BasePsiElement<?> basePsiElement = (BasePsiElement) elementAtOffset;
-                ExecutablePsiElement executablePsiElement = basePsiElement.findEnclosingElement(ExecutablePsiElement.class);
+        BasePsiElement<?> basePsiElement = BasePsiElement.from(psiElementAtOffset);
+        if (basePsiElement == null) return null;
 
-                if (isValid(executablePsiElement)) {
-                    return executablePsiElement;
-                }
-            }
-            return null;
-        });
-*/
+        if (basePsiElement instanceof ExecutablePsiElement) {
+            psiElement = (ExecutablePsiElement) basePsiElement;
+        } else {
+            psiElement = basePsiElement.findEnclosingElement(ExecutablePsiElement.class);
+        }
+
+        if (isNotValid(psiElement)) return null;
+        if (!psiElement.matchesTextRange(textRange)) return null;
+
+        return psiElement;
     }
 
     @Override
@@ -145,8 +145,8 @@ public class StatementGutterAction extends AnAction {
         DBLanguagePsiFile psiFile = getPsiFile();
         if (psiFile == null) return null;
 
-        ExecutablePsiElement executablePsiElement = getExecutablePsiElement();
-        if (executablePsiElement == null) return null;
+        ExecutablePsiElement psiElement = getPsiElement();
+        if (psiElement == null) return null;
 
         Project project = psiFile.getProject();
         Document document = Documents.getDocument(psiFile);
@@ -158,7 +158,7 @@ public class StatementGutterAction extends AnAction {
             if (editor.getDocument() != document) continue;
 
             StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
-            return executionManager.getExecutionProcessor(fileEditor, executablePsiElement, create);
+            return executionManager.getExecutionProcessor(fileEditor, psiElement, create);
         }
         return null;
     }

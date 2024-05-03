@@ -142,9 +142,13 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
     @Override
     public String getCollapsedTitleDetail() {
         String connectionToken = getConnection().getName();
-        SchemaId schemaId = getExecutionInput().getTargetSchemaId();
+        LocalExecutionInput executionInput = getExecutionInput();
+        SchemaId schemaId = executionInput.getTargetSchemaId();
+        SessionId sessionId = executionInput.getTargetSessionId();
+
         String schemaToken = schemaId == null ? "" : (" / " + schemaId);
-        return connectionToken + schemaToken;
+        String sessionToken = sessionId == null ? "" : (" / " + sessionId);
+        return connectionToken + schemaToken + sessionToken;
     }
 
     @Override

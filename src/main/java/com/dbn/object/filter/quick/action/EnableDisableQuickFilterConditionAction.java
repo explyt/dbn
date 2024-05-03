@@ -1,12 +1,12 @@
 package com.dbn.object.filter.quick.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.object.filter.quick.ui.ObjectQuickFilterConditionForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class EnableDisableQuickFilterConditionAction extends DumbAwareAction {
+public class EnableDisableQuickFilterConditionAction extends BasicAction {
     private ObjectQuickFilterConditionForm conditionForm;
 
     public EnableDisableQuickFilterConditionAction(ObjectQuickFilterConditionForm conditionForm) {

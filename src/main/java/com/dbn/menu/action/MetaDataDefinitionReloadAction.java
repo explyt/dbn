@@ -1,13 +1,13 @@
 package com.dbn.menu.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.connection.DatabaseInterfacesBundle;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class MetaDataDefinitionReloadAction extends DumbAwareAction {
+public class MetaDataDefinitionReloadAction extends BasicAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {

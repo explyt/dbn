@@ -1,8 +1,15 @@
 package com.dbn.common.ui.misc;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.latent.Loader;
+import com.dbn.common.property.PropertyHolder;
+import com.dbn.common.property.PropertyHolderBase;
+import com.dbn.common.ui.Presentable;
+import com.dbn.common.ui.PresentableFactory;
+import com.dbn.common.ui.ValueSelectorListener;
+import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.Popups;
@@ -11,16 +18,9 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Context;
 import com.dbn.common.util.Strings;
-import com.dbn.common.property.PropertyHolder;
-import com.dbn.common.property.PropertyHolderBase;
-import com.dbn.common.ui.Presentable;
-import com.dbn.common.ui.PresentableFactory;
-import com.dbn.common.ui.ValueSelectorListener;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.ColoredListCellRenderer;
@@ -167,7 +167,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         setValues(valueLoader.load());
     }
 
-    public class SelectValueAction extends DumbAwareAction {
+    public class SelectValueAction extends BasicAction {
         private final T value;
 
         SelectValueAction(T value) {
@@ -189,7 +189,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         }
     }
 
-    private class AddValueAction extends DumbAwareAction {
+    private class AddValueAction extends BasicAction {
         AddValueAction() {
             super(valueFactory.getActionName(), null, Icons.ACTION_ADD);
         }

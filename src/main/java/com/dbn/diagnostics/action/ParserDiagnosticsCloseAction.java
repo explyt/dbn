@@ -11,9 +11,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ParserDiagnosticsCloseAction extends AbstractParserDiagnosticsAction {
-    public ParserDiagnosticsCloseAction() {
-        super("Close", Icons.ACTION_CLOSE);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
@@ -24,5 +21,6 @@ public class ParserDiagnosticsCloseAction extends AbstractParserDiagnosticsActio
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ParserDiagnosticsForm target) {
         presentation.setText("Close");
+        presentation.setIcon(Icons.ACTION_CLOSE);
     }
 }

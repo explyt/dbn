@@ -93,22 +93,19 @@ public final class Dispatch {
         alarmRequest(new Alarm(), delayMillis, false, runnable);
     }
 
-    public static void alarmRequest(@NotNull Alarm alarm, int delayMillis, boolean cancelRequests, @NotNull Runnable runnable) {
+    public static void alarmRequest(@NotNull Alarm alarm, long delayMillis, boolean cancelRequests, @NotNull Runnable runnable) {
         run(true, () -> {
-            if (!alarm.isDisposed()) {
-                if (cancelRequests) {
-                    alarm.cancelAllRequests();
-                }
+            if (alarm.isDisposed()) return;
+            if (cancelRequests) alarm.cancelAllRequests();
+            if (alarm.isDisposed()) return;
 
-                if (!alarm.isDisposed()) {
-                    alarm.addRequest(runnable, delayMillis);
-                }
-            }
+            alarm.addRequest(runnable, delayMillis);
         });
     }
 
 
     public static boolean isModalState() {
-        return ModalityState.defaultModalityState().dominates(ModalityState.nonModal());
+        // return ModalityState.defaultModalityState().dominates(ModalityState.nonModal());
+        return ModalityState.defaultModalityState().dominates(ModalityState.NON_MODAL);
     }
 }

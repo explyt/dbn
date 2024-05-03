@@ -1,11 +1,8 @@
 package com.dbn.debugger.jdwp.frame;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.util.Strings;
-import com.dbn.language.sql.SQLLanguage;
 import com.intellij.debugger.engine.JavaValueModifier;
 import com.intellij.xdebugger.XExpression;
-import com.intellij.xdebugger.impl.breakpoints.XExpressionImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,12 +14,6 @@ public class DBJdwpDebugValueModifier extends JavaValueModifier {
     DBJdwpDebugValueModifier(DBJdwpDebugValue value) {
         super(value.getJavaValue());
         this.value = value;
-    }
-
-    @Override
-    @Compatibility
-    public void setValue(@NotNull String expression, @NotNull XModificationCallback callback) {
-        setValue(new XExpressionImpl(expression, SQLLanguage.INSTANCE, null), callback);
     }
 
     @Override

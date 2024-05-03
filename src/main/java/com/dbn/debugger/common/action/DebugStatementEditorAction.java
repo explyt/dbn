@@ -28,10 +28,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class DebugStatementEditorAction extends ProjectAction {
 
-    public DebugStatementEditorAction() {
-        super(null);
-    }
-
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = Lookups.getEditor(e);

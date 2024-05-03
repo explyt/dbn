@@ -11,10 +11,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
-@Getter
 @EqualsAndHashCode(callSuper = false)
 public class NavigationSettings extends CompositeProjectConfiguration<ProjectSettings, NavigationSettingsForm> implements TopLevelConfig {
-    private final ObjectsLookupSettings objectsLookupSettings = new ObjectsLookupSettings(this);
+    private final @Getter(lazy = true) ObjectsLookupSettings objectsLookupSettings = new ObjectsLookupSettings(this);
 
     public NavigationSettings(ProjectSettings parent) {
         super(parent);
@@ -68,6 +67,6 @@ public class NavigationSettings extends CompositeProjectConfiguration<ProjectSet
 
     @Override
     protected Configuration[] createConfigurations() {
-        return new Configuration[] {objectsLookupSettings};
+        return new Configuration[] {getObjectsLookupSettings()};
     }
 }

@@ -1,6 +1,7 @@
 package com.dbn.common.locale.options.ui;
 
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.util.Strings;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -16,6 +17,7 @@ public class LocaleOption implements Presentable{
     static {
         Locale[] locales = Locale.getAvailableLocales();
         for (Locale locale : locales) {
+            if (Strings.isNotEmptyOrSpaces(locale.getDisplayName()))
             ALL.add(new LocaleOption(locale));
         }
         ALL.sort(Comparator.comparing(LocaleOption::getName));
@@ -23,14 +25,14 @@ public class LocaleOption implements Presentable{
 
 
     private final Locale locale;
+    private final String name;
 
     public LocaleOption(Locale locale) {
         this.locale = locale;
+        this.name = getName(locale).intern();
     }
 
-    @NotNull
-    @Override
-    public String getName() {
+    private static String getName(Locale locale) {
         return locale.equals(Locale.getDefault()) ?
                 locale.getDisplayName() + " - System default" :
                 locale.getDisplayName();

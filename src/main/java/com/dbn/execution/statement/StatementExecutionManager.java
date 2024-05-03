@@ -299,26 +299,26 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
 
     public void executeStatementAtCursor(@NotNull FileEditor fileEditor) {
         Editor editor = Editors.getEditor(fileEditor);
-        if (editor != null) {
-            DataContext dataContext = Context.getDataContext(editor);
-            StatementExecutionProcessor executionProcessor = getExecutionProcessorAtCursor(fileEditor);
-            if (executionProcessor != null) {
-                executeStatement(executionProcessor, dataContext);
-            } else {
-                Messages.showQuestionDialog(
-                        getProject(),
-                        "Multiple statement execution",
-                        "No statement found under the caret. \nExecute all statements in the file or just the ones after the cursor?",
-                        OPTIONS_MULTIPLE_STATEMENT_EXEC, 0,
-                        (option) -> {
-                            if (option == 0 || option == 1) {
-                                int offset = option == 0 ? 0 : editor.getCaretModel().getOffset();
-                                List<StatementExecutionProcessor> executionProcessors = getExecutionProcessorsFromOffset(fileEditor, offset);
-                                VirtualFile virtualFile = Documents.getVirtualFile(editor);
-                                executeStatements(virtualFile, executionProcessors, dataContext);
-                            }
-                        });
-            }
+        if (isNotValid(editor)) return;
+
+        DataContext dataContext = Context.getDataContext(editor);
+        StatementExecutionProcessor executionProcessor = getExecutionProcessorAtCursor(fileEditor);
+        if (executionProcessor != null) {
+            executeStatement(executionProcessor, dataContext);
+        } else {
+            Messages.showQuestionDialog(
+                    getProject(),
+                    "Multiple statement execution",
+                    "No statement found under the caret. \nExecute all statements in the file or just the ones after the cursor?",
+                    OPTIONS_MULTIPLE_STATEMENT_EXEC, 0,
+                    (option) -> {
+                        if (option == 0 || option == 1) {
+                            int offset = option == 0 ? 0 : editor.getCaretModel().getOffset();
+                            List<StatementExecutionProcessor> executionProcessors = getExecutionProcessorsFromOffset(fileEditor, offset);
+                            VirtualFile virtualFile = Documents.getVirtualFile(editor);
+                            executeStatements(virtualFile, executionProcessors, dataContext);
+                        }
+                    });
         }
 
     }

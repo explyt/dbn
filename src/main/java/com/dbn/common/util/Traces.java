@@ -26,6 +26,24 @@ public final class Traces {
             Progress.class.getName(),
             Failsafe.class.getName()));
 
+    public static boolean isCalledThrough(String ... oneOfClassesNames) {
+        StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
+        try {
+            for (int i = 3; i < callStack.length; i++) {
+                StackTraceElement stackTraceElement = callStack[i];
+                String className = stackTraceElement.getClassName();
+                for (String name : oneOfClassesNames) {
+                    if (Objects.equals(name, className)) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            conditionallyLog(e);
+            return false;
+        }
+        return false;
+    }
     public static boolean isCalledThrough(Class ... oneOfClasses) {
         StackTraceElement[] callStack = Thread.currentThread().getStackTrace();
         try {

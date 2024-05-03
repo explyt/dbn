@@ -13,9 +13,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.dispose.Checks.isValid;
 
 public class ExecutionResultResumeAction extends AbstractExecutionResultAction {
-    public ExecutionResultResumeAction() {
-        super("Fetch Next Records", Icons.EXEC_RESULT_RESUME);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull StatementExecutionCursorResult executionResult) {
@@ -38,5 +35,6 @@ public class ExecutionResultResumeAction extends AbstractExecutionResultAction {
 
         presentation.setEnabled(enabled);
         presentation.setText("Fetch Next Records");
+        presentation.setIcon(Icons.EXEC_RESULT_RESUME);
     }
 }

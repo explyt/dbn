@@ -14,11 +14,10 @@ import javax.swing.*;
 
 public class ConnectionsSortAction extends ProjectAction {
     private SortDirection currentSortDirection = SortDirection.ASCENDING;
-    private ConnectionBundleSettings connectionBundleSettings;
-    private JList list;
+    private final ConnectionBundleSettings connectionBundleSettings;
+    private final JList list;
 
     public ConnectionsSortAction(JList list, ConnectionBundleSettings connectionBundleSettings) {
-        super("Sort connections", null, null);
         this.list = list;
         this.connectionBundleSettings = connectionBundleSettings;
     }
@@ -29,10 +28,10 @@ public class ConnectionsSortAction extends ProjectAction {
         String text;
         if (currentSortDirection != SortDirection.ASCENDING) {
             icon = Icons.ACTION_SORT_ASC;
-            text = "Sort connections ascending";
+            text = "Sort Connections Ascending";
         } else {
             icon = Icons.ACTION_SORT_DESC;
-            text = "Sort connections descending";
+            text = "Sort Connections Descending";
         }
         Presentation presentation = e.getPresentation();
         presentation.setIcon(icon);

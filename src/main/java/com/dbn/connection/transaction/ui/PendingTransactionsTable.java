@@ -33,14 +33,14 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
     }
 
     private void clickEvent(MouseEvent e) {
-        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
-            int selectedRow = getSelectedRow();
-            PendingTransaction transaction = getModel().getValueAt(selectedRow, 0);
-            VirtualFile virtualFile = transaction.getFile();
-            if (!Checks.isValid(virtualFile)) return;
+        if (!Mouse.isMainSingleClick(e)) return;
 
-            Editors.openFileEditor(getProject(), virtualFile, true);
-        }
+        int selectedRow = getSelectedRow();
+        PendingTransaction transaction = getModel().getValueAt(selectedRow, 0);
+        VirtualFile virtualFile = transaction.getFile();
+        if (!Checks.isValid(virtualFile)) return;
+
+        Editors.openFileEditor(getProject(), virtualFile, true);
     }
 
     public List<DBNConnection> getSelectedConnections() {

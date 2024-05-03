@@ -7,13 +7,10 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-
 abstract class AbstractExecutionMessagesAction extends ContextAction<MessagesTree> {
     private final WeakRef<MessagesTree> messagesTree;
 
-    AbstractExecutionMessagesAction(MessagesTree messagesTree, String text, Icon icon) {
-        super(text, null, icon);
+    AbstractExecutionMessagesAction(MessagesTree messagesTree) {
         this.messagesTree = WeakRef.of(messagesTree);
     }
 

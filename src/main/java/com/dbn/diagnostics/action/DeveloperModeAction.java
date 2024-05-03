@@ -11,9 +11,6 @@ import org.jetbrains.annotations.NotNull;
 
 @Slf4j
 public class DeveloperModeAction extends ProjectAction {
-    public DeveloperModeAction() {
-        super("Developer Mode...");
-    }
 
     private static void openDiagnosticSettings(Project project) {
         DiagnosticsManager diagnosticsManager = DiagnosticsManager.getInstance(project);
@@ -22,7 +19,7 @@ public class DeveloperModeAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        super.update(e, project);
+        e.getPresentation().setText("Developer Mode...");
     }
 
     @Override

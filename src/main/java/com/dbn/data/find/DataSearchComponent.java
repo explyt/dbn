@@ -23,7 +23,6 @@ import com.intellij.openapi.editor.event.SelectionListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.LightColors;
-import com.intellij.ui.components.JBList;
 import com.intellij.util.ArrayUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -35,6 +34,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
@@ -243,14 +244,10 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         to.setCaseSensitive(from.isCaseSensitive());
         to.setWholeWordsOnly(from.isWholeWordsOnly());
         to.setRegularExpressions(from.isRegularExpressions());
-        to.setInCommentsOnly(from.isInCommentsOnly());
-        to.setInStringLiteralsOnly(from.isInStringLiteralsOnly());
+        to.setSearchContext(from.getSearchContext());
     }
 
     private void updateUIWithFindModel() {
-
-        actionsToolbar.updateActionsImmediately();
-
         String stringToFind = findModel.getStringToFind();
 
         if (!Objects.equals(stringToFind, searchField.getText())) {
@@ -286,8 +283,8 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         FeatureUsageTracker.getInstance().triggerFeatureUsed("find.recent.search");
         FindInProjectSettings settings = getFindSettings();
         String[] recent = textField == searchField ? settings.getRecentFindStrings() : settings.getRecentReplaceStrings();
-        JBList<String> list = new JBList<>(ArrayUtil.reverseArray(recent));
-        Popups.showCompletionPopup(byClickingToolbarButton ? actionsPanel : null, list, "Recent Searches", textField, null);
+        List<String> recentOptions = Arrays.asList(ArrayUtil.reverseArray(recent));
+        Popups.showCompletionPopup(byClickingToolbarButton ? actionsPanel : null, recentOptions, "Recent Searches", textField, null);
     }
 
     private void initTextField() {

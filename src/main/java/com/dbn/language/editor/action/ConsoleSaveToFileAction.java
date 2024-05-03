@@ -13,9 +13,6 @@ import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
 public class ConsoleSaveToFileAction extends ProjectAction {
-    ConsoleSaveToFileAction() {
-        super("Save to File", "Save console to file", Icons.CODE_EDITOR_SAVE_TO_FILE);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
@@ -35,5 +32,8 @@ public class ConsoleSaveToFileAction extends ProjectAction {
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(true);
         presentation.setVisible(visible);
+        presentation.setText("Save to File");
+        presentation.setDescription("Save console to file");
+        presentation.setIcon(Icons.CODE_EDITOR_SAVE_TO_FILE);
     }
 }

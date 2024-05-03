@@ -8,6 +8,9 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
+
 @UtilityClass
 public class Dialogs {
 
@@ -16,11 +19,17 @@ public class Dialogs {
     }
 
     public static <T extends DBNDialog<?>> void show(@NotNull Supplier<T> builder, @Nullable DialogCallback<T> callback) {
-        Dispatch.run(() -> {
+        Dispatch.run(true, () -> {
+            closeProgressDialogs();
             T dialog = builder.get();
             dialog.setDialogCallback(callback);
             dialog.show();
         });
+    }
+
+    public static <T extends DBNDialog> void close(@Nullable T dialog, int exitCode) {
+        if (isNotValid(dialog)) return;
+        Dispatch.run(true, () -> dialog.close(exitCode));
     }
 
     @FunctionalInterface

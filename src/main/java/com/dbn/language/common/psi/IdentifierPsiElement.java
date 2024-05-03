@@ -3,6 +3,7 @@ package com.dbn.language.common.psi;
 import com.dbn.code.common.style.formatting.FormattingAttributes;
 import com.dbn.common.Capture;
 import com.dbn.common.consumer.ListCollector;
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.language.common.QuotePair;
@@ -79,12 +80,6 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
     @Override
     public String getPresentableText() {
         return Strings.toUpperCase(getUnquotedText()) + " (" + getObjectType() + ")";
-    }
-
-    @Override
-    @Nullable
-    public String getLocationString() {
-        return null;
     }
 
     @Override
@@ -457,7 +452,7 @@ public abstract class IdentifierPsiElement extends LeafPsiElement<IdentifierElem
     private boolean isValidReference(DBObject referencedObject) {
         if (referencedObject instanceof DBVirtualObject) {
             DBVirtualObject object = (DBVirtualObject) referencedObject;
-            BasePsiElement underlyingPsiElement = object.getUnderlyingPsiElement();
+            BasePsiElement underlyingPsiElement = Failsafe.guarded(null, object, o -> o.getUnderlyingPsiElement());
             if (underlyingPsiElement != null && underlyingPsiElement.containsPsiElement(this)) {
                 return false;
             }

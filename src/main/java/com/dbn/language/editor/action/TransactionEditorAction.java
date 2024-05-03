@@ -23,9 +23,6 @@ import javax.swing.*;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
 public abstract class TransactionEditorAction extends ProjectAction {
-    TransactionEditorAction(String text, String description, Icon icon) {
-        super(text, description, icon);
-    }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {

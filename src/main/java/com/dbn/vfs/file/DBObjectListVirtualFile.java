@@ -24,6 +24,9 @@ import javax.swing.*;
 import java.io.IOException;
 import java.io.OutputStream;
 
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.dispose.Failsafe.guarded;
+
 public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFileBase {
     private static final byte[] EMPTY_BYTE_CONTENT = new byte[0];
     private final WeakRef<T> objectList;
@@ -85,17 +88,23 @@ public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFi
     @Override
     @Nullable
     public VirtualFile getParent() {
-        if (Checks.isValid(objectList.get())) {
-            DatabaseEntity parent = getObjectList().getParentEntity();
-            if (parent instanceof DBObject) {
-                DBObject parentObject = (DBObject) parent;
-                return DBObjectPsiCache.asPsiDirectory(parentObject).getVirtualFile();
-            }
+        return guarded(null, this, f -> f.findParent());
+    }
 
-            if (parent instanceof DBObjectBundle) {
-                DBObjectBundle objectBundle = (DBObjectBundle) parent;
-                return objectBundle.getConnection().getPsiDirectory().getVirtualFile();
-            }
+    @Nullable
+    private VirtualFile findParent() {
+        T objectList = this.objectList.get();
+        if (isNotValid(objectList)) return null;
+
+        DatabaseEntity parent = getObjectList().getParentEntity();
+        if (parent instanceof DBObject) {
+            DBObject parentObject = (DBObject) parent;
+            return DBObjectPsiCache.asPsiDirectory(parentObject).getVirtualFile();
+        }
+
+        if (parent instanceof DBObjectBundle) {
+            DBObjectBundle objectBundle = (DBObjectBundle) parent;
+            return objectBundle.getConnection().getPsiDirectory().getVirtualFile();
         }
 
         return null;

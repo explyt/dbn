@@ -4,8 +4,8 @@ import com.dbn.common.constant.Constant;
 import com.dbn.common.constant.Constants;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
+import com.dbn.common.util.Strings;
 import lombok.Getter;
-import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

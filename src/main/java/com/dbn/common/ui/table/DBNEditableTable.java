@@ -34,18 +34,10 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
             @Override
             protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
                 acquireState(table, false, false, row, column);
-                Color background = table.getBackground();
-                Color foreground = table.getForeground();
                 SimpleTextAttributes attributes = SimpleTextAttributes.SIMPLE_CELL_ATTRIBUTES;
                 if (selected && !table.isEditing()) {
-                    background = Colors.getListSelectionBackground(true);
-                    foreground = Colors.getListSelectionForeground(true);
                     attributes = SimpleTextAttributes.SELECTED_SIMPLE_CELL_ATTRIBUTES;
-
                 }
-                setBorder(new LineBorder(background, 2));
-                setBackground(background);
-                setForeground(foreground);
                 append(value == null ? "" : (String) value, attributes);
             }
         });

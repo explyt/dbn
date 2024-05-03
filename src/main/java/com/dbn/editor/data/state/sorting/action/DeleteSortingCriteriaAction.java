@@ -1,12 +1,12 @@
 package com.dbn.editor.data.state.sorting.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.editor.data.state.sorting.ui.DatasetSortingColumnForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.DumbAwareAction;
 import org.jetbrains.annotations.NotNull;
 
-public class DeleteSortingCriteriaAction extends DumbAwareAction {
+public class DeleteSortingCriteriaAction extends BasicAction {
     private final DatasetSortingColumnForm form;
 
     public DeleteSortingCriteriaAction(DatasetSortingColumnForm form) {

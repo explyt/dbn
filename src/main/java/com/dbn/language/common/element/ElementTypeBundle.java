@@ -1,20 +1,20 @@
 package com.dbn.language.common.element;
 
-import com.dbn.language.common.DBLanguage;
-import com.dbn.language.common.TokenTypeBundle;
-import com.dbn.language.common.element.impl.*;
 import com.dbn.common.index.IndexRegistry;
 import com.dbn.common.thread.Background;
 import com.dbn.common.util.Measured;
 import com.dbn.common.util.Unsafe;
+import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
+import com.dbn.language.common.TokenTypeBundle;
 import com.dbn.language.common.element.impl.*;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.element.util.ElementTypeDefinition;
 import com.dbn.language.common.element.util.ElementTypeDefinitionException;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.ide.CopyPasteManager;
-import gnu.trove.THashSet;
+import gnu.trove.set.hash.THashSet;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Document;
 import org.jdom.Element;
@@ -32,6 +32,7 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
+@Getter
 public class ElementTypeBundle {
     private final AtomicInteger leafIndexer = new AtomicInteger();
     private final IndexRegistry<LeafElementType> leafRegistry = new IndexRegistry<>();
@@ -57,7 +58,7 @@ public class ElementTypeBundle {
         leafRegistry.add(tokenType);
     }
 
-    public LeafElementType getElement(int index) {
+    public LeafElementType getElement(short index) {
         return leafRegistry.get(index);
     }
 
@@ -125,16 +126,13 @@ public class ElementTypeBundle {
             //warnAmbiguousBranches();
         } catch (Exception e) {
             conditionallyLog(e);
-            log.error("[DBN] Failed to build element-type bundle for " + languageDialect.getID(), e);
+            log.error("[DBN] Failed to build element-type bundle for {}", languageDialect.getID(), e);
         }
     }
 
-    public int nextIndex() {
-        return leafIndexer.incrementAndGet();
-    }
-
-    public TokenTypeBundle getTokenTypeBundle() {
-        return tokenTypeBundle;
+    public short nextIndex() {
+        int index = leafIndexer.incrementAndGet();
+        return (short) index;
     }
 
     public void markIdsDirty() {
@@ -144,7 +142,7 @@ public class ElementTypeBundle {
     private void createNamedElementType(Element def) throws ElementTypeDefinitionException {
         String id = determineMandatoryAttribute(def, "id", "Invalid definition of named element type.");
         String languageId = stringAttribute(def, "language");
-        log.debug("Updating complex element definition '" + id + '\'');
+        log.debug("Updating complex element definition '{}'", id);
         NamedElementType elementType = getNamedElementType(id, null);
         elementType.loadDefinition(def);
         if (elementType.is(ElementTypeAttribute.ROOT)) {
@@ -240,20 +238,12 @@ public class ElementTypeBundle {
         NamedElementType elementType = namedElementTypes.computeIfAbsent(id, i -> {
             NamedElementType namedElementType = new NamedElementType(this, i);
             builder.allElementTypes.add(namedElementType);
-            log.debug("Created named element type '" + i + '\'');
+            log.debug("Created named element type '{}'", i);
             return namedElementType;
         });
 
         if (parent != null) elementType.addParent(parent);
         return elementType;
-    }
-
-    public DBLanguageDialect getLanguageDialect() {
-        return languageDialect;
-    }
-
-    public NamedElementType getRootElementType() {
-        return rootElementType;
     }
 
     public NamedElementType getNamedElementType(String id) {

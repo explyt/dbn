@@ -9,9 +9,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ConnectionMoveUpAction extends ConnectionSettingsAction {
-    public ConnectionMoveUpAction() {
-        super("Move Connections Up", Icons.ACTION_MOVE_UP);
-    }
 
     @Override
     protected void actionPerformed(
@@ -29,6 +26,10 @@ public class ConnectionMoveUpAction extends ConnectionSettingsAction {
             @NotNull Project project,
             @Nullable ConnectionBundleSettingsForm target) {
 
-        presentation.setEnabled(target != null && target.getSelectionSize() > 0);
+        boolean enabled = target != null && target.getSelectionSize() > 0;
+
+        presentation.setEnabled(enabled);
+        presentation.setText("Move Connections Up");
+        presentation.setIcon(Icons.ACTION_MOVE_UP);
     }
 }

@@ -4,10 +4,10 @@ import com.dbn.common.dispose.Checks;
 import com.dbn.common.environment.EnvironmentManager;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.option.ConfirmationOptionHandler;
-import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
-import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManager;
+import com.dbn.editor.code.options.CodeEditorConfirmationSettings;
+import com.dbn.editor.code.options.CodeEditorSettings;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -18,9 +18,6 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
 
 public class SourceCodeRevertAction extends AbstractCodeEditorAction {
-    public SourceCodeRevertAction() {
-        super("Revert changes", null, Icons.CODE_EDITOR_RESET);
-    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull SourceCodeEditor fileEditor, @NotNull DBSourceCodeVirtualFile sourceCodeFile) {
@@ -38,6 +35,8 @@ public class SourceCodeRevertAction extends AbstractCodeEditorAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project, @Nullable SourceCodeEditor fileEditor, @Nullable DBSourceCodeVirtualFile sourceCodeFile) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Revert Changes");
+        presentation.setIcon(Icons.CODE_EDITOR_RESET);
+
         if (Checks.isValid(sourceCodeFile)) {
             EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
             boolean readonly = environmentManager.isReadonly(sourceCodeFile);
@@ -46,7 +45,5 @@ public class SourceCodeRevertAction extends AbstractCodeEditorAction {
         } else {
             presentation.setEnabled(false);
         }
-
-
     }
 }

@@ -1,14 +1,14 @@
 package com.dbn.editor.data.state.column.action;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
-import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.ListUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class MoveDownAction extends AnAction {
+public class MoveDownAction extends BasicAction {
     private final JList list;
     public MoveDownAction(JList list) {
         super("Move Down", null, Icons.ACTION_MOVE_DOWN);

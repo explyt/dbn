@@ -10,24 +10,24 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class DDLFileDetachAction extends ProjectAction {
-    private DBObjectRef<DBSchemaObject> objectRef;
-    public DDLFileDetachAction(DBSchemaObject object) {
-        super("Detach files");
-        this.objectRef = DBObjectRef.of(object);
-    }
+    private final DBObjectRef<DBSchemaObject> object;
 
+    public DDLFileDetachAction(DBSchemaObject object) {
+        this.object = DBObjectRef.of(object);
+    }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-        fileAttachmentManager.detachDDLFiles(objectRef);
+        fileAttachmentManager.detachDDLFiles(object);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         DDLFileAttachmentManager fileAttachmentManager = DDLFileAttachmentManager.getInstance(project);
-        boolean hasAttachedDDLFiles = fileAttachmentManager.hasAttachedDDLFiles(objectRef);
+        boolean hasAttachedDDLFiles = fileAttachmentManager.hasAttachedDDLFiles(object);
         Presentation presentation = e.getPresentation();
         presentation.setEnabled(hasAttachedDDLFiles);
+        presentation.setText("Detach Files");
     }
 }

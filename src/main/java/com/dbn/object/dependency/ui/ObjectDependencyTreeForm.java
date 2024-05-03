@@ -1,5 +1,6 @@
 package com.dbn.object.dependency.ui;
 
+import com.dbn.common.action.BasicAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -13,7 +14,6 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
-import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
@@ -91,7 +91,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         return mainPanel;
     }
 
-    public class ExpandTreeAction extends DumbAwareAction {
+    public class ExpandTreeAction extends BasicAction {
 
         ExpandTreeAction() {
             super("Expand All", null, Icons.ACTION_EXPAND_ALL);
@@ -109,11 +109,7 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         }
     }
 
-    public class PreviousSelectionAction extends DumbAwareAction {
-        PreviousSelectionAction() {
-            super("Previous Selection", null, Icons.BROWSER_BACK);
-        }
-
+    public class PreviousSelectionAction extends BasicAction {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DBObject previous = dependencyTree.getSelectionHistory().previous();
@@ -123,15 +119,15 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         @Override
         public void update(@NotNull AnActionEvent e) {
             Presentation presentation = e.getPresentation();
-            presentation.setEnabled(dependencyTree.getSelectionHistory().hasPrevious());
+            boolean enabled = dependencyTree.getSelectionHistory().hasPrevious();
+
+            presentation.setEnabled(enabled);
+            presentation.setText("Previous Selection");
+            presentation.setIcon(Icons.BROWSER_BACK);
         }
     }
 
-    public class NextSelectionAction extends DumbAwareAction {
-        NextSelectionAction() {
-            super("Next Selection", null, Icons.BROWSER_NEXT);
-        }
-
+    public class NextSelectionAction extends BasicAction {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DBObject next = dependencyTree.getSelectionHistory().next();
@@ -141,11 +137,14 @@ public class ObjectDependencyTreeForm extends DBNFormBase {
         @Override
         public void update(@NotNull AnActionEvent e) {
             Presentation presentation = e.getPresentation();
-            presentation.setEnabled(dependencyTree.getSelectionHistory().hasNext());
+            boolean enabled = dependencyTree.getSelectionHistory().hasNext();
+            presentation.setEnabled(enabled);
+            presentation.setText("Next Selection");
+            presentation.setIcon(Icons.BROWSER_NEXT);
         }
     }
 
-    public class CollapseTreeAction extends DumbAwareAction {
+    public class CollapseTreeAction extends BasicAction {
 
         CollapseTreeAction() {
             super("Collapse All", null, Icons.ACTION_COLLAPSE_ALL);

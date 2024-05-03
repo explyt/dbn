@@ -2,12 +2,10 @@ package com.dbn.error;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.action.Lookups;
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Strings;
-import com.intellij.diagnostic.LogMessage;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.diagnostic.ErrorReportSubmitter;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
@@ -46,18 +44,6 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter {
     public abstract String getTicketUrl(String ticketId);
 
     protected abstract IssueReportBuilder getBuilder();
-
-    @Override
-    @Compatibility
-    public SubmittedReportInfo submit(IdeaLoggingEvent[] events, Component parentComponent) {
-        SubmittedReportInfo[] reportInfo = new SubmittedReportInfo[1];
-
-        Consumer<SubmittedReportInfo> consumer = submittedReportInfo -> reportInfo[0] = submittedReportInfo;
-        LogMessage data = (LogMessage) events[0].getData();
-        String additionalInfo = data == null ? null : data.getAdditionalInfo();
-        submit(events, additionalInfo, parentComponent, consumer);
-        return reportInfo[0];
-    }
 
     @Override
     public boolean submit(

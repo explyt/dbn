@@ -60,8 +60,8 @@ public class StatementGutterRenderer extends GutterIconRenderer {
 
         StatementGutterRenderer that = (StatementGutterRenderer) o;
         return Objects.equals(
-                this.action.getExecutablePsiElement(),
-                that.action.getExecutablePsiElement());
+                this.action.getPsiElement(),
+                that.action.getPsiElement());
     }
 
     @Override
