@@ -77,7 +77,7 @@ public class Profile implements AttributeInput {
         attributesJson);
   }
 
-  public Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
+  public static Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
     if ("object_list".equals(attributeName)) {
       GsonBuilder builder = new GsonBuilder();
       Gson gson = builder.create();

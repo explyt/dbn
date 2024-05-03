@@ -4,7 +4,6 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.common.oracleAI.OracleCredentialsDetailedInfo;
 import com.dbn.database.common.oracleAI.OracleProfilesAttributesInfo;
-import com.dbn.database.common.oracleAI.OracleProfilesMainInfo;
 import com.dbn.database.common.oracleAI.OracleQueryOutput;
 import com.dbn.database.common.oracleAI.OracleTablesList;
 import com.dbn.database.common.oracleAI.OracleViewsList;
@@ -25,7 +24,6 @@ import com.dbn.oracleAI.types.DatabaseObjectType;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class OracleAIInterface extends DatabaseInterfaceBase implements DatabaseOracleAIInterface {
 
@@ -137,8 +135,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public List<Profile> listProfiles(DBNConnection connection) throws ProfileManagementException {
     try {
-      Map<String, Profile> profileMap = executeCall(connection, new OracleProfilesMainInfo(), "list-profiles-desc-status").getProfileMap();
-      List<Profile> profileList = executeCall(connection, new OracleProfilesAttributesInfo(profileMap), "list-profiles-attributes").getProfileList();
+      List<Profile> profileList = executeCall(connection, new OracleProfilesAttributesInfo(), "list-profiles-detailed").getProfileList();
       return profileList;
     } catch (SQLException e) {
       throw new ProfileManagementException(e.getMessage(), e);

@@ -34,6 +34,7 @@ import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,14 @@ public class OracleAIChatBox extends JPanel {
 
 
   class ProfileComboBoxModel extends DefaultComboBoxModel<AIProfileItem> {
+
+    @Override
+    public void removeAllElements() {
+      profileComboBox.removeActionListener(profileActionListener);
+      super.removeAllElements();
+      profileComboBox.addActionListener(profileActionListener);
+
+    }
 
     /**
      * Gets the list of labels
@@ -146,26 +155,31 @@ public class OracleAIChatBox extends JPanel {
 
     profileComboBox.setModel(profileListModel);
 
-    profileComboBox.addActionListener(e -> {
+    profileComboBox.addActionListener(profileActionListener);
+    profileComboBox.setRenderer(new ProfileComboBoxRenderer());
+  }
+
+  private ActionListener profileActionListener = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
       AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
-      if (!Objects.equals(currProfileItem, ADD_PROFILE_COMBO_ITEM)) {
-        if (currProfileItem != null) updateModelsComboBox(currProfileItem);
-      } else {
+      if (Objects.equals(currProfileItem, ADD_PROFILE_COMBO_ITEM)) {
         if (e.getModifiers() == BUTTON1_MASK) {
           profileComboBox.hidePopup();
           profileComboBox.setSelectedIndex(0);
           currManager.openSettings();
         }
+      } else {
+        updateModelsComboBox(currProfileItem);
       }
 
-      if (currProfileItem != null && !currProfileItem.isEnabled()) {
+      if (!currProfileItem.isEnabled()) {
         disableWindow("companion.chat.disabled_profile.tooltip");
       } else {
         enableWindow();
       }
-    });
-    profileComboBox.setRenderer(new ProfileComboBoxRenderer());
-  }
+    }
+  };
 
   private class ProfileComboBoxRenderer extends BasicComboBoxRenderer {
     @Override
@@ -326,7 +340,8 @@ public class OracleAIChatBox extends JPanel {
     LOG.debug("Restore State");
     assert state != null : "cannot be null";
     this.updateProfiles(state.getProfiles());
-    profileComboBox.setSelectedItem(state.getSelectedProfile());
+    if (state.getSelectedProfile() != null) profileComboBox.setSelectedItem(state.getSelectedProfile());
+    else profileComboBox.setSelectedItem(profileComboBox.getItemAt(0));
     chatMessages.clear();
     chatMessages.addAll(state.getAiAnswers());
     populateChatPanel();
@@ -370,7 +385,7 @@ public class OracleAIChatBox extends JPanel {
       ApplicationManager.getApplication().invokeLater(() -> {
         profileListModel.removeAllElements();
         finalFetchedProfiles.forEach((pn, p) -> {
-          profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel() != null ? p.getModel().getApiName() : null, p.isEnabled()));
+          profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled()));
         });
 
         profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);

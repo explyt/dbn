@@ -54,6 +54,7 @@ public class JIMSendTextPane extends JPanel {
     textPane = new JTextPane();
     textPane.setEditorKit(new WarpEditorKit());
     textPane.setOpaque(false);
+    textPane.setEditable(false);
     textPane.setForeground(Color.BLACK);
     textPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     add(textPane, BorderLayout.CENTER);

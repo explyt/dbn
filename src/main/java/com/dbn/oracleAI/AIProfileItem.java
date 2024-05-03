@@ -1,5 +1,6 @@
 package com.dbn.oracleAI;
 
+import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +17,7 @@ public final class AIProfileItem {
    *
    * @param label the label to be displayed in the combo
    */
-  public AIProfileItem(String label, ProviderType provider, String model, boolean isEnabled) {
+  public AIProfileItem(String label, ProviderType provider, ProviderModel model, boolean isEnabled) {
     this.label = label;
     this.provider = provider;
     this.model = model;
@@ -51,7 +52,7 @@ public final class AIProfileItem {
    */
   private String label;
   private ProviderType provider;
-  private String model;
+  private ProviderModel model;
   private boolean isEnabled = true;
 
   /**
