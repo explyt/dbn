@@ -19,6 +19,7 @@ import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
+import java.awt.Font;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -240,7 +241,14 @@ public class ProfileManagementPanel extends JPanel {
 
       @Override
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        editor.setText((value != null) ? value.toString() : "");
+        if (value != null) {
+          editor.setText(value.toString());
+          editor.setFont(getFont().deriveFont(Font.PLAIN));
+        } else {
+          editor.setText("<all>");
+          editor.setFont(getFont().deriveFont(Font.ITALIC));
+        }
+
         editor.setBorder(null);
         editor.setEditable(false);
         editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
@@ -252,8 +260,9 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void populateTable(Profile profile) {
-    // TODO : use messages
-    String[] columnNames = {"Table/View Name", "Owner"};
+    String[] columnNames = {
+            messages.getString("profile.mgmt.obj_table.header.name"),
+            messages.getString("profile.mgmt.obj_table.header.owner")};
     Object[][] data = profile.getObjectList().stream()
         .map(obj -> new Object[]{obj.getName(), obj.getOwner()})
         .toArray(Object[][]::new);

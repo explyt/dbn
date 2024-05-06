@@ -69,7 +69,7 @@
       <grid id="e8c98" binding="wizardMainPane" layout-manager="CardLayout" hgap="0" vgap="0">
         <constraints border-constraint="Center"/>
         <properties/>
-        <border type="none">
+        <border type="empty">
           <size top="5" left="5" bottom="5" right="5"/>
         </border>
         <children/>
