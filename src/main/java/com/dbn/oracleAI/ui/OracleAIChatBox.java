@@ -561,11 +561,12 @@ public class OracleAIChatBox extends JPanel {
     JPanel messagePane = createMessagePane(chatMessage);
 
     conversationPanel.add(messagePane, chatMessage.getAuthor() == AuthorType.AI ? "wrap, w ::80%" : "wrap, al right, w ::80%");
+    conversationPanel.revalidate();
+    conversationPanel.repaint();
+
     SwingUtilities.invokeLater(() -> {
-      companionConversationScrollPan.revalidate();
-      companionConversationScrollPan.repaint();
-      //companionConversationPanel.revalidate();
-      //companionConversationPanel.repaint();
+      companionConversationScrollPan.validate();
+
       JScrollBar verticalBar = companionConversationScrollPan.getVerticalScrollBar();
       verticalBar.setValue(verticalBar.getMaximum());
     });
