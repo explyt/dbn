@@ -8,6 +8,7 @@ import lombok.Getter;
 
 import java.io.IOException;
 import java.sql.CallableStatement;
+import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,9 +18,12 @@ import java.util.Map;
 import java.util.Objects;
 
 @Getter
-public class OracleProfilesDetailedInfo implements CallableStatementOutput {
+public class OracleProfilesAttributesInfo implements CallableStatementOutput {
 
-  private List<Profile> profileList;
+  private List<Profile> profileList = new ArrayList<>();
+
+  public OracleProfilesAttributesInfo() {
+  }
 
   @Override
   public void registerParameters(CallableStatement statement) throws SQLException {
@@ -43,21 +47,27 @@ public class OracleProfilesDetailedInfo implements CallableStatementOutput {
 
     while (rs.next()) {
       String profileName = rs.getString("PROFILE_NAME");
+      String status = rs.getString("STATUS");
+      String description = rs.getString("DESCRIPTION");
       String attributeName = rs.getString("ATTRIBUTE_NAME");
-      java.sql.Clob clobData = rs.getClob("ATTRIBUTE_VALUE");
-      Profile profile = profileBuildersMap.computeIfAbsent(profileName, k -> Profile.builder().profileName(profileName).build());
-      Object attributeObject = profile.clobToObject(attributeName, clobData);
+      Clob attributeValue = rs.getClob("ATTRIBUTE_VALUE");
+      Profile currProfile = profileBuildersMap.computeIfAbsent(profileName, k -> Profile.builder().profileName(profileName).build());
+      currProfile.setEnabled(status.equals("ENABLED"));
+      currProfile.setDescription(description);
+
+      Object attributeObject = currProfile.clobToObject(attributeName, attributeValue);
 
       if ("object_list".equals(attributeName) && attributeObject instanceof List) {
         @SuppressWarnings("unchecked")
         List<ProfileDBObjectItem> objectList = (List<ProfileDBObjectItem>) attributeObject;
-        profile.setObjectList(objectList);
+        currProfile.setObjectList(objectList);
       } else if (attributeObject instanceof String) {
-        String attributeValue = (String) attributeObject;
-        if (Objects.equals(attributeName, "temperature")) profile.setTemperature(Double.parseDouble(attributeValue));
+        String attribute = (String) attributeObject;
+        if (Objects.equals(attributeName, "temperature"))
+          currProfile.setTemperature(Double.parseDouble(attribute));
         else if (Objects.equals(attributeName, "provider"))
-          profile.setProvider(ProviderType.valueOf(attributeValue.toUpperCase()));
-        else if (Objects.equals(attributeName, "credential_name")) profile.setCredentialName(attributeValue);
+          currProfile.setProvider(ProviderType.valueOf(attribute.toUpperCase()));
+        else if (Objects.equals(attributeName, "credential_name")) currProfile.setCredentialName(attribute);
       }
     }
 

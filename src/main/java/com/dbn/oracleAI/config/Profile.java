@@ -53,6 +53,7 @@ public class Profile implements AttributeInput {
   @Builder.Default
   @Expose
   private Double temperature = 0.0;
+  private boolean isEnabled;
   private Boolean comments;
 
 
@@ -76,14 +77,14 @@ public class Profile implements AttributeInput {
         attributesJson);
   }
 
-  public Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
+  public static Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
     if ("object_list".equals(attributeName)) {
       GsonBuilder builder = new GsonBuilder();
       Gson gson = builder.create();
 
       try (Reader reader = clob.getCharacterStream();
            BufferedReader br = new BufferedReader(reader)) {
-        Type listType = new TypeToken<List<DBObjectItem>>() {
+        Type listType = new TypeToken<List<ProfileDBObjectItem>>() {
         }.getType();
         return gson.fromJson(br, listType);
       }

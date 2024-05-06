@@ -2,6 +2,7 @@ package com.dbn.oracleAI.config.ui;
 
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Profile;
@@ -13,13 +14,17 @@ import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -41,7 +46,7 @@ public class ProfileManagementPanel extends JPanel {
   private JPanel mainPane;
   private JTable objListTable;
   private JButton addProfileButton;
-  private JComboBox<String> profileComboBox;
+  private JComboBox<AIProfileItem> profileComboBox;
   private JLabel credentialField;
   private JLabel modelField;
   private JLabel providerField;
@@ -114,6 +119,8 @@ public class ProfileManagementPanel extends JPanel {
    * initialize action buttons
    */
   private void initializeButtons() {
+    ProfileComboBoxRenderer profileComboBoxRenderer = new ProfileComboBoxRenderer();
+    profileComboBox.setRenderer(profileComboBoxRenderer);
     deleteProfileButton.addActionListener(event -> {
       Messages.showQuestionDialog(currProject, messages.getString(
               "ai.settings.profile.deletion.title"), messages.getString(
@@ -142,6 +149,24 @@ public class ProfileManagementPanel extends JPanel {
         }
       });
     });
+  }
+
+  /**
+   * Renders the disabled profiles as such
+   */
+  private class ProfileComboBoxRenderer extends BasicComboBoxRenderer {
+    @Override
+    public Component getListCellRendererComponent(JList<?> list, Object value,
+                                                  int index, boolean isSelected,
+                                                  boolean cellHasFocus) {
+      super.getListCellRendererComponent(list, value, index, isSelected,
+          cellHasFocus);
+      if (value instanceof AIProfileItem) {
+        AIProfileItem item = (AIProfileItem) value;
+        setEnabled(item.isEnabled());
+      }
+      return this;
+    }
   }
 
   /**
@@ -209,7 +234,7 @@ public class ProfileManagementPanel extends JPanel {
       populateTable(currProfile);
       credentialField.setText(fixAttributesPresentation(currProfile.getCredentialName()));
       providerField.setText(fixAttributesPresentation(currProfile.getProvider().toString()));
-      modelField.setText(currProfile.getModel() == null?fixAttributesPresentation(null):currProfile.getModel().name());
+      modelField.setText(currProfile.getModel() == null ? currProfile.getProvider().getDefaultModel().name() : currProfile.getModel().name());
     } else {
       initializeEmptyWindow();
     }
@@ -219,21 +244,25 @@ public class ProfileManagementPanel extends JPanel {
    * Populate the combo with profile list
    */
   private void populateProfileNames() {
+    profileComboBox.removeActionListener(profileComboBoxAction);
     profileComboBox.removeAllItems();
+    profileComboBox.addActionListener(profileComboBoxAction);
     if (profileMap != null) {
-      profileMap.keySet().forEach(profileComboBox::addItem);
+      profileMap.values().forEach(p -> profileComboBox.addItem(new AIProfileItem(p.getProfileName(), p.getProvider(), p.getModel(), p.isEnabled())));
     }
     if (currProfile != null) {
       profileComboBox.setSelectedItem(currProfile.getProfileName());
     }
-//    profileComboBox.hideItemByNames("New profile...");
-//    profileComboBox.unhideItem("New profile...");
-    profileComboBox.addActionListener(e -> {
-      String selectedProfileName = (String) profileComboBox.getSelectedItem();
-      currProfile = profileMap.get(selectedProfileName);
-      updateWindow();
-    });
   }
+
+  private ActionListener profileComboBoxAction = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if (profileComboBox.getSelectedItem() != null)
+        currProfile = profileMap.get(profileComboBox.getSelectedItem().toString());
+      updateWindow();
+    }
+  };
 
   private void initializeTable() {
     objListTable.setDefaultRenderer(Object.class, new TableCellRenderer() {

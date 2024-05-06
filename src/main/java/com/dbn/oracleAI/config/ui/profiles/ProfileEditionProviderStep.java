@@ -22,7 +22,7 @@ public class ProfileEditionProviderStep extends AbstractProfileEditionStep {
   private JComboBox<ProviderType> providerNameCombo;
   private JLabel providerNameLabel;
   private JLabel providerModelLabel;
-  private JComboBox <ProviderModel> providerModelCombo;
+  private JComboBox<ProviderModel> providerModelCombo;
   private JSlider temperatureSlider;
 
 
@@ -41,15 +41,18 @@ public class ProfileEditionProviderStep extends AbstractProfileEditionStep {
       temperatureSlider.setValue((int) (profile.getTemperature() * 10));
     }
   }
+
   private void populateCombos() {
-    for (ProviderType type :ProviderType.values()){
+    for (ProviderType type : ProviderType.values()) {
       providerNameCombo.addItem(type);
     }
+    ((ProviderType) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
     providerNameCombo.addActionListener((e) -> {
       providerModelCombo.removeAllItems();
-     ((ProviderType)providerNameCombo.getSelectedItem()).getModels().forEach(m->providerModelCombo.addItem(m));
+      ((ProviderType) providerNameCombo.getSelectedItem()).getModels().forEach(m -> providerModelCombo.addItem(m));
     });
   }
+
   private void configureTemperatureSlider() {
     temperatureSlider.setMinimum(MIN_TEMPERATURE);
     temperatureSlider.setMaximum(MAX_TEMPERATURE);
