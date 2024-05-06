@@ -118,6 +118,7 @@ public class OracleAIChatBox extends JPanel {
   private JTextField chatBoxNotificationMessage;
   private JPanel companionConversationPanelBottom;
   private JButton promptButton;
+  private boolean promptTextAreaIsIdle = true;
   private JTextArea promptTextArea;
   private JPanel buttonPanel;
   private final List<ChatMessage> chatMessages = new ArrayList<>();
@@ -259,9 +260,7 @@ public class OracleAIChatBox extends JPanel {
         LOG.debug("focusGained");
         // no need for indirection use promptTextArea directly
         String currentText = promptTextArea.getText();
-        if (currentText != null &&
-            currentText.compareTo(messages.getString("companion.chat.prompt.tooltip")) == 0 &&
-            promptTextArea.getFont().getStyle() == Font.ITALIC) {
+        if (promptTextAreaIsIdle) {
           // remove hint for user
           setPromptAreaIdle(false);
         }
@@ -326,6 +325,7 @@ public class OracleAIChatBox extends JPanel {
     LOG.debug("setPromptAreaIdle : " + isIdle);
     try {
       shouldPromptTextAreaListen = false;
+      promptTextAreaIsIdle = isIdle;
       if (isIdle) {
         promptTextArea.setText(messages.getString("companion.chat.prompt.tooltip"));
         promptTextArea.setFont(promptTextArea.getFont().deriveFont(Font.ITALIC));
@@ -366,6 +366,7 @@ public class OracleAIChatBox extends JPanel {
     ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
     chatMessages.add(inputChatMessage);
     appendMessageToChat(inputChatMessage);
+    setPromptAreaIdle(true);
     try {
       String output =
           currManager.queryOracleAI(question, actionType, item.getLabel(),
@@ -378,7 +379,6 @@ public class OracleAIChatBox extends JPanel {
       LOG.error("Error processing query", e);
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
     } finally {
-      setPromptAreaIdle(true);
       stopActivityNotifier();
     }
   }
