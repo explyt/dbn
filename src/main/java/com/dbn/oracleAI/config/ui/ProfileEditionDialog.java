@@ -258,7 +258,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
     private WizardStepView view;
 
     public ForwardAction(WizardStepView view) {
-      super("next", new ImageIcon("img/NextRecord.png"));
+      super("Next", new ImageIcon("img/NextRecord.png"));
       this.view = view;
     }
 

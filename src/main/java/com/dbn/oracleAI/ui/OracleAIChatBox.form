@@ -143,7 +143,6 @@
                     <properties>
                       <contentAreaFilled value="false"/>
                       <enabled value="false"/>
-                      <icon value="img/action/ExecuteAsScript.png"/>
                       <maximumSize width="50" height="50"/>
                       <minimumSize width="50" height="50"/>
                       <preferredSize width="50" height="50"/>

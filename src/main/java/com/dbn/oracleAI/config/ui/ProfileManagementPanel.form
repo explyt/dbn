@@ -31,7 +31,7 @@
             <properties>
               <minimumSize width="30" height="30"/>
               <preferredSize width="30" height="15"/>
-              <text value="Add"/>
+              <text value=""/>
             </properties>
           </component>
         </children>
