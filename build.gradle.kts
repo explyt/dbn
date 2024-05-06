@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
 plugins {
   id("java")
   id("org.jetbrains.kotlin.jvm") version "1.9.20"
@@ -100,7 +103,9 @@ tasks {
   }
   runIde {
         systemProperties["idea.auto.reload.plugins"] = true
-        systemProperties["fake.services"] = true
+        systemProperties["fake.services"] = Files.exists(Paths.get("/tmp/fake_services"))
+        //systemProperties["fake.services.credentials.dump"] = "/var/tmp/credentials.json"
+        //systemProperties["fake.services.profiles.dump"] = "/var/tmp/profiles.json"
         systemProperties["idea.log.debug.categories"] =  "com.dbn.oracleAI, com.dbn.oracleAI.config"
         jvmArgs = listOf(
             "-Xms512m",

@@ -12,7 +12,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 
-public class FakeAIProfileServiceImpl implements AIProfileService {
+public class FakeAIProfileService implements AIProfileService {
 
     Type PROFILE_TYPE = new TypeToken<List<Profile>>() {
     }.getType();
@@ -27,7 +27,7 @@ public class FakeAIProfileServiceImpl implements AIProfileService {
             try {
                 this.profiles = new Gson().fromJson(new FileReader(profilesRepoFilename), PROFILE_TYPE);
             } catch (FileNotFoundException e) {
-                throw new RuntimeException("cannot read service list " + e.getMessage());
+                throw new RuntimeException("cannot read profile list " + e.getMessage());
             }
         }
         return CompletableFuture.completedFuture(this.profiles);
@@ -36,7 +36,7 @@ public class FakeAIProfileServiceImpl implements AIProfileService {
 
     @Override
     public CompletableFuture<Void> deleteProfile(String profileName) {
-
+        this.profiles.removeIf(profile -> profile.getProfileName().equalsIgnoreCase(profileName));
         return CompletableFuture.completedFuture(null);
     }
 

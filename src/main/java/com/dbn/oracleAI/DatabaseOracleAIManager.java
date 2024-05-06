@@ -178,7 +178,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     }
 
     if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
-      svc = new FakeAIProfileServiceImpl();
+      svc = new FakeAIProfileService();
     } else {
       svc = new AIProfileServiceImpl(ConnectionHandler.get(currConnection).ref());
     }
@@ -188,8 +188,18 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
 
   public synchronized AICredentialService getCredentialService() {
     //TODO : later find better than using "synchronized"
-    return credentialManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
-        new AICredentialServiceImpl(ConnectionHandler.get(currConnection).ref()));
+    AICredentialService svc = credentialManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
+    if (svc != null) {
+      return svc;
+    }
+
+    if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
+      svc = new FakeAICredentialService();
+    } else {
+      svc = new AICredentialServiceImpl(ConnectionHandler.get(currConnection).ref());
+    }
+    credentialManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(),svc);
+    return svc;
   }
 
     public synchronized DatabaseService getDatabaseService() {
