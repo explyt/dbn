@@ -15,6 +15,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.InputMap;
 import javax.swing.JButton;
@@ -24,17 +25,24 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
+import javax.swing.SwingUtilities;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
+import javax.swing.text.BadLocationException;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,8 +57,15 @@ import java.util.stream.Collectors;
 import static java.awt.event.InputEvent.BUTTON1_MASK;
 
 public class OracleAIChatBox extends JPanel {
+  private boolean shouldPromptTextAreaListen = true;
 
+  /**
+   * Holder class for profile combox box
+   */
 
+  /**
+   * Dedicated class for NL2SQL profile model.
+   */
   class ProfileComboBoxModel extends DefaultComboBoxModel<AIProfileItem> {
 
     @Override
@@ -95,7 +110,7 @@ public class OracleAIChatBox extends JPanel {
   private JCheckBox explainSQLCheckbox;
   private JPanel companionConversationPanel;
   private JPanel conversationPanel;
-  private JScrollPane companionConversationPan;
+  private JScrollPane companionConversationScrollPan;
   private JPanel companionCommandPanel;
   private JPanel MainCenter;
 
@@ -110,6 +125,8 @@ public class OracleAIChatBox extends JPanel {
   private final List<ChatMessage> chatMessages = new ArrayList<>();
 
   public static DatabaseOracleAIManager currManager;
+
+  private boolean canSubmitText = false;
 
   static private final ResourceBundle messages =
       ResourceBundle.getBundle("Messages", Locale.getDefault());
@@ -203,12 +220,11 @@ public class OracleAIChatBox extends JPanel {
    * Initializes the panel to display messages
    */
   private void configureConversationPanel() {
-    conversationPanel = new JPanel();
     conversationPanel.setLayout(new MigLayout("fillx"));
 
-    companionConversationPan.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    companionConversationPan.add(conversationPanel);
-    companionConversationPan.setViewportView(conversationPanel);
+    companionConversationScrollPan.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+    companionConversationScrollPan.add(conversationPanel);
+    companionConversationScrollPan.setViewportView(conversationPanel);
   }
 
   /**
@@ -216,8 +232,9 @@ public class OracleAIChatBox extends JPanel {
    * Adding event listeners
    */
   private void configurePromptArea() {
-    promptButton.setBorder(null);
+    promptButton.setBorder(BorderFactory.createEmptyBorder());
     promptButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
     companionConversationPanelBottom.setBackground(promptTextArea.getBackground());
     buttonPanel.setBackground(promptTextArea.getBackground());
     promptButton.addActionListener(e -> {
@@ -233,10 +250,94 @@ public class OracleAIChatBox extends JPanel {
     actionMap.put("submit", new AbstractAction() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        submitText();
+        if (canSubmitText) {
+          submitText();
+        }
+      }
+    });
+    promptTextArea.addFocusListener(new FocusListener() {
+      @Override
+      public void focusGained(FocusEvent e) {
+        LOG.debug("focusGained");
+        // no need for indirection use promptTextArea directly
+        String currentText = promptTextArea.getText();
+        if (currentText != null &&
+            currentText.compareTo(messages.getString("companion.chat.prompt.tooltip")) == 0 &&
+            promptTextArea.getFont().getStyle() == Font.ITALIC) {
+          // remove hint for user
+          setPromptAreaIdle(false);
+        }
+      }
+
+      @Override
+      public void focusLost(FocusEvent e) {
+        LOG.debug("focusLost");
+        // no need for indirection
+        if (promptTextArea.getText().isEmpty()) {
+          // provide hint to user
+          setPromptAreaIdle(true);
+        }
       }
     });
 
+    promptTextArea.getDocument().addDocumentListener(new DocumentListener() {
+
+      private void treatIsOnlyBlanks(javax.swing.text.Document doc) {
+        try {
+          if (doc.getText(0, doc.getLength()).isBlank()) {
+            promptButton.setEnabled(false);
+            canSubmitText = false;
+          } else {
+            promptButton.setEnabled(true);
+            canSubmitText = true;
+          }
+        } catch (BadLocationException e) {
+          // won't happen anyway
+          throw new RuntimeException(e);
+        }
+      }
+
+      @Override
+      public void insertUpdate(DocumentEvent e) {
+        LOG.debug("insertUpdate");
+        if (shouldPromptTextAreaListen)
+          treatIsOnlyBlanks(e.getDocument());
+      }
+
+      @Override
+      public void removeUpdate(DocumentEvent e) {
+        LOG.debug("removeUpdate");
+        if (shouldPromptTextAreaListen)
+          treatIsOnlyBlanks(e.getDocument());
+      }
+
+      @Override
+      public void changedUpdate(DocumentEvent e) {
+        LOG.debug("changedUpdate");
+        if (shouldPromptTextAreaListen)
+          treatIsOnlyBlanks(e.getDocument());
+      }
+    });
+
+    setPromptAreaIdle(true);
+
+  }
+
+
+  private void setPromptAreaIdle(boolean isIdle) {
+    LOG.debug("setPromptAreaIdle : " + isIdle);
+    try {
+      shouldPromptTextAreaListen = false;
+      if (isIdle) {
+        promptTextArea.setText(messages.getString("companion.chat.prompt.tooltip"));
+        promptTextArea.setFont(promptTextArea.getFont().deriveFont(Font.ITALIC));
+      } else {
+        promptTextArea.setText("");
+        promptTextArea.setFont(promptTextArea.getFont().deriveFont(Font.PLAIN));
+      }
+    } finally {
+      shouldPromptTextAreaListen = true;
+    }
   }
 
   private void submitText() {
@@ -261,31 +362,29 @@ public class OracleAIChatBox extends JPanel {
 
     AIProfileItem item = (AIProfileItem) profileComboBox.getSelectedItem();
 
-    String question = promptTextArea.getText();
-    if (question.length() > 0) {
-      promptTextArea.setText("");
-      // TODO : do we want to append the message even in case of error
-      ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
-      chatMessages.add(inputChatMessage);
-      appendMessageToChat(inputChatMessage);
-      try {
-        String output =
-            currManager.queryOracleAI(question, actionType, item.getLabel(),
-                ((ProviderModel) aiModelComboBox.getSelectedItem()).getApiName());
-        ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
-        chatMessages.add(outPutChatMessage);
-        appendMessageToChat(outPutChatMessage);
-        LOG.debug("Query processed successfully.");
-      } catch (QueryExecutionException | SQLException e) {
-        LOG.error("Error processing query", e);
-        ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
-      } finally {
-        stopActivityNotifier();
-      }
+    // we are protected as we cannot arrive if that's only blanks
+    String question = promptTextArea.getText().trim();
+    // TODO : do we want to append the message even in case of error
+    ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
+    chatMessages.add(inputChatMessage);
+    appendMessageToChat(inputChatMessage);
+    try {
+      String output =
+          currManager.queryOracleAI(question, actionType, item.getLabel(),
+              ((ProviderModel) aiModelComboBox.getSelectedItem()).getApiName());
+      ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
+      chatMessages.add(outPutChatMessage);
+      appendMessageToChat(outPutChatMessage);
+      LOG.debug("Query processed successfully.");
+    } catch (QueryExecutionException | SQLException e) {
+      LOG.error("Error processing query", e);
+      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
+    } finally {
+      setPromptAreaIdle(true);
+      stopActivityNotifier();
     }
-
-
   }
+
 
   /**
    * Updates profile combobox box model by fetching
@@ -311,7 +410,7 @@ public class OracleAIChatBox extends JPanel {
     profileListModel.removeAllElements();
     profileListModel.addAll(items);
     profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
-//    profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
+    profileListModel.setSelectedItem(profileComboBox.getItemAt(0));
   }
 
   /**
@@ -345,7 +444,12 @@ public class OracleAIChatBox extends JPanel {
     chatMessages.clear();
     chatMessages.addAll(state.getAiAnswers());
     populateChatPanel();
-    promptTextArea.setText(state.getCurrentQuestionText());
+    try {
+      shouldPromptTextAreaListen = false;
+      promptTextArea.setText(state.getCurrentQuestionText());
+    } finally {
+      shouldPromptTextAreaListen = true;
+    }
   }
 
   /**
@@ -457,15 +561,22 @@ public class OracleAIChatBox extends JPanel {
     JPanel messagePane = createMessagePane(chatMessage);
 
     conversationPanel.add(messagePane, chatMessage.getAuthor() == AuthorType.AI ? "wrap, w ::80%" : "wrap, al right, w ::80%");
-    conversationPanel.revalidate();
-    conversationPanel.repaint();
+    SwingUtilities.invokeLater(() -> {
+      companionConversationScrollPan.revalidate();
+      companionConversationScrollPan.repaint();
+      //companionConversationPanel.revalidate();
+      //companionConversationPanel.repaint();
+      JScrollBar verticalBar = companionConversationScrollPan.getVerticalScrollBar();
+      verticalBar.setValue(verticalBar.getMaximum());
+    });
+
   }
 
 
   private JPanel createMessagePane(ChatMessage chatMessage) {
     JIMSendTextPane messagePane = new JIMSendTextPane();
     messagePane.setText(chatMessage.getMessage());
-    messagePane.setAuthor(chatMessage.getAuthor());
+    messagePane.setAuthorColor(chatMessage.getAuthor());
     return messagePane;
   }
 
