@@ -29,10 +29,9 @@
               <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="7" hsize-policy="7" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <icon value="img/action/Add.png"/>
               <minimumSize width="30" height="30"/>
               <preferredSize width="30" height="15"/>
-              <text value=""/>
+              <text value="Add"/>
             </properties>
           </component>
         </children>
@@ -56,9 +55,8 @@
                 </constraints>
                 <properties>
                   <horizontalTextPosition value="2"/>
-                  <icon value="img/EditData.png"/>
-                  <label value=""/>
-                  <text value=""/>
+                  <label value="Edit"/>
+                  <text value="Edit"/>
                   <toolTipText resource-bundle="Messages" key="profiles.mgnt.edit.button.tooltip"/>
                 </properties>
               </component>
@@ -67,8 +65,7 @@
                   <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="1" hsize-policy="1" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
-                  <icon value="img/action/Delete.png"/>
-                  <text value=""/>
+                  <text value="Delete"/>
                   <toolTipText value=""/>
                 </properties>
               </component>

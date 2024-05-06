@@ -40,15 +40,13 @@
               <component id="185de" class="javax.swing.JButton" binding="previousButton">
                 <constraints/>
                 <properties>
-                  <icon value="img/PreviousRecord.png"/>
-                  <text value=""/>
+                  <text value="Prev"/>
                 </properties>
               </component>
               <component id="42cda" class="javax.swing.JButton" binding="nextButton">
                 <constraints/>
                 <properties>
-                  <icon value="img/NextRecord.png"/>
-                  <text value=""/>
+                  <text value="Next"/>
                 </properties>
               </component>
               <component id="8ef42" class="javax.swing.JToolBar$Separator">
@@ -58,8 +56,7 @@
               <component id="14d4a" class="javax.swing.JButton" binding="cancelButton">
                 <constraints/>
                 <properties>
-                  <icon value="img/action/Close.png"/>
-                  <text value=""/>
+                  <text value="Cancel"/>
                 </properties>
               </component>
             </children>
