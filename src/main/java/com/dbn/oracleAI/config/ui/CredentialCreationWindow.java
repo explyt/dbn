@@ -3,6 +3,7 @@ package com.dbn.oracleAI.config.ui;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AICredentialService;
+import com.dbn.oracleAI.AICredentialServiceImpl;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.OciCredential;
 import com.dbn.oracleAI.config.PasswordCredential;
@@ -29,7 +30,7 @@ import java.util.ResourceBundle;
 /**
  * A dialog window for creating new AI credentials.
  * This window allows users to input credential information, supporting different types of credentials.
- * It interacts with {@link AICredentialService} to create credentials in the system.
+ * It interacts with {@link AICredentialServiceImpl} to create credentials in the system.
  */
 public class CredentialCreationWindow extends DialogWrapper {
   static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());

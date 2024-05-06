@@ -22,6 +22,9 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -231,7 +234,7 @@ public class ProfileManagementPanel extends JPanel {
       populateTable(currProfile);
       credentialField.setText(fixAttributesPresentation(currProfile.getCredentialName()));
       providerField.setText(fixAttributesPresentation(currProfile.getProvider().toString()));
-      modelField.setText(currProfile.getModel() == null ? fixAttributesPresentation(null) : currProfile.getModel().name());
+      modelField.setText(currProfile.getModel() == null ? currProfile.getProvider().getDefaultModel().name() : currProfile.getModel().name());
     } else {
       initializeEmptyWindow();
     }
@@ -241,18 +244,25 @@ public class ProfileManagementPanel extends JPanel {
    * Populate the combo with profile list
    */
   private void populateProfileNames() {
+    profileComboBox.removeActionListener(profileComboBoxAction);
     profileComboBox.removeAllItems();
+    profileComboBox.addActionListener(profileComboBoxAction);
     if (profileMap != null) {
-      profileMap.values().forEach(p -> profileComboBox.addItem(new AIProfileItem(p.getProfileName(), p.getProvider(), p.getModel().getApiName(), p.isEnabled())));
+      profileMap.values().forEach(p -> profileComboBox.addItem(new AIProfileItem(p.getProfileName(), p.getProvider(), p.getModel(), p.isEnabled())));
     }
     if (currProfile != null) {
       profileComboBox.setSelectedItem(currProfile.getProfileName());
     }
-    profileComboBox.addActionListener(e -> {
-      currProfile = profileMap.get(profileComboBox.getSelectedItem().toString());
-      updateWindow();
-    });
   }
+
+  private ActionListener profileComboBoxAction = new ActionListener() {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+      if (profileComboBox.getSelectedItem() != null)
+        currProfile = profileMap.get(profileComboBox.getSelectedItem().toString());
+      updateWindow();
+    }
+  };
 
   private void initializeTable() {
     objListTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
@@ -260,7 +270,14 @@ public class ProfileManagementPanel extends JPanel {
 
       @Override
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        editor.setText((value != null) ? value.toString() : "");
+        if (value != null) {
+          editor.setText(value.toString());
+          editor.setFont(getFont().deriveFont(Font.PLAIN));
+        } else {
+          editor.setText("<all>");
+          editor.setFont(getFont().deriveFont(Font.ITALIC));
+        }
+
         editor.setBorder(null);
         editor.setEditable(false);
         editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
@@ -272,8 +289,9 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void populateTable(Profile profile) {
-    // TODO : use messages
-    String[] columnNames = {"Table/View Name", "Owner"};
+    String[] columnNames = {
+            messages.getString("profile.mgmt.obj_table.header.name"),
+            messages.getString("profile.mgmt.obj_table.header.owner")};
     Object[][] data = profile.getObjectList().stream()
         .map(obj -> new Object[]{obj.getName(), obj.getOwner()})
         .toArray(Object[][]::new);

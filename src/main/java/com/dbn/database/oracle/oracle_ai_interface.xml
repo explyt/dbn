@@ -60,14 +60,17 @@
             SELECT * FROM ALL_CREDENTIALS
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-profiles-attributes" timeout="20">
+    <statement-execution-processor id="list-profiles-detailed" timeout="20">
         <statement>
-            SELECT * FROM USER_CLOUD_AI_PROFILE_ATTRIBUTES
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="list-profiles-desc-status" timeout="20">
-        <statement>
-            SELECT * FROM USER_CLOUD_AI_PROFILES
+            SELECT
+            p.profile_name,
+            p.status,
+            p.description,
+            a.attribute_name,
+            a.attribute_value
+            FROM USER_CLOUD_AI_PROFILES p
+            JOIN USER_CLOUD_AI_PROFILE_ATTRIBUTES a
+            ON p.profile_name = a.profile_name
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="ai-query">

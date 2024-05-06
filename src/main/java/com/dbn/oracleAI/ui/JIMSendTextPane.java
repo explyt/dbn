@@ -54,7 +54,9 @@ public class JIMSendTextPane extends JPanel {
     textPane = new JTextPane();
     textPane.setEditorKit(new WarpEditorKit());
     textPane.setOpaque(false);
+    textPane.setEditable(false);
     textPane.setForeground(Color.BLACK);
+    textPane.setEditable(false);
     textPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
     add(textPane, BorderLayout.CENTER);
   }
@@ -89,13 +91,34 @@ public class JIMSendTextPane extends JPanel {
     clipboard.setContents(selection, null);
   }
 
+  private static final Color USER_MSG_COLOR = new Color(179, 233, 255);
+  private static final Color AI_MSG_COLOR = new Color(163, 242, 145);
+  private static final Color ERROR_MSG_COLOR = new Color(242, 93, 1);
+
   /**
    * Sets the author of the message, changing the background color according to the author type.
    *
    * @param author the type of the author (USER or AI)
    */
-  public void setAuthor(AuthorType author) {
-    setBackground(author == AuthorType.USER ? new Color(179, 233, 255) : new Color(242, 242, 242));
+  public void setAuthorColor(AuthorType author) {
+    switch (author) {
+      case USER: {
+        setBackground(USER_MSG_COLOR);
+        break;
+    }
+      case AI:{
+        setBackground(AI_MSG_COLOR);
+        break;
+      }
+
+      case ERROR:{
+        setBackground(ERROR_MSG_COLOR);
+        break;
+      }
+      default: {
+        assert false:"unknown author type";
+      }
+    }
   }
 
   /**
