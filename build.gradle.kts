@@ -121,7 +121,7 @@ tasks {
         systemProperties["fake.services"] = Files.exists(Paths.get("/tmp/fake_services"))
         //systemProperties["fake.services.credentials.dump"] = "/var/tmp/credentials.json"
         //systemProperties["fake.services.profiles.dump"] = "/var/tmp/profiles.json"
-        systemProperties["idea.log.debug.categories"] = "com.dbn.oracleAI, com.dbn.oracleAI.config"
+        systemProperties["idea.log.debug.categories"] = "com.dbn.oracleAI, com.dbn.oracleAI.config, com.dbn.oracleAI.ui"
         jvmArgs = listOf(
                 "-Xms512m",
                 "-Xmx2048m",

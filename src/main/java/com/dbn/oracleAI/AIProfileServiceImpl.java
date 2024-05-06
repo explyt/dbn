@@ -37,9 +37,9 @@ public class AIProfileServiceImpl implements AIProfileService {
             connectionRef.get().getConnection(SessionId.ORACLE_AI);
         List<Profile> profileList = connectionRef.get().getOracleAIInterface()
             .listProfiles(dbnConnection);
-          if (System.getProperty("fake.services.profile.dump") != null) {
+          if (System.getProperty("fake.services.profiles.dump") != null) {
               try {
-                  FileWriter writer = new FileWriter(System.getProperty("fake.services.profile.dump"));
+                  FileWriter writer = new FileWriter(System.getProperty("fake.services.profiles.dump"));
                   new Gson().toJson(profileList, writer);
                   writer.close();
               } catch (Exception e) {
