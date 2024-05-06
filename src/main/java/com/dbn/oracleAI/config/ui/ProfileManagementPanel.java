@@ -121,6 +121,7 @@ public class ProfileManagementPanel extends JPanel {
    */
   private void initializeButtons() {
     addProfileButton.setIcon(Icons.ACTION_ADD);
+    addProfileButton.setToolTipText(messages.getString("ai.settings.profile.adding.tooltip"));
     ProfileComboBoxRenderer profileComboBoxRenderer = new ProfileComboBoxRenderer();
     profileComboBox.setRenderer(profileComboBoxRenderer);
     deleteProfileButton.addActionListener(event -> {

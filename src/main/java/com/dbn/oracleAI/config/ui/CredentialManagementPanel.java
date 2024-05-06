@@ -95,8 +95,12 @@ public class CredentialManagementPanel extends JPanel {
   private void initializeUI() {
 
     editButton.setIcon(Icons.ACTION_EDIT);
+    editButton.setToolTipText(messages.getString("ai.settings.credential.editing.tooltip"));
     addButton.setIcon(Icons.ACTION_ADD);
+    addButton.setToolTipText(messages.getString("ai.settings.credential.adding.tooltip"));
     deleteButton.setIcon(Icons.ACTION_DELETE);
+    deleteButton.setToolTipText(messages.getString("ai.settings.credential.deleting.tooltip"));
+
     // Initializes addButton with its action listener for creating new credential
     addButton.addActionListener((e) -> {
       CredentialCreationCallback callback = this::updateCredentialList;

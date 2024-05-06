@@ -232,6 +232,7 @@ public class OracleAIChatBox extends JPanel {
    */
   private void configurePromptArea() {
     promptButton.setIcon(Icons.ACTION_EXECUTE);
+    promptButton.setToolTipText(messages.getString("companion.chat.prompt.execute.tooltip"));
     promptButton.setBorder(BorderFactory.createEmptyBorder());
     promptButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
