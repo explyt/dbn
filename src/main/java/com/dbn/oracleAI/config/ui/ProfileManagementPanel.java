@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.config.ui;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.AIProfileItem;
@@ -119,6 +120,7 @@ public class ProfileManagementPanel extends JPanel {
    * initialize action buttons
    */
   private void initializeButtons() {
+    addProfileButton.setIcon(Icons.ACTION_ADD);
     ProfileComboBoxRenderer profileComboBoxRenderer = new ProfileComboBoxRenderer();
     profileComboBox.setRenderer(profileComboBoxRenderer);
     deleteProfileButton.addActionListener(event -> {
@@ -290,8 +292,8 @@ public class ProfileManagementPanel extends JPanel {
 
   private void populateTable(Profile profile) {
     String[] columnNames = {
-            messages.getString("profile.mgmt.obj_table.header.name"),
-            messages.getString("profile.mgmt.obj_table.header.owner")};
+        messages.getString("profile.mgmt.obj_table.header.name"),
+        messages.getString("profile.mgmt.obj_table.header.owner")};
     Object[][] data = profile.getObjectList().stream()
         .map(obj -> new Object[]{obj.getName(), obj.getOwner()})
         .toArray(Object[][]::new);

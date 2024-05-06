@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.config.ui;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
@@ -93,12 +94,15 @@ public class CredentialManagementPanel extends JPanel {
    */
   private void initializeUI() {
 
+    editButton.setIcon(Icons.ACTION_EDIT);
+    addButton.setIcon(Icons.ACTION_ADD);
+    deleteButton.setIcon(Icons.ACTION_DELETE);
     // Initializes addButton with its action listener for creating new credential
     addButton.addActionListener((e) -> {
       CredentialCreationCallback callback = this::updateCredentialList;
       CredentialCreationWindow win = new CredentialCreationWindow(connection, credentialSvc, null, callback);
       win.setExistingCredentialNames(
-              credentialNameToProfileNameMap.keySet().stream().map(c->c.getCredentialName()).collect(Collectors.toList()));
+          credentialNameToProfileNameMap.keySet().stream().map(c -> c.getCredentialName()).collect(Collectors.toList()));
       win.showAndGet();
 
     });
@@ -106,7 +110,7 @@ public class CredentialManagementPanel extends JPanel {
     editButton.addActionListener((e) -> {
       CredentialCreationCallback callback = this::updateCredentialList;
       CredentialCreationWindow win = new CredentialCreationWindow(connection, credentialSvc, credentialList.getSelectedValue(), callback);
-      win.setExistingCredentialNames(credentialNameToProfileNameMap.keySet().stream().map(c->c.getCredentialName()).collect(Collectors.toList()));
+      win.setExistingCredentialNames(credentialNameToProfileNameMap.keySet().stream().map(c -> c.getCredentialName()).collect(Collectors.toList()));
       win.showAndGet();
     });
     // Initializes deleteButton with its action listener for deleting selected credentials
@@ -114,26 +118,26 @@ public class CredentialManagementPanel extends JPanel {
       StringBuilder detailedMessage = new StringBuilder(messages.getString("ai.settings.credential.deletion.message.prefix"));
       detailedMessage.append(' ');
       detailedMessage.append(credentialList.getSelectedValue().getCredentialName());
-      List<String> uses=credentialNameToProfileNameMap.get(credentialList.getSelectedValue());
+      List<String> uses = credentialNameToProfileNameMap.get(credentialList.getSelectedValue());
       if (uses.size() > 0) {
         detailedMessage.append('\n');
         detailedMessage.append(messages.getString("ai.settings.credential.deletion.message.warning"));
-        uses.forEach(c->{
+        uses.forEach(c -> {
           detailedMessage.append(c);
           detailedMessage.append(", ");
         });
       }
       Messages.showQuestionDialog(this.curProject,
-              messages.getString("ai.settings.credential.deletion.title"),
-              detailedMessage.toString(),
-              Messages.options(
-                      messages.getString("ai.messages.yes"),
-                      messages.getString("ai.messages.no")), 1,
-              option -> {
-                if (option == 0) {
-                  removeCredential(credentialList.getSelectedValue().getCredentialName());
-                }
-              });
+          messages.getString("ai.settings.credential.deletion.title"),
+          detailedMessage.toString(),
+          Messages.options(
+              messages.getString("ai.messages.yes"),
+              messages.getString("ai.messages.no")), 1,
+          option -> {
+            if (option == 0) {
+              removeCredential(credentialList.getSelectedValue().getCredentialName());
+            }
+          });
     });
 
     // Configures credentialList with a list selection listener for updating display info based on selected credential
@@ -165,9 +169,9 @@ public class CredentialManagementPanel extends JPanel {
           setFont(getFont().deriveFont(Font.ITALIC));
           //setForeground(Color.DARK_GRAY);
           setToolTipText(messages.getString("ai.settings.credentials.info.is_disable_tooltip"));
-        } 
+        }
         if (credentialNameToProfileNameMap.get(credential) != null &&
-                credentialNameToProfileNameMap.get(credential).size()> 0) {
+            credentialNameToProfileNameMap.get(credential).size() > 0) {
           setFont(getFont().deriveFont(Font.BOLD));
         }
 
@@ -184,12 +188,12 @@ public class CredentialManagementPanel extends JPanel {
    */
   private void removeCredential(String credential) {
     credentialSvc.deleteCredential(credential)
-            .thenAccept((c) -> this.updateCredentialList())
-            .exceptionally(
-                    e -> {
-                      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(this.curProject, e.getCause().getMessage()));
-                      return null;
-                    });
+        .thenAccept((c) -> this.updateCredentialList())
+        .exceptionally(
+            e -> {
+              ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(this.curProject, e.getCause().getMessage()));
+              return null;
+            });
 
   }
 
@@ -203,7 +207,7 @@ public class CredentialManagementPanel extends JPanel {
     credentialSvc.getCredentials().thenAcceptBoth(profileSvc.getProfiles(), (credentials, profiles) -> {
       for (Credential cred : credentials) {
         List<String> pNames = profiles.stream().filter(profile -> cred.getCredentialName().equals(profile.getCredentialName()))
-                .map(profile -> profile.getProfileName()).collect(Collectors.toList());
+            .map(profile -> profile.getProfileName()).collect(Collectors.toList());
         credentialNameToProfileNameMap.put(cred, pNames);
       }
       credentialList.setListData(credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}));
@@ -226,8 +230,8 @@ public class CredentialManagementPanel extends JPanel {
    */
   public void panelTemplate(Credential credential) {
     displayInfo.setLayout(new com.jgoodies.forms.layout.FormLayout(
-            "fill:d:noGrow,left:4dlu:noGrow,fill:d:grow",
-            "center:d:noGrow,top:3dlu:noGrow,center:d:noGrow,top:3dlu:noGrow,center:d:noGrow"));
+        "fill:d:noGrow,left:4dlu:noGrow,fill:d:grow",
+        "center:d:noGrow,top:3dlu:noGrow,center:d:noGrow,top:3dlu:noGrow,center:d:noGrow"));
 
 
     com.jgoodies.forms.layout.CellConstraints cc = new com.jgoodies.forms.layout.CellConstraints();
@@ -235,19 +239,19 @@ public class CredentialManagementPanel extends JPanel {
     JTextField jt1 = new JTextField(credential.getCredentialName());
     jt1.setEditable(false);
     displayInfo.add(jt1,
-            cc.xy(3, 1, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        cc.xy(3, 1, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
     displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.username")), cc.xy(1, 3));
     JTextField jt2 = new JTextField(credential.getUsername(), 10);
     jt2.setEditable(false);
     displayInfo.add(jt2,
-            cc.xy(3, 3, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        cc.xy(3, 3, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
     displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.comment")), cc.xy(1, 5));
     JTextField jt3 = new JTextField(credential.getComments(), 10);
     jt3.setEditable(false);
     displayInfo.add(jt3,
-            cc.xy(3, 5, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
+        cc.xy(3, 5, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
     displayInfo.revalidate();
     displayInfo.repaint();

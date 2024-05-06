@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.ui;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
@@ -230,6 +231,7 @@ public class OracleAIChatBox extends JPanel {
    * Adding event listeners
    */
   private void configurePromptArea() {
+    promptButton.setIcon(Icons.ACTION_EXECUTE);
     promptButton.setBorder(BorderFactory.createEmptyBorder());
     promptButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 

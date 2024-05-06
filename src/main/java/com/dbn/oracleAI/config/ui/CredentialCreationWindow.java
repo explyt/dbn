@@ -4,6 +4,9 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AICredentialService;
 import com.dbn.oracleAI.AICredentialServiceImpl;
+import com.dbn.oracleAI.config.AIProviders.AIProviderType;
+import com.dbn.oracleAI.config.AIProviders.AIProvidersGeneralSettings;
+import com.dbn.oracleAI.config.AIProviders.AIProvidersSettings;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.OciCredential;
 import com.dbn.oracleAI.config.PasswordCredential;
@@ -15,6 +18,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -51,6 +55,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JTextField OCICredentialFingerprintField;
   private JButton keyProviderPickerButton;
   private JPanel credentialGeneralPane;
+  private JCheckBox saveInfoCheckBox;
   private JLabel errorLabel;
   private ConnectionRef connection;
   private Credential credential;
@@ -94,16 +99,20 @@ public class CredentialCreationWindow extends DialogWrapper {
     }
     this.existingCredentialNames = names;
   }
+
   /**
    * Initializes the user interface components and event listeners for the dialog.
    */
   private void initializeUI() {
+    saveInfoCheckBox.setText(messages.getString("ai.settings.credentials.info.save"));
     if (credential != null) {
       hydrateFields();
     } else {
       credentialTypeComboBox.addItem(CredentialType.PASSWORD);
       credentialTypeComboBox.addItem(CredentialType.OCI);
       credentialTypeComboBox.addActionListener((e) -> {
+        if (credentialTypeComboBox.getSelectedItem() == CredentialType.PASSWORD) saveInfoCheckBox.setVisible(true);
+        else saveInfoCheckBox.setVisible(false);
         CardLayout cl = (CardLayout) (credentialAttributesPane.getLayout());
         cl.show(credentialAttributesPane, credentialTypeComboBox.getSelectedItem().toString());
       });
@@ -142,7 +151,6 @@ public class CredentialCreationWindow extends DialogWrapper {
     credentialTypeComboBox.addItem(CredentialType.PASSWORD);
     credentialTypeComboBox.setEnabled(false);
   }
-
 
 
   /**
@@ -213,6 +221,9 @@ public class CredentialCreationWindow extends DialogWrapper {
   @Override
   protected void doOKAction() {
     super.doOKAction();
+    if (saveInfoCheckBox.isSelected() && credentialTypeComboBox.getSelectedItem() == CredentialType.PASSWORD) {
+      saveProviderInfo();
+    }
     if (credential != null) {
       doUpdateAction();
     } else {
@@ -236,9 +247,9 @@ public class CredentialCreationWindow extends DialogWrapper {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_1"),
           credentialNameField);
     }
-    if (this.existingCredentialNames.contains(credentialNameField.getText()) && credential==null) {
+    if (this.existingCredentialNames.contains(credentialNameField.getText()) && credential == null) {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_2"),
-              credentialNameField);
+          credentialNameField);
     }
 
     switch (CredentialType.valueOf(credentialTypeComboBox.getSelectedItem().toString())) {
@@ -249,6 +260,15 @@ public class CredentialCreationWindow extends DialogWrapper {
     }
 
     return null;
+  }
+
+  private void saveProviderInfo() {
+    AIProvidersGeneralSettings settings = AIProvidersSettings.getInstance(connection.get().getProject()).getGeneralSettings();
+    AIProviderType aiProviderType = new AIProviderType();
+    aiProviderType.setHostname("");
+    aiProviderType.setUsername(passwordCredentialUsernameField.getText());
+    aiProviderType.setKey(passwordCredentialPasswordField.getText());
+    settings.getAIProviderTypes().add(aiProviderType);
   }
 
   private ValidationInfo doOCICredentialValidate() {
@@ -297,7 +317,6 @@ public class CredentialCreationWindow extends DialogWrapper {
   protected @Nullable JComponent createCenterPanel() {
     return contentPane;
   }
-
 
 
 }
