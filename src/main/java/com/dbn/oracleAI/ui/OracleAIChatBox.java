@@ -191,7 +191,9 @@ public class OracleAIChatBox extends JPanel {
       }
 
       if (!currProfileItem.isEnabled()) {
-        disableWindow("companion.chat.disabled_profile.tooltip");
+        SwingUtilities.invokeLater(() -> {
+          disableWindow("companion.chat.disabled_profile.tooltip");
+        });
       } else {
         enableWindow();
       }
