@@ -136,7 +136,6 @@ public class ProfileManagementPanel extends JPanel {
               () -> {
                 removeProfile(
                     currProfile);
-                initComponent();
               }));
     });
     editProfileButton.addActionListener(event -> {
@@ -185,13 +184,11 @@ public class ProfileManagementPanel extends JPanel {
       } else {
         currProfile = null;
       }
-      updateWindow();
+      updateProfileNames();
     }).exceptionally(throwable -> {
-      //ApplicationManager.getApplication().invokeLater(() -> {
       Messages.showErrorDialog(currProject,
           messages.getString("profiles.mgnt.attr.deletion.failed.title"),
           messages.getString("profiles.mgnt.attr.deletion.failed.msg"));
-      //});
 
       return null;
     });
