@@ -3,6 +3,7 @@ package com.dbn.database.common.oracleAI;
 import com.dbn.database.common.statement.CallableStatementOutput;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
+import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import lombok.Getter;
 
@@ -68,6 +69,13 @@ public class OracleProfilesAttributesInfo implements CallableStatementOutput {
         else if (Objects.equals(attributeName, "provider"))
           currProfile.setProvider(ProviderType.valueOf(attribute.toUpperCase()));
         else if (Objects.equals(attributeName, "credential_name")) currProfile.setCredentialName(attribute);
+        else if (Objects.equals(attributeName, "model"))
+          try {
+            ProviderModel model = ProviderModel.getByName(attribute);
+            currProfile.setModel(model);
+          } catch (IllegalArgumentException e) {
+            currProfile.setModel(currProfile.getProvider().getDefaultModel());
+          }
       }
     }
 

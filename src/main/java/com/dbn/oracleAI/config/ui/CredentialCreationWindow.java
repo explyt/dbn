@@ -1,7 +1,6 @@
 package com.dbn.oracleAI.config.ui;
 
 import com.dbn.common.util.Messages;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AICredentialService;
 import com.dbn.oracleAI.AICredentialServiceImpl;
 import com.dbn.oracleAI.config.AIProviders.AIProviderType;
@@ -11,6 +10,7 @@ import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.OciCredential;
 import com.dbn.oracleAI.config.PasswordCredential;
 import com.dbn.oracleAI.types.CredentialType;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
@@ -57,7 +57,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JPanel credentialGeneralPane;
   private JCheckBox saveInfoCheckBox;
   private JLabel errorLabel;
-  private ConnectionRef connection;
+  private Project project;
   private Credential credential;
   private CredentialCreationCallback creationCallback;
 
@@ -70,15 +70,14 @@ public class CredentialCreationWindow extends DialogWrapper {
   /**
    * Constructs a CredentialCreationWindow dialog.
    *
-   * @param connection       The connection handler associated with the current project.
    * @param credentialSvc    The service used to create credentials.
    * @param credential       the credential to be edited, can be null in case of credential creation
    * @param creationCallback the callback to validate creation/edition
    */
-  public CredentialCreationWindow(ConnectionRef connection, AICredentialService credentialSvc, @Nullable Credential credential, CredentialCreationCallback creationCallback) {
+  public CredentialCreationWindow(Project project, AICredentialService credentialSvc, @Nullable Credential credential, CredentialCreationCallback creationCallback) {
     super(true);
     this.credentialSvc = credentialSvc;
-    this.connection = connection;
+    this.project = project;
     this.credential = credential;
     this.creationCallback = creationCallback;
     init();
@@ -119,7 +118,7 @@ public class CredentialCreationWindow extends DialogWrapper {
     }
     keyProviderPickerButton.addActionListener((e) -> {
       ProvidersSelectionCallback providersSelectionCallback = aiProviderType -> populateFields(aiProviderType.getUsername(), aiProviderType.getKey());
-      AiProviderSelection aiProviderSelection = new AiProviderSelection(connection.get().getProject(), providersSelectionCallback);
+      AiProviderSelection aiProviderSelection = new AiProviderSelection(project, providersSelectionCallback);
       aiProviderSelection.showAndGet();
 
     });
@@ -176,7 +175,7 @@ public class CredentialCreationWindow extends DialogWrapper {
       });
     }).exceptionally(e -> {
       SwingUtilities.invokeLater(() -> {
-        Messages.showErrorDialog(connection.get().getProject(), e.getCause().getMessage());
+        Messages.showErrorDialog(project, e.getCause().getMessage());
       });
       return null;
     });
@@ -206,7 +205,7 @@ public class CredentialCreationWindow extends DialogWrapper {
       });
     }).exceptionally(e -> {
       SwingUtilities.invokeLater(() -> {
-        Messages.showErrorDialog(connection.get().getProject(), e.getCause().getMessage());
+        Messages.showErrorDialog(project, e.getCause().getMessage());
       });
       return null;
     });
@@ -263,7 +262,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   }
 
   private void saveProviderInfo() {
-    AIProvidersGeneralSettings settings = AIProvidersSettings.getInstance(connection.get().getProject()).getGeneralSettings();
+    AIProvidersGeneralSettings settings = AIProvidersSettings.getInstance(project).getGeneralSettings();
     AIProviderType aiProviderType = new AIProviderType();
     aiProviderType.setHostname("");
     aiProviderType.setUsername(passwordCredentialUsernameField.getText());

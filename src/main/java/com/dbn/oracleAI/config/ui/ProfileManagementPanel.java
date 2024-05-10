@@ -6,6 +6,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.Profile;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -82,6 +83,9 @@ public class ProfileManagementPanel extends JPanel {
   private void initComponent() {
     initializeButtons();
     updateProfileNames();
+
+    ApplicationManager.getApplication().invokeLater(() -> addProfileButton.requestFocusInWindow());
+
   }
 
   private void updateProfileNames() {
@@ -139,17 +143,15 @@ public class ProfileManagementPanel extends JPanel {
               }));
     });
     editProfileButton.addActionListener(event -> {
-      new ProfileEditionDialog(currProject, currProfile).display();
+      ProfileEditionWizard.showWizard(currProject, currProfile, isCommit -> {
+        if (isCommit) updateProfileNames();
+      });
     });
     addProfileButton.addActionListener(event -> {
-      ProfileEditionDialog profileEditionDialog = new ProfileEditionDialog(currProject, null);
-      profileEditionDialog.display();
-      profileEditionDialog.addWindowListener(new java.awt.event.WindowAdapter() {
-        @Override
-        public void windowClosed(java.awt.event.WindowEvent windowEvent) {
-          updateProfileNames();
-        }
-      });
+      ProfileEditionWizard.showWizard(currProject, null, isCommit -> {
+            if (isCommit) updateProfileNames();
+          }
+      );
     });
   }
 
@@ -196,6 +198,7 @@ public class ProfileManagementPanel extends JPanel {
 
   private void initializeEmptyWindow() {
     profileComboBox.setToolTipText("ai.messages.noitems");
+    profileComboBox.setEnabled(false);
     credentialField.setEnabled(false);
     providerField.setEnabled(false);
     modelField.setEnabled(false);
@@ -205,6 +208,7 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void initializeFilledWindow() {
+    profileComboBox.setEnabled(true);
     credentialField.setEnabled(true);
     providerField.setEnabled(true);
     modelField.setEnabled(true);

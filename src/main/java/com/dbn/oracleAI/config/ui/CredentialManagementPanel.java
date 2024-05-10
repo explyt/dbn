@@ -104,7 +104,7 @@ public class CredentialManagementPanel extends JPanel {
     // Initializes addButton with its action listener for creating new credential
     addButton.addActionListener((e) -> {
       CredentialCreationCallback callback = this::updateCredentialList;
-      CredentialCreationWindow win = new CredentialCreationWindow(connection, credentialSvc, null, callback);
+      CredentialCreationWindow win = new CredentialCreationWindow(curProject, credentialSvc, null, callback);
       win.setExistingCredentialNames(
           credentialNameToProfileNameMap.keySet().stream().map(c -> c.getCredentialName()).collect(Collectors.toList()));
       win.showAndGet();
@@ -113,7 +113,7 @@ public class CredentialManagementPanel extends JPanel {
 
     editButton.addActionListener((e) -> {
       CredentialCreationCallback callback = this::updateCredentialList;
-      CredentialCreationWindow win = new CredentialCreationWindow(connection, credentialSvc, credentialList.getSelectedValue(), callback);
+      CredentialCreationWindow win = new CredentialCreationWindow(curProject, credentialSvc, credentialList.getSelectedValue(), callback);
       win.setExistingCredentialNames(credentialNameToProfileNameMap.keySet().stream().map(c -> c.getCredentialName()).collect(Collectors.toList()));
       win.showAndGet();
     });
