@@ -3,6 +3,7 @@ package com.dbn.oracleAI.config;
 import com.dbn.oracleAI.types.DatabaseObjectType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.ToString;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -12,6 +13,7 @@ import java.util.Objects;
  */
 @Getter
 @AllArgsConstructor
+@ToString
 /**
  * POJO class that represent an object in the database, basically table or view
  */

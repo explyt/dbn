@@ -119,9 +119,13 @@ tasks {
     runIde {
         systemProperties["idea.auto.reload.plugins"] = true
         systemProperties["fake.services"] = Files.exists(Paths.get("/tmp/fake_services"))
-        //systemProperties["fake.services.credentials.dump"] = "/var/tmp/credentials.json"
-        //systemProperties["fake.services.profiles.dump"] = "/var/tmp/profiles.json"
+        // systemProperties["fake.services.credentials.dump"] = "/var/tmp/credentials.json"
+        // systemProperties["fake.services.profiles.dump"] = "/var/tmp/profiles.json"
+        // systemProperties["fake.services.schemas.dump"] = "/var/tmp/schemas.json"
+        //systemProperties["fake.services.dbitems.dump"] = "/var/tmp/dbitems.json"
         systemProperties["idea.log.debug.categories"] = "com.dbn.oracleAI, com.dbn.oracleAI.config, com.dbn.oracleAI.ui"
+        systemProperties["idea.log.trace.categories"] = "com.dbn.oracleAI, com.dbn.oracleAI.config, com.dbn.oracleAI.ui"
+
         jvmArgs = listOf(
                 "-Xms512m",
                 "-Xmx2048m",

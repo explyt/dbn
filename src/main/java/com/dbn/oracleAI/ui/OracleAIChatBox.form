@@ -123,7 +123,7 @@
             <properties/>
             <border type="none"/>
             <children>
-              <component id="964ec" class="javax.swing.JTextArea" binding="promptTextArea">
+              <component id="964ec" class="javax.swing.JTextArea" binding="promptTextArea" custom-create="true">
                 <constraints border-constraint="Center"/>
                 <properties>
                   <lineWrap value="true"/>
@@ -143,6 +143,7 @@
                     <properties>
                       <contentAreaFilled value="false"/>
                       <enabled value="false"/>
+                      <icon value="img/action/ExecuteAsScript.png"/>
                       <maximumSize width="50" height="50"/>
                       <minimumSize width="50" height="50"/>
                       <preferredSize width="50" height="50"/>

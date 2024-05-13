@@ -40,7 +40,7 @@ public class ProfileEditionDialog extends JDialog implements ViewEventListener,
   static private final ResourceBundle messages =
       ResourceBundle.getBundle("Messages", Locale.getDefault());
 
-  private static final Logger LOGGER = Logger.getInstance(ProfileEditionDialog.class.getPackageName());
+  private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
 
   private JPanel mainPane;
   private JPanel buttonPanel;
