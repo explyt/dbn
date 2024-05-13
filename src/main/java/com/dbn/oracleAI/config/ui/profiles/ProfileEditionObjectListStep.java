@@ -77,7 +77,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   //At start initialize it with empty one
   DatabaseObjectListTableModel currentDbObjListTableModel = new DatabaseObjectListTableModel();
 
-  Map<String,DatabaseObjectListTableModel> DatabaseObjectListTableModelCache = new HashMap<>();
+  Map<String,DatabaseObjectListTableModel> databaseObjectListTableModelCache = new HashMap<>();
 
   public ProfileEditionObjectListStep(Project project, Profile profile) {
     super();
@@ -171,7 +171,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
             ProfileDBObjectItem item = profileObjListTableModel.getItemAt(row);
             // we may be viewing datbase object from another schema
             // locate it first. no way that cache not already populated
-            DatabaseObjectListTableModel model = DatabaseObjectListTableModelCache.get(item.getOwner());
+            DatabaseObjectListTableModel model = databaseObjectListTableModelCache.get(item.getOwner());
             assert model != null: "trying to unhide items form model not in the cache";
             // TODO : verify that this do nto fire event when this is not the current model
             //        of the table
@@ -218,8 +218,8 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         editor.setText(value.toString());
         editor.setBorder(null);
         editor.setEditable(false);
-        editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        //editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+        //editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
         DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
@@ -241,8 +241,8 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         editor.setText((value != null) ? value.toString() : "*");
         editor.setBorder(null);
         editor.setEditable(false);
-        editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        //editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+        //editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
         ProfileDBObjectItem currentItem = profileObjListTableModel.getItemAt(row);
@@ -274,14 +274,14 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   /**
    * Looks into DB object model for a matching type
    * @param item object item in a profile
-   * @return the type of that item or null if it a wildcard object (i.e name == null)
+   * @return the type of that item or null if its a wildcard object (i.e name == null)
    */
   private DatabaseObjectType locateTypeFor(ProfileDBObjectItem item) {
     if (item.getName() == null || item.getName().length() == 0) {
       return null;
     }
 
-    DatabaseObjectListTableModel model = DatabaseObjectListTableModelCache.get(item.getOwner());
+    DatabaseObjectListTableModel model = databaseObjectListTableModelCache.get(item.getOwner());
     Optional<DBObjectItem> oitem = model.findFirst(item);
     if (oitem.isEmpty()) {
       // look for hidden ones then
@@ -309,14 +309,14 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   }
 
   private void populateDatabaseObjectTable(String schema) {
-    DatabaseObjectListTableModel model  = DatabaseObjectListTableModelCache.get(schema);
+    DatabaseObjectListTableModel model  = databaseObjectListTableModelCache.get(schema);
     if (model == null) {
       startActivityNotifier();
       databaseObjectsTable.setEnabled(false);
       databaseSvc.getObjectItemsForSchema(schema).thenAccept(objs->{
         ApplicationManager.getApplication().invokeLater(() -> {
           DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs,!withViewsButton.isSelected());
-          DatabaseObjectListTableModelCache.put(schema,newModel);
+          databaseObjectListTableModelCache.put(schema,newModel);
           databaseObjectsTable.setModel(newModel);
           currentDbObjListTableModel = newModel;
           stopActivityNotifier();

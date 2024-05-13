@@ -12,11 +12,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Transfer handler for Database object and profile database object.
+ * This handler is used durin drag and drop between tables
+ */
 public class DBObjectsTransferHandler extends TransferHandler {
 
     private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
 
 
+    @Override
     public boolean canImport(TransferHandler.TransferSupport info) {
         LOGGER.trace("DatabaseObjectsTransferHandler.canImport: drop action: " + info.getDropAction());
         // Check for String flavor
@@ -30,6 +35,7 @@ public class DBObjectsTransferHandler extends TransferHandler {
         return true;
     }
 
+    @Override
     public boolean importData(TransferHandler.TransferSupport info) {
         LOGGER.trace("DatabaseObjectsTransferHandler.importData");
         if (!canImport(info)) {

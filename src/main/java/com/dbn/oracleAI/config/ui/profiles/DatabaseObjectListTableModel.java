@@ -13,6 +13,10 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
+/**
+ * Database object table model.
+ * A model that manipulate list of <code>DBObjectItem</code>
+ */
 public class DatabaseObjectListTableModel extends AbstractTableModel {
 
     private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
@@ -32,11 +36,19 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
             messages.getString("profile.mgmt.obj_table.header.name")
     };
 
+    /**
+     * Creates a new model
+     */
     public DatabaseObjectListTableModel() {
         this.allItems = new ArrayList<>();
         this.parkedItems = new ArrayList<>();
     }
 
+    /**
+     * Creates a new model with a given list of object.
+     * @param objs list  of database objects  that will populate the model
+     * @param hideViewsByDefault if true the model will hide views from the list of objects.
+     */
     public DatabaseObjectListTableModel(List<DBObjectItem> objs, boolean hideViewsByDefault) {
         this.parkedItems = new ArrayList<>();
         if (hideViewsByDefault) {
@@ -87,6 +99,11 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
         return String.class;
     }
 
+    /**
+     * Hides from the model all object of a given type
+     * hidden ones will be kept as reference but won't be part of the actual model
+     * @param databaseObjectType the type of object to be hidden
+     */
     public void hideItemByType(DatabaseObjectType databaseObjectType) {
         LOGGER.debug("DatabaseObjectListTableModel.hideItemByType: " + databaseObjectType);
         List<DBObjectItem> matches = new ArrayList<>();
@@ -101,6 +118,11 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
         }
     }
 
+    /**
+     * unhides from the model all object of a given type
+     * reveal ones will be put back as part of the actual model
+     * @param databaseObjectType the type of object to be hidden
+     */
     public void unhideItemByType(DatabaseObjectType databaseObjectType) {
         LOGGER.debug("DatabaseObjectListTableModel.unhideItemByType: " + databaseObjectType);
         List<DBObjectItem> matches = new ArrayList<>();
@@ -117,11 +139,11 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
 
 
     /**
-     * Hide a itme from the model by its names
-     * A modle onyl contain item for a given schema, no name collision
-     * can hapen
+     * Hides a item from the model
+     * A model only contains item for a given schema, no name collision
+     * can happen
      *
-     * @param itemNames name of the object in the model
+     * @param itemNames name of the object in the model to be hidden
      */
     public void hideItemByNames(List<String> itemNames) {
         if (LOGGER.isDebugEnabled())

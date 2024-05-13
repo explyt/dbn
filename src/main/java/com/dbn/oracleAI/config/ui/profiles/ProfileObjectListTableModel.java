@@ -9,6 +9,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/**
+ * profile object table model.
+ * A model that manipulate list of <code>ProfileDBObjectItem</code>
+ */
 public class ProfileObjectListTableModel extends AbstractTableModel {
 
     private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
@@ -24,6 +28,9 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
             messages.getString("profile.mgmt.obj_table.header.owner")
     };
 
+    /**
+     * Creates a new (empty) model
+     */
     public ProfileObjectListTableModel() {
         this.data = new ArrayList<>();
     }
@@ -69,7 +76,11 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
         return false;
     }
 
-    // Methods to manipulate the data
+
+    /**
+     * Adds a list of profile db object to the model
+     * @param items the list of objects to be added
+     */
     public void addItems(List<ProfileDBObjectItem> items) {
         if (LOGGER.isDebugEnabled())
             LOGGER.debug("ProfileObjectListTableModel.addItems: " + items);
@@ -81,6 +92,10 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
         fireTableRowsInserted(curRow, curRow + items.size());
     }
 
+    /**
+     * Removed a  profile db object from the model
+     * @param item the  object to be removed
+     */
     public void removeItem(ProfileDBObjectItem item) {
         LOGGER.debug("ProfileObjectListTableModel.removeItem: " + item);
         int index = data.indexOf(item);
@@ -93,6 +108,10 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
         }
     }
 
+    /**
+     * Replaces list of object in the model
+     * @param items the new item list to be added to the model.
+     */
     public void updateItems(List<ProfileDBObjectItem> items) {
         data.clear();
         data.addAll(items);
@@ -102,12 +121,23 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
     }
 
     // Method to get data
+
+    /**
+     * Gets the list of items of that model
+     * @return the list of profile DB object
+     */
     public List<ProfileDBObjectItem> getData() {
         return data;
     }
 
 
-    public ProfileDBObjectItem getItemAt(int rowIndex) {
+    /**
+     * Gets an item from the model at a given index
+     * @param rowIndex the index within the model
+     * @return the item at given index
+     * @throws IndexOutOfBoundsException if index is not valid
+     */
+    public ProfileDBObjectItem getItemAt(int rowIndex) throws IndexOutOfBoundsException{
         return data.get(rowIndex);
     }
 }

@@ -9,16 +9,25 @@ import java.awt.datatransfer.UnsupportedFlavorException;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * Transferable object for Database object and profile object
+ * This class is used during drag and drop between tables.
+ * This class maintain a list of <code>DBObjectItem</code> to be transferred
+ */
 public class DatabaseObjectsTransferable implements Transferable {
 
     public static final DataFlavor DatabaseObjectFlavor =
             new DataFlavor(DBObjectItem.class, "DB object");
 
     private static final DataFlavor[] supportedFlavor = {DatabaseObjectFlavor};
-    private List<DBObjectItem> transfered;
+    private List<DBObjectItem> transferred;
 
-    public DatabaseObjectsTransferable(List<DBObjectItem> transfered) {
-        this.transfered = transfered;
+    /**
+     * Creates a new DatabaseObjectsTransferable with a given list of DB object.
+     * @param transferred list of DB object that will be transferred
+     */
+    public DatabaseObjectsTransferable(List<DBObjectItem> transferred) {
+        this.transferred = transferred;
     }
 
     @Override
@@ -37,13 +46,13 @@ public class DatabaseObjectsTransferable implements Transferable {
         if (!isDataFlavorSupported(flavor)) {
             throw new UnsupportedFlavorException(flavor);
         }
-        return this.transfered;
+        return this.transferred;
     }
 
     @Override
     public String toString() {
         return "DatabaseObjectsTransferable{" +
-                "transfered=" + transfered +
+                "transfered=" + transferred +
                 '}';
     }
 }
