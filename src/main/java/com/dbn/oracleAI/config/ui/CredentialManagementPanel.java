@@ -93,7 +93,6 @@ public class CredentialManagementPanel extends JPanel {
    * This method is responsible for the initial UI setup and layout of the credential management panel.
    */
   private void initializeUI() {
-
     editButton.setIcon(Icons.ACTION_EDIT);
     editButton.setToolTipText(messages.getString("ai.settings.credential.editing.tooltip"));
     addButton.setIcon(Icons.ACTION_ADD);
@@ -160,6 +159,12 @@ public class CredentialManagementPanel extends JPanel {
           profilesLabelTitle.setText(messages.getString("credential.mgnt.notused"));
           usedByScrollPane.setVisible(false);
         }
+        editButton.setEnabled(true);
+        deleteButton.setEnabled(true);
+      } else {
+        editButton.setEnabled(false);
+        deleteButton.setEnabled(false);
+        displayInfo.removeAll();
       }
     });
     credentialList.setCellRenderer(new DefaultListCellRenderer() {
