@@ -33,7 +33,7 @@ import java.util.List;
 @ToString
 public class Profile implements AttributeInput {
 
-  private static final Logger LOGGER = Logger.getInstance(Profile.class.getPackageName());
+  private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
 
   private final String PROFILE_NAME_ATTR_NAME = "name";
   private final String PROFILE_OWNER_ATTR_NAME = "owner";

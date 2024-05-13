@@ -204,7 +204,17 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
 
     public synchronized DatabaseService getDatabaseService() {
       //TODO : later find better than using "synchronized"
-      return databaseManagerMap.getOrDefault(ConnectionHandler.get(currConnection).getConnectionId(),
-              new DatabaseService(ConnectionHandler.get(currConnection).ref()));
+      DatabaseService svc = databaseManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
+      if (svc != null) {
+        return svc;
+      }
+      if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
+        svc = new FakeDatabaseService();
+      } else {
+        svc = new DatabaseServiceImpl(ConnectionHandler.get(currConnection).ref());
+      }
+      databaseManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
+      return svc;
+
     }
 }
