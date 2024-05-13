@@ -16,6 +16,8 @@ import javax.swing.SwingUtilities;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
 public class ProfileEditionWizard extends WizardDialog<ProfileEditionGeneralModel> {
@@ -27,6 +29,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionGeneralMode
   private final Project project;
   private final AIProfileService profileSvc;
   private final Consumer<Boolean> callback;
+  private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   public ProfileEditionWizard(@NotNull Project project, Profile initialProfile, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
     super(false, new ProfileEditionGeneralModel("Profile Configuration", project, initialProfile, isUpdate));
@@ -35,7 +38,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionGeneralMode
     this.profile = initialProfile;
     this.isUpdate = isUpdate;
     this.callback = callback;
-    finishButton.setText(isUpdate ? "Update" : "Create");
+    finishButton.setText(messages.getString(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
   }
 
 

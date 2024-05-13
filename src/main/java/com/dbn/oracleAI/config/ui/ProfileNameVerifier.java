@@ -18,7 +18,7 @@ public class ProfileNameVerifier extends InputVerifier {
     boolean isValid = !textField.getText().trim().isEmpty();
     if (!isValid) {
       textField.setBorder(ERROR_BORDER);
-      textField.setToolTipText("This field cannot be empty.");
+      textField.setToolTipText("profile.mgmt.general_step.profile_name.validation");
     } else {
       textField.setBorder(DEFAULT_BORDER);
       textField.setToolTipText(null);

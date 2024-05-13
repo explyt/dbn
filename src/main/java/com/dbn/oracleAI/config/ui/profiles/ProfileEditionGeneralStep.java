@@ -22,6 +22,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -39,6 +41,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionGeneralM
   private final Project project;
   private final Profile profile;
   private final boolean isUpdate;
+  private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   public ProfileEditionGeneralStep(Project project, Profile profile, boolean isUpdate) {
     super("General Settings");
@@ -119,7 +122,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionGeneralM
       profile.setDescription(descriptionTextField.getText());
       return super.onNext(model);
     } else {
-      Messages.showErrorDialog(project, "Please fill in all required fields.");
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.validation"));
       return this;
     }
   }

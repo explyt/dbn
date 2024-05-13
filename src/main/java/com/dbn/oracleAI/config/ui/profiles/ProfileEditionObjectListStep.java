@@ -77,6 +77,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionGener
   private final Project project;
   private final Profile profile;
   private final boolean isUpdate;
+
   ProfileObjectListTableModel profileObjListTableModel = new ProfileObjectListTableModel();
 
   //At start initialize it with empty one
@@ -631,7 +632,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionGener
     if (isValid) {
       return true;
     } else {
-      Messages.showErrorDialog(project, "Please add a table or view");
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.object_list.validation"));
       return false;
     }
   }

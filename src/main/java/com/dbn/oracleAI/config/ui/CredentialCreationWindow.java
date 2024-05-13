@@ -232,7 +232,7 @@ public class CredentialCreationWindow extends DialogWrapper {
 
   @Override
   protected Action @NotNull [] createActions() {
-    super.setOKButtonText(credential != null ? "Update" : "Create");
+    super.setOKButtonText(messages.getString(credential != null ? "ai.messages.button.update" : "ai.messages.button.create"));
 
     return super.createActions();
   }
