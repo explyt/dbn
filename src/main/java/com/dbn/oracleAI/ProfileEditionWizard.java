@@ -2,7 +2,7 @@ package com.dbn.oracleAI;
 
 import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.ui.profiles.ProfileEditionGeneralModel;
+import com.dbn.oracleAI.config.ui.profiles.ProfileEditionWizardModel;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardDialog;
 import com.intellij.util.ui.JBDimension;
@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
 
-public class ProfileEditionWizard extends WizardDialog<ProfileEditionGeneralModel> {
+public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> {
 
   private final Profile profile;
   private final boolean isUpdate;
@@ -32,7 +32,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionGeneralMode
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   public ProfileEditionWizard(@NotNull Project project, Profile initialProfile, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
-    super(false, new ProfileEditionGeneralModel("Profile Configuration", project, initialProfile, isUpdate));
+    super(false, new ProfileEditionWizardModel("Profile Configuration", project, initialProfile, isUpdate));
     profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
     this.profile = initialProfile;

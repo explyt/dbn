@@ -14,14 +14,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * Profile edition provider step for edition wizard
  *
  * @see com.dbn.oracleAI.ProfileEditionWizard
  */
-public class ProfileEditionProviderStep extends WizardStep<ProfileEditionGeneralModel> {
+public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardModel> {
 
   private JPanel profileEditionProviderMainPane;
   private JComboBox<ProviderType> providerNameCombo;
@@ -37,7 +39,7 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionGeneral
 
 
   public ProfileEditionProviderStep(Project project, @Nullable Profile profile, boolean isUpdate) {
-    super("Provider Settings");
+    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.provider_step.title"));
     this.profile = profile;
     configureTemperatureSlider();
     populateCombos();
@@ -102,7 +104,7 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionGeneral
   }
 
   @Override
-  public WizardStep<ProfileEditionGeneralModel> onNext(ProfileEditionGeneralModel model) {
+  public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
     profile.setProvider(ProviderType.valueOf(Objects.requireNonNull(providerNameCombo.getSelectedItem()).toString()));
     profile.setModel((ProviderModel) providerModelCombo.getSelectedItem());
     profile.setTemperature((double) temperatureSlider.getValue() / 10);

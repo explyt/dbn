@@ -24,14 +24,13 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Profile edition general step for edition wizard.
  *
  * @see com.dbn.oracleAI.ProfileEditionWizard
  */
-public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionGeneralModel> {
+public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardModel> {
   private JPanel profileEditionGeneralMainPane;
   private JTextField nameTextField;
   private JComboBox<String> credentialComboBox;
@@ -44,7 +43,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionGeneralM
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   public ProfileEditionGeneralStep(Project project, Profile profile, boolean isUpdate) {
-    super("General Settings");
+    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.general_step.title"));
     this.project = project;
     this.profile = profile;
     this.isUpdate = isUpdate;
@@ -57,7 +56,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionGeneralM
 
   private void initializeUI() {
     createCredButton.setIcon(Icons.ACTION_ADD);
-    createCredButton.setToolTipText("Add new credentials");
+    createCredButton.setToolTipText(messages.getString("ai.settings.credential.adding.tooltip"));
     createCredButton.addActionListener((e) -> {
       CredentialCreationCallback callback = this::populateCredentials;
       CredentialCreationWindow win = new CredentialCreationWindow(project, credentialSvc, null, callback);
@@ -90,17 +89,15 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionGeneralM
   }
 
   private void populateCredentials() {
-    CompletableFuture.runAsync(() ->
-        credentialSvc.getCredentials().thenAccept(credentialProviderList -> {
-          SwingUtilities.invokeLater(() -> {
-            credentialComboBox.removeAllItems();
-            for (Credential credential : credentialProviderList) {
-              credentialComboBox.addItem(credential.getCredentialName());
-            }
-            credentialComboBox.setSelectedIndex(0);
-          });
-        })
-    );
+    credentialSvc.getCredentials().thenAccept(credentialProviderList -> {
+      SwingUtilities.invokeLater(() -> {
+        credentialComboBox.removeAllItems();
+        for (Credential credential : credentialProviderList) {
+          credentialComboBox.addItem(credential.getCredentialName());
+        }
+        credentialComboBox.setSelectedIndex(0);
+      });
+    });
   }
 
   @Override
@@ -114,7 +111,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionGeneralM
   }
 
   @Override
-  public WizardStep<ProfileEditionGeneralModel> onNext(ProfileEditionGeneralModel model) {
+  public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
     boolean isValidated = nameTextField.getInputVerifier().verify(nameTextField);
     if (isValidated) {
       profile.setProfileName(nameTextField.getText());

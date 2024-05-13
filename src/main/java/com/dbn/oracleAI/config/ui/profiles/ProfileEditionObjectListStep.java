@@ -49,7 +49,7 @@ import java.util.ResourceBundle;
  *
  * @see com.dbn.oracleAI.ProfileEditionWizard
  */
-public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionGeneralModel> {
+public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizardModel> {
 
   static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
   private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
@@ -88,7 +88,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionGener
   Map<String, DatabaseObjectListTableModel> databaseObjectListTableModelCache = new HashMap<>();
 
   public ProfileEditionObjectListStep(Project project, Profile profile, boolean isUpdate) {
-    super("Object List Settings");
+    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.title"));
     this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
     this.profile = profile;
@@ -230,8 +230,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionGener
         editor.setText(value.toString());
         editor.setBorder(null);
         editor.setEditable(false);
-        //editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        //editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
         DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
@@ -253,8 +251,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionGener
         editor.setText((value != null) ? value.toString() : "*");
         editor.setBorder(null);
         editor.setEditable(false);
-        //editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        //editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
         ProfileDBObjectItem currentItem = profileObjListTableModel.getItemAt(row);
@@ -367,6 +363,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionGener
     boolean isValid = profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
 
     if (isValid) {
+      profile.setObjectList(profileObjListTableModel.getData());
       return true;
     } else {
       Messages.showErrorDialog(project, messages.getString("profile.mgmt.object_list.validation"));
