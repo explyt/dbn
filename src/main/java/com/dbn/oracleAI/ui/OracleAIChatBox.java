@@ -32,10 +32,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import javax.swing.text.BadLocationException;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Cursor;
@@ -58,7 +55,10 @@ import java.util.stream.Collectors;
 import static java.awt.event.InputEvent.BUTTON1_MASK;
 
 public class OracleAIChatBox extends JPanel {
-  private boolean shouldPromptTextAreaListen = true;
+
+  private void createUIComponents() {
+    promptTextArea = new IdleJtextArea(messages.getString("companion.chat.prompt.tooltip"));
+  }
 
   /**
    * Holder class for profile combox box
@@ -102,7 +102,7 @@ public class OracleAIChatBox extends JPanel {
     }
   }
 
-  private static final Logger LOG = Logger.getInstance(OracleAIChatBox.class);
+  private static final Logger LOG = Logger.getInstance(OracleAIChatBox.class.getPackageName());
 
   private static OracleAIChatBox instance;
   private JComboBox<AIProfileItem> profileComboBox;
@@ -119,14 +119,11 @@ public class OracleAIChatBox extends JPanel {
   private JTextField chatBoxNotificationMessage;
   private JPanel companionConversationPanelBottom;
   private JButton promptButton;
-  private boolean promptTextAreaIsIdle = true;
   private JTextArea promptTextArea;
   private JPanel buttonPanel;
   private final List<ChatMessage> chatMessages = new ArrayList<>();
 
   public static DatabaseOracleAIManager currManager;
-
-  private boolean canSubmitText = false;
 
   static private final ResourceBundle messages =
       ResourceBundle.getBundle("Messages", Locale.getDefault());
@@ -235,6 +232,8 @@ public class OracleAIChatBox extends JPanel {
    */
   private void configurePromptArea() {
     promptButton.setIcon(Icons.ACTION_EXECUTE);
+    // TODO : fine better than this one...
+    promptButton.setDisabledIcon(Icons.CONNECTION_DISABLED);
     promptButton.setToolTipText(messages.getString("companion.chat.prompt.execute.tooltip"));
     promptButton.setBorder(BorderFactory.createEmptyBorder());
     promptButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -254,100 +253,47 @@ public class OracleAIChatBox extends JPanel {
     actionMap.put("submit", new AbstractAction() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (canSubmitText) {
+        if (!((IdleJtextArea)promptTextArea).isIdle() &&
+                !promptTextArea.getText().isEmpty()) {
           submitText();
         }
       }
     });
     promptTextArea.addFocusListener(new FocusListener() {
       @Override
-      public void focusGained(FocusEvent e) {
-        LOG.debug("focusGained");
-        // no need for indirection use promptTextArea directly
-        String currentText = promptTextArea.getText();
-        if (promptTextAreaIsIdle) {
-          // remove hint for user
-          setPromptAreaIdle(false);
-        }
-      }
-
-      @Override
-      public void focusLost(FocusEvent e) {
-        LOG.debug("focusLost");
-        // no need for indirection
-        if (promptTextArea.getText().isEmpty()) {
-          // provide hint to user
-          setPromptAreaIdle(true);
-        }
-      }
-    });
-
-    promptTextArea.getDocument().addDocumentListener(new DocumentListener() {
-
-      private void treatIsOnlyBlanks(javax.swing.text.Document doc) {
-        try {
-          if (doc.getText(0, doc.getLength()).isBlank()) {
-            promptButton.setEnabled(false);
-            canSubmitText = false;
-          } else {
-            promptButton.setEnabled(true);
-            canSubmitText = true;
-          }
-        } catch (BadLocationException e) {
-          // won't happen anyway
-          throw new RuntimeException(e);
-        }
-      }
-
-      @Override
-      public void insertUpdate(DocumentEvent e) {
-        LOG.debug("insertUpdate");
-        if (shouldPromptTextAreaListen)
-          treatIsOnlyBlanks(e.getDocument());
-      }
-
-      @Override
-      public void removeUpdate(DocumentEvent e) {
-        LOG.debug("removeUpdate");
-        if (shouldPromptTextAreaListen)
-          treatIsOnlyBlanks(e.getDocument());
-      }
-
-      @Override
-      public void changedUpdate(DocumentEvent e) {
-        LOG.debug("changedUpdate");
-        if (shouldPromptTextAreaListen)
-          treatIsOnlyBlanks(e.getDocument());
-      }
-    });
-
-    setPromptAreaIdle(true);
+                                      public void focusGained(FocusEvent e) {
+                                        // nothing to do
+                                      }
+                                      @Override
+                                      public void focusLost(FocusEvent e) {
+                                        // if only blanks or is idle
+                                        // forbid to submit
+                                        if (promptTextArea.getText().isEmpty() ||
+                                                ((IdleJtextArea)promptTextArea).isIdle()) {
+                                          LOG.debug("focusLost disabling submit");
+                                          promptButton.setEnabled(false);
+                                        } else {
+                                          LOG.debug("focusLost enabling submit");
+                                          promptButton.setEnabled(true);
+                                        }
+                                      }
+                                    }
+    );
 
   }
 
-
-  private void setPromptAreaIdle(boolean isIdle) {
-    LOG.debug("setPromptAreaIdle : " + isIdle);
-    try {
-      shouldPromptTextAreaListen = false;
-      promptTextAreaIsIdle = isIdle;
-      if (isIdle) {
-        promptTextArea.setText(messages.getString("companion.chat.prompt.tooltip"));
-        promptTextArea.setFont(promptTextArea.getFont().deriveFont(Font.ITALIC));
-      } else {
-        promptTextArea.setText("");
-        promptTextArea.setFont(promptTextArea.getFont().deriveFont(Font.PLAIN));
-      }
-    } finally {
-      shouldPromptTextAreaListen = true;
-    }
-  }
 
   private void submitText() {
     startActivityNotifier(messages.getString("companion.chat.submitting"));
     ApplicationManager.getApplication()
         .executeOnPooledThread(
-            () -> processQuery(selectedAction()));
+            () -> {
+              // we know that this is never empty and good to be proceed
+             String question = promptTextArea.getText();
+              ((IdleJtextArea)promptTextArea).setIdleMode(true);
+              promptTextArea.setEnabled(false);
+              processQuery(question, selectedAction());
+            });
   }
 
   private ActionAIType selectedAction() {
@@ -358,20 +304,17 @@ public class OracleAIChatBox extends JPanel {
     }
   }
 
-  private void processQuery(ActionAIType actionType) {
+  private void processQuery(String question, ActionAIType actionType) {
     LOG.debug("Starting processQuery with actionType: " + actionType);
     Objects.requireNonNull(promptTextArea.getText(),
         "cannot be here without question been selected");
 
     AIProfileItem item = (AIProfileItem) profileComboBox.getSelectedItem();
 
-    // we are protected as we cannot arrive if that's only blanks
-    String question = promptTextArea.getText().trim();
     // TODO : do we want to append the message even in case of error
     ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
     chatMessages.add(inputChatMessage);
     appendMessageToChat(inputChatMessage);
-    setPromptAreaIdle(true);
     try {
       String output =
           currManager.queryOracleAI(question, actionType, item.getLabel(),
@@ -385,6 +328,7 @@ public class OracleAIChatBox extends JPanel {
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
     } finally {
       stopActivityNotifier();
+      promptTextArea.setEnabled(true);
     }
   }
 
@@ -447,12 +391,7 @@ public class OracleAIChatBox extends JPanel {
     chatMessages.clear();
     chatMessages.addAll(state.getAiAnswers());
     populateChatPanel();
-    try {
-      shouldPromptTextAreaListen = false;
-      promptTextArea.setText(state.getCurrentQuestionText());
-    } finally {
-      shouldPromptTextAreaListen = true;
-    }
+    promptTextArea.setText(state.getCurrentQuestionText());
   }
 
   /**
@@ -488,7 +427,7 @@ public class OracleAIChatBox extends JPanel {
     LOG.debug("Initialize new state");
     startActivityNotifier(messages.getString("companion.chat.fetching_profiles"));
     updateProfiles().thenAccept(finalFetchedProfiles -> {
-      LOG.debug("Profiles fetched successfully");
+      LOG.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
       ApplicationManager.getApplication().invokeLater(() -> {
         profileListModel.removeAllElements();
         finalFetchedProfiles.forEach((pn, p) -> {
@@ -523,7 +462,7 @@ public class OracleAIChatBox extends JPanel {
     explainSQLCheckbox.setToolTipText(
         messages.getString("companion.explainsql.tooltip"));
     promptTextArea.setToolTipText("");
-    promptButton.setToolTipText("");
+    promptButton.setToolTipText(messages.getString("companion.chat.prompt.button.tooltip"));
   }
 
   private void disableWindow(String message) {
