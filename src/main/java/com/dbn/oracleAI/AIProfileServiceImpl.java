@@ -27,6 +27,19 @@ public class AIProfileServiceImpl implements AIProfileService {
     this.connectionRef = connectionRef;
   }
 
+  private void dumpThem(List<Profile> profileList, String path) {
+      if (path != null ) {
+          try {
+              FileWriter writer = new FileWriter(path);
+              new Gson().toJson(profileList, writer);
+              writer.close();
+          } catch (Exception e) {
+              // ignore this
+              if (LOGGER.isTraceEnabled())
+                  LOGGER.trace("cannot dump profile " +e.getMessage());
+          }
+      }
+  }
 
   @Override
   public CompletableFuture<List<Profile>> getProfiles()  {
@@ -37,24 +50,16 @@ public class AIProfileServiceImpl implements AIProfileService {
             connectionRef.get().getConnection(SessionId.ORACLE_AI);
         List<Profile> profileList = connectionRef.get().getOracleAIInterface()
             .listProfiles(dbnConnection);
-          if (System.getProperty("fake.services.profiles.dump") != null) {
-              try {
-                  FileWriter writer = new FileWriter(System.getProperty("fake.services.profiles.dump"));
-                  new Gson().toJson(profileList, writer);
-                  writer.close();
-              } catch (Exception e) {
-                  // ignore this
-                  if (LOGGER.isTraceEnabled())
-                      LOGGER.trace("cannot dump profile " +e.getMessage());
-              }
-          }
+
+        dumpThem(profileList, System.getProperty("fake.services.profiles.dump") );
+
         if (LOGGER.isDebugEnabled())
           LOGGER.debug("fetched profiles:" + profileList);
 
         return profileList;
       } catch (ProfileManagementException | SQLException e) {
         LOGGER.error("error getting profiles", e);
-        throw new CompletionException("Cannot get profile", e);
+        throw new CompletionException("Cannot get profiles", e);
       }
     });
   }

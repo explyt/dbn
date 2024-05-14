@@ -341,13 +341,7 @@ public class OracleAIChatBox extends JPanel {
     return currManager.getProfileService().getProfiles().thenApply(pl -> pl.stream()
             .collect(Collectors.toMap(Profile::getProfileName,
                 Function.identity(),
-                (existing, replacement) -> existing)))
-        .exceptionally(e -> {
-          ApplicationManager.getApplication().invokeLater(() ->
-              Messages.showErrorDialog(currManager.getProject(), messages.getString("companion.chat.profiles.failure") + e.getCause().getMessage()));
-          return null;
-        });
-
+                (existing, replacement) -> existing)));
   }
 
   /**

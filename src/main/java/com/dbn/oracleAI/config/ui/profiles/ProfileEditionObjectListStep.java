@@ -186,8 +186,14 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
     // now that we have schemas loaded we can add the listener
     schemaComboBox.addActionListener((e) -> {
       LOGGER.debug("action listener on  schemaComboBox fired");
-      populateDatabaseObjectTable(schemaComboBox.getSelectedItem().toString());
+      Object toBePopulated = schemaComboBox.getSelectedItem();
+      if (toBePopulated == null)
+         toBePopulated = schemaComboBox.getItemAt(0);
+      if (toBePopulated != null) {
+        populateDatabaseObjectTable(toBePopulated.toString());
+      }
     });
+
     loadSchemas();
 
     if (profile !=null) {
@@ -218,8 +224,6 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         editor.setText(value.toString());
         editor.setBorder(null);
         editor.setEditable(false);
-        //editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        //editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
         DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
@@ -309,6 +313,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   }
 
   private void populateDatabaseObjectTable(String schema) {
+    assert (schema != null && !schema.isEmpty()):"Invalid schema passed";
     DatabaseObjectListTableModel model  = databaseObjectListTableModelCache.get(schema);
     if (model == null) {
       startActivityNotifier();
