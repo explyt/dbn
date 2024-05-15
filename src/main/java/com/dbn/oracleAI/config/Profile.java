@@ -162,6 +162,10 @@ public class Profile implements AttributeInput {
     }
   }
 
+  /**
+  * When setting the provider we set the default model if it's still null.
+  * This is because there could be a chance that the model is not specified in the database server side
+  **/
   public void setProvider(ProviderType type) {
     this.provider = type;
     if (this.model == null) this.model = provider.getDefaultModel();
