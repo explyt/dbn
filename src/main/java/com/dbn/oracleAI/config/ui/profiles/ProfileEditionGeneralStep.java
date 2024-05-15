@@ -69,6 +69,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       descriptionTextField.setText(profile.getDescription());
       credentialComboBox.addItem(profile.getCredentialName());
       credentialComboBox.setEnabled(false);
+      descriptionTextField.setEnabled(false);
     }
   }
 

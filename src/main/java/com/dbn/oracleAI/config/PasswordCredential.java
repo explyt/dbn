@@ -32,7 +32,7 @@ public class PasswordCredential extends Credential {
    * @return string of attributes
    */
   @Override
-  public String toAttributeMap() {
+  public String toAttributeMap(boolean isNew) {
     return String.format(
         "credential_name => '%s',\n" +
             "username => '%s',\n" +

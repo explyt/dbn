@@ -45,7 +45,7 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
     populateCombos();
     if (isUpdate) {
       providerNameCombo.setSelectedItem(profile.getProvider());
-      providerModelCombo.setSelectedItem(profile.getModel());
+      providerModelCombo.setSelectedItem(profile.getModel() != null ? profile.getModel() : profile.getProvider().getDefaultModel());
       temperatureSlider.setValue((int) (profile.getTemperature() * 10));
     }
   }

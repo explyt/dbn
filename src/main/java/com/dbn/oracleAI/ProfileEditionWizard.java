@@ -24,7 +24,8 @@ import java.util.function.Consumer;
 
 public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> {
 
-  private final Profile profile;
+  private final Profile initialProfile;
+  private final Profile editedProfile;
   private final boolean isUpdate;
   private JButton finishButton;
 
@@ -33,11 +34,12 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private final Consumer<Boolean> callback;
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
-  public ProfileEditionWizard(@NotNull Project project, Profile initialProfile, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
-    super(false, new ProfileEditionWizardModel("Profile Configuration", project, initialProfile, isUpdate));
+  public ProfileEditionWizard(@NotNull Project project, Profile profile, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
+    super(false, new ProfileEditionWizardModel("Profile Configuration", project, profile, isUpdate));
     profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
-    this.profile = initialProfile;
+    this.initialProfile = new Profile(profile);
+    this.editedProfile = profile;
     this.isUpdate = isUpdate;
     this.callback = callback;
     finishButton.setText(messages.getString(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
@@ -46,8 +48,10 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   @Override
   protected void doOKAction() {
-    if (profile.getProfileName().isEmpty() || profile.getCredentialName().isEmpty() || profile.getObjectList().isEmpty()) {
+    if (editedProfile.getProfileName().isEmpty() || editedProfile.getCredentialName().isEmpty() || editedProfile.getObjectList().isEmpty()) {
       Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.validation"));
+    } else if (initialProfile.equals(editedProfile)) {
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.update.validation"));
     } else {
       commitWizardView();
       super.doOKAction();
@@ -81,7 +85,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   private void commitWizardView() {
     if (isUpdate) {
-      profileSvc.updateProfile(profile).thenRun(() -> {
+      profileSvc.updateProfile(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
           dispose();
           callback.accept(true);
@@ -91,7 +95,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         return null;
       });
     } else {
-      profileSvc.createProfile(profile).thenRun(() -> {
+      profileSvc.createProfile(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
           dispose();
           callback.accept(true);
