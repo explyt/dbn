@@ -4,7 +4,12 @@ import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.intellij.openapi.diagnostic.Logger;
@@ -49,13 +54,14 @@ public class Profile implements AttributeInput {
   private Integer maxTokens;
   @Builder.Default
   private List<String> stopTokens = Collections.emptyList();
+  @Expose
+  @JsonAdapter(ProviderModelSerializer.class)
   private ProviderModel model;
   @Builder.Default
   @Expose
   private Double temperature = 0.0;
   private boolean isEnabled;
   private Boolean comments;
-
 
   @Override
   public void validate() {
@@ -66,15 +72,18 @@ public class Profile implements AttributeInput {
   public String toAttributeMap() throws IllegalArgumentException {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()
+        .registerTypeAdapter(ProviderModel.class, new ProviderModelSerializer())
         .create();
 
     String attributesJson = gson.toJson(this).replace("'", "''");
 
     return String.format(
         "profile_name => '%s',\n" +
-            "attributes => '%s'\n",
+            "attributes => '%s',\n" +
+            "description => '%s'\n",
         profileName,
-        attributesJson);
+        attributesJson,
+        description);
   }
 
   public static Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
@@ -101,5 +110,11 @@ public class Profile implements AttributeInput {
     }
   }
 
-
+  // Inner class to handle the JSON serialization
+  private static class ProviderModelSerializer implements JsonSerializer<ProviderModel> {
+    @Override
+    public JsonElement serialize(ProviderModel src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.getApiName());
+    }
+  }
 }
