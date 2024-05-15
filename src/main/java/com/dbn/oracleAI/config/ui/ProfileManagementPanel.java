@@ -82,6 +82,7 @@ public class ProfileManagementPanel extends JPanel {
    */
   private void initComponent() {
     initializeButtons();
+    initializeUIComponents();
     updateProfileNames();
 
     ApplicationManager.getApplication().invokeLater(() -> addProfileButton.requestFocusInWindow());
@@ -125,6 +126,9 @@ public class ProfileManagementPanel extends JPanel {
    */
   private void initializeButtons() {
     addProfileButton.setIcon(Icons.ACTION_ADD);
+    editProfileButton.setIcon(Icons.ACTION_EDIT);
+    deleteProfileButton.setIcon(Icons.ACTION_DELETE);
+    makeDefaultProfileButton.setIcon(Icons.COMMON_CHECK);
     addProfileButton.setToolTipText(messages.getString("ai.settings.profile.adding.tooltip"));
     ProfileComboBoxRenderer profileComboBoxRenderer = new ProfileComboBoxRenderer();
     profileComboBox.setRenderer(profileComboBoxRenderer);

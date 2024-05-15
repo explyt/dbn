@@ -4,6 +4,7 @@ import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionWizardModel;
 import com.intellij.openapi.project.Project;
+import com.intellij.ui.JBColor;
 import com.intellij.ui.wizard.WizardDialog;
 import com.intellij.util.ui.JBDimension;
 import org.jetbrains.annotations.NotNull;
@@ -13,6 +14,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
+import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
@@ -67,6 +69,8 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
       finishButton = (JButton) ((Container) component).getComponent(2);
       ((Container) component).remove(cancelButton);
       wizard.add(cancelButton, BorderLayout.WEST);
+      MatteBorder topBorder = new MatteBorder(1, 0, 0, 0, JBColor.LIGHT_GRAY);
+      wizard.setBorder(topBorder);
     }
     return wizard;
   }
