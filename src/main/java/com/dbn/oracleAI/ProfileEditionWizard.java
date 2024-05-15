@@ -18,14 +18,18 @@ import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> {
 
   private final Profile initialProfile;
   private final Profile editedProfile;
+  private static List<String> profileNames;
   private final boolean isUpdate;
   private JButton finishButton;
 
@@ -34,8 +38,8 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private final Consumer<Boolean> callback;
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
-  public ProfileEditionWizard(@NotNull Project project, Profile profile, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
-    super(false, new ProfileEditionWizardModel("Profile Configuration", project, profile, isUpdate));
+  public ProfileEditionWizard(@NotNull Project project, Profile profile, List<String> profileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
+    super(false, new ProfileEditionWizardModel("Profile Configuration", project, profile, profileNames, isUpdate));
     profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
     this.initialProfile = new Profile(profile);
@@ -48,7 +52,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   @Override
   protected void doOKAction() {
-    if (editedProfile.getProfileName().isEmpty() || editedProfile.getCredentialName().isEmpty() || editedProfile.getObjectList().isEmpty()) {
+    if (editedProfile.getProfileName().isEmpty() || profileNames.contains(editedProfile.getProfileName().trim().toUpperCase()) || editedProfile.getCredentialName().isEmpty() || editedProfile.getObjectList().isEmpty()) {
       Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.validation"));
     } else if (initialProfile.equals(editedProfile)) {
       Messages.showErrorDialog(project, messages.getString("profile.mgmt.update.validation"));
@@ -107,7 +111,8 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     }
   }
 
-  public static void showWizard(@NotNull Project project, @Nullable Profile profile, @NotNull Consumer<Boolean> callback) {
+  public static void showWizard(@NotNull Project project, @Nullable Profile profile, Map<String, Profile> profileMap, @NotNull Consumer<Boolean> callback) {
+    profileNames = profileMap.values().stream().map(Profile::getProfileName).collect(Collectors.toList());
     SwingUtilities.invokeLater(() -> {
       Profile initialProfile;
       boolean isUpdate;
@@ -118,7 +123,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         initialProfile = Profile.builder().build();
         isUpdate = false;
       }
-      ProfileEditionWizard wizard = new ProfileEditionWizard(project, initialProfile, isUpdate, callback);
+      ProfileEditionWizard wizard = new ProfileEditionWizard(project, initialProfile, profileNames, isUpdate, callback);
       wizard.show();
 
     });

@@ -23,6 +23,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.ItemEvent;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -40,13 +41,15 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private final AICredentialService credentialSvc;
   private final Project project;
   private final Profile profile;
+  private final List<String> profileNames;
   private final boolean isUpdate;
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
-  public ProfileEditionGeneralStep(Project project, Profile profile, boolean isUpdate) {
+  public ProfileEditionGeneralStep(Project project, Profile profile, List<String> profileNames, boolean isUpdate) {
     super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.general_step.title"));
     this.project = project;
     this.profile = profile;
+    this.profileNames = profileNames;
     this.isUpdate = isUpdate;
     this.credentialSvc = project.getService(DatabaseOracleAIManager.class).getCredentialService();
 
@@ -74,7 +77,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   }
 
   private void addValidationListener() {
-    nameTextField.setInputVerifier(new ProfileNameVerifier());
+    nameTextField.setInputVerifier(new ProfileNameVerifier(profileNames));
     credentialComboBox.setInputVerifier(new CredentialSelectedVerifier());
     nameTextField.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {

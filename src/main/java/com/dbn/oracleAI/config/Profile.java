@@ -15,6 +15,7 @@ import com.google.gson.reflect.TypeToken;
 import com.intellij.openapi.diagnostic.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -34,6 +35,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @ToString
+@EqualsAndHashCode(exclude = {"isEnabled", "comments"}) // Exclude as per your needs
 public class Profile implements AttributeInput {
 
   private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
@@ -89,15 +91,6 @@ public class Profile implements AttributeInput {
     this.temperature = other.temperature;
     this.isEnabled = other.isEnabled;
     this.comments = other.comments;
-  }
-
-  @Override
-  public boolean equals(Object profile) {
-    if (profile instanceof Profile) {
-      Profile p = (Profile) profile;
-      return profileName.equals(p.getProfileName()) && description.equals(p.description) && provider.equals(p.provider) && credentialName.equals(p.credentialName) && temperature.equals(p.temperature) && model.equals(p.model) && objectList.equals(p.objectList);
-    }
-    return false;
   }
 
   @Override

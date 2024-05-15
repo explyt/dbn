@@ -147,12 +147,12 @@ public class ProfileManagementPanel extends JPanel {
               }));
     });
     editProfileButton.addActionListener(event -> {
-      ProfileEditionWizard.showWizard(currProject, currProfile, isCommit -> {
+      ProfileEditionWizard.showWizard(currProject, currProfile, profileMap, isCommit -> {
         if (isCommit) updateProfileNames();
       });
     });
     addProfileButton.addActionListener(event -> {
-      ProfileEditionWizard.showWizard(currProject, null, isCommit -> {
+      if (profileMap != null) ProfileEditionWizard.showWizard(currProject, null, profileMap, isCommit -> {
             if (isCommit) updateProfileNames();
           }
       );
@@ -201,7 +201,7 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void initializeEmptyWindow() {
-    profileComboBox.setToolTipText("ai.messages.noitems");
+    profileComboBox.setToolTipText(messages.getString("ai.messages.noitems"));
     profileComboBox.setEnabled(false);
     credentialField.setEnabled(false);
     providerField.setEnabled(false);
@@ -212,6 +212,7 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void initializeFilledWindow() {
+    profileComboBox.setToolTipText("");
     profileComboBox.setEnabled(true);
     credentialField.setEnabled(true);
     providerField.setEnabled(true);
