@@ -145,7 +145,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     LOGGER.debug("initializing tables", null, null, null);
     profileObjectListTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     profileObjectListTable.setModel(profileObjListTableModel);
-    profileObjectListTable.setInputVerifier(new SelectedObjectItemsVerifier());
+    addValidationListener();
     databaseObjectsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     databaseObjectsTable.setModel(currentDbObjListTableModel);
     databaseObjectsTable.addMouseListener(new MouseAdapter() {
