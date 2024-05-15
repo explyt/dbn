@@ -29,6 +29,7 @@ import javax.swing.RowFilter;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.Color;
@@ -144,7 +145,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     LOGGER.debug("initializing tables", null, null, null);
     profileObjectListTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     profileObjectListTable.setModel(profileObjListTableModel);
-    profileObjectListTable.setInputVerifier(new SelectedObjectItemsVerifier());
+    addValidationListener();
     databaseObjectsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     databaseObjectsTable.setModel(currentDbObjListTableModel);
     databaseObjectsTable.addMouseListener(new MouseAdapter() {
@@ -317,6 +318,17 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     });
   }
 
+  private void addValidationListener() {
+    profileObjectListTable.setInputVerifier(new SelectedObjectItemsVerifier());
+    profileObjectListTable.getModel().addTableModelListener(e -> {
+      if (e.getType() == TableModelEvent.INSERT) {
+        profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
+      } else if (e.getType() == TableModelEvent.DELETE) {
+        profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
+      }
+    });
+  }
+
   private void populateDatabaseObjectTable(String schema) {
     DatabaseObjectListTableModel model = databaseObjectListTableModelCache.get(schema);
     if (model == null) {
@@ -360,15 +372,9 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   @Override
   public boolean onFinish() {
-    boolean isValid = profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
-
-    if (isValid) {
-      profile.setObjectList(profileObjListTableModel.getData());
-      return true;
-    } else {
-      Messages.showErrorDialog(project, messages.getString("profile.mgmt.object_list.validation"));
-      return false;
-    }
+    profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
+    profile.setObjectList(profileObjListTableModel.getData());
+    return true;
   }
 
 

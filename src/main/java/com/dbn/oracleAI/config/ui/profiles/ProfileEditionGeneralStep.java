@@ -1,7 +1,6 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AICredentialService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Credential;
@@ -14,6 +13,7 @@ import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.InputVerifier;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -22,6 +22,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.event.ItemEvent;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -50,7 +51,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     this.credentialSvc = project.getService(DatabaseOracleAIManager.class).getCredentialService();
 
     initializeUI();
-    addValidationListener(nameTextField);
+    addValidationListener();
     populateCredentials();
   }
 
@@ -71,9 +72,10 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     }
   }
 
-  private void addValidationListener(JTextField textField) {
-    textField.setInputVerifier(new ProfileNameVerifier());
-    textField.getDocument().addDocumentListener(new DocumentListener() {
+  private void addValidationListener() {
+    nameTextField.setInputVerifier(new ProfileNameVerifier());
+    credentialComboBox.setInputVerifier(new CredentialSelectedVerifier());
+    nameTextField.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {
         nameTextField.getInputVerifier().verify(nameTextField);
       }
@@ -86,6 +88,15 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
         nameTextField.getInputVerifier().verify(nameTextField);
       }
     });
+    credentialComboBox.addItemListener(e -> {
+      if (e.getStateChange() == ItemEvent.SELECTED) {
+        InputVerifier verifier = credentialComboBox.getInputVerifier();
+        if (verifier != null) {
+          verifier.verify(credentialComboBox);
+        }
+      }
+    });
+
   }
 
   private void populateCredentials() {
@@ -112,16 +123,12 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
   @Override
   public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
-    boolean isValidated = nameTextField.getInputVerifier().verify(nameTextField);
-    if (isValidated) {
-      profile.setProfileName(nameTextField.getText());
-      profile.setCredentialName((String) credentialComboBox.getSelectedItem());
-      profile.setDescription(descriptionTextField.getText());
-      return super.onNext(model);
-    } else {
-      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.validation"));
-      return this;
-    }
+    nameTextField.getInputVerifier().verify(nameTextField);
+    credentialComboBox.getInputVerifier().verify(credentialComboBox);
+    profile.setProfileName(nameTextField.getText());
+    profile.setCredentialName((String) credentialComboBox.getSelectedItem());
+    profile.setDescription(descriptionTextField.getText());
+    return super.onNext(model);
   }
 
 }

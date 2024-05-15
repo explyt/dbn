@@ -46,9 +46,12 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   @Override
   protected void doOKAction() {
-    // Handle the final commit action
-    commitWizardView();
-    super.doOKAction();
+    if (profile.getProfileName().isEmpty() || profile.getCredentialName().isEmpty() || profile.getObjectList().isEmpty()) {
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.validation"));
+    } else {
+      commitWizardView();
+      super.doOKAction();
+    }
   }
 
   @Override
