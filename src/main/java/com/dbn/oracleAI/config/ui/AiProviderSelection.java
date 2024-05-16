@@ -73,7 +73,7 @@ public class AiProviderSelection extends DialogWrapper {
       AIProviderType provider = aiProviderTypes.get(rowIndex);
       switch (columnIndex) {
         case 0:
-          return provider.getHostname();
+          return provider.getCredentialName();
         case 1:
           return provider.getUsername();
         case 2:

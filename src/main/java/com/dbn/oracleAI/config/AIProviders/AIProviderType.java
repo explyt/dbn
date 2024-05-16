@@ -24,7 +24,7 @@ public class AIProviderType implements Cloneable<AIProviderType>, PersistentConf
   public static final AIProviderType DEFAULT = new AIProviderType(AIProviderTypeId.DEFAULT, "", "", "");
 
   private AIProviderTypeId id;
-  private String hostname;
+  private String credentialName;
   private String username;
   private String key;
 
@@ -36,9 +36,9 @@ public class AIProviderType implements Cloneable<AIProviderType>, PersistentConf
     this.id = id;
   }
 
-  public AIProviderType(AIProviderTypeId id, String hostname, String username, String key) {
+  public AIProviderType(AIProviderTypeId id, String credentialName, String username, String key) {
     this.id = id;
-    this.hostname = hostname;
+    this.credentialName = credentialName;
     this.username = username;
     this.key = key;
   }
@@ -46,7 +46,7 @@ public class AIProviderType implements Cloneable<AIProviderType>, PersistentConf
   @Override
   @NotNull
   public String getName() {
-    return Commons.nvl(hostname, "");
+    return Commons.nvl(credentialName, "");
   }
 
   @Nullable
@@ -58,30 +58,30 @@ public class AIProviderType implements Cloneable<AIProviderType>, PersistentConf
 
   @Override
   public AIProviderType clone() {
-    return new AIProviderType(id, hostname, username, key);
+    return new AIProviderType(id, credentialName, username, key);
   }
 
   @Override
   public String toString() {
-    return hostname;
+    return credentialName;
   }
 
 
   @Override
   public void readConfiguration(Element element) {
     id = AIProviderTypeId.get(stringAttribute(element, "id"));
-    hostname = stringAttribute(element, "hostname");
+    credentialName = stringAttribute(element, "credential_name");
     username = stringAttribute(element, "username");
     key = stringAttribute(element, "key");
 
-    if (id == null) id = AIProviderTypeId.get(cachedLowerCase(hostname));
+    if (id == null) id = AIProviderTypeId.get(cachedLowerCase(credentialName));
 
   }
 
   @Override
   public void writeConfiguration(Element element) {
     element.setAttribute("id", id.id());
-    element.setAttribute("hostname", Commons.nvl(hostname, ""));
+    element.setAttribute("credential_name", Commons.nvl(credentialName, ""));
     element.setAttribute("username", Commons.nvl(username, ""));
     element.setAttribute("key", Commons.nvl(key, ""));
   }

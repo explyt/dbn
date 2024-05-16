@@ -66,7 +66,7 @@ public class AIProviderTypesTableModel extends DBNEditableTableModel {
   public Object getValueAt(int rowIndex, int columnIndex) {
     AIProviderType environmentType = getAIProviderType(rowIndex);
     return
-        columnIndex == 0 ? environmentType.getHostname() :
+        columnIndex == 0 ? environmentType.getCredentialName() :
             columnIndex == 1 ? environmentType.getUsername() :
                 columnIndex == 2 ? environmentType.getKey() : null;
   }
@@ -77,7 +77,7 @@ public class AIProviderTypesTableModel extends DBNEditableTableModel {
     if (!Commons.match(actualValue, o)) {
       AIProviderType environmentType = aiProviderTypes.get(rowIndex);
       if (columnIndex == 0) {
-        environmentType.setHostname((String) o);
+        environmentType.setCredentialName((String) o);
       } else if (columnIndex == 1) {
         environmentType.setUsername((String) o);
       } else if (columnIndex == 2) {
@@ -111,7 +111,7 @@ public class AIProviderTypesTableModel extends DBNEditableTableModel {
 
   public void validate() throws ConfigurationException {
     for (AIProviderType environmentType : aiProviderTypes) {
-      if (Strings.isEmpty(environmentType.getHostname())) {
+      if (Strings.isEmpty(environmentType.getCredentialName())) {
         throw new ConfigurationException("Please provide names for all environment types.");
       }
     }
