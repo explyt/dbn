@@ -79,7 +79,7 @@
                 <properties>
                   <hideActionText value="true"/>
                   <horizontalTextPosition value="0"/>
-                  <text resource-bundle="Messages" key="profiles.mgnt.mkdefault.button.label"/>
+                  <text value=""/>
                   <toolTipText resource-bundle="Messages" key="profiles.mgnt.mkdefault.button.tooltip"/>
                 </properties>
               </component>

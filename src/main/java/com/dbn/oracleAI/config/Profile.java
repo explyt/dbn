@@ -13,8 +13,11 @@ import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.intellij.openapi.diagnostic.Logger;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -24,13 +27,17 @@ import java.io.Reader;
 import java.lang.reflect.Type;
 import java.sql.Clob;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 @Getter
 @Setter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @ToString
+@EqualsAndHashCode(exclude = {"isEnabled", "comments"}) // Exclude as per your needs
 public class Profile implements AttributeInput {
 
   private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
@@ -38,30 +45,55 @@ public class Profile implements AttributeInput {
   private final String PROFILE_NAME_ATTR_NAME = "name";
   private final String PROFILE_OWNER_ATTR_NAME = "owner";
 
-  private String profileName;
+  protected String profileName;
 
-  private String description;
+  protected String description;
 
   @Expose
-  private ProviderType provider;
+  protected ProviderType provider;
   @SerializedName("credential_name")
   @Expose
-  private String credentialName;
+  protected String credentialName;
   @Builder.Default
   @SerializedName("object_list")
   @Expose
-  private List<ProfileDBObjectItem> objectList = Collections.emptyList();
-  private Integer maxTokens;
+  protected List<ProfileDBObjectItem> objectList = Collections.emptyList();
+  protected Integer maxTokens;
   @Builder.Default
-  private List<String> stopTokens = Collections.emptyList();
+  protected List<String> stopTokens = Collections.emptyList();
   @Expose
   @JsonAdapter(ProviderModelSerializer.class)
-  private ProviderModel model;
+  protected ProviderModel model;
   @Builder.Default
   @Expose
-  private Double temperature = 0.0;
-  private boolean isEnabled;
-  private Boolean comments;
+  protected Double temperature = 0.0;
+  protected boolean isEnabled;
+  protected Boolean comments;
+
+
+  /**
+   * Deep Copy Constructor for Profile.
+   * This constructor will create a deep copy of the given Profile instance.
+   *
+   * @param other The Profile instance to copy from.
+   */
+  public Profile(Profile other) {
+    this.profileName = other.profileName;
+    this.description = other.description;
+    this.provider = other.provider;
+    this.credentialName = other.credentialName;
+    if (other.objectList != null) {
+      this.objectList = new ArrayList<>(other.objectList);
+    }
+    this.maxTokens = other.maxTokens;
+    if (other.stopTokens != null) {
+      this.stopTokens = new ArrayList<>(other.stopTokens);
+    }
+    this.model = other.model;
+    this.temperature = other.temperature;
+    this.isEnabled = other.isEnabled;
+    this.comments = other.comments;
+  }
 
   @Override
   public void validate() {
@@ -76,7 +108,6 @@ public class Profile implements AttributeInput {
         .create();
 
     String attributesJson = gson.toJson(this).replace("'", "''");
-
     return String.format(
         "profile_name => '%s',\n" +
             "attributes => '%s',\n" +
@@ -84,6 +115,7 @@ public class Profile implements AttributeInput {
         profileName,
         attributesJson,
         description);
+
   }
 
   public static Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
@@ -111,10 +143,19 @@ public class Profile implements AttributeInput {
   }
 
   // Inner class to handle the JSON serialization
-  private static class ProviderModelSerializer implements JsonSerializer<ProviderModel> {
+  public static class ProviderModelSerializer implements JsonSerializer<ProviderModel> {
     @Override
     public JsonElement serialize(ProviderModel src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.getApiName());
     }
+  }
+
+  /**
+   * When setting the provider we set the default model if it's still null.
+   * This is because there could be a chance that the model is not specified in the database server side
+   **/
+  public void setProvider(ProviderType type) {
+    this.provider = type;
+    if (this.model == null) this.model = provider.getDefaultModel();
   }
 }
