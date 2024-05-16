@@ -70,6 +70,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     currConnection = connectionId;
     OracleAIChatBoxState newState = chatBoxStates.get(connectionId);
     oracleAIChatBox.initState();
+    oracleAIChatBox.enableWindow();
     if (newState != null) {
       oracleAIChatBox.restoreState(newState);
     }
@@ -182,7 +183,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     } else {
       svc = new AIProfileServiceImpl(ConnectionHandler.get(currConnection).ref());
     }
-    profileManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(),svc);
+    profileManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
     return svc;
   }
 
@@ -198,23 +199,23 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     } else {
       svc = new AICredentialServiceImpl(ConnectionHandler.get(currConnection).ref());
     }
-    credentialManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(),svc);
+    credentialManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
     return svc;
   }
 
-    public synchronized DatabaseService getDatabaseService() {
-      //TODO : later find better than using "synchronized"
-      DatabaseService svc = databaseManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
-      if (svc != null) {
-        return svc;
-      }
-      if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
-        svc = new FakeDatabaseService();
-      } else {
-        svc = new DatabaseServiceImpl(ConnectionHandler.get(currConnection).ref());
-      }
-      databaseManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
+  public synchronized DatabaseService getDatabaseService() {
+    //TODO : later find better than using "synchronized"
+    DatabaseService svc = databaseManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
+    if (svc != null) {
       return svc;
-
     }
+    if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
+      svc = new FakeDatabaseService();
+    } else {
+      svc = new DatabaseServiceImpl(ConnectionHandler.get(currConnection).ref());
+    }
+    databaseManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
+    return svc;
+
+  }
 }

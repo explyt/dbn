@@ -153,6 +153,7 @@ public class OracleAIChatBox extends JPanel {
   }
 
   private void initializeUI() {
+    disableWindow("companion.chat.no_console.tooltip");
     configureChatHeaderPanel();
     LOG.info("Header of chat window displayed");
     configureConversationPanel();
@@ -253,23 +254,24 @@ public class OracleAIChatBox extends JPanel {
     actionMap.put("submit", new AbstractAction() {
       @Override
       public void actionPerformed(ActionEvent e) {
-        if (!((IdleJtextArea)promptTextArea).isIdle() &&
-                !promptTextArea.getText().isEmpty()) {
+        if (!((IdleJtextArea) promptTextArea).isIdle() &&
+            !promptTextArea.getText().isEmpty()) {
           submitText();
         }
       }
     });
     promptTextArea.addFocusListener(new FocusListener() {
-      @Override
+                                      @Override
                                       public void focusGained(FocusEvent e) {
                                         // nothing to do
                                       }
+
                                       @Override
                                       public void focusLost(FocusEvent e) {
                                         // if only blanks or is idle
                                         // forbid to submit
                                         if (promptTextArea.getText().isEmpty() ||
-                                                ((IdleJtextArea)promptTextArea).isIdle()) {
+                                            ((IdleJtextArea) promptTextArea).isIdle()) {
                                           LOG.debug("focusLost disabling submit");
                                           promptButton.setEnabled(false);
                                         } else {
@@ -289,8 +291,8 @@ public class OracleAIChatBox extends JPanel {
         .executeOnPooledThread(
             () -> {
               // we know that this is never empty and good to be proceed
-             String question = promptTextArea.getText();
-              ((IdleJtextArea)promptTextArea).setIdleMode(true);
+              String question = promptTextArea.getText();
+              ((IdleJtextArea) promptTextArea).setIdleMode(true);
               promptTextArea.setEnabled(false);
               processQuery(question, selectedAction());
             });
@@ -447,15 +449,19 @@ public class OracleAIChatBox extends JPanel {
     });
   }
 
-  private void enableWindow() {
+  public void enableWindow() {
     explainSQLCheckbox.setEnabled(true);
     promptTextArea.setEnabled(true);
     promptButton.setEnabled(true);
     aiModelComboBox.setEnabled(true);
+    profileComboBox.setEnabled(true);
+    companionConversationScrollPan.setEnabled(true);
     aiModelComboBox.setToolTipText("companion.chat.model.tooltip");
     explainSQLCheckbox.setToolTipText(
         messages.getString("companion.explainsql.tooltip"));
     promptTextArea.setToolTipText("");
+    profileComboBox.setToolTipText(messages.getString("companion.chat.profile.tooltip"));
+    companionConversationScrollPan.setToolTipText("");
     promptButton.setToolTipText(messages.getString("companion.chat.prompt.button.tooltip"));
   }
 
@@ -464,6 +470,7 @@ public class OracleAIChatBox extends JPanel {
     promptTextArea.setEnabled(false);
     promptButton.setEnabled(false);
     aiModelComboBox.setEnabled(false);
+    companionConversationScrollPan.setEnabled(false);
     explainSQLCheckbox.setToolTipText(
         messages.getString(message));
     aiModelComboBox.setToolTipText(messages.getString(message));
@@ -471,18 +478,25 @@ public class OracleAIChatBox extends JPanel {
         messages.getString(message));
     promptButton.setToolTipText(
         messages.getString(message));
+    companionConversationScrollPan.setToolTipText(messages.getString(message));
+    if (message.equals("companion.chat.no_console.tooltip")) {
+      profileComboBox.setEnabled(false);
+      profileComboBox.setToolTipText(messages.getString(message));
+    }
   }
 
-  private void updateModelsComboBox(AIProfileItem currPofileItem) {
+  private void updateModelsComboBox(AIProfileItem currProfileItem) {
     aiModelComboBox.removeAllItems();
-    for (ProviderModel model : currPofileItem.getProvider().getModels()) {
-      aiModelComboBox.addItem(model);
+    if (currProfileItem.getProvider() != null) {
+      for (ProviderModel model : currProfileItem.getProvider().getModels()) {
+        aiModelComboBox.addItem(model);
+      }
     }
-    if (currPofileItem.getModel() != null) {
-      aiModelComboBox.setSelectedItem(currPofileItem.getModel());
+    if (currProfileItem.getModel() != null) {
+      aiModelComboBox.setSelectedItem(currProfileItem.getModel());
     } else {
       // select the default
-      aiModelComboBox.setSelectedItem(currPofileItem.getProvider().getDefaultModel());
+      aiModelComboBox.setSelectedItem(currProfileItem.getProvider().getDefaultModel());
     }
   }
 

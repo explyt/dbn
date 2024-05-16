@@ -1,143 +1,122 @@
 package com.dbn.oracleAI;
 
+import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.ui.profiles.ProfileEditionGeneralStep;
-import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
-import com.dbn.oracleAI.config.ui.profiles.ProfileEditionProviderStep;
+import com.dbn.oracleAI.config.ui.profiles.ProfileEditionWizardModel;
 import com.intellij.openapi.project.Project;
-import lombok.Getter;
-import lombok.ToString;
-import org.eclipse.sisu.Nullable;
+import com.intellij.ui.JBColor;
+import com.intellij.ui.wizard.WizardDialog;
+import com.intellij.util.ui.JBDimension;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
-import java.awt.CardLayout;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import javax.swing.SwingUtilities;
+import javax.swing.border.MatteBorder;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import java.util.function.Consumer;
 
-/**
- * Wizard for profile edition or creation.
- * This wizard is used to walk through all configuration steps
- * for profile edition or creation
- */
-public class ProfileEditionWizard {
+public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> {
 
+  private final Profile profile;
+  private final boolean isUpdate;
+  private JButton finishButton;
 
-  private LinkedList<ProfileEditionWizardStep> steps;
+  private final Project project;
+  private final AIProfileService profileSvc;
+  private final Consumer<Boolean> callback;
+  private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
-  /**
-   * Gets a view on wizards steps.
-   *
-   * @return
-   */
-  public WizardStepView<ProfileEditionWizardStep> getView() {
-    return new WizardStepView<>(this.steps);
+  public ProfileEditionWizard(@NotNull Project project, Profile initialProfile, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
+    super(false, new ProfileEditionWizardModel("Profile Configuration", project, initialProfile, isUpdate));
+    profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
+    this.project = project;
+    this.profile = initialProfile;
+    this.isUpdate = isUpdate;
+    this.callback = callback;
+    finishButton.setText(messages.getString(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
   }
 
-  /**
-   * Populates this wizards on a panel.
-   * The given panel is expected to be layout'ed by a <code>CardLayout</code>.
-   * This panel (and so underneath CardLayout) will be populated with this wizard steps
-   *
-   * @param panel a CardLayout'ed panel.
-   * @params listener a listener that will be added to steps to receive event
-   */
-  public void populateTo(WizardStepEventListener listener, JPanel panel) {
-    assert panel.getLayout().getClass().equals(CardLayout.class) : "wrong panel given ";
 
-    this.steps.forEach(step -> {
-      panel.add(step.getViewPort(), step.getTitle());
-
-      step.getProvider().addEventListener(listener);
-    });
-
-  }
-
-  /**
-   * Populate profile attributes with current inputs data.
-   * This will go through all steps to set current values
-   *
-   * @param editedProfile the profile to be hydrated
-   */
-  public void hydrate(Profile editedProfile) {
-    this.steps.forEach(step -> {
-      step.setAttributesOn(editedProfile);
-    });
-  }
-
-  /**
-   * Step for profile edition.
-   */
-  @Getter
-  @ToString
-  static public class ProfileEditionWizardStep
-      implements WizardStep {
-    private String title;
-    private WizardStepViewPortProvider provider;
-    private List<WizardStepEventListener> listeners = new ArrayList<>();
-
-    /**
-     * Creates a new step
-     *
-     * @param title    title of the new step
-     * @param provider a provider that provide the UI view (JPanel) of this step
-     */
-    public ProfileEditionWizardStep(String title,
-                                    WizardStepViewPortProvider provider) {
-      assert title != null : "title cannot be null";
-      assert provider != null : "provider cannot be null";
-      this.title = title;
-      this.provider = provider;
-    }
-
-    /**
-     * Gets the view port of this step
-     *
-     * @return a ui panel that display all attribute of this step
-     */
-    @Override
-    public JPanel getViewPort() {
-      return this.provider.getPanel();
-    }
-
-    @Override
-    public boolean isValid() {
-      return this.provider.isInputsValid();
-    }
-
-    @Override
-    public void addListener(WizardStepEventListener listener) {
-      listeners.add(listener);
-    }
-
-    @Override
-    public void setAttributesOn(Profile p) {
-      this.provider.setAttributesOn(p);
-    }
-  }
-
-  /**
-   * Creates a new wizrd
-   */
-  public ProfileEditionWizard(Project project, @Nullable Profile profile) {
-    this.steps = new LinkedList<>();
-    if (profile != null) {
-      this.steps.add(new ProfileEditionWizardStep("general",
-          new ProfileEditionGeneralStep(
-              project, profile)));
-      this.steps.add(new ProfileEditionWizardStep("provider",
-          new ProfileEditionProviderStep(
-              profile)));
-      this.steps.add(new ProfileEditionWizardStep("object list",
-          new ProfileEditionObjectListStep(
-              project, profile)));
+  @Override
+  protected void doOKAction() {
+    if (profile.getCredentialName().isEmpty() || profile.getObjectList().isEmpty()) {
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.validation"));
     } else {
-      this.steps.add(new ProfileEditionWizardStep("general",
-          new ProfileEditionGeneralStep(project, null)));
-      this.steps.add(new ProfileEditionWizardStep("provider",
-          new ProfileEditionProviderStep(null)));
-      this.steps.add(new ProfileEditionWizardStep("object list",
-          new ProfileEditionObjectListStep(project, null)));
+      commitWizardView();
+      super.doOKAction();
     }
+  }
+
+  @Override
+  protected JComponent createCenterPanel() {
+    JComponent wizard = super.createCenterPanel();
+    JPanel mainPanel = new JPanel(new BorderLayout());
+    mainPanel.add(wizard, BorderLayout.CENTER);
+    mainPanel.setMinimumSize(new JBDimension(600, 400));
+    return mainPanel;
+  }
+
+  @Override
+  protected JComponent createSouthPanel() {
+    JComponent wizard = super.createSouthPanel();
+    for (Component component : wizard.getComponents()) {
+      ((Container) component).remove(((Container) component).getComponent(4));
+      JButton cancelButton = (JButton) ((Container) component).getComponent(3);
+      finishButton = (JButton) ((Container) component).getComponent(2);
+      ((Container) component).remove(cancelButton);
+      wizard.add(cancelButton, BorderLayout.WEST);
+      MatteBorder topBorder = new MatteBorder(1, 0, 0, 0, JBColor.LIGHT_GRAY);
+      wizard.setBorder(topBorder);
+    }
+    return wizard;
+  }
+
+
+  private void commitWizardView() {
+    if (isUpdate) {
+      profileSvc.updateProfile(profile).thenRun(() -> {
+        SwingUtilities.invokeLater(() -> {
+          dispose();
+          callback.accept(true);
+        });
+      }).exceptionally(e -> {
+        SwingUtilities.invokeLater(() -> Messages.showErrorDialog(project, e.getCause().getMessage()));
+        return null;
+      });
+    } else {
+      profileSvc.createProfile(profile).thenRun(() -> {
+        SwingUtilities.invokeLater(() -> {
+          dispose();
+          callback.accept(true);
+        });
+      }).exceptionally(e -> {
+        SwingUtilities.invokeLater(() -> Messages.showErrorDialog(project, e.getCause().getMessage()));
+        return null;
+      });
+    }
+  }
+
+  public static void showWizard(@NotNull Project project, @Nullable Profile profile, @NotNull Consumer<Boolean> callback) {
+    SwingUtilities.invokeLater(() -> {
+      Profile initialProfile = null;
+      boolean isUpdate;
+      if (profile != null) {
+        initialProfile = profile;
+        isUpdate = true;
+      } else {
+        initialProfile = Profile.builder().profileName("").build();
+        isUpdate = false;
+      }
+      ProfileEditionWizard wizard = new ProfileEditionWizard(project, initialProfile, isUpdate, callback);
+      wizard.show();
+
+    });
   }
 }

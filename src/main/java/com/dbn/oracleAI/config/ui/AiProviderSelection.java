@@ -48,7 +48,7 @@ public class AiProviderSelection extends DialogWrapper {
 
   private static class AIProviderTableModel extends AbstractTableModel {
 
-    private final String NAME = "name";
+    private final String NAME = "Provider Credential Name";
     private final String USERNAME = "Username";
     private final String KEY = "Secret";
     private final AIProviderTypeBundle aiProviderTypes;
@@ -77,7 +77,11 @@ public class AiProviderSelection extends DialogWrapper {
         case 1:
           return provider.getUsername();
         case 2:
-          return provider.getKey();
+          String text = provider.getKey();
+          if (text.length() > 4) {
+            text = text.substring(0, 4) + "************";
+          }
+          return text;
         default:
           return null;
       }

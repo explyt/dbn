@@ -3,20 +3,27 @@ package com.dbn.oracleAI.config.ui.profiles;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
+import com.intellij.openapi.project.Project;
+import com.intellij.ui.wizard.WizardNavigationState;
+import com.intellij.ui.wizard.WizardStep;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * Profile edition provider step for edition wizard
  *
  * @see com.dbn.oracleAI.ProfileEditionWizard
  */
-public class ProfileEditionProviderStep extends AbstractProfileEditionStep {
+public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardModel> {
 
   private JPanel profileEditionProviderMainPane;
   private JComboBox<ProviderType> providerNameCombo;
@@ -24,19 +31,20 @@ public class ProfileEditionProviderStep extends AbstractProfileEditionStep {
   private JLabel providerModelLabel;
   private JComboBox<ProviderModel> providerModelCombo;
   private JSlider temperatureSlider;
-
+  private Profile profile;
 
   private final int MIN_TEMPERATURE = 0;
   private final int MAX_TEMPERATURE = 10;
   private final int DEFAULT_TEMPERATURE = 5;
 
 
-  public ProfileEditionProviderStep(Profile profile) {
-    super();
+  public ProfileEditionProviderStep(Project project, @Nullable Profile profile, boolean isUpdate) {
+    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.provider_step.title"));
+    this.profile = profile;
     configureTemperatureSlider();
     populateCombos();
-    if (profile != null) {
-      providerNameCombo.setSelectedItem(profile.getProvider().toString().toUpperCase());
+    if (isUpdate) {
+      providerNameCombo.setSelectedItem(profile.getProvider());
       providerModelCombo.setSelectedItem(profile.getModel());
       temperatureSlider.setValue((int) (profile.getTemperature() * 10));
     }
@@ -81,15 +89,25 @@ public class ProfileEditionProviderStep extends AbstractProfileEditionStep {
   }
 
   @Override
-  public JPanel getPanel() {
+  public @Nullable String getHelpId() {
+    return null;
+  }
+
+  @Override
+  public JComponent prepare(WizardNavigationState wizardNavigationState) {
     return profileEditionProviderMainPane;
   }
 
   @Override
-  public void setAttributesOn(Profile p) {
-    p.setProvider(ProviderType.valueOf(Objects.requireNonNull(providerNameCombo.getSelectedItem()).toString()));
-    p.setModel((ProviderModel) providerModelCombo.getSelectedItem());
-    p.setTemperature((double) temperatureSlider.getValue() / 10);
+  public @Nullable JComponent getPreferredFocusedComponent() {
+    return null;
   }
 
+  @Override
+  public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
+    profile.setProvider(ProviderType.valueOf(Objects.requireNonNull(providerNameCombo.getSelectedItem()).toString()));
+    profile.setModel((ProviderModel) providerModelCombo.getSelectedItem());
+    profile.setTemperature((double) temperatureSlider.getValue() / 10);
+    return super.onNext(model);
+  }
 }

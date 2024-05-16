@@ -32,9 +32,9 @@
             <properties>
               <enabled value="true"/>
               <focusCycleRoot value="false"/>
-              <indeterminate value="true"/>
+              <indeterminate value="false"/>
               <maximum value="100"/>
-              <visible value="true"/>
+              <visible value="false"/>
             </properties>
           </component>
           <grid id="e73f6" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
@@ -163,6 +163,7 @@
         <properties>
           <editable value="false"/>
           <text value=""/>
+          <visible value="false"/>
         </properties>
       </component>
     </children>

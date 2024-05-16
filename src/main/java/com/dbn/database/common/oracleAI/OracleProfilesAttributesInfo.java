@@ -3,6 +3,7 @@ package com.dbn.database.common.oracleAI;
 import com.dbn.database.common.statement.CallableStatementOutput;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
+import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import com.google.gson.JsonParseException;
 import com.intellij.openapi.diagnostic.Logger;
@@ -71,6 +72,14 @@ public class OracleProfilesAttributesInfo implements CallableStatementOutput {
           else if (Objects.equals(attributeName, "provider"))
             currProfile.setProvider(ProviderType.valueOf(attribute.toUpperCase()));
           else if (Objects.equals(attributeName, "credential_name")) currProfile.setCredentialName(attribute);
+          else if (Objects.equals(attributeName, "model")) {
+            try {
+              currProfile.setModel(ProviderModel.getByName(attribute));
+            } catch (IllegalArgumentException e) {
+              LOGGER.error("malformed model name  [" + attribute + "], dropping profile");
+              faultyProfilesNames.add(profileName);
+            }
+          }
         }
       } catch (IOException e) {
         // This one is a real one.

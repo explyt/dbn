@@ -4,21 +4,21 @@ import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.DatabaseService;
-import com.dbn.oracleAI.WizardStepChangeEvent;
-import com.dbn.oracleAI.WizardStepEventListener;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
 import com.dbn.oracleAI.config.ui.SelectedObjectItemsVerifier;
 import com.dbn.oracleAI.types.DatabaseObjectType;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import org.eclipse.sisu.Nullable;
+import com.intellij.ui.JBColor;
+import com.intellij.ui.wizard.WizardNavigationState;
+import com.intellij.ui.wizard.WizardStep;
 
 import javax.swing.DropMode;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -26,8 +26,10 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.RowFilter;
+import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.TableModelEvent;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.Color;
@@ -48,7 +50,7 @@ import java.util.ResourceBundle;
  *
  * @see com.dbn.oracleAI.ProfileEditionWizard
  */
-public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
+public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizardModel> {
 
   static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
   private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
@@ -56,8 +58,12 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   private static final int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
   private static final int TABLES_COLUMN_HEADERS_OWNER_IDX = 1;
 
+  private static final String[] PROFILE_OBJ_TABLES_COLUMN_HEADERS = {
+      messages.getString("profile.mgmt.obj_table.header.name"),
+      messages.getString("profile.mgmt.obj_table.header.owner")
+  };
   private static final String[] DB_OBJ_TABLES_COLUMN_HEADERS = {
-          messages.getString("profile.mgmt.obj_table.header.name")
+      messages.getString("profile.mgmt.obj_table.header.name")
   };
 
   private JPanel profileEditionObjectListMainPane;
@@ -72,17 +78,22 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   private final AIProfileService profileSvc;
   private final DatabaseService databaseSvc;
   private final Project project;
+  private final Profile profile;
+  private final boolean isUpdate;
+
   ProfileObjectListTableModel profileObjListTableModel = new ProfileObjectListTableModel();
 
   //At start initialize it with empty one
   DatabaseObjectListTableModel currentDbObjListTableModel = new DatabaseObjectListTableModel();
 
-  Map<String,DatabaseObjectListTableModel> databaseObjectListTableModelCache = new HashMap<>();
+  Map<String, DatabaseObjectListTableModel> databaseObjectListTableModelCache = new HashMap<>();
 
-  public ProfileEditionObjectListStep(Project project, Profile profile) {
-    super();
+  public ProfileEditionObjectListStep(Project project, Profile profile, boolean isUpdate) {
+    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.title"));
     this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
+    this.profile = profile;
+    this.isUpdate = isUpdate;
     this.databaseSvc = project.getService(DatabaseOracleAIManager.class).getDatabaseService();
 
     patternFilter.getDocument().addDocumentListener(new DocumentListener() {
@@ -105,7 +116,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
     withViewsButton.addItemListener((
         e -> {
-          if (((JCheckBox)e.getSource()).isSelected()) {
+          if (((JCheckBox) e.getSource()).isSelected()) {
             currentDbObjListTableModel.unhideItemByType(DatabaseObjectType.VIEW);
           } else {
             currentDbObjListTableModel.hideItemByType(DatabaseObjectType.VIEW);
@@ -113,14 +124,14 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
         }
     ));
-    initializeTables(profile);
+    initializeTables();
     DBObjectsTransferHandler th = new DBObjectsTransferHandler();
     this.databaseObjectsTable.setTransferHandler(
-            th
+        th
     );
 
     this.profileObjectListTable.setTransferHandler(
-            th
+        th
     );
 
     this.databaseObjectsTable.setDragEnabled(true);
@@ -130,29 +141,29 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
   }
 
-  private void initializeTables(@Nullable Profile profile) {
-    LOGGER.debug("initializing tables");
+  private void initializeTables() {
+    LOGGER.debug("initializing tables", null, null, null);
     profileObjectListTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     profileObjectListTable.setModel(profileObjListTableModel);
-    addValidationListener(profileObjectListTable);
+    addValidationListener();
     databaseObjectsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
     databaseObjectsTable.setModel(currentDbObjListTableModel);
     databaseObjectsTable.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
-          JTable table = ((JTable)e.getSource());
-          int [] selectedRows = table.getSelectedRows();
-          if (selectedRows != null ) {
+          JTable table = ((JTable) e.getSource());
+          int[] selectedRows = table.getSelectedRows();
+          if (selectedRows != null) {
             // hide all and add to profile obj list
             List<String> namesTobeHidden = new ArrayList<>(selectedRows.length);
             List<ProfileDBObjectItem> newItems = new ArrayList<>(selectedRows.length);
 
-            for (int i = 0;i<selectedRows.length;i++) {
+            for (int i = 0; i < selectedRows.length; i++) {
               DBObjectItem item = currentDbObjListTableModel.getItemAt(selectedRows[i]);
               newItems.add(new ProfileDBObjectItem(
-                      item.getOwner(),
-                      item.getName()));
+                  item.getOwner(),
+                  item.getName()));
               namesTobeHidden.add(item.getName());
 
             }
@@ -172,10 +183,10 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
             // we may be viewing datbase object from another schema
             // locate it first. no way that cache not already populated
             DatabaseObjectListTableModel model = databaseObjectListTableModelCache.get(item.getOwner());
-            assert model != null: "trying to unhide items form model not in the cache";
+            assert model != null : "trying to unhide items form model not in the cache";
             // TODO : verify that this do nto fire event when this is not the current model
             //        of the table
-            model.unhideItem(item.getOwner(),item.getName());
+            model.unhideItem(item.getOwner(), item.getName());
             profileObjListTableModel.removeItem(item);
           }
         }
@@ -196,10 +207,12 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
     loadSchemas();
 
-    if (profile !=null) {
-      profileObjListTableModel.updateItems(profile.getObjectList());
+    if (isUpdate) {
+      SwingUtilities.invokeLater(() -> {
+        profileObjListTableModel.updateItems(profile.getObjectList());
+      });
     }
-    ((TableRowSorter)databaseObjectsTable.getRowSorter()).setRowFilter(new RowFilter<DatabaseObjectListTableModel, Integer>() {
+    ((TableRowSorter) databaseObjectsTable.getRowSorter()).setRowFilter(new RowFilter<DatabaseObjectListTableModel, Integer>() {
 
       @Override
       public boolean include(Entry<? extends DatabaseObjectListTableModel, ? extends Integer> entry) {
@@ -229,10 +242,10 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
         if (currentItem.getType() == DatabaseObjectType.VIEW) {
           editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
-          editor.setForeground(Color.LIGHT_GRAY);
+          editor.setForeground(JBColor.LIGHT_GRAY);
         } else {
           editor.setFont(editor.getFont().deriveFont(Font.PLAIN));
-          editor.setForeground(Color.BLACK);
+          editor.setForeground(JBColor.BLACK);
         }
         return editor;
       }
@@ -245,8 +258,6 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         editor.setText((value != null) ? value.toString() : "*");
         editor.setBorder(null);
         editor.setEditable(false);
-        //editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        //editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
         ProfileDBObjectItem currentItem = profileObjListTableModel.getItemAt(row);
@@ -277,6 +288,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
   /**
    * Looks into DB object model for a matching type
+   *
    * @param item object item in a profile
    * @return the type of that item or null if its a wildcard object (i.e name == null)
    */
@@ -298,7 +310,7 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
   private void loadSchemas() {
     startActivityNotifier();
     databaseSvc.getSchemaNames().thenAccept(schemaList -> {
-      ApplicationManager.getApplication().invokeLater(() -> {
+      SwingUtilities.invokeLater(() -> {
         for (String schema : schemaList) {
           LOGGER.debug("Adding new schema to dropbox: " + schema);
           schemaComboBox.addItem(schema);
@@ -306,30 +318,43 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
         stopActivityNotifier();
       });
     }).exceptionally(e -> {
-      Messages.showErrorDialog(project,"Cannot load schemas",
-              "Cannot load DB schemas: "+e.getCause().getMessage());
+      Messages.showErrorDialog(project, "Cannot load schemas",
+          "Cannot load DB schemas: " + e.getCause().getMessage());
       return null;
     });
   }
 
+  private void addValidationListener() {
+    profileObjectListTable.setInputVerifier(new SelectedObjectItemsVerifier());
+    profileObjectListTable.getModel().addTableModelListener(e -> {
+      if (e.getType() == TableModelEvent.INSERT) {
+        profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
+      } else if (e.getType() == TableModelEvent.DELETE) {
+        profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
+      }
+    });
+  }
+
   private void populateDatabaseObjectTable(String schema) {
+
     assert (schema != null && !schema.isEmpty()):"Invalid schema passed";
     DatabaseObjectListTableModel model  = databaseObjectListTableModelCache.get(schema);
+
     if (model == null) {
       startActivityNotifier();
       databaseObjectsTable.setEnabled(false);
-      databaseSvc.getObjectItemsForSchema(schema).thenAccept(objs->{
-        ApplicationManager.getApplication().invokeLater(() -> {
-          DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs,!withViewsButton.isSelected());
-          databaseObjectListTableModelCache.put(schema,newModel);
+      databaseSvc.getObjectItemsForSchema(schema).thenAccept(objs -> {
+        SwingUtilities.invokeLater(() -> {
+          DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
+          databaseObjectListTableModelCache.put(schema, newModel);
           databaseObjectsTable.setModel(newModel);
           currentDbObjListTableModel = newModel;
           stopActivityNotifier();
           databaseObjectsTable.setEnabled(true);
         });
       }).exceptionally(e -> {
-        Messages.showErrorDialog(project,"Cannot fetch objects",
-                "Cannot fetching database object list: "+e.getCause().getMessage());
+        Messages.showErrorDialog(project, "Cannot fetch objects",
+            "Cannot fetching database object list: " + e.getCause().getMessage());
         return null;
       });
     } else {
@@ -340,33 +365,25 @@ public class ProfileEditionObjectListStep extends AbstractProfileEditionStep {
 
 
   @Override
-  public JPanel getPanel() {
+  public @org.jetbrains.annotations.Nullable String getHelpId() {
+    return null;
+  }
+
+  @Override
+  public JComponent prepare(WizardNavigationState wizardNavigationState) {
     return profileEditionObjectListMainPane;
   }
 
-  @Override
-  public void setAttributesOn(Profile p) {
-    p.setObjectList(profileObjListTableModel.getData());
+  public @org.jetbrains.annotations.Nullable JComponent getPreferredFocusedComponent() {
+    return null;
   }
 
-
-  private void addValidationListener(JTable table) {
-    table.setInputVerifier(new SelectedObjectItemsVerifier());
-    table.getModel().addTableModelListener(e -> {
-      fireWizardStepChangeEvent();
-    });
-  }
-
-  private void fireWizardStepChangeEvent() {
-    for (WizardStepEventListener listener : this.listeners) {
-      listener.onStepChange(new WizardStepChangeEvent(this));
-    }
-  }
 
   @Override
-  public boolean isInputsValid() {
-    // TODO : add more
-    return profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
+  public boolean onFinish() {
+    profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
+    profile.setObjectList(profileObjListTableModel.getData());
+    return true;
   }
 
 

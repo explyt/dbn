@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.config;
 
+
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializationContext;
@@ -33,16 +34,17 @@ public class ProfileDBObjectItem {
     @Expose
     public String name;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ProfileDBObjectItem that = (ProfileDBObjectItem) o;
-        // object name and owner ae case in-sensitive in Oracle DB
-        // name can be null
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    ProfileDBObjectItem that = (ProfileDBObjectItem) o;
+    // object name and owner ae case in-sensitive in Oracle DB
+    // name can be null
 
-        return owner.equalsIgnoreCase(that.owner) && (name != null && name.equalsIgnoreCase(that.name));
-    }
+    return owner.equalsIgnoreCase(that.owner) && (name != null && name.equalsIgnoreCase(that.name));
+  }
+
 
     @Override
     public int hashCode() {
@@ -87,5 +89,4 @@ public class ProfileDBObjectItem {
             return new ProfileDBObjectItem(owner.getAsString(), name);
         }
     }
-
 }
