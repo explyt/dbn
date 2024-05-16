@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
@@ -34,6 +35,7 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 @ToString
 @EqualsAndHashCode(exclude = {"isEnabled", "comments"}) // Exclude as per your needs
 public class Profile implements AttributeInput {
@@ -43,30 +45,30 @@ public class Profile implements AttributeInput {
   private final String PROFILE_NAME_ATTR_NAME = "name";
   private final String PROFILE_OWNER_ATTR_NAME = "owner";
 
-  private String profileName;
+  protected String profileName;
 
-  private String description;
+  protected String description;
 
   @Expose
-  private ProviderType provider;
+  protected ProviderType provider;
   @SerializedName("credential_name")
   @Expose
-  private String credentialName;
+  protected String credentialName;
   @Builder.Default
   @SerializedName("object_list")
   @Expose
-  private List<ProfileDBObjectItem> objectList = Collections.emptyList();
-  private Integer maxTokens;
+  protected List<ProfileDBObjectItem> objectList = Collections.emptyList();
+  protected Integer maxTokens;
   @Builder.Default
-  private List<String> stopTokens = Collections.emptyList();
+  protected List<String> stopTokens = Collections.emptyList();
   @Expose
   @JsonAdapter(ProviderModelSerializer.class)
-  private ProviderModel model;
+  protected ProviderModel model;
   @Builder.Default
   @Expose
-  private Double temperature = 0.0;
-  private boolean isEnabled;
-  private Boolean comments;
+  protected Double temperature = 0.0;
+  protected boolean isEnabled;
+  protected Boolean comments;
 
 
   /**
@@ -99,28 +101,21 @@ public class Profile implements AttributeInput {
   }
 
   @Override
-  public String toAttributeMap(boolean forCreation) throws IllegalArgumentException {
+  public String toAttributeMap() throws IllegalArgumentException {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()
         .registerTypeAdapter(ProviderModel.class, new ProviderModelSerializer())
         .create();
 
     String attributesJson = gson.toJson(this).replace("'", "''");
-    if (forCreation) {
-      return String.format(
-          "profile_name => '%s',\n" +
-              "attributes => '%s',\n" +
-              "description => '%s'\n",
-          profileName,
-          attributesJson,
-          description);
-    } else {
-      return String.format(
-          "profile_name => '%s',\n" +
-              "attributes => '%s'\n",
-          profileName,
-          attributesJson);
-    }
+    return String.format(
+        "profile_name => '%s',\n" +
+            "attributes => '%s',\n" +
+            "description => '%s'\n",
+        profileName,
+        attributesJson,
+        description);
+
   }
 
   public static Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
@@ -148,7 +143,7 @@ public class Profile implements AttributeInput {
   }
 
   // Inner class to handle the JSON serialization
-  private static class ProviderModelSerializer implements JsonSerializer<ProviderModel> {
+  public static class ProviderModelSerializer implements JsonSerializer<ProviderModel> {
     @Override
     public JsonElement serialize(ProviderModel src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.getApiName());

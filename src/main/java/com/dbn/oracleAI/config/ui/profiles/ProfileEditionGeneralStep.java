@@ -55,7 +55,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
     initializeUI();
     addValidationListener();
-    populateCredentials();
+    if (!isUpdate) populateCredentials();
   }
 
   private void initializeUI() {
@@ -71,13 +71,14 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       nameTextField.setText(profile.getProfileName());
       descriptionTextField.setText(profile.getDescription());
       credentialComboBox.addItem(profile.getCredentialName());
+      nameTextField.setEnabled(false);
       credentialComboBox.setEnabled(false);
       descriptionTextField.setEnabled(false);
     }
   }
 
   private void addValidationListener() {
-    nameTextField.setInputVerifier(new ProfileNameVerifier(profileNames));
+    nameTextField.setInputVerifier(new ProfileNameVerifier(profileNames, isUpdate));
     credentialComboBox.setInputVerifier(new CredentialSelectedVerifier());
     nameTextField.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {

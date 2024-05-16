@@ -68,7 +68,7 @@ public class Credential implements AttributeInput {
   }
 
   @Override
-  public String toAttributeMap(boolean forCreation) {
+  public String toAttributeMap() {
     return null;
   }
 }

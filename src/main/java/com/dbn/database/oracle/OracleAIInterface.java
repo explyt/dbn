@@ -34,7 +34,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public void createCredential(DBNConnection connection, Credential credentialAttributes) throws CredentialManagementException {
     try {
-      executeCall(connection, null, "create-credential", credentialAttributes.getCredentialName(), credentialAttributes.toAttributeMap(true));
+      executeCall(connection, null, "create-credential", credentialAttributes.getCredentialName(), credentialAttributes.toAttributeMap());
     } catch (SQLException e) {
       throw new CredentialManagementException("Failed to create credential: " + credentialAttributes.getCredentialName(), e);
     }
@@ -68,7 +68,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public void createProfile(DBNConnection connection, Profile profileAttributes) throws ProfileManagementException {
     try {
-      executeCall(connection, null, "create-profile", profileAttributes.getProfileName(), profileAttributes.toAttributeMap(true));
+      executeCall(connection, null, "create-profile", profileAttributes.getProfileName(), profileAttributes.toAttributeMap());
     } catch (SQLException e) {
       throw new ProfileManagementException("Failed to create profile: " + profileAttributes.getProfileName() + "\n" + e.getMessage(), e);
     }
@@ -86,7 +86,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public void setProfileAttributes(DBNConnection connection, Profile profile) throws ProfileManagementException {
     try {
-      executeCall(connection, null, "update-profile", profile.toAttributeMap(false));
+      executeCall(connection, null, "update-profile", profile.toAttributeMap());
     } catch (SQLException e) {
       throw new ProfileManagementException("Failed to set profile attribute: " + profile.getProfileName(), e);
     }

@@ -2,6 +2,7 @@ package com.dbn.oracleAI;
 
 import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.ui.ProfileUpdate;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionWizardModel;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
@@ -52,7 +53,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   @Override
   protected void doOKAction() {
-    if (editedProfile.getProfileName().isEmpty() || profileNames.contains(editedProfile.getProfileName().trim().toUpperCase()) || editedProfile.getCredentialName().isEmpty() || editedProfile.getObjectList().isEmpty()) {
+    if (editedProfile.getProfileName().isEmpty() || (!isUpdate && profileNames.contains(editedProfile.getProfileName().trim().toUpperCase())) || editedProfile.getCredentialName().isEmpty() || editedProfile.getObjectList().isEmpty()) {
       Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.validation"));
     } else if (initialProfile.equals(editedProfile)) {
       Messages.showErrorDialog(project, messages.getString("profile.mgmt.update.validation"));
@@ -123,7 +124,8 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         initialProfile = Profile.builder().build();
         isUpdate = false;
       }
-      ProfileEditionWizard wizard = new ProfileEditionWizard(project, initialProfile, profileNames, isUpdate, callback);
+      ProfileUpdate toBeUpdatedProfile = new ProfileUpdate(initialProfile);
+      ProfileEditionWizard wizard = new ProfileEditionWizard(project, toBeUpdatedProfile, profileNames, isUpdate, callback);
       wizard.show();
 
     });

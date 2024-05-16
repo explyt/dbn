@@ -14,11 +14,13 @@ import java.util.ResourceBundle;
 public class ProfileNameVerifier extends InputVerifier {
   private static final Border ERROR_BORDER = BorderFactory.createLineBorder(Color.RED, 1);
   private static final Border DEFAULT_BORDER = UIManager.getBorder("TextField.border");
-  private List<String> profileNames;
+  private final List<String> profileNames;
+  private final boolean isUpdate;
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
-  public ProfileNameVerifier(List<String> profileNames) {
+  public ProfileNameVerifier(List<String> profileNames, boolean isUpdate) {
     this.profileNames = profileNames;
+    this.isUpdate = isUpdate;
   }
 
   @Override
@@ -29,7 +31,7 @@ public class ProfileNameVerifier extends InputVerifier {
     if (isEmpty) {
       textField.setBorder(ERROR_BORDER);
       textField.setToolTipText(messages.getString("profile.mgmt.general_step.profile_name.validation.empty"));
-    } else if (exists) {
+    } else if (exists && !isUpdate) {
       textField.setBorder(ERROR_BORDER);
       textField.setToolTipText(messages.getString("profile.mgmt.general_step.profile_name.validation.exists"));
     } else {

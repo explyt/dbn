@@ -11,9 +11,7 @@ public interface AttributeInput {
 
   /**
    * Formats the attributes into a string suitable for PL/SQL calls.
-   *
-   * @param forCreation This is to specify whether the resulting output is for creating a new profile or updating an existing one
-   */
-  String toAttributeMap(boolean forCreation);
+   **/
+  String toAttributeMap();
 
 }
