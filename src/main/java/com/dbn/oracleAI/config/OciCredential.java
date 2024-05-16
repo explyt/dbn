@@ -40,7 +40,7 @@ public class OciCredential extends Credential {
    * @return string of attributes
    */
   @Override
-  public String toAttributeMap(boolean isNew) {
+  public String toAttributeMap(boolean forCreation) {
     return String.format(
         "credential_name => '%s', \n" +
             "user_ocid => '%s', \n" +

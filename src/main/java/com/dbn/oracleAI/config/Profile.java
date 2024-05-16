@@ -99,14 +99,14 @@ public class Profile implements AttributeInput {
   }
 
   @Override
-  public String toAttributeMap(boolean isNew) throws IllegalArgumentException {
+  public String toAttributeMap(boolean forCreation) throws IllegalArgumentException {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()
         .registerTypeAdapter(ProviderModel.class, new ProviderModelSerializer())
         .create();
 
     String attributesJson = gson.toJson(this).replace("'", "''");
-    if (isNew) {
+    if (forCreation) {
       return String.format(
           "profile_name => '%s',\n" +
               "attributes => '%s',\n" +
@@ -156,9 +156,9 @@ public class Profile implements AttributeInput {
   }
 
   /**
-  * When setting the provider we set the default model if it's still null.
-  * This is because there could be a chance that the model is not specified in the database server side
-  **/
+   * When setting the provider we set the default model if it's still null.
+   * This is because there could be a chance that the model is not specified in the database server side
+   **/
   public void setProvider(ProviderType type) {
     this.provider = type;
     if (this.model == null) this.model = provider.getDefaultModel();
