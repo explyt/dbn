@@ -49,8 +49,11 @@ public class AiProviderSelection extends DialogWrapper {
   private static class AIProviderTableModel extends AbstractTableModel {
 
     private final String NAME = "Provider Credential Name";
+    private final int NAME_IDX = 0;
     private final String USERNAME = "Username";
+    private final int USERNAME_IDX = 1;
     private final String KEY = "Secret";
+    private final int KEY_IDX = 2;
     private final AIProviderTypeBundle aiProviderTypes;
     private final String[] columnNames = {NAME, USERNAME, KEY};
 
@@ -72,16 +75,12 @@ public class AiProviderSelection extends DialogWrapper {
     public Object getValueAt(int rowIndex, int columnIndex) {
       AIProviderType provider = aiProviderTypes.get(rowIndex);
       switch (columnIndex) {
-        case 0:
-          return provider.getHostname();
-        case 1:
+        case NAME_IDX:
+          return provider.getCredentialName();
+        case USERNAME_IDX:
           return provider.getUsername();
-        case 2:
-          String text = provider.getKey();
-          if (text.length() > 4) {
-            text = text.substring(0, 4) + "************";
-          }
-          return text;
+        case KEY_IDX:
+          return "************";
         default:
           return null;
       }

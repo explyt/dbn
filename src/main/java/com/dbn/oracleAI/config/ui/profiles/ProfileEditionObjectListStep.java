@@ -1,5 +1,6 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
@@ -11,7 +12,6 @@ import com.dbn.oracleAI.config.ui.SelectedObjectItemsVerifier;
 import com.dbn.oracleAI.types.DatabaseObjectType;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 
@@ -54,6 +54,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
   private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
+
 
   private static final int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
   private static final int TABLES_COLUMN_HEADERS_OWNER_IDX = 1;
@@ -135,6 +136,9 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     );
 
     this.databaseObjectsTable.setDragEnabled(true);
+    this.databaseObjectsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
+    this.profileObjectListTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     this.profileObjectListTable.setDragEnabled(true);
     this.profileObjectListTable.setFillsViewportHeight(true);
     this.profileObjectListTable.setDropMode(DropMode.INSERT_ROWS);
@@ -142,11 +146,13 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void initializeTables() {
-    LOGGER.debug("initializing tables", null, null, null);
-    profileObjectListTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    LOGGER.debug("initializing tables");
+
     profileObjectListTable.setModel(profileObjListTableModel);
+
+    //TODO : check this
     addValidationListener();
-    databaseObjectsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+
     databaseObjectsTable.setModel(currentDbObjListTableModel);
     databaseObjectsTable.addMouseListener(new MouseAdapter() {
       @Override
@@ -236,38 +242,62 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         editor.setText(value.toString());
         editor.setBorder(null);
-        editor.setEditable(false);
+        editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+        editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         // Check if the current row item is in the selectedTableModel
         DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
+         // TODO fix this : editor should be a JLabel to be able to set icon
+        //    when doing this selection visual is broken
         if (currentItem.getType() == DatabaseObjectType.VIEW) {
           editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
-          editor.setForeground(JBColor.LIGHT_GRAY);
+          //editor.setIcon(Icons.DBO_VIEW);
         } else {
           editor.setFont(editor.getFont().deriveFont(Font.PLAIN));
-          editor.setForeground(JBColor.BLACK);
+          //editor.setIcon(Icons.DBO_TABLE);
         }
         return editor;
       }
     });
+
     profileObjectListTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
-      private final JTextField editor = new JTextField();
+      private final JLabel editor = new JLabel();
 
       @Override
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        editor.setText((value != null) ? value.toString() : "*");
-        editor.setBorder(null);
-        editor.setEditable(false);
 
-        // Check if the current row item is in the selectedTableModel
-        ProfileDBObjectItem currentItem = profileObjListTableModel.getItemAt(row);
-        if (locateTypeFor(currentItem) == DatabaseObjectType.VIEW) {
-          editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
-          editor.setForeground(Color.LIGHT_GRAY);
-        } else {
-          editor.setFont(editor.getFont().deriveFont(Font.PLAIN));
-          editor.setForeground(Color.BLACK);
+        editor.setBorder(null);
+        editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+        editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+
+        switch (column) {
+          case ProfileObjectListTableModel.NAME_COLUMN_IDX:
+            // Do not render icon etc... for owner cell
+            // Check if the current row item is in the selectedTableModel
+            editor.setText((value != null) ? value.toString() : "*");
+            ProfileDBObjectItem currentItem = profileObjListTableModel.getItemAt(row);
+            DatabaseObjectType currentItemType;
+            try {
+              currentItemType = locateTypeFor(currentItem);
+              if (locateTypeFor(currentItem) == DatabaseObjectType.VIEW) {
+                editor.setIcon(Icons.DBO_VIEW);
+              } else {
+                editor.setIcon(Icons.DBO_TABLE);
+              }
+            } catch (IllegalStateException e) {
+              editor.setFont(editor.getFont().deriveFont(Font.BOLD));
+              editor.setToolTipText(e.getMessage());
+              editor.setForeground(Color.RED);
+            }
+            break;
+          case ProfileObjectListTableModel.OWNER_COLUMN_IDX:
+            editor.setText(value.toString());
+            editor.setIcon(null);
+            break;
+          default:
+            assert false:"unexpected column number";
         }
+
         return editor;
       }
     });
@@ -291,17 +321,29 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
    *
    * @param item object item in a profile
    * @return the type of that item or null if its a wildcard object (i.e name == null)
+   * @throw IllegalStateException schema or object is not known to our model
    */
-  private DatabaseObjectType locateTypeFor(ProfileDBObjectItem item) {
+  private DatabaseObjectType locateTypeFor(ProfileDBObjectItem item) throws IllegalStateException {
     if (item.getName() == null || item.getName().length() == 0) {
       return null;
     }
 
     DatabaseObjectListTableModel model = databaseObjectListTableModelCache.get(item.getOwner());
+
+    if (model == null) {
+      // surely a schema we do not know.
+      // that's possible as profile ae populated by name.
+      // object list as no guaranty to exist
+      throw new IllegalStateException(messages.getString("profile.mgmt.obj_list.unknown_schema"));
+    }
+
     Optional<DBObjectItem> oitem = model.findFirst(item);
     if (oitem.isEmpty()) {
       // look for hidden ones then
       oitem = model.parkedItems.stream().filter(item::isEquivalentTo).findFirst();
+    }
+    if (oitem.isEmpty()) {
+      throw new IllegalStateException(messages.getString("profile.mgmt.obj_list.unknown_obj"));
     }
     // at this point, no way to no have something
     return oitem.get().getType();
@@ -325,6 +367,8 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void addValidationListener() {
+    // TODO : remove this
+
     profileObjectListTable.setInputVerifier(new SelectedObjectItemsVerifier());
     profileObjectListTable.getModel().addTableModelListener(e -> {
       if (e.getType() == TableModelEvent.INSERT) {
@@ -381,8 +425,9 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   @Override
   public boolean onFinish() {
-    profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
-    profile.setObjectList(profileObjListTableModel.getData());
+    if (profileObjectListTable.getInputVerifier().verify(profileObjectListTable)) {
+      profile.setObjectList(profileObjListTableModel.getData());
+    }
     return true;
   }
 

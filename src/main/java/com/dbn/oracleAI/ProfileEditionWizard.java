@@ -2,6 +2,7 @@ package com.dbn.oracleAI;
 
 import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.ProfileUpdate;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionWizardModel;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
@@ -18,13 +19,18 @@ import javax.swing.border.MatteBorder;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> {
 
-  private final Profile profile;
+  private final Profile initialProfile;
+  private final Profile editedProfile;
+  private static List<String> existingProfileNames;
   private final boolean isUpdate;
   private JButton finishButton;
 
@@ -33,11 +39,13 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private final Consumer<Boolean> callback;
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
-  public ProfileEditionWizard(@NotNull Project project, Profile initialProfile, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
-    super(false, new ProfileEditionWizardModel("Profile Configuration", project, initialProfile, isUpdate));
+  public ProfileEditionWizard(@NotNull Project project, Profile profile, List<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
+    super(false, new ProfileEditionWizardModel(
+            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profiles.settings.window.title"), project, profile, existingProfileNames, isUpdate));
     profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
-    this.profile = initialProfile;
+    this.initialProfile = new Profile(profile);
+    this.editedProfile = profile;
     this.isUpdate = isUpdate;
     this.callback = callback;
     finishButton.setText(messages.getString(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
@@ -46,8 +54,18 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   @Override
   protected void doOKAction() {
-    if (profile.getCredentialName().isEmpty() || profile.getObjectList().isEmpty()) {
-      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.validation"));
+
+    if (editedProfile.getProfileName().isEmpty()) {
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.profile_name.validation.empty"));
+    } else if (!this.isUpdate &&
+            existingProfileNames.contains(editedProfile.getProfileName().trim().toUpperCase())) {
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.profile_name.validation.exists"));
+    } else if (editedProfile.getCredentialName().isEmpty()) {
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.credential_name.validation"));
+    } else if (editedProfile.getObjectList().isEmpty()) {
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.object_list_step.validation"));
+    } else if (initialProfile.equals(editedProfile)) {
+      Messages.showErrorDialog(project, messages.getString("profile.mgmt.update.validation"));
     } else {
       commitWizardView();
       super.doOKAction();
@@ -81,7 +99,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   private void commitWizardView() {
     if (isUpdate) {
-      profileSvc.updateProfile(profile).thenRun(() -> {
+      profileSvc.updateProfile(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
           dispose();
           callback.accept(true);
@@ -91,7 +109,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         return null;
       });
     } else {
-      profileSvc.createProfile(profile).thenRun(() -> {
+      profileSvc.createProfile(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
           dispose();
           callback.accept(true);
@@ -103,7 +121,8 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     }
   }
 
-  public static void showWizard(@NotNull Project project, @Nullable Profile profile, @NotNull Consumer<Boolean> callback) {
+  public static void showWizard(@NotNull Project project, @Nullable Profile profile, Map<String, Profile> profileMap, @NotNull Consumer<Boolean> callback) {
+    existingProfileNames = profileMap.values().stream().map(Profile::getProfileName).collect(Collectors.toList());
     SwingUtilities.invokeLater(() -> {
       Profile initialProfile = null;
       boolean isUpdate;
@@ -114,7 +133,8 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         initialProfile = Profile.builder().profileName("").build();
         isUpdate = false;
       }
-      ProfileEditionWizard wizard = new ProfileEditionWizard(project, initialProfile, isUpdate, callback);
+      ProfileUpdate toBeUpdatedProfile = new ProfileUpdate(initialProfile);
+      ProfileEditionWizard wizard = new ProfileEditionWizard(project, toBeUpdatedProfile, existingProfileNames, isUpdate, callback);
       wizard.show();
 
     });

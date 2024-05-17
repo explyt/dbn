@@ -495,8 +495,12 @@ public class OracleAIChatBox extends JPanel {
     if (currProfileItem.getModel() != null) {
       aiModelComboBox.setSelectedItem(currProfileItem.getModel());
     } else {
-      // select the default
-      aiModelComboBox.setSelectedItem(currProfileItem.getProvider().getDefaultModel());
+      if (currProfileItem.getProvider() != null) {
+        // select the default
+        aiModelComboBox.setSelectedItem(currProfileItem.getProvider().getDefaultModel());
+      } else {
+        aiModelComboBox.setSelectedItem(aiModelComboBox.getItemAt(0));
+      }
     }
   }
 

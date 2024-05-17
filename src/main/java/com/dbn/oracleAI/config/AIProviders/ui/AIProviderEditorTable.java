@@ -7,6 +7,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.DefaultCellEditor;
+import javax.swing.JPasswordField;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableColumn;
 import java.awt.event.ComponentAdapter;
@@ -21,6 +23,10 @@ public class AIProviderEditorTable extends DBNEditableTable<AIProviderTypesTable
     setSelectionForeground(UIUtil.getTableForeground());
     setCellSelectionEnabled(true);
     setDefaultRenderer(String.class, new AIProviderTypesTableCellRenderer());
+
+    JPasswordField pwf = new JPasswordField();
+    DefaultCellEditor editor = new DefaultCellEditor(pwf);
+    getColumnModel().getColumn(AIProviderTypesTableCellRenderer.SECRET_COLUMN).setCellEditor(editor);
 
     addComponentListener(new ComponentAdapter() {
       @Override

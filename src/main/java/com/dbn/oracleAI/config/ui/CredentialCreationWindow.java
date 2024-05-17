@@ -46,7 +46,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JPanel passwordCard;
   private JComboBox<CredentialType> credentialTypeComboBox;
   private JTextField passwordCredentialUsernameField;
-  private JTextField passwordCredentialPasswordField;
+  private javax.swing.JPasswordField passwordCredentialPasswordField;
   private JPanel credentialAttributesPane;
   private JPanel ociCard;
   private JTextField OCICredentialUserOcidField;
@@ -246,7 +246,7 @@ public class CredentialCreationWindow extends DialogWrapper {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_1"),
           credentialNameField);
     }
-    if (this.existingCredentialNames.contains(credentialNameField.getText()) && credential == null) {
+    if (this.existingCredentialNames.contains(credentialNameField.getText().toUpperCase()) && credential == null) {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_2"),
           credentialNameField);
     }
@@ -264,7 +264,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private void saveProviderInfo() {
     AIProvidersGeneralSettings settings = AIProvidersSettings.getInstance(project).getGeneralSettings();
     AIProviderType aiProviderType = new AIProviderType();
-    aiProviderType.setHostname("");
+    aiProviderType.setCredentialName(credentialNameField.getText());
     aiProviderType.setUsername(passwordCredentialUsernameField.getText());
     aiProviderType.setKey(passwordCredentialPasswordField.getText());
     settings.getAIProviderTypes().add(aiProviderType);

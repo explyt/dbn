@@ -11,6 +11,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 @Getter
 @EqualsAndHashCode(callSuper = false)
 public class AIProvidersSettings
@@ -18,6 +21,9 @@ public class AIProvidersSettings
     implements TopLevelConfig {
 
   private final AIProvidersGeneralSettings generalSettings = new AIProvidersGeneralSettings(this);
+
+  static private final ResourceBundle messages =
+          ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   public AIProvidersSettings(ProjectSettings parent) {
     super(parent);
@@ -41,7 +47,7 @@ public class AIProvidersSettings
 
   @Override
   public String getDisplayName() {
-    return "AI Providers";
+    return messages.getString("ai.providers.settings.window.title");
   }
 
   @Override
@@ -51,7 +57,7 @@ public class AIProvidersSettings
 
   @Override
   public ConfigId getConfigId() {
-    return ConfigId.AI_CREDNETIALS;
+    return ConfigId.AI_CREDENTIALS;
   }
 
   @NotNull

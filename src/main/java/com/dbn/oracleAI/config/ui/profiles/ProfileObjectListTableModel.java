@@ -20,8 +20,8 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
 
     private List<ProfileDBObjectItem> data;
 
-    private static final int NAME_COLUMN_IDX = 0;
-    private static final int OWNER_COLUMN_IDX = 1;
+    public static final int NAME_COLUMN_IDX = 0;
+    public static final int OWNER_COLUMN_IDX = 1;
 
     private static final String[] columnNames = {
             messages.getString("profile.mgmt.obj_table.header.name"),
