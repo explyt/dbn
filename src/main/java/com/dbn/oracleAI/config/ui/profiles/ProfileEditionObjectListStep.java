@@ -285,7 +285,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
                 editor.setIcon(Icons.DBO_TABLE);
               }
             } catch (IllegalStateException e) {
-              editor.setFont(editor.getFont().deriveFont(Font.BOLD));
               editor.setToolTipText(e.getMessage());
               editor.setForeground(Color.RED);
             }
