@@ -5,13 +5,13 @@ import com.dbn.oracleAI.types.ProviderType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
 import com.intellij.openapi.diagnostic.Logger;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -45,6 +46,7 @@ public class Profile implements AttributeInput {
   private final String PROFILE_NAME_ATTR_NAME = "name";
   private final String PROFILE_OWNER_ATTR_NAME = "owner";
 
+  @NotNull
   protected String profileName;
 
   protected String description;
@@ -97,7 +99,7 @@ public class Profile implements AttributeInput {
 
   @Override
   public void validate() {
-    // TODO implement this
+
   }
 
   @Override
@@ -118,27 +120,20 @@ public class Profile implements AttributeInput {
 
   }
 
-  public static Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException {
-    if ("object_list".equals(attributeName)) {
-      GsonBuilder builder = new GsonBuilder();
-      Gson gson = builder.create();
+   public static Object clobToObject(String attributeName, Clob clob) throws SQLException ,IOException ,JsonParseException {
 
-      try (Reader reader = clob.getCharacterStream();
-           BufferedReader br = new BufferedReader(reader)) {
-        Type listType = new TypeToken<List<ProfileDBObjectItem>>() {
-        }.getType();
-        return gson.fromJson(br, listType);
-      }
-    } else {
-      StringBuilder sb = new StringBuilder();
-      try (Reader reader = clob.getCharacterStream();
-           BufferedReader br = new BufferedReader(reader)) {
+    try (Reader reader = clob.getCharacterStream();
+         BufferedReader br = new BufferedReader(reader)) {
+      if ("object_list".equals(attributeName)) {
+        return ProfileDBObjectItem.fromStream(br);
+      } else {
+        StringBuilder sb = new StringBuilder();
         int b;
         while (-1 != (b = br.read())) {
           sb.append((char) b);
         }
+        return sb.toString();
       }
-      return sb.toString();
     }
   }
 

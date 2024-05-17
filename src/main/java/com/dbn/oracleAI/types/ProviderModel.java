@@ -33,12 +33,12 @@ public enum ProviderModel {
     this.apiName = apiName;
   }
 
-  public static ProviderModel getByName(String action) {
+  public static ProviderModel getByName(String modelApiName) {
     for (ProviderModel type : values()) {
-      if (type.getApiName().equals(action)) {
+      if (type.getApiName().equals(modelApiName)) {
         return type;
       }
     }
-    throw new IllegalArgumentException("Invalid action: " + action);
+    throw new IllegalArgumentException("Invalid model name: " + modelApiName);
   }
 }

@@ -136,7 +136,7 @@ public class ProfileManagementPanel extends JPanel {
       Messages.showQuestionDialog(currProject, messages.getString(
               "ai.settings.profile.deletion.title"), messages.getString(
               "ai.settings.profile.deletion.message.prefix")
-              + currProfile.getProfileName(),
+              + " " +currProfile.getProfileName(),
           Messages.options(
               messages.getString("ai.messages.yes"),
               messages.getString("ai.messages.no")), 1,

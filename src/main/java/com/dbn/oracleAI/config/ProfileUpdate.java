@@ -1,6 +1,5 @@
-package com.dbn.oracleAI.config.ui;
+package com.dbn.oracleAI.config;
 
-import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,8 +9,8 @@ import com.google.gson.GsonBuilder;
  */
 public class ProfileUpdate extends Profile {
 
-  public ProfileUpdate(Profile other) {
-    super(other);
+  public ProfileUpdate(Profile initialProfile) {
+    super(initialProfile);
   }
 
   @Override

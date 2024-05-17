@@ -23,7 +23,6 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
     static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
     private static final int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
-    private static final int TABLES_COLUMN_HEADERS_OWNER_IDX = 1;
 
     //items that do not match the object name pattern
     private List<DBObjectItem> allItems;

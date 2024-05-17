@@ -7,21 +7,21 @@
         <!ELEMENT statement (#PCDATA)>
         ]>
 <data-dictionary>
-    <statement-execution-processor id="create-credential" timeout="20">
+    <statement-execution-processor id="create-credential" timeout="120">
         <statement>
             BEGIN
             DBMS_CLOUD.CREATE_CREDENTIAL( {1} );
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="create-profile" timeout="20">
+    <statement-execution-processor id="create-profile" timeout="120">
         <statement>
             BEGIN
             DBMS_CLOUD_AI.CREATE_PROFILE( {1} );
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="pick-profile" timeout="20">
+    <statement-execution-processor id="pick-profile" timeout="120">
         <statement>
             BEGIN
             DBMS_CLOUD_AI.SET_PROFILE(
@@ -30,7 +30,7 @@
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-credentials" timeout="10">
+    <statement-execution-processor id="list-credentials" timeout="120">
         <statement>
             declare
             credential_names VARCHAR2(4000);
@@ -42,7 +42,7 @@
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-profiles" timeout="100">
+    <statement-execution-processor id="list-profiles" timeout="120">
         <statement>
             declare
             profile_names VARCHAR2(4000);
@@ -55,12 +55,12 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="list-credentials-detailed" timeout="20">
+    <statement-execution-processor id="list-credentials-detailed" timeout="120">
         <statement>
             SELECT * FROM ALL_CREDENTIALS
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-profiles-detailed" timeout="20">
+    <statement-execution-processor id="list-profiles-detailed" timeout="120">
         <statement>
             SELECT
             p.profile_name,
@@ -89,19 +89,19 @@
             end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-tables" timeout="30">
+    <statement-execution-processor id="list-tables" timeout="120">
         <statement>
             SELECT TABLE_NAME
             FROM all_tables WHERE OWNER = '{0}'
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-views" timeout="30">
+    <statement-execution-processor id="list-views" timeout="120">
         <statement>
             SELECT VIEW_NAME
             FROM all_views WHERE OWNER = '{0}'
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-schemas" timeout="20">
+    <statement-execution-processor id="list-schemas" timeout="120">
         <statement>
             SELECT DISTINCT OWNER
             FROM ALL_TABLES
@@ -110,21 +110,21 @@
             FROM ALL_VIEWS
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="drop-profile" timeout="20">
+    <statement-execution-processor id="drop-profile" timeout="120">
         <statement>
             BEGIN
             DBMS_CLOUD_AI.DROP_PROFILE(profile_name => '{0}');
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="drop-credential" timeout="20">
+    <statement-execution-processor id="drop-credential" timeout="120">
         <statement>
             BEGIN
             DBMS_CLOUD.DROP_CREDENTIAL(credential_name => '{0}');
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="update-profile" timeout="20">
+    <statement-execution-processor id="update-profile" timeout="120">
         <statement>
             BEGIN
             DBMS_CLOUD_AI.SET_ATTRIBUTES(
@@ -133,7 +133,7 @@
             END;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="update-credential" timeout="20">
+    <statement-execution-processor id="update-credential" timeout="120">
         <statement>
             BEGIN
             DBMS_CLOUD.UPDATE_CREDENTIAL(

@@ -64,6 +64,7 @@
                   <autoResizeMode value="4"/>
                   <background color="-1"/>
                   <dragEnabled value="true"/>
+                  <fillsViewportHeight value="true"/>
                 </properties>
               </component>
             </children>

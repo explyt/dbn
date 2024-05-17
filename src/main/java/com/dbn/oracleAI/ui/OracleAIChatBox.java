@@ -343,13 +343,7 @@ public class OracleAIChatBox extends JPanel {
     return currManager.getProfileService().getProfiles().thenApply(pl -> pl.stream()
             .collect(Collectors.toMap(Profile::getProfileName,
                 Function.identity(),
-                (existing, replacement) -> existing)))
-        .exceptionally(e -> {
-          ApplicationManager.getApplication().invokeLater(() ->
-              Messages.showErrorDialog(currManager.getProject(), messages.getString("companion.chat.profiles.failure") + e.getCause().getMessage()));
-          return null;
-        });
-
+                (existing, replacement) -> existing)));
   }
 
   /**
@@ -501,8 +495,12 @@ public class OracleAIChatBox extends JPanel {
     if (currProfileItem.getModel() != null) {
       aiModelComboBox.setSelectedItem(currProfileItem.getModel());
     } else {
-      // select the default
-      aiModelComboBox.setSelectedItem(currProfileItem.getProvider().getDefaultModel());
+      if (currProfileItem.getProvider() != null) {
+        // select the default
+        aiModelComboBox.setSelectedItem(currProfileItem.getProvider().getDefaultModel());
+      } else {
+        aiModelComboBox.setSelectedItem(aiModelComboBox.getItemAt(0));
+      }
     }
   }
 

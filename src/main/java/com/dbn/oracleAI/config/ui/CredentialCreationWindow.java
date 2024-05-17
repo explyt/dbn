@@ -46,7 +46,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JPanel passwordCard;
   private JComboBox<CredentialType> credentialTypeComboBox;
   private JTextField passwordCredentialUsernameField;
-  private JTextField passwordCredentialPasswordField;
+  private javax.swing.JPasswordField passwordCredentialPasswordField;
   private JPanel credentialAttributesPane;
   private JPanel ociCard;
   private JTextField OCICredentialUserOcidField;

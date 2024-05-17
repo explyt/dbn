@@ -9,12 +9,16 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Locale;
+import java.util.ResourceBundle;
+
 public class OracleAIToolWindowFactory implements ToolWindowFactory, DumbAware {
+  private final static ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
   @Override
   public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-    toolWindow.setTitle("Oracle Companion");
-    toolWindow.setStripeTitle("Oracle Companion");
-    toolWindow.setIcon(Icons.WINDOW_EXECUTION_CONSOLE);
+    toolWindow.setTitle(messages.getString("companion.window.title"));
+    toolWindow.setStripeTitle(messages.getString("companion.window.title"));
+    toolWindow.setIcon(Icons.WINDOW_DATABASE_COMPANION);
     toolWindow.setToHideOnEmptyContent(true);
     toolWindow.setAutoHide(false);
     DatabaseOracleAIManager manager = project.getService(DatabaseOracleAIManager.class);
