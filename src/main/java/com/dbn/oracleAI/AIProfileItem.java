@@ -2,6 +2,7 @@ package com.dbn.oracleAI;
 
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,6 +12,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@EqualsAndHashCode
 public final class AIProfileItem {
   /**
    * Creates a new combo item

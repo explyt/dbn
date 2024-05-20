@@ -68,12 +68,10 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     }
     // now apply the new one
     currConnection = connectionId;
+    oracleAIChatBox.setCurrentConnectionId(currConnection);
     OracleAIChatBoxState newState = chatBoxStates.get(connectionId);
-    oracleAIChatBox.initState();
+    oracleAIChatBox.initState(newState, currConnection);
     oracleAIChatBox.enableWindow();
-    if (newState != null) {
-      oracleAIChatBox.restoreState(newState);
-    }
   }
 
   public ToolWindow getOracleAIWindow() {
