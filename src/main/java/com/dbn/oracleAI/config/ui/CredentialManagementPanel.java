@@ -80,7 +80,7 @@ public class CredentialManagementPanel extends JPanel {
 
     this.connection = connection.ref();
     this.curProject = connection.getProject();
-    initializeUI();
+    //initializeUI();
     updateCredentialList();
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -94,11 +94,15 @@ public class CredentialManagementPanel extends JPanel {
    */
   private void initializeUI() {
     editButton.setIcon(Icons.ACTION_EDIT);
-    editButton.setToolTipText(messages.getString("ai.settings.credential.editing.tooltip"));
     addButton.setIcon(Icons.ACTION_ADD);
-    addButton.setToolTipText(messages.getString("ai.settings.credential.adding.tooltip"));
     deleteButton.setIcon(Icons.ACTION_DELETE);
-    deleteButton.setToolTipText(messages.getString("ai.settings.credential.deleting.tooltip"));
+
+    credentialList.setListData(credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}));
+    credentialList.setSelectedIndex(0);
+
+    editButton.setEnabled(true);
+    addButton.setEnabled(true);
+    deleteButton.setEnabled(true);
 
     // Initializes addButton with its action listener for creating new credential
     addButton.addActionListener((e) -> {
@@ -219,8 +223,7 @@ public class CredentialManagementPanel extends JPanel {
             .map(profile -> profile.getProfileName()).collect(Collectors.toList());
         credentialNameToProfileNameMap.put(cred, pNames);
       }
-      credentialList.setListData(credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}));
-      credentialList.setSelectedIndex(0);
+      ApplicationManager.getApplication().invokeLater(() -> initializeUI());
     }).exceptionally(e -> {
       {
         ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(this.curProject, e.getCause().getMessage()));
