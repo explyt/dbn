@@ -2,6 +2,8 @@ package com.dbn.database.common.oracleAI;
 
 import com.dbn.database.common.statement.CallableStatementOutput;
 import com.dbn.oracleAI.config.Credential;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
 import lombok.Getter;
 
 import java.sql.CallableStatement;
@@ -72,7 +74,7 @@ public class OracleCredentialsDetailedInfo implements CallableStatementOutput {
     while (rs.next()) {
       String credentialName = rs.getString(CREDENTIAL_NAME);
       String username = rs.getString(USERNAME);
-      String comments = rs.getString(COMMENTS);
+      String comments = deserializeComments(rs.getString(COMMENTS));
       boolean enabled = rs.getBoolean(ENABLED);
       credentialProviderBuildersMap.computeIfAbsent(credentialName, k -> new Credential(credentialName, username, enabled, comments));
     }
@@ -80,4 +82,18 @@ public class OracleCredentialsDetailedInfo implements CallableStatementOutput {
     // Convert map values to a list and return
     return new ArrayList<>(credentialProviderBuildersMap.values());
   }
+
+  /**
+   * Comments are stored as JSON object
+   * Extract the actual value
+   * @param JSONComments the JSON comment object as string
+   * @return the commetn value or empty string.
+   */
+  private static String deserializeComments(String JSONComments) {
+    if (JSONComments == null || JSONComments.isEmpty())
+      return "";
+     JsonElement element = JsonParser.parseString(JSONComments);
+    return element.getAsJsonObject().get("comments").getAsString();
+  }
+
 }
