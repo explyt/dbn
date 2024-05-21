@@ -9,11 +9,11 @@ import java.util.Set;
  */
 @Getter
 public enum ProviderType {
-  COHERE("api.cohere.ai", ProviderModel.COMMAND, ProviderModel.COMMAND,
+  COHERE(ProviderModel.COMMAND, ProviderModel.COMMAND,
       ProviderModel.COMMAND_NIGHTLY,
       ProviderModel.COMMAND_LIGHT,
       ProviderModel.COMMAND_LIGHT_NIGHTLY),
-  OPENAI("api.openai.com", ProviderModel.GPT_3_5_TURBO, ProviderModel.GPT_3_5_TURBO,
+  OPENAI(ProviderModel.GPT_3_5_TURBO, ProviderModel.GPT_3_5_TURBO,
       ProviderModel.GPT_3_5_TURBO_0613,
       ProviderModel.GPT_3_5_TURBO_16K,
       ProviderModel.GPT_3_5_TURBO_16K_0613,
@@ -21,7 +21,7 @@ public enum ProviderType {
       ProviderModel.GPT_4_0613,
       ProviderModel.GPT_4_32K,
       ProviderModel.GPT_4_32K_0613),
-  OCI("", ProviderModel.COHERE_COMMAND, ProviderModel.COHERE_COMMAND,
+  OCI(ProviderModel.COHERE_COMMAND, ProviderModel.COHERE_COMMAND,
       ProviderModel.COHERE_COMMAND_LIGHT,
       ProviderModel.META_LLAMA_2_70B_CHAT,
       ProviderModel.COHERE_EMBED_ENGLISH_LIGHT_V2_0,
@@ -32,12 +32,9 @@ public enum ProviderType {
 
   private final Set<ProviderModel> models;
   private final ProviderModel defaultModel;
-  private final String hostname;
 
-  ProviderType(String hostname, ProviderModel defaultModel, ProviderModel... models) {
-    this.models = Set.of(models);
+  ProviderType(ProviderModel defaultModel, ProviderModel... models) {
     this.defaultModel = defaultModel;
-    this.hostname = hostname;
+    this.models = Set.of(models);
   }
-
 }
