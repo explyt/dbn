@@ -58,10 +58,11 @@ public class OracleAIChatBox extends JPanel {
 
   private void createUIComponents() {
     promptTextArea = new IdleJtextArea(messages.getString("companion.chat.prompt.tooltip"));
+    activityProgress = new ActivityNotifier();
   }
 
   /**
-   * Holder class for profile combox box
+   * Holder class for profile Combox box
    */
 
   /**
@@ -395,8 +396,7 @@ public class OracleAIChatBox extends JPanel {
    * TODO : try to be clever here...
    */
   private void startActivityNotifier(String message) {
-    activityProgress.setIndeterminate(true);
-    activityProgress.setVisible(true);
+    ((ActivityNotifier)activityProgress).start();
     chatBoxNotificationMessage.setVisible(true);
     chatBoxNotificationMessage.setText(message);
   }
@@ -405,10 +405,7 @@ public class OracleAIChatBox extends JPanel {
    * Stops the spinning wheel
    */
   private void stopActivityNotifier() {
-    activityProgress.setMinimum(0);
-    activityProgress.setMaximum(0);
-    activityProgress.setIndeterminate(false);
-    activityProgress.setVisible(false);
+    ((ActivityNotifier)activityProgress).stop();
 
     chatBoxNotificationMessage.setVisible(false);
     chatBoxNotificationMessage.setText("");
