@@ -205,7 +205,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
       LOGGER.debug("action listener on  schemaComboBox fired");
       Object toBePopulated = schemaComboBox.getSelectedItem();
       if (toBePopulated == null)
-         toBePopulated = schemaComboBox.getItemAt(0);
+        toBePopulated = schemaComboBox.getItemAt(0);
       if (toBePopulated != null) {
         populateDatabaseObjectTable(toBePopulated.toString());
       }
@@ -247,7 +247,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
         // Check if the current row item is in the selectedTableModel
         DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
-         // TODO fix this : editor should be a JLabel to be able to set icon
+        // TODO fix this : editor should be a JLabel to be able to set icon
         //    when doing this selection visual is broken
         if (currentItem.getType() == DatabaseObjectType.VIEW) {
           editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
@@ -295,7 +295,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
             editor.setIcon(null);
             break;
           default:
-            assert false:"unexpected column number";
+            assert false : "unexpected column number";
         }
 
         return editor;
@@ -373,16 +373,14 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     profileObjectListTable.getModel().addTableModelListener(e -> {
       if (e.getType() == TableModelEvent.INSERT) {
         profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
-      } else if (e.getType() == TableModelEvent.DELETE) {
-        profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
       }
     });
   }
 
   private void populateDatabaseObjectTable(String schema) {
 
-    assert (schema != null && !schema.isEmpty()):"Invalid schema passed";
-    DatabaseObjectListTableModel model  = databaseObjectListTableModelCache.get(schema);
+    assert (schema != null && !schema.isEmpty()) : "Invalid schema passed";
+    DatabaseObjectListTableModel model = databaseObjectListTableModelCache.get(schema);
 
     if (model == null) {
       startActivityNotifier();
@@ -430,6 +428,5 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     }
     return true;
   }
-
 
 }
