@@ -46,12 +46,13 @@ public class AICredentialServiceImpl implements AICredentialService {
       }
     });
   }
+
   @Override
-  public CompletableFuture<Void> updateCredential(Credential credential) {
+  public CompletableFuture<Void> updateCredential(Credential editedCredential) {
     return CompletableFuture.runAsync(() -> {
       try {
         DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        connectionRef.get().getOracleAIInterface().setCredentialAttribute(connection, credential);
+        connectionRef.get().getOracleAIInterface().setCredentialAttribute(connection, editedCredential);
       } catch (CredentialManagementException | SQLException e) {
         throw new CompletionException("Cannot update credential", e);
       }
@@ -96,6 +97,21 @@ public class AICredentialServiceImpl implements AICredentialService {
         connectionRef.get().getOracleAIInterface().dropCredential(connection, credentialName);
       } catch (SQLException | CredentialManagementException e) {
         throw new CompletionException("Cannot delete credential", e);
+      }
+    });
+  }
+
+  @Override
+  public void updateStatus(String credentialName, Boolean isEnabled) {
+    if (credentialName.isEmpty()) {
+      throw new IllegalArgumentException("Credential Name shouldn't be empty");
+    }
+    CompletableFuture.runAsync(() -> {
+      try {
+        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        connectionRef.get().getOracleAIInterface().updateCredentialStatus(connection, credentialName, isEnabled);
+      } catch (SQLException | CredentialManagementException e) {
+        throw new CompletionException("Cannot update credential status", e);
       }
     });
   }

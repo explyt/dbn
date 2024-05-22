@@ -56,6 +56,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private JButton keyProviderPickerButton;
   private JPanel credentialGeneralPane;
   private JCheckBox saveInfoCheckBox;
+  private JCheckBox statusCheckBox;
   private JLabel errorLabel;
   private Project project;
   private Credential credential;
@@ -136,6 +137,7 @@ public class CredentialCreationWindow extends DialogWrapper {
   private void hydrateFields() {
     credentialNameField.setText(credential.getCredentialName());
     credentialNameField.setEnabled(false);
+    statusCheckBox.setSelected(credential.isEnabled());
     if (credential instanceof PasswordCredential) {
       credentialTypeComboBox.addItem(CredentialType.PASSWORD);
       passwordCredentialUsernameField.setText(credential.getUsername());
@@ -157,7 +159,7 @@ public class CredentialCreationWindow extends DialogWrapper {
    */
   private void doCreateAction() {
     CredentialType credentialType = (CredentialType) credentialTypeComboBox.getSelectedItem();
-    Credential credential = null;
+    credential = null;
     switch (credentialType) {
       case PASSWORD:
         credential = new PasswordCredential(credentialNameField.getText(), passwordCredentialUsernameField.getText(), passwordCredentialPasswordField.getText());
@@ -166,20 +168,27 @@ public class CredentialCreationWindow extends DialogWrapper {
         credential = new OciCredential(credentialNameField.getText(), OCICredentialUserOcidField.getText(),
             OCICredentialUserTenancyOcidField.getText(), OCICredentialPrivateKeyField.getText(), OCICredentialFingerprintField.getText());
     }
-    credentialSvc.createCredential(credential).thenAccept((e) -> {
-      SwingUtilities.invokeLater(() -> {
-        if (creationCallback != null) {
-          creationCallback.onCredentialCreated();
-        }
-        close(0);
-      });
-    }).exceptionally(e -> {
-      SwingUtilities.invokeLater(() -> {
-        Messages.showErrorDialog(project, e.getCause().getMessage());
-      });
-      return null;
-    });
+    boolean isEnabled = statusCheckBox.isSelected();
+    credentialSvc.createCredential(credential)
+        .thenAccept(e -> {
+          if (!isEnabled) credentialSvc.updateStatus(credential.getCredentialName(), statusCheckBox.isSelected());
+        })
+        .thenAccept(e -> SwingUtilities.invokeLater(this::notifyAndClose))
+        .exceptionally(this::handleException);
 
+  }
+
+
+  private void notifyAndClose() {
+    if (creationCallback != null) {
+      creationCallback.onCredentialCreated();
+    }
+    close(0);
+  }
+
+  private Void handleException(Throwable e) {
+    SwingUtilities.invokeLater(() -> Messages.showErrorDialog(project, e.getCause().getMessage()));
+    return null;
   }
 
   /**
@@ -196,20 +205,13 @@ public class CredentialCreationWindow extends DialogWrapper {
         editedCredential = new OciCredential(credentialNameField.getText(), OCICredentialUserOcidField.getText(),
             OCICredentialUserTenancyOcidField.getText(), OCICredentialPrivateKeyField.getText(), OCICredentialFingerprintField.getText());
     }
-    credentialSvc.updateCredential(editedCredential).thenAccept((e) -> {
-      SwingUtilities.invokeLater(() -> {
-        if (creationCallback != null) {
-          creationCallback.onCredentialCreated();
-        }
-        close(0);
-      });
-    }).exceptionally(e -> {
-      SwingUtilities.invokeLater(() -> {
-        Messages.showErrorDialog(project, e.getCause().getMessage());
-      });
-      return null;
-    });
-
+    boolean isEnabled = credential.isEnabled() != statusCheckBox.isSelected();
+    credentialSvc.updateCredential(editedCredential)
+        .thenAccept(e -> {
+          if (isEnabled) credentialSvc.updateStatus(credential.getCredentialName(), statusCheckBox.isSelected());
+        })
+        .thenAccept(e -> SwingUtilities.invokeLater(this::notifyAndClose))
+        .exceptionally(this::handleException);
   }
 
 
@@ -250,12 +252,13 @@ public class CredentialCreationWindow extends DialogWrapper {
       return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_2"),
           credentialNameField);
     }
-
-    switch (CredentialType.valueOf(credentialTypeComboBox.getSelectedItem().toString())) {
-      case PASSWORD:
-        return doPasswordCredentialValidate();
-      case OCI:
-        return doOCICredentialValidate();
+    if (credentialNameField.isEnabled()) {
+      switch (CredentialType.valueOf(credentialTypeComboBox.getSelectedItem().toString())) {
+        case PASSWORD:
+          return doPasswordCredentialValidate();
+        case OCI:
+          return doOCICredentialValidate();
+      }
     }
 
     return null;

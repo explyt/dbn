@@ -142,5 +142,23 @@
             END;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="disable-credential" timeout="20">
+        <statement>
+            BEGIN
+            DBMS_CLOUD.DISABLE_CREDENTIAL(
+            credential_name => '{0}'
+            );
+            END;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="enable-credential" timeout="20">
+        <statement>
+            BEGIN
+            DBMS_CLOUD.ENABLE_CREDENTIAL(
+            credential_name => '{0}'
+            );
+            END;
+        </statement>
+    </statement-execution-processor>
 
 </data-dictionary>

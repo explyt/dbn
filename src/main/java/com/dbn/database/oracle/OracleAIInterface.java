@@ -167,6 +167,15 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     }
   }
 
+  @Override
+  public void updateCredentialStatus(DBNConnection connection, String credentialName, boolean isEnabled) throws CredentialManagementException {
+    try {
+      executeCall(connection, null, isEnabled ? "enable-credential" : "disable-credential", credentialName);
+    } catch (SQLException e) {
+      throw new CredentialManagementException("Failed to disable credential: " + credentialName, e);
+    }
+  }
+
 
 }
 
