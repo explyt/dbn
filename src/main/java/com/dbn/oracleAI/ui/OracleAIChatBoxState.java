@@ -2,6 +2,8 @@ package com.dbn.oracleAI.ui;
 
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.types.AuthorType;
+import com.dbn.oracleAI.types.ProviderModel;
+import com.dbn.oracleAI.types.ProviderType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -36,17 +38,15 @@ public class OracleAIChatBoxState {
   public Element toElement() {
     Element stateElement = new Element("OracleAIChatBoxState");
     stateElement.addContent(new Element("currConnection").setText(currConnection));
-    stateElement.addContent(new Element("selectedProfile").setText(selectedProfile != null ? selectedProfile.getLabel() : ""));
+    stateElement.addContent(new Element("selectedProfile").addContent(selectedProfile != null ? createProfileElement(selectedProfile) : null));
     stateElement.addContent(new Element("currentQuestionText").setText(currentQuestionText));
 
     Element profilesElement = new Element("profiles");
     profiles.forEach(profile -> {
-      Element profileElement = new Element("profile");
-      profileElement.setAttribute("label", profile.getLabel());
-      profileElement.setAttribute("effective", String.valueOf(profile.isEffective()));
-      profilesElement.addContent(profileElement);
+      profilesElement.addContent(createProfileElement(profile));
     });
     stateElement.addContent(profilesElement);
+
 
     Element messagesElement = new Element("chatMessages");
     aiAnswers.forEach(chatMessage -> {
@@ -60,6 +60,15 @@ public class OracleAIChatBoxState {
     return stateElement;
   }
 
+  private Element createProfileElement(AIProfileItem profile) {
+    Element profileElement = new Element("profile");
+    profileElement.setAttribute("label", profile.getLabel());
+    profileElement.setAttribute("effective", String.valueOf(profile.isEffective()));
+    profileElement.setAttribute("provider", profile.getProvider().toString());
+    profileElement.setAttribute("model", profile.getModel().toString());
+    return profileElement;
+  }
+
   /**
    * Reconstructs the OracleAIChatBoxState from an XML Element.
    *
@@ -68,13 +77,18 @@ public class OracleAIChatBoxState {
    */
   public static OracleAIChatBoxState fromElement(Element stateElement) {
     String currConnection = stateElement.getChildText("currConnection");
-    String selectedProfileLabel = stateElement.getChildText("selectedProfile");
+
+    // Retrieve the selectedProfile element and handle possible null
+    Element selectedProfileElement = stateElement.getChild("selectedProfile");
+    AIProfileItem selectedProfileLabel = null;
+    if (selectedProfileElement != null) {
+      selectedProfileLabel = createAIProfileItem(selectedProfileElement.getChildren().get(0));
+    }
+
     String currentQuestionText = stateElement.getChildText("currentQuestionText");
 
     List<AIProfileItem> profiles = stateElement.getChild("profiles").getChildren("profile").stream()
-        .map(profileElement -> new AIProfileItem(
-            profileElement.getAttributeValue("label"),
-            Boolean.parseBoolean(profileElement.getAttributeValue("effective"))))
+        .map(OracleAIChatBoxState::createAIProfileItem)
         .collect(Collectors.toList());
 
     List<ChatMessage> chatMessages = stateElement.getChild("chatMessages").getChildren("chatMessage").stream()
@@ -85,10 +99,20 @@ public class OracleAIChatBoxState {
 
     return OracleAIChatBoxState.builder()
         .currConnection(currConnection)
-        .selectedProfile(new AIProfileItem(selectedProfileLabel, true))
+        .selectedProfile(selectedProfileLabel)
         .currentQuestionText(currentQuestionText)
         .profiles(profiles)
         .aiAnswers(chatMessages)
         .build();
+  }
+
+  private static AIProfileItem createAIProfileItem(Element profileElement) {
+    if (profileElement.getAttributeValue("label") == null) return null;
+    String label = profileElement.getAttributeValue("label");
+    boolean effective = Boolean.parseBoolean(profileElement.getAttributeValue("effective"));
+    ProviderType provider = ProviderType.valueOf(profileElement.getAttributeValue("provider").toUpperCase());
+    ProviderModel model = ProviderModel.valueOf(profileElement.getAttributeValue("model"));
+    return new AIProfileItem(label, provider, model, effective);
+
   }
 }

@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.oracleAI.config.ui.OracleAISettingsWindow">
   <grid id="27dc6" binding="settingsWindowContentPane" layout-manager="BorderLayout" hgap="1" vgap="1">
     <constraints>
-      <xy x="0" y="0" width="92" height="67"/>
+      <xy x="0" y="0" width="160" height="67"/>
     </constraints>
     <properties>
       <opaque value="false"/>
@@ -36,6 +36,12 @@
           <component id="848a1" class="javax.swing.JSeparator">
             <constraints border-constraint="North"/>
             <properties/>
+          </component>
+          <component id="fa6e6" class="javax.swing.JButton" binding="helpButton">
+            <constraints border-constraint="West"/>
+            <properties>
+              <text value="Help"/>
+            </properties>
           </component>
         </children>
       </grid>

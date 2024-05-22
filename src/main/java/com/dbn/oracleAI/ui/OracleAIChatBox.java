@@ -2,6 +2,7 @@ package com.dbn.oracleAI.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Profile;
@@ -13,6 +14,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import net.miginfocom.swing.MigLayout;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractAction;
 import javax.swing.ActionMap;
@@ -106,6 +108,7 @@ public class OracleAIChatBox extends JPanel {
   private static final Logger LOG = Logger.getInstance(OracleAIChatBox.class.getPackageName());
 
   private static OracleAIChatBox instance;
+  private ConnectionId currentConnectionId;
   private JComboBox<AIProfileItem> profileComboBox;
   private ProfileComboBoxModel profileListModel = new ProfileComboBoxModel();
   private JPanel chatBoxMainPanel;
@@ -151,6 +154,10 @@ public class OracleAIChatBox extends JPanel {
       instance = new OracleAIChatBox();
     }
     return instance;
+  }
+
+  public void setCurrentConnectionId(ConnectionId connectionId) {
+    this.currentConnectionId = connectionId;
   }
 
   private void initializeUI() {
@@ -342,9 +349,9 @@ public class OracleAIChatBox extends JPanel {
    */
   public CompletableFuture<Map<String, Profile>> updateProfiles() {
     return currManager.getProfileService().getProfiles().thenApply(pl -> pl.stream()
-            .collect(Collectors.toMap(Profile::getProfileName,
-                Function.identity(),
-                (existing, replacement) -> existing)));
+        .collect(Collectors.toMap(Profile::getProfileName,
+            Function.identity(),
+            (existing, replacement) -> existing)));
   }
 
   /**
@@ -384,7 +391,6 @@ public class OracleAIChatBox extends JPanel {
     assert state != null : "cannot be null";
     this.updateProfiles(state.getProfiles());
     if (state.getSelectedProfile() != null) profileComboBox.setSelectedItem(state.getSelectedProfile());
-    else profileComboBox.setSelectedItem(profileComboBox.getItemAt(0));
     chatMessages.clear();
     chatMessages.addAll(state.getAiAnswers());
     populateChatPanel();
@@ -416,28 +422,33 @@ public class OracleAIChatBox extends JPanel {
    * Restores the element state from scratch.
    * basically called only once ny switchConnection()
    */
-  public void initState() {
+  public void initState(@Nullable OracleAIChatBoxState newState, ConnectionId connectionId) {
     LOG.debug("Initialize new state");
+    if (newState != null) restoreState(newState);
     startActivityNotifier(messages.getString("companion.chat.fetching_profiles"));
     updateProfiles().thenAccept(finalFetchedProfiles -> {
-      LOG.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
-      ApplicationManager.getApplication().invokeLater(() -> {
-        profileListModel.removeAllElements();
-        finalFetchedProfiles.forEach((pn, p) -> {
-          profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled()));
+      if (connectionId == currentConnectionId) {
+        LOG.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
+        ApplicationManager.getApplication().invokeLater(() -> {
+          profileListModel.removeAllElements();
+          finalFetchedProfiles.forEach((pn, p) -> {
+            profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled()));
+          });
+
+          profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
+          if (newState != null && profileListModel.getAllProfiles().contains(newState.getSelectedProfile()))
+            profileListModel.setSelectedItem(newState.getSelectedProfile());
+
+          if (profileListModel.getUsableProfiles().isEmpty()) {
+            disableWindow("companion.chat.no_profile_yet.tooltip");
+          } else {
+            enableWindow();
+          }
+          AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
+          if (currProfileItem != null && currProfileItem.getProvider() != null) updateModelsComboBox(currProfileItem);
+          stopActivityNotifier();
         });
-
-        profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
-
-        if (profileListModel.getUsableProfiles().isEmpty()) {
-          disableWindow("companion.chat.no_profile_yet.tooltip");
-        } else {
-          enableWindow();
-        }
-        AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
-        if (currProfileItem != null && currProfileItem.getProvider() != null) updateModelsComboBox(currProfileItem);
-        stopActivityNotifier();
-      });
+      }
     }).exceptionally(e -> {
       LOG.error("Failed to fetch profiles", e);
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getCause().getMessage()));
