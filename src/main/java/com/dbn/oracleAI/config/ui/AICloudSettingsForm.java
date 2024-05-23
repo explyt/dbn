@@ -87,7 +87,7 @@ public class AICloudSettingsForm extends DialogWrapper {
 
   @Override
   protected Action @NotNull [] createActions() {
-    super.setCancelButtonText("Close");
+    super.setCancelButtonText(messages.getString("profiles.mgnt.buttons.close.text"));
 
     return new Action[]{super.getCancelAction()};
   }
@@ -101,16 +101,16 @@ public class AICloudSettingsForm extends DialogWrapper {
   private void grantACLRights(String command) {
     try {
       connectionHandler.getOracleAIInterface().grantACLRights(connectionHandler.getConnection(SessionId.ORACLE_AI), command);
-      Messages.showInfoDialog(connectionHandler.getProject(), "Granting Privileges Succeeded", "You got the privileges!");
+      Messages.showInfoDialog(connectionHandler.getProject(), messages.getString("privileges.granted.title"), messages.getString("privileges.granted.message"));
     } catch (SQLException e) {
-      Messages.showErrorDialog(connectionHandler.getProject(), "Granting Privileges Failed", "You failed to grant privileges, a user with enough right should execute this.\n" + e.getMessage());
+      Messages.showErrorDialog(connectionHandler.getProject(), messages.getString("privileges.not_granted.title"), messages.getString("privileges.not_granted.message") + e.getMessage());
     }
   }
 
   private void grantPrivileges(String username) {
     try {
       connectionHandler.getOracleAIInterface().grantPrivilege(connectionHandler.getConnection(SessionId.ORACLE_AI), username);
-      Messages.showInfoDialog(connectionHandler.getProject(), "Granting Privileges Succeeded", "You got the privileges!");
+      Messages.showInfoDialog(connectionHandler.getProject(), messages.getString("privileges.granted.title"), messages.getString("privileges.granted.message"));
     } catch (SQLException e) {
       Messages.showErrorDialog(connectionHandler.getProject(), "Granting Privileges Failed", "You failed to grant privileges, a user with enough right should execute this.\n" + e.getMessage());
     }

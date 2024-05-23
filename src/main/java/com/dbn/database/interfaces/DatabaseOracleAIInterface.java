@@ -153,5 +153,21 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    */
   void updateCredentialStatus(DBNConnection connection, String credentialName, boolean isEnabled) throws CredentialManagementException;
 
+  /**
+   * Grant a user the necessary privileges to access needed packages (DBMS_CLOUD, DBMS_CLOUD_AI)
+   *
+   * @param connection The database connection object.
+   * @param username   The username to be granted privileges.
+   */
+  void grantPrivilege(DBNConnection connection, String username) throws SQLException;
+
+  /**
+   * Gives ACL rights to communicate with AI provider
+   *
+   * @param connection The database connection object.
+   * @param command    The full PL/SQL command.
+   */
+  void grantACLRights(DBNConnection connection, String command) throws SQLException;
+
 
 }
