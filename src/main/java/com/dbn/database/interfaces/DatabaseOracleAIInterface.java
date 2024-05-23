@@ -13,6 +13,7 @@ import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -152,6 +153,13 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * @param isEnabled      Whether it's new status is enabled or disabled
    */
   void updateCredentialStatus(DBNConnection connection, String credentialName, boolean isEnabled) throws CredentialManagementException;
+
+  /**
+   * Checks if current user is Admin by query DBA_users
+   *
+   * @param connection The database connection object.
+   */
+  void checkAdmin(DBNConnection connection) throws SQLException;
 
   /**
    * Grant a user the necessary privileges to access needed packages (DBMS_CLOUD, DBMS_CLOUD_AI)

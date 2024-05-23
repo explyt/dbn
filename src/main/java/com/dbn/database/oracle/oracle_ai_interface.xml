@@ -160,6 +160,11 @@
             END;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="check-admin" timeout="20">
+        <statement>
+            SELECT username FROM dba_users
+        </statement>
+    </statement-execution-processor>
     <statement-execution-processor id="acl-rights" timeout="20">
         <statement>
             {0}

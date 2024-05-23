@@ -1,7 +1,6 @@
 package com.dbn.oracleAI;
 
 import com.dbn.common.util.Messages;
-import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -13,7 +12,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -48,14 +46,14 @@ public class EditorAIQueryListener implements DocumentListener {
   }
 
   private void processQuery(String comment, Document document) {
-    try {
-      String prompt = comment.substring(3, comment.length() - 1);
-      AIProfileItem currProfile = manager.getDefaultProfile();
-      String answer = manager.queryOracleAI(prompt, ActionAIType.EXPLAINSQL, currProfile.getLabel(), currProfile.getModel().getApiName());
-      appendLine(document, processText(answer), comment);
-    } catch (QueryExecutionException | SQLException e) {
-      Messages.showErrorDialog(project, e.getMessage());
-    }
+    String prompt = comment.substring(3, comment.length() - 1);
+    AIProfileItem currProfile = manager.getDefaultProfile();
+    manager.queryOracleAI(prompt, ActionAIType.EXPLAINSQL, currProfile.getLabel(), currProfile.getModel().getApiName())
+        .thenAccept(answer -> appendLine(document, processText(answer), comment))
+        .exceptionally((e) -> {
+          Messages.showErrorDialog(project, e.getMessage());
+          return null;
+        });
   }
 
 

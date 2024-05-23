@@ -34,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
 @State(name = DatabaseOracleAIManager.COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -101,17 +103,22 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     return OracleAIChatBox.getInstance(getProject());
   }
 
-  public String queryOracleAI(String text, ActionAIType action,
-                              String profile, String model) throws QueryExecutionException, SQLException {
-    String output;
-    DBNConnection mainConnection =
-        Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
-    output = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface()
-        .executeQuery(mainConnection, action, profile,
-            text, model)
-        .getQueryOutput();
-    return output;
-
+  public CompletableFuture<String> queryOracleAI(String text, ActionAIType action,
+                                                 String profile, String model) {
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        String output;
+        DBNConnection mainConnection =
+            Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
+        output = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface()
+            .executeQuery(mainConnection, action, profile,
+                text, model)
+            .getQueryOutput();
+        return output;
+      } catch (QueryExecutionException | SQLException e) {
+        throw new CompletionException(e);
+      }
+    });
   }
 
 

@@ -177,6 +177,11 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
+  public void checkAdmin(DBNConnection connection) throws SQLException {
+    executeCall(connection, null, "check-admin");
+  }
+
+  @Override
   public void grantPrivilege(DBNConnection connection, String username) throws SQLException {
     try {
       executeCall(connection, null, "grant-privilege", username);

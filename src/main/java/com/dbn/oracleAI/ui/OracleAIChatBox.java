@@ -6,7 +6,6 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
@@ -43,7 +42,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -325,21 +323,23 @@ public class OracleAIChatBox extends JPanel {
     ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
     chatMessages.add(inputChatMessage);
     appendMessageToChat(inputChatMessage);
-    try {
-      String output =
-          currManager.queryOracleAI(question, actionType, item.getLabel(),
-              ((ProviderModel) aiModelComboBox.getSelectedItem()).getApiName());
-      ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
-      chatMessages.add(outPutChatMessage);
-      appendMessageToChat(outPutChatMessage);
-      LOG.debug("Query processed successfully.");
-    } catch (QueryExecutionException | SQLException e) {
-      LOG.error("Error processing query", e);
-      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
-    } finally {
-      stopActivityNotifier();
-      promptTextArea.setEnabled(true);
-    }
+    currManager.queryOracleAI(question, actionType, item.getLabel(),
+            ((ProviderModel) aiModelComboBox.getSelectedItem()).getApiName())
+        .thenAccept((output) -> {
+          ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
+          chatMessages.add(outPutChatMessage);
+          appendMessageToChat(outPutChatMessage);
+          LOG.debug("Query processed successfully.");
+        })
+        .exceptionally(e -> {
+          LOG.error("Error processing query", e);
+          ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
+          return null;
+        })
+        .thenRun(() -> {
+          stopActivityNotifier();
+          promptTextArea.setEnabled(true);
+        });
   }
 
 

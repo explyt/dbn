@@ -2,10 +2,12 @@ package com.dbn.oracleAI.config.ui;
 
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.SessionId;
+import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.oracleAI.DatabaseServiceImpl;
 import com.dbn.oracleAI.config.ProviderConfiguration;
 import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -16,10 +18,22 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.MatteBorder;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Desktop;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.sql.SQLException;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -37,25 +51,47 @@ public class AICloudSettingsForm extends DialogWrapper {
   private JButton applyACLButton;
   private JButton copyPrivilegeButton;
   private JButton applyPrivilegeButton;
+  private JLabel linkLabel;
+  private final String SELECT_AI_DOCS = "https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/sql-generation-ai-autonomous.html";
 
   private final String username;
+  private final DatabaseServiceImpl manager;
   private final ConnectionHandler connectionHandler;
   ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   // Pass Project object to constructor
   public AICloudSettingsForm(ConnectionHandler connectionHandler) {
     super(true);
+    this.manager = (DatabaseServiceImpl) connectionHandler.getProject().getService(DatabaseOracleAIManager.class).getDatabaseService();
+    ;
     this.connectionHandler = connectionHandler;
     this.username = connectionHandler.getUserName();
     initializeWindow();
+
     init();
     pack();
+    setResizable(false);
   }
 
   private void initializeWindow() {
     providerComboBox.addItem(ProviderType.OPENAI);
     providerComboBox.addItem(ProviderType.COHERE);
     providerComboBox.addItem(ProviderType.OCI);
+
+    linkLabel.addMouseListener(new MouseAdapter() {
+      public void mouseClicked(MouseEvent e) {
+        if (Desktop.isDesktopSupported()) {
+          try {
+            Desktop.getDesktop().browse(new URI(SELECT_AI_DOCS));
+          } catch (IOException | URISyntaxException ex) {
+            ex.printStackTrace();
+          }
+        }
+      }
+    });
+    linkLabel.setText("SelectAI Docs");
+    linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    linkLabel.setForeground(JBColor.CYAN);
 
     intro.setText(messages.getString("permissions1.message"));
     intro2.setText(messages.getString("permissions2.message"));
@@ -77,6 +113,8 @@ public class AICloudSettingsForm extends DialogWrapper {
 
     applyPrivilegeButton.addActionListener(e -> grantPrivileges(username));
     applyACLButton.addActionListener(e -> grantACLRights(aclTextArea.getText()));
+
+    isUserAdmin();
   }
 
   @Override
@@ -84,6 +122,15 @@ public class AICloudSettingsForm extends DialogWrapper {
     return mainPanel;
   }
 
+  @Override
+  protected JComponent createSouthPanel() {
+    JComponent wizard = super.createSouthPanel();
+    MatteBorder topBorder = new MatteBorder(1, 0, 0, 0, new Color(43, 45, 48));
+    EmptyBorder emptyBorder = new EmptyBorder(7, 0, 0, 0);
+    Border compoundBorder = new CompoundBorder(topBorder, emptyBorder);
+    wizard.setBorder(compoundBorder);
+    return wizard;
+  }
 
   @Override
   protected Action @NotNull [] createActions() {
@@ -99,20 +146,44 @@ public class AICloudSettingsForm extends DialogWrapper {
   }
 
   private void grantACLRights(String command) {
-    try {
-      connectionHandler.getOracleAIInterface().grantACLRights(connectionHandler.getConnection(SessionId.ORACLE_AI), command);
-      Messages.showInfoDialog(connectionHandler.getProject(), messages.getString("privileges.granted.title"), messages.getString("privileges.granted.message"));
-    } catch (SQLException e) {
-      Messages.showErrorDialog(connectionHandler.getProject(), messages.getString("privileges.not_granted.title"), messages.getString("privileges.not_granted.message") + e.getMessage());
-    }
+    manager.grantACLRights(command)
+        .thenAccept(a -> {
+          SwingUtilities.invokeLater(() -> {
+            Messages.showInfoDialog(connectionHandler.getProject(), messages.getString("privileges.granted.title"), messages.getString("privileges.granted.message"));
+          });
+        })
+        .exceptionally(e -> {
+          SwingUtilities.invokeLater(() -> {
+            Messages.showErrorDialog(connectionHandler.getProject(), messages.getString("privileges.not_granted.title"), messages.getString("privileges.not_granted.message") + e.getMessage());
+          });
+          return null;
+        });
+
+
   }
 
   private void grantPrivileges(String username) {
-    try {
-      connectionHandler.getOracleAIInterface().grantPrivilege(connectionHandler.getConnection(SessionId.ORACLE_AI), username);
-      Messages.showInfoDialog(connectionHandler.getProject(), messages.getString("privileges.granted.title"), messages.getString("privileges.granted.message"));
-    } catch (SQLException e) {
-      Messages.showErrorDialog(connectionHandler.getProject(), "Granting Privileges Failed", "You failed to grant privileges, a user with enough right should execute this.\n" + e.getMessage());
-    }
+    manager.grantPrivilege(username)
+        .thenAccept(a -> {
+          SwingUtilities.invokeLater(() -> {
+            Messages.showInfoDialog(connectionHandler.getProject(), messages.getString("privileges.granted.title"), messages.getString("privileges.granted.message"));
+          });
+        })
+        .exceptionally(e -> {
+          SwingUtilities.invokeLater(() -> {
+            Messages.showErrorDialog(connectionHandler.getProject(), messages.getString("privileges.not_granted.title"), messages.getString("privileges.not_granted.message") + e.getMessage());
+          });
+          return null;
+        });
+  }
+
+  private void isUserAdmin() {
+    manager.isUserAdmin()
+        .thenAccept(a -> {
+          SwingUtilities.invokeLater(() -> {
+            applyACLButton.setEnabled(true);
+            applyPrivilegeButton.setEnabled(true);
+          });
+        });
   }
 }
