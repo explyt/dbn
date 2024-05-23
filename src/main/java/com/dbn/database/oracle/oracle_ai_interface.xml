@@ -160,5 +160,18 @@
             END;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="acl-rights" timeout="20">
+        <statement>
+            {0}
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="grant-privilege" timeout="20">
+        <statement>
+            BEGIN
+            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD TO {0}';
+            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBM$_CLOUD_AI TO {0}';
+            END;
+        </statement>
+    </statement-execution-processor>
 
 </data-dictionary>
