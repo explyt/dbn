@@ -45,8 +45,9 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
   public static final String TOOL_WINDOW_ID = "Oracle Companion";
   public ConnectionId currConnection;
   private static OracleAIChatBox oracleAIChatBox;
-  private final Map<ConnectionId, OracleAIChatBoxState> chatBoxStates =
+  public final Map<ConnectionId, OracleAIChatBoxState> chatBoxStates =
       new ConcurrentHashMap<>();
+  public final Map<ConnectionId, AIProfileItem> defaultProfileMap = new HashMap<>();
 
   private DatabaseOracleAIManager(Project project) {
     super(project, COMPONENT_NAME);
@@ -215,5 +216,13 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     databaseManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
     return svc;
 
+  }
+
+  public AIProfileItem getDefaultProfile() {
+    return defaultProfileMap.get(currConnection);
+  }
+
+  public void updateDefaultProfile(AIProfileItem profile) {
+    defaultProfileMap.put(currConnection, profile);
   }
 }

@@ -66,9 +66,13 @@ public class ProfileManagementPanel extends JPanel {
   private JPanel windowActionPanel;
   private final AIProfileService profileSvc;
   private Project currProject;
+  private final DatabaseOracleAIManager manager;
 
   public ProfileManagementPanel(ConnectionHandler connection) {
     this.currProject = connection.getProject();
+
+    this.manager = currProject.getService(DatabaseOracleAIManager.class);
+
     this.profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
     // make sure we use box that stretch
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -136,7 +140,7 @@ public class ProfileManagementPanel extends JPanel {
       Messages.showQuestionDialog(currProject, messages.getString(
               "ai.settings.profile.deletion.title"), messages.getString(
               "ai.settings.profile.deletion.message.prefix")
-              + " " +currProfile.getProfileName(),
+              + " " + currProfile.getProfileName(),
           Messages.options(
               messages.getString("ai.messages.yes"),
               messages.getString("ai.messages.no")), 1,
@@ -157,6 +161,10 @@ public class ProfileManagementPanel extends JPanel {
           }
       );
     });
+
+    makeDefaultProfileButton.addActionListener(event -> {
+      manager.updateDefaultProfile(new AIProfileItem(currProfile.getProfileName(), currProfile.getProvider(), currProfile.getModel(), currProfile.isEnabled()));
+    });
   }
 
   /**
@@ -167,11 +175,16 @@ public class ProfileManagementPanel extends JPanel {
     public Component getListCellRendererComponent(JList<?> list, Object value,
                                                   int index, boolean isSelected,
                                                   boolean cellHasFocus) {
-      super.getListCellRendererComponent(list, value, index, isSelected,
-          cellHasFocus);
+      super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
       if (value instanceof AIProfileItem) {
         AIProfileItem item = (AIProfileItem) value;
         setEnabled(item.isEnabled());
+
+        if (item.equals(manager.getDefaultProfile())) {
+          setText(item.getLabel() + " (default)");
+        } else {
+          setText(item.getLabel());
+        }
       }
       return this;
     }
@@ -262,6 +275,8 @@ public class ProfileManagementPanel extends JPanel {
     if (currProfile != null) {
       profileComboBox.setSelectedItem(currProfile.getProfileName());
     }
+    if (manager.getDefaultProfile() == null)
+      manager.updateDefaultProfile((AIProfileItem) profileComboBox.getSelectedItem());
   }
 
   private ActionListener profileComboBoxAction = new ActionListener() {
