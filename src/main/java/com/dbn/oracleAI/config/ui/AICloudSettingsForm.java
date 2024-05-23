@@ -45,7 +45,6 @@ public class AICloudSettingsForm extends DialogWrapper {
   private JComboBox<ProviderType> providerComboBox;
   private JTextArea aclTextArea;
   private JTextArea grantTextArea;
-  private JLabel intro2;
   private JLabel grantTextField;
   private JButton copyACLButton;
   private JButton applyACLButton;
@@ -67,7 +66,7 @@ public class AICloudSettingsForm extends DialogWrapper {
     this.connectionHandler = connectionHandler;
     this.username = connectionHandler.getUserName();
     initializeWindow();
-
+    setTitle("Select AI - Help");
     init();
     pack();
     setResizable(false);
@@ -91,10 +90,7 @@ public class AICloudSettingsForm extends DialogWrapper {
     });
     linkLabel.setText("SelectAI Docs");
     linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    linkLabel.setForeground(JBColor.CYAN);
-
-    intro.setText(messages.getString("permissions1.message"));
-    intro2.setText(messages.getString("permissions2.message"));
+    linkLabel.setForeground(JBColor.BLUE);
 
     grantTextField.setText(String.format(messages.getString("permissions3.message"), username));
 
@@ -110,6 +106,10 @@ public class AICloudSettingsForm extends DialogWrapper {
 
     copyPrivilegeButton.addActionListener(e -> copyTextToClipboard(grantTextArea.getText()));
     copyACLButton.addActionListener(e -> copyTextToClipboard(aclTextArea.getText()));
+
+
+    applyPrivilegeButton.setToolTipText(messages.getString("privilege.apply.disabled"));
+    applyACLButton.setToolTipText(messages.getString("privilege.apply.disabled"));
 
     applyPrivilegeButton.addActionListener(e -> grantPrivileges(username));
     applyACLButton.addActionListener(e -> grantACLRights(aclTextArea.getText()));
@@ -183,6 +183,9 @@ public class AICloudSettingsForm extends DialogWrapper {
           SwingUtilities.invokeLater(() -> {
             applyACLButton.setEnabled(true);
             applyPrivilegeButton.setEnabled(true);
+
+            applyPrivilegeButton.setToolTipText(messages.getString("privilege.apply.enabled"));
+            applyACLButton.setToolTipText(messages.getString("privilege.apply.enabled"));
           });
         });
   }
