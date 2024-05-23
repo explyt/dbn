@@ -157,6 +157,7 @@ public class OracleAIChatBox extends JPanel {
 
   public void setCurrentConnectionId(ConnectionId connectionId) {
     this.currentConnectionId = connectionId;
+    if (currentConnectionId == null) disableWindow("companion.chat.wrong_database_type.tooltip");
   }
 
   private void initializeUI() {
@@ -490,7 +491,7 @@ public class OracleAIChatBox extends JPanel {
     promptButton.setToolTipText(
         messages.getString(message));
     companionConversationScrollPan.setToolTipText(messages.getString(message));
-    if (message.equals("companion.chat.no_console.tooltip")) {
+    if (message.equals("companion.chat.no_console.tooltip") || message.equals("companion.chat.wrong_database_type.tooltip")) {
       profileComboBox.setEnabled(false);
       profileComboBox.setToolTipText(messages.getString(message));
     }

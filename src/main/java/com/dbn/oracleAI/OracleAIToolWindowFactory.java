@@ -2,7 +2,9 @@ package com.dbn.oracleAI;
 
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConsoleChangeListener;
+import com.dbn.connection.DatabaseType;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -14,6 +16,7 @@ import java.util.ResourceBundle;
 
 public class OracleAIToolWindowFactory implements ToolWindowFactory, DumbAware {
   private final static ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
+
   @Override
   public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
     toolWindow.setTitle(messages.getString("companion.window.title"));
@@ -22,7 +25,14 @@ public class OracleAIToolWindowFactory implements ToolWindowFactory, DumbAware {
     toolWindow.setToHideOnEmptyContent(true);
     toolWindow.setAutoHide(false);
     DatabaseOracleAIManager manager = project.getService(DatabaseOracleAIManager.class);
-    ProjectEvents.subscribe(project, manager, ConsoleChangeListener.TOPIC, manager::switchToConnection);
+    ProjectEvents.subscribe(project, manager, ConsoleChangeListener.TOPIC, connectionId -> {
+      ConnectionHandler connectionHandler = ConnectionHandler.get(connectionId);
+      if (connectionHandler != null && connectionHandler.getDatabaseType() == DatabaseType.ORACLE) {
+        manager.switchToConnection(connectionId);
+      } else {
+        manager.switchToConnection(null);
+      }
+    });
 
   }
 }
