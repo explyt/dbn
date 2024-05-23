@@ -55,8 +55,7 @@ public class AIProfileServiceImpl implements AIProfileService {
 
         if (LOGGER.isDebugEnabled())
           LOGGER.debug("fetched profiles:" + profileList);
-
-        return profileList;
+          return profileList;
       } catch (ProfileManagementException | SQLException e) {
         LOGGER.error("error getting profiles", e);
         throw new CompletionException("Cannot get profiles", e);

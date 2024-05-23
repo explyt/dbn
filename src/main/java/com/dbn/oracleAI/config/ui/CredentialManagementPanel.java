@@ -8,8 +8,10 @@ import com.dbn.oracleAI.AICredentialService;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Credential;
+import com.dbn.oracleAI.ui.ActivityNotifier;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.uiDesigner.core.GridConstraints;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -18,6 +20,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import java.awt.Component;
@@ -43,6 +46,8 @@ public class CredentialManagementPanel extends JPanel {
 
   static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
+  private final ActivityNotifier activityNotifier;
+
   private JPanel mainPane;
   private JList<Credential> credentialList;
   private JPanel displayInfo;
@@ -53,6 +58,7 @@ public class CredentialManagementPanel extends JPanel {
   private JLabel profilesLabelTitle;
   private JList<String> usedByList;
   private JScrollPane usedByScrollPane;
+  private JProgressBar progressBar1;
   private final AICredentialService credentialSvc;
   private final AIProfileService profileSvc;
   private final ConnectionRef connection;
@@ -80,11 +86,24 @@ public class CredentialManagementPanel extends JPanel {
 
     this.connection = connection.ref();
     this.curProject = connection.getProject();
-    initializeUI();
-    updateCredentialList();
-    this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
+    GridConstraints constraints = new GridConstraints();
+    constraints.setRow(0);
+    constraints.setColumn(0);
+    constraints.setColSpan(3);
+    constraints.setRowSpan(1);
+    constraints.setFill(GridConstraints.FILL_HORIZONTAL);
+
+    this.activityNotifier = new ActivityNotifier();
+
+    mainPane.add(this.activityNotifier, constraints);
+
+
+    this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     this.add(mainPane);
+
+    updateCredentialList();
+
   }
 
   /**
@@ -94,11 +113,15 @@ public class CredentialManagementPanel extends JPanel {
    */
   private void initializeUI() {
     editButton.setIcon(Icons.ACTION_EDIT);
-    editButton.setToolTipText(messages.getString("ai.settings.credential.editing.tooltip"));
     addButton.setIcon(Icons.ACTION_ADD);
-    addButton.setToolTipText(messages.getString("ai.settings.credential.adding.tooltip"));
     deleteButton.setIcon(Icons.ACTION_DELETE);
-    deleteButton.setToolTipText(messages.getString("ai.settings.credential.deleting.tooltip"));
+
+    credentialList.setListData(credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}));
+    credentialList.setSelectedIndex(0);
+
+    editButton.setEnabled(true);
+    addButton.setEnabled(true);
+    deleteButton.setEnabled(true);
 
     // Initializes addButton with its action listener for creating new credential
     addButton.addActionListener((e) -> {
@@ -212,6 +235,7 @@ public class CredentialManagementPanel extends JPanel {
    * and the display information panel based on the available credentials for the connected project.
    */
   private void updateCredentialList() {
+    this.activityNotifier.start();
     credentialNameToProfileNameMap.clear();
     credentialSvc.getCredentials().thenAcceptBoth(profileSvc.getProfiles(), (credentials, profiles) -> {
       for (Credential cred : credentials) {
@@ -219,8 +243,7 @@ public class CredentialManagementPanel extends JPanel {
             .map(profile -> profile.getProfileName()).collect(Collectors.toList());
         credentialNameToProfileNameMap.put(cred, pNames);
       }
-      credentialList.setListData(credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}));
-      credentialList.setSelectedIndex(0);
+      ApplicationManager.getApplication().invokeLater(() -> { initializeUI();this.activityNotifier.stop();});
     }).exceptionally(e -> {
       {
         ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(this.curProject, e.getCause().getMessage()));

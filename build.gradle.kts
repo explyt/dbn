@@ -60,7 +60,8 @@ sourceSets {
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-    version.set("LATEST-EAP-SNAPSHOT")
+    //version.set("LATEST-EAP-SNAPSHOT")
+    version.set("233.14015.106")
     type.set("IC") // Target IDE Platform
 
     plugins.set(listOf("java", "copyright"))

@@ -30,11 +30,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
-import javax.swing.table.TableCellRenderer;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -99,15 +98,16 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
     patternFilter.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {
-        filter();
+        if (e.getDocument().getLength() > 2)
+              filter();
       }
 
       public void removeUpdate(DocumentEvent e) {
-        filter();
+        if (e.getDocument().getLength() > 2) filter();
       }
 
       public void insertUpdate(DocumentEvent e) {
-        filter();
+        if (e.getDocument().getLength() > 2) filter();
       }
 
       public void filter() {
@@ -235,70 +235,60 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         return true;
       }
     });
-    databaseObjectsTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
-      private final JTextField editor = new JTextField();
 
+    databaseObjectsTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
       @Override
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        editor.setText(value.toString());
-        editor.setBorder(null);
-        editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
-
-        // Check if the current row item is in the selectedTableModel
         DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
-        // TODO fix this : editor should be a JLabel to be able to set icon
-        //    when doing this selection visual is broken
         if (currentItem.getType() == DatabaseObjectType.VIEW) {
-          editor.setFont(editor.getFont().deriveFont(Font.ITALIC));
-          //editor.setIcon(Icons.DBO_VIEW);
+          setIcon(Icons.DBO_VIEW);
         } else {
-          editor.setFont(editor.getFont().deriveFont(Font.PLAIN));
-          //editor.setIcon(Icons.DBO_TABLE);
+          setIcon(Icons.DBO_TABLE);
         }
-        return editor;
+        setText(value.toString());
+        setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+        setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+
+        return this;
       }
     });
 
-    profileObjectListTable.setDefaultRenderer(Object.class, new TableCellRenderer() {
-      private final JLabel editor = new JLabel();
+    profileObjectListTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
 
       @Override
       public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
-        editor.setBorder(null);
-        editor.setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        editor.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+        setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
 
         switch (column) {
           case ProfileObjectListTableModel.NAME_COLUMN_IDX:
             // Do not render icon etc... for owner cell
             // Check if the current row item is in the selectedTableModel
-            editor.setText((value != null) ? value.toString() : "*");
+            setText((value != null) ? value.toString() : "*");
             ProfileDBObjectItem currentItem = profileObjListTableModel.getItemAt(row);
             DatabaseObjectType currentItemType;
             try {
               currentItemType = locateTypeFor(currentItem);
               if (locateTypeFor(currentItem) == DatabaseObjectType.VIEW) {
-                editor.setIcon(Icons.DBO_VIEW);
+                setIcon(Icons.DBO_VIEW);
               } else {
-                editor.setIcon(Icons.DBO_TABLE);
+                setIcon(Icons.DBO_TABLE);
               }
             } catch (IllegalStateException e) {
-              editor.setFont(editor.getFont().deriveFont(Font.BOLD));
-              editor.setToolTipText(e.getMessage());
-              editor.setForeground(Color.RED);
+              setToolTipText(e.getMessage());
+              setForeground(Color.RED);
             }
             break;
           case ProfileObjectListTableModel.OWNER_COLUMN_IDX:
-            editor.setText(value.toString());
-            editor.setIcon(null);
+            setText(value.toString());
+            setIcon(null);
             break;
           default:
             assert false : "unexpected column number";
         }
 
-        return editor;
+        return this;
       }
     });
   }
