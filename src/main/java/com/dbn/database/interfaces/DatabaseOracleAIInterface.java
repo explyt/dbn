@@ -13,6 +13,7 @@ import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -143,5 +144,38 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * @throws DatabaseOperationException If there is an error in retrieving the list of database objects.
    */
   List<DBObjectItem> listObjectListItems(DBNConnection connection, String schemaName) throws DatabaseOperationException;
+
+  /**
+   * Updates the status of the credential in the database
+   *
+   * @param connection     The database connection object.
+   * @param credentialName The name of the credential
+   * @param isEnabled      Whether it's new status is enabled or disabled
+   */
+  void updateCredentialStatus(DBNConnection connection, String credentialName, boolean isEnabled) throws CredentialManagementException;
+
+  /**
+   * Checks if current user is Admin by query DBA_users
+   *
+   * @param connection The database connection object.
+   */
+  void checkAdmin(DBNConnection connection) throws SQLException;
+
+  /**
+   * Grant a user the necessary privileges to access needed packages (DBMS_CLOUD, DBMS_CLOUD_AI)
+   *
+   * @param connection The database connection object.
+   * @param username   The username to be granted privileges.
+   */
+  void grantPrivilege(DBNConnection connection, String username) throws SQLException;
+
+  /**
+   * Gives ACL rights to communicate with AI provider
+   *
+   * @param connection The database connection object.
+   * @param command    The full PL/SQL command.
+   */
+  void grantACLRights(DBNConnection connection, String command) throws SQLException;
+
 
 }

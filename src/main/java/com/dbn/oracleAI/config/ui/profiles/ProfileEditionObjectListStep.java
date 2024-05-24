@@ -1,13 +1,10 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.DatabaseService;
-import com.dbn.oracleAI.DatabaseServiceImpl;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
@@ -393,21 +390,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     // at this point, no way to no have something
     return oitem.get().getType();
   }
-
-  private void loadSchemasX() {
-    ConnectionHandler ch = ((DatabaseServiceImpl)this.databaseSvc).getCnxH();
-    Dispatch.background(
-            ch.getProject(),
-            () -> {
-              // load schemas
-              return ch.getObjectBundle().getSchemas();
-            },
-            schemas -> {
-              // update combo box when load is done
-              schemas.forEach(s -> schemaComboBox.addItem(s.getName()));
-            }
-    );
-  }
+  
   private void loadSchemas() {
     startActivityNotifier();
     databaseSvc.getSchemaNames().thenAccept(schemaList -> {

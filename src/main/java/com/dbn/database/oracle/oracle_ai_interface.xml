@@ -142,5 +142,41 @@
             END;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="disable-credential" timeout="20">
+        <statement>
+            BEGIN
+            DBMS_CLOUD.DISABLE_CREDENTIAL(
+            credential_name => '{0}'
+            );
+            END;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="enable-credential" timeout="20">
+        <statement>
+            BEGIN
+            DBMS_CLOUD.ENABLE_CREDENTIAL(
+            credential_name => '{0}'
+            );
+            END;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="check-admin" timeout="20">
+        <statement>
+            SELECT username FROM dba_users
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="acl-rights" timeout="20">
+        <statement>
+            {0}
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="grant-privilege" timeout="20">
+        <statement>
+            BEGIN
+            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD TO {0}';
+            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBM$_CLOUD_AI TO {0}';
+            END;
+        </statement>
+    </statement-execution-processor>
 
 </data-dictionary>

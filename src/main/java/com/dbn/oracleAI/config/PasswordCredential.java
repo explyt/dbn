@@ -20,10 +20,11 @@ public class PasswordCredential extends Credential {
    */
   @Override
   public void validate() {
-    if (credentialName.isEmpty() || username.isEmpty() || password.isEmpty())
-      throw new IllegalArgumentException("Please don't leave empty fields");
-    if (credentialName.contains("'") || username.contains("'") || password.contains("'"))
-      throw new IllegalArgumentException("Please don't use ' in fields");
+    //TODO should we remove this method since we validate in view side, and this is stopping us from updating credentials properly
+//    if (credentialName.isEmpty() || username.isEmpty() || password.isEmpty())
+//      throw new IllegalArgumentException("Please don't leave empty fields");
+//    if (credentialName.contains("'") || username.contains("'") || password.contains("'"))
+//      throw new IllegalArgumentException("Please don't use ' in fields");
   }
 
   /**

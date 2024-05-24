@@ -174,6 +174,38 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     }
   }
 
+  @Override
+  public void updateCredentialStatus(DBNConnection connection, String credentialName, boolean isEnabled) throws CredentialManagementException {
+    try {
+      executeCall(connection, null, isEnabled ? "enable-credential" : "disable-credential", credentialName);
+    } catch (SQLException e) {
+      throw new CredentialManagementException("Failed to disable credential: " + credentialName, e);
+    }
+  }
+
+  @Override
+  public void checkAdmin(DBNConnection connection) throws SQLException {
+    executeCall(connection, null, "check-admin");
+  }
+
+  @Override
+  public void grantPrivilege(DBNConnection connection, String username) throws SQLException {
+    try {
+      executeCall(connection, null, "grant-privilege", username);
+    } catch (SQLException e) {
+      throw new SQLException("Failed to grant privilege\n" + e.getMessage());
+    }
+  }
+
+  @Override
+  public void grantACLRights(DBNConnection connection, String command) throws SQLException {
+    try {
+      executeCall(connection, null, "acl-rights", command);
+    } catch (SQLException e) {
+      throw new SQLException("Failed to grant privilege\n" + e.getMessage());
+    }
+  }
+
 
 }
 
