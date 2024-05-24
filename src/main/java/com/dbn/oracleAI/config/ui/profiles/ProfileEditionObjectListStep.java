@@ -5,15 +5,18 @@ import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.DatabaseService;
+import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
 import com.dbn.oracleAI.config.ui.SelectedObjectItemsVerifier;
 import com.dbn.oracleAI.types.DatabaseObjectType;
+import com.dbn.oracleAI.ui.ActivityNotifier;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DropMode;
 import javax.swing.JCheckBox;
@@ -32,6 +35,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.BadLocationException;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseAdapter;
@@ -47,7 +51,7 @@ import java.util.ResourceBundle;
 /**
  * Profile edition Object list step for edition wizard
  *
- * @see com.dbn.oracleAI.ProfileEditionWizard
+ * @see ProfileEditionWizard
  */
 public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizardModel> {
 
@@ -85,7 +89,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   //At start initialize it with empty one
   DatabaseObjectListTableModel currentDbObjListTableModel = new DatabaseObjectListTableModel();
-
+  TableRowSorter<DatabaseObjectListTableModel> databaseObjectsTableSorter = new TableRowSorter<>();
   Map<String, DatabaseObjectListTableModel> databaseObjectListTableModelCache = new HashMap<>();
 
   public ProfileEditionObjectListStep(Project project, Profile profile, boolean isUpdate) {
@@ -96,22 +100,68 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     this.isUpdate = isUpdate;
     this.databaseSvc = project.getService(DatabaseOracleAIManager.class).getDatabaseService();
 
+    initializeTables();
+
+    schemaComboBox.addActionListener((e) -> {
+      LOGGER.debug("action listener on  schemaComboBox fired");
+      Object toBePopulated = schemaComboBox.getSelectedItem();
+      if (toBePopulated == null)
+        toBePopulated = schemaComboBox.getItemAt(0);
+      if (toBePopulated != null) {
+        populateDatabaseObjectTable(toBePopulated.toString());
+      }
+    });
+
+    loadSchemas();
+
+    if (isUpdate) {
+      SwingUtilities.invokeLater(() -> {
+        profileObjListTableModel.updateItems(profile.getObjectList());
+      });
+    }
     patternFilter.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {
-        if (e.getDocument().getLength() > 2)
-              filter();
+        // experience showed that's never called
+        assert false: "changedUpdate called??";
       }
 
       public void removeUpdate(DocumentEvent e) {
-        if (e.getDocument().getLength() > 2) filter();
+        if (LOGGER.isDebugEnabled())
+          LOGGER.debug("patternFilter.removeUpdate doc length: " + e.getDocument().getLength());
+        String filter = null;
+        try {
+          filter = e.getDocument().getText(0, e.getDocument().getLength()).trim();
+        } catch (BadLocationException ignored) {
+          LOGGER.debug("BadLocationException",ignored);
+        }
+        if (filter.isEmpty()) {
+          // filter cleared
+          triggerFiltering();
+        }
+        if (filter.length() > 2) {
+          // filter cleared
+          triggerFiltering();
+        }
       }
 
       public void insertUpdate(DocumentEvent e) {
-        if (e.getDocument().getLength() > 2) filter();
+        if (LOGGER.isDebugEnabled())
+          LOGGER.debug("patternFilter.insertUpdate doc length: " + e.getDocument().getLength());
+        try {
+          if (e.getDocument().getText(0, e.getDocument().getLength()).trim().length() > 2) {
+            triggerFiltering();
+          }
+        } catch (BadLocationException ignored) {
+          LOGGER.debug("BadLocationException",ignored);
+        }
       }
 
-      public void filter() {
-        populateDatabaseObjectTable(schemaComboBox.getSelectedItem().toString());
+      public void triggerFiltering() {
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("triggering  fireTableDataChanged on " + ((DatabaseObjectListTableModel) databaseObjectsTable.getModel()));
+          LOGGER.debug("    current model " + currentDbObjListTableModel);
+        }
+        currentDbObjListTableModel.fireTableDataChanged();
       }
     });
 
@@ -125,36 +175,65 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
         }
     ));
-    initializeTables();
-    DBObjectsTransferHandler th = new DBObjectsTransferHandler();
-    this.databaseObjectsTable.setTransferHandler(
-        th
-    );
 
-    this.profileObjectListTable.setTransferHandler(
-        th
-    );
+    selectAllCheckBox.addItemListener((
+            e -> {
+              if (((JCheckBox) e.getSource()).isSelected()) {
+                databaseObjectsTable.selectAll();
+              } else {
+                databaseObjectsTable.clearSelection();
+              }
 
-    this.databaseObjectsTable.setDragEnabled(true);
-    this.databaseObjectsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-
-    this.profileObjectListTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-    this.profileObjectListTable.setDragEnabled(true);
-    this.profileObjectListTable.setFillsViewportHeight(true);
-    this.profileObjectListTable.setDropMode(DropMode.INSERT_ROWS);
+            }
+    ));
 
   }
 
   private void initializeTables() {
     LOGGER.debug("initializing tables");
 
-    profileObjectListTable.setModel(profileObjListTableModel);
+    DBObjectsTransferHandler th = new DBObjectsTransferHandler();
 
-    //TODO : check this
-    addValidationListener();
+    initializeDatabaseObjectTable(th);
+    initializeProfileObjectTable(th);
 
-    databaseObjectsTable.setModel(currentDbObjListTableModel);
-    databaseObjectsTable.addMouseListener(new MouseAdapter() {
+  }
+  private void resetDatabaseObjectTableModel(DatabaseObjectListTableModel m) {
+    LOGGER.debug("resetDatabaseObjectTableModel for " + m);
+    this.databaseObjectsTable.setModel(m);
+    this.databaseObjectsTableSorter.setModel(m);
+  }
+  private void initializeDatabaseObjectTable(DBObjectsTransferHandler th) {
+    // keep this !
+    // if set to true a RowSorter is created each the model changes
+    // and that breaks our logic
+    this.databaseObjectsTable.setAutoCreateRowSorter(false);
+
+    this.databaseObjectsTable.setTransferHandler(th);
+    resetDatabaseObjectTableModel(currentDbObjListTableModel);
+    this.databaseObjectsTableSorter.setRowFilter(new RowFilter<>() {
+
+      @Override
+      public boolean include(Entry<? extends DatabaseObjectListTableModel, ? extends Integer> entry) {
+        String currentFilter = patternFilter.getText().trim().toLowerCase();
+        // by default we show the entry
+        boolean shallInclude  = true;
+        if (!currentFilter.isEmpty()) {
+          //shallInclude = entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX).matches(currentFilter);
+          // keep it simple for now
+          shallInclude = entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX).toLowerCase().contains(currentFilter);
+        }
+        if (LOGGER.isDebugEnabled() ) {
+            LOGGER.debug(this + " filtering model "+entry.getModel()+" on ["+currentFilter+"] for ["+
+                    entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX)+"] => "+shallInclude);
+        }
+        return shallInclude;
+      }
+    });
+    this.databaseObjectsTable.setRowSorter(this.databaseObjectsTableSorter);
+    this.databaseObjectsTable.setDragEnabled(true);
+    this.databaseObjectsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+    this.databaseObjectsTable.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() == 2) {
@@ -168,8 +247,8 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
             for (int i = 0; i < selectedRows.length; i++) {
               DBObjectItem item = currentDbObjListTableModel.getItemAt(selectedRows[i]);
               newItems.add(new ProfileDBObjectItem(
-                  item.getOwner(),
-                  item.getName()));
+                      item.getOwner(),
+                      item.getName()));
               namesTobeHidden.add(item.getName());
 
             }
@@ -179,6 +258,31 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         }
       }
     });
+    this.databaseObjectsTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+      @Override
+      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+        DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
+        if (currentItem.getType() == DatabaseObjectType.VIEW) {
+          setIcon(Icons.DBO_VIEW);
+        } else {
+          setIcon(Icons.DBO_TABLE);
+        }
+        setText(value.toString());
+        setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
+        setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+
+        return this;
+      }
+    });
+  }
+  private void initializeProfileObjectTable(DBObjectsTransferHandler th) {
+    this.profileObjectListTable.setTransferHandler(th);
+
+    this.profileObjectListTable.setModel(profileObjListTableModel);
+    this.profileObjectListTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+    this.profileObjectListTable.setDragEnabled(true);
+    this.profileObjectListTable.setFillsViewportHeight(true);
+    this.profileObjectListTable.setDropMode(DropMode.INSERT_ROWS);
     profileObjectListTable.addMouseListener(new MouseAdapter() {
       @Override
       public void mouseClicked(MouseEvent e) {
@@ -198,61 +302,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         }
       }
     });
-
-
-    // now that we have schemas loaded we can add the listener
-    schemaComboBox.addActionListener((e) -> {
-      LOGGER.debug("action listener on  schemaComboBox fired");
-      Object toBePopulated = schemaComboBox.getSelectedItem();
-      if (toBePopulated == null)
-        toBePopulated = schemaComboBox.getItemAt(0);
-      if (toBePopulated != null) {
-        populateDatabaseObjectTable(toBePopulated.toString());
-      }
-    });
-
-    loadSchemas();
-
-    if (isUpdate) {
-      SwingUtilities.invokeLater(() -> {
-        profileObjListTableModel.updateItems(profile.getObjectList());
-      });
-    }
-    ((TableRowSorter) databaseObjectsTable.getRowSorter()).setRowFilter(new RowFilter<DatabaseObjectListTableModel, Integer>() {
-
-      @Override
-      public boolean include(Entry<? extends DatabaseObjectListTableModel, ? extends Integer> entry) {
-
-        // first : does it match selected schema ?
-        if (!entry.getStringValue(TABLES_COLUMN_HEADERS_OWNER_IDX).equalsIgnoreCase(schemaComboBox.getSelectedItem().toString())) {
-          return false;
-        }
-
-        // second : does it match the current patten if any
-        if ((patternFilter.getText().length() > 0) && !entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX).matches(patternFilter.getText())) {
-          return false;
-        }
-        return true;
-      }
-    });
-
-    databaseObjectsTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
-      @Override
-      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-        DBObjectItem currentItem = currentDbObjListTableModel.getItemAt(row);
-        if (currentItem.getType() == DatabaseObjectType.VIEW) {
-          setIcon(Icons.DBO_VIEW);
-        } else {
-          setIcon(Icons.DBO_TABLE);
-        }
-        setText(value.toString());
-        setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
-
-        return this;
-      }
-    });
-
     profileObjectListTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
 
       @Override
@@ -291,19 +340,22 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         return this;
       }
     });
+    profileObjectListTable.setInputVerifier(new SelectedObjectItemsVerifier());
+    profileObjectListTable.getModel().addTableModelListener(e -> {
+      if (e.getType() == TableModelEvent.INSERT) {
+        profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
+      }
+    });
   }
-
   private void startActivityNotifier() {
-    activityProgress.setIndeterminate(true);
-    activityProgress.setVisible(true);
+    ((ActivityNotifier)activityProgress).start();
   }
 
   /**
    * Stops the spining wheel
    */
   private void stopActivityNotifier() {
-    activityProgress.setIndeterminate(false);
-    activityProgress.setVisible(false);
+    ((ActivityNotifier)activityProgress).stop();
   }
 
   /**
@@ -338,32 +390,19 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     // at this point, no way to no have something
     return oitem.get().getType();
   }
-
+  
   private void loadSchemas() {
     startActivityNotifier();
     databaseSvc.getSchemaNames().thenAccept(schemaList -> {
-      SwingUtilities.invokeLater(() -> {
-        for (String schema : schemaList) {
-          LOGGER.debug("Adding new schema to dropbox: " + schema);
-          schemaComboBox.addItem(schema);
-        }
-        stopActivityNotifier();
-      });
+      for (String schema : schemaList) {
+        LOGGER.debug("Adding new schema to dropbox: " + schema);
+        schemaComboBox.addItem(schema);
+      }
+      stopActivityNotifier();
     }).exceptionally(e -> {
       Messages.showErrorDialog(project, "Cannot load schemas",
           "Cannot load DB schemas: " + e.getCause().getMessage());
       return null;
-    });
-  }
-
-  private void addValidationListener() {
-    // TODO : remove this
-
-    profileObjectListTable.setInputVerifier(new SelectedObjectItemsVerifier());
-    profileObjectListTable.getModel().addTableModelListener(e -> {
-      if (e.getType() == TableModelEvent.INSERT) {
-        profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
-      }
     });
   }
 
@@ -379,8 +418,8 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         SwingUtilities.invokeLater(() -> {
           DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
           databaseObjectListTableModelCache.put(schema, newModel);
-          databaseObjectsTable.setModel(newModel);
           currentDbObjListTableModel = newModel;
+          resetDatabaseObjectTableModel(currentDbObjListTableModel);
           stopActivityNotifier();
           databaseObjectsTable.setEnabled(true);
         });
@@ -391,13 +430,13 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
       });
     } else {
       currentDbObjListTableModel = model;
-      databaseObjectsTable.setModel(model);
+      resetDatabaseObjectTableModel(currentDbObjListTableModel);
     }
   }
 
 
   @Override
-  public @org.jetbrains.annotations.Nullable String getHelpId() {
+  public @Nullable String getHelpId() {
     return null;
   }
 
@@ -406,7 +445,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     return profileEditionObjectListMainPane;
   }
 
-  public @org.jetbrains.annotations.Nullable JComponent getPreferredFocusedComponent() {
+  public @Nullable JComponent getPreferredFocusedComponent() {
     return null;
   }
 
@@ -419,4 +458,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     return true;
   }
 
+  private void createUIComponents() {
+    activityProgress = new ActivityNotifier();
+  }
 }

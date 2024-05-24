@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 @Getter
 @Setter
 @Builder
@@ -68,7 +69,7 @@ public class Profile implements AttributeInput {
   protected ProviderModel model;
   @Builder.Default
   @Expose
-  protected Double temperature = 0.0;
+  protected Float temperature = 0.0F;
   protected boolean isEnabled;
   protected Boolean comments;
 
@@ -105,22 +106,22 @@ public class Profile implements AttributeInput {
   @Override
   public String toAttributeMap() throws IllegalArgumentException {
     Gson gson = new GsonBuilder()
-        .excludeFieldsWithoutExposeAnnotation()
-        .registerTypeAdapter(ProviderModel.class, new ProviderModelSerializer())
-        .create();
+            .excludeFieldsWithoutExposeAnnotation()
+            .registerTypeAdapter(ProviderModel.class, new ProviderModelSerializer())
+            .create();
 
     String attributesJson = gson.toJson(this).replace("'", "''");
     return String.format(
-        "profile_name => '%s',\n" +
-            "attributes => '%s',\n" +
-            "description => '%s'\n",
-        profileName,
-        attributesJson,
-        description);
+            "profile_name => '%s',\n" +
+                    "attributes => '%s',\n" +
+                    "description => '%s'\n",
+            profileName,
+            attributesJson,
+            description);
 
   }
 
-   public static Object clobToObject(String attributeName, Clob clob) throws SQLException ,IOException ,JsonParseException {
+  public static Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException, JsonParseException {
 
     try (Reader reader = clob.getCharacterStream();
          BufferedReader br = new BufferedReader(reader)) {
@@ -135,6 +136,10 @@ public class Profile implements AttributeInput {
         return sb.toString();
       }
     }
+  }
+
+  protected boolean canEqual(final Object other) {
+    return other instanceof Profile;
   }
 
   // Inner class to handle the JSON serialization
