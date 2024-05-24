@@ -107,7 +107,7 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
   public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
     profile.setProvider(ProviderType.valueOf(Objects.requireNonNull(providerNameCombo.getSelectedItem()).toString()));
     profile.setModel((ProviderModel) providerModelCombo.getSelectedItem());
-    profile.setTemperature((double) temperatureSlider.getValue() / 10);
+    profile.setTemperature((float) temperatureSlider.getValue() / 10);
     return super.onNext(model);
   }
 }

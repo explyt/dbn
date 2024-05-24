@@ -60,7 +60,7 @@
               <component id="a23b6" class="javax.swing.JTable" binding="databaseObjectsTable">
                 <constraints/>
                 <properties>
-                  <autoCreateRowSorter value="true"/>
+                  <autoCreateRowSorter value="false"/>
                   <autoResizeMode value="4"/>
                   <background color="-1"/>
                   <dragEnabled value="true"/>
@@ -127,7 +127,7 @@
           </component>
         </children>
       </grid>
-      <component id="8e2d5" class="javax.swing.JProgressBar" binding="activityProgress">
+      <component id="8e2d5" class="javax.swing.JProgressBar" binding="activityProgress" custom-create="true">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>

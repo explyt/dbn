@@ -20,12 +20,16 @@ import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.DatabaseObjectType;
+import com.intellij.openapi.diagnostic.Logger;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class OracleAIInterface extends DatabaseInterfaceBase implements DatabaseOracleAIInterface {
+
+  private static final Logger LOGGER = Logger.getInstance(OracleAIInterface.class.getPackageName());
+
 
   public OracleAIInterface(DatabaseInterfaces provider) {
     super("oracle_ai_interface.xml", provider);
@@ -85,6 +89,10 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
 
   @Override
   public void setProfileAttributes(DBNConnection connection, Profile profile) throws ProfileManagementException {
+    if (LOGGER.isDebugEnabled()) {
+      LOGGER.debug("XXX setProfileAttributes for " + profile);
+      LOGGER.debug("XXX    attribute map " + profile.toAttributeMap());
+    }
     try {
       executeCall(connection, null, "update-profile", profile.toAttributeMap());
     } catch (SQLException e) {
@@ -124,7 +132,6 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public List<Credential> listCredentials(DBNConnection connection) throws CredentialManagementException {
     try {
-//      List<Profile> profileList = listProfilesDetailed(connection);
       List<Credential> credentials = executeCall(connection, new OracleCredentialsDetailedInfo(), "list-credentials-detailed").getCredentialsProviders();
       return credentials;
     } catch (SQLException e) {

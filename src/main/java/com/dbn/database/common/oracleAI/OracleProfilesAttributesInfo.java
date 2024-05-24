@@ -68,7 +68,7 @@ public class OracleProfilesAttributesInfo implements CallableStatementOutput {
         } else if (attributeObject instanceof String) {
           String attribute = (String) attributeObject;
           if (Objects.equals(attributeName, "temperature"))
-            currProfile.setTemperature(Double.parseDouble(attribute));
+            currProfile.setTemperature(Float.parseFloat(attribute));
           else if (Objects.equals(attributeName, "provider"))
             currProfile.setProvider(ProviderType.valueOf(attribute.toUpperCase()));
           else if (Objects.equals(attributeName, "credential_name")) currProfile.setCredentialName(attribute);

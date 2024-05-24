@@ -121,7 +121,19 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     credentialComboBox.getInputVerifier().verify(credentialComboBox);
     profile.setProfileName(nameTextField.getText());
     profile.setCredentialName((String) credentialComboBox.getSelectedItem());
-    profile.setDescription(descriptionTextField.getText());
+    // special case for description: null and empty string is the same
+    //    do not confuse Profile.equals() because of that
+    if (descriptionTextField.getText().isEmpty()) {
+      // did the user really remove the description or was it missing
+      // from the beginning ?
+      if (profile.getDescription() != null && !profile.getDescription().isEmpty()) {
+        profile.setDescription(descriptionTextField.getText());
+      }
+    } else {
+      // set it in any case
+      profile.setDescription(descriptionTextField.getText());
+    }
+
 
 
     return super.onNext(model);
