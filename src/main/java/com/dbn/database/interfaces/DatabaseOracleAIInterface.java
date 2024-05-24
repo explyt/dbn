@@ -143,7 +143,7 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * @return A list of database object.
    * @throws DatabaseOperationException If there is an error in retrieving the list of database objects.
    */
-  List<DBObjectItem> listObjectListItems(DBNConnection connection, DBSchema schema) throws DatabaseOperationException;
+  List<DBObjectItem> listObjectListItems(DBNConnection connection, String schemaName) throws DatabaseOperationException;
 
   /**
    * Updates the status of the credential in the database

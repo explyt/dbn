@@ -20,68 +20,106 @@ import java.util.concurrent.CompletionException;
  */
 public class DatabaseServiceImpl implements DatabaseService {
 
-    private static final Logger LOGGER = Logger.getInstance(DatabaseServiceImpl.class.getPackageName());
+  private static final Logger LOGGER = Logger.getInstance(DatabaseServiceImpl.class.getPackageName());
 
-    private final ConnectionRef connectionRef;
+  private final ConnectionRef connectionRef;
 
-    public CompletableFuture<List<String>> getSchemaNames() {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                DatabaseServiceImpl.LOGGER.debug("fetching schemas");
-                DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-                List<String> schemas = connectionRef.get().getOracleAIInterface().listSchemas(connection);
-                if (DatabaseServiceImpl.LOGGER.isDebugEnabled())
-                    DatabaseServiceImpl.LOGGER.debug("fetched schemas: " + schemas);
-                if (System.getProperty("fake.services.schemas.dump") != null) {
-                    try {
-                        FileWriter writer = new FileWriter(System.getProperty("fake.services.schemas.dump"));
-                        new Gson().toJson(schemas, writer);
-                        writer.close();
-                    } catch (Exception e) {
-                        // ignore this
-                        if (LOGGER.isTraceEnabled())
-                            LOGGER.trace("cannot dump schemas " +e.getMessage());
-                    }
-                }
-                return schemas;
-            } catch (DatabaseOperationException | SQLException e) {
-                DatabaseServiceImpl.LOGGER.error("cannot fetch schemas", e);
-                throw new CompletionException("Cannot get schemas", e);
-            }
-        });
-    }
-    public CompletableFuture<List<DBObjectItem>> getObjectItemsForSchema(String schema) {
-        return CompletableFuture.supplyAsync(() -> {
-            try {
-                DatabaseServiceImpl.LOGGER.debug("fetching objects for schema " + schema);
-                DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-                List<DBObjectItem> objectListItemsList = connectionRef.get().getOracleAIInterface().listObjectListItems(connection, schema);
-                DatabaseServiceImpl.LOGGER.debug(objectListItemsList.size() + " objects returned");
-                if (System.getProperty("fake.services.dbitems.dump") != null) {
-                    try {
-                        FileWriter writer = new FileWriter(System.getProperty("fake.services.dbitems.dump"),true);
-                        writer.write(schema);
-                        writer.write(':');
-                        new GsonBuilder().setLenient().create().toJson(objectListItemsList, writer);
-                        writer.write('\n');
-                        writer.close();
-                    } catch (Exception e) {
-                        // ignore this
-                        if (LOGGER.isTraceEnabled())
-                            LOGGER.trace("Cannot dump obj list" +e.getMessage());
-                    }
-                }
-                return objectListItemsList;
-            } catch (DatabaseOperationException | SQLException e) {
-                DatabaseServiceImpl.LOGGER.error("error while fetching schema object list", e);
-                throw new CompletionException("Cannot list object list items", e);
-            }
-        });
-    }
-    DatabaseServiceImpl(ConnectionRef connectionRef) {
-        assert connectionRef.get() != null : "No connection";
-        this.connectionRef = connectionRef;
-    }
+  public CompletableFuture<List<String>> getSchemaNames() {
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        DatabaseServiceImpl.LOGGER.debug("fetching schemas");
+        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        List<String> schemas = connectionRef.get().getOracleAIInterface().listSchemas(connection);
+        if (DatabaseServiceImpl.LOGGER.isDebugEnabled())
+          DatabaseServiceImpl.LOGGER.debug("fetched schemas: " + schemas);
+        if (System.getProperty("fake.services.schemas.dump") != null) {
+          try {
+            FileWriter writer = new FileWriter(System.getProperty("fake.services.schemas.dump"));
+            new Gson().toJson(schemas, writer);
+            writer.close();
+          } catch (Exception e) {
+            // ignore this
+            if (LOGGER.isTraceEnabled())
+              LOGGER.trace("cannot dump schemas " + e.getMessage());
+          }
+        }
+        return schemas;
+      } catch (DatabaseOperationException | SQLException e) {
+        DatabaseServiceImpl.LOGGER.error("cannot fetch schemas", e);
+        throw new CompletionException("Cannot get schemas", e);
+      }
+    });
+  }
+
+  public CompletableFuture<List<DBObjectItem>> getObjectItemsForSchema(String schema) {
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        DatabaseServiceImpl.LOGGER.debug("fetching objects for schema " + schema);
+        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        List<DBObjectItem> objectListItemsList = connectionRef.get().getOracleAIInterface().listObjectListItems(connection, schema);
+        DatabaseServiceImpl.LOGGER.debug(objectListItemsList.size() + " objects returned");
+        if (System.getProperty("fake.services.dbitems.dump") != null) {
+          try {
+            FileWriter writer = new FileWriter(System.getProperty("fake.services.dbitems.dump"), true);
+            writer.write(schema);
+            writer.write(':');
+            new GsonBuilder().setLenient().create().toJson(objectListItemsList, writer);
+            writer.write('\n');
+            writer.close();
+          } catch (Exception e) {
+            // ignore this
+            if (LOGGER.isTraceEnabled())
+              LOGGER.trace("Cannot dump obj list" + e.getMessage());
+          }
+        }
+        return objectListItemsList;
+      } catch (DatabaseOperationException | SQLException e) {
+        DatabaseServiceImpl.LOGGER.error("error while fetching schema object list", e);
+        throw new CompletionException("Cannot list object list items", e);
+      }
+    });
+  }
+
+  public CompletableFuture<Void> grantACLRights(String command) {
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        connectionRef.get().getOracleAIInterface().grantACLRights(connection, command);
+      } catch (SQLException e) {
+        throw new CompletionException(e);
+      }
+      return null;
+    });
+  }
+
+  public CompletableFuture<Void> grantPrivilege(String username) {
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        connectionRef.get().getOracleAIInterface().grantPrivilege(connection, username);
+      } catch (SQLException e) {
+        throw new CompletionException(e);
+      }
+      return null;
+    });
+  }
+
+  public CompletableFuture<Void> isUserAdmin() {
+    return CompletableFuture.supplyAsync(() -> {
+      try {
+        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        connectionRef.get().getOracleAIInterface().checkAdmin(connection);
+      } catch (SQLException e) {
+        throw new CompletionException(e);
+      }
+      return null;
+    });
+  }
+
+  DatabaseServiceImpl(ConnectionRef connectionRef) {
+    assert connectionRef.get() != null : "No connection";
+    this.connectionRef = connectionRef;
+  }
 
 
 }
