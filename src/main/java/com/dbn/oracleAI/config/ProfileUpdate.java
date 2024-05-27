@@ -9,6 +9,10 @@ import com.google.gson.GsonBuilder;
  */
 public class ProfileUpdate extends Profile {
 
+  /**
+   * Copy constructor
+   * @param initialProfile
+   */
   public ProfileUpdate(Profile initialProfile) {
     super(initialProfile);
   }

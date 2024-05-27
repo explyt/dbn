@@ -40,6 +40,9 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode(exclude = {"isEnabled", "comments"}) // Exclude as per your needs
+/**
+ * AI profile POJO class
+ */
 public class Profile implements AttributeInput {
 
   private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");

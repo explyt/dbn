@@ -4,7 +4,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.Component;
 
-public class AIProviderTypesTableCellRenderer extends DefaultTableCellRenderer {
+public class AIProviderCredentialTableCellRenderer extends DefaultTableCellRenderer {
   public static final int SECRET_COLUMN = 2;
   public static final int VISIBLE_CHARS = 4;
 

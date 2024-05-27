@@ -12,6 +12,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 
+/**
+ * Mockup profile service.
+ * This service use data from JSON dump files.
+ * Default location are
+ *     /var/tmp/profiles.json
+ * Location can be overided by following system properties
+ *  fake.services.profile.dump
+ */
 public class FakeAIProfileService implements AIProfileService {
 
     Type PROFILE_TYPE = new TypeToken<List<Profile>>() {

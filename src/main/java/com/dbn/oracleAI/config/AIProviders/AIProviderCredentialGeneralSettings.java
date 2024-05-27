@@ -16,23 +16,23 @@ import static com.dbn.common.options.setting.Settings.newElement;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class AIProvidersGeneralSettings
+public class AIProviderCredentialGeneralSettings
     extends BasicProjectConfiguration<AIProvidersSettings, AIProvidersGeneralSettingsForm> {
 
   private BrowserDisplayMode displayMode = BrowserDisplayMode.TABBED;
-  private AIProviderTypeBundle aiProviderTypes = new AIProviderTypeBundle(AIProviderTypeBundle.DEFAULT);
+  private AIProviderCredentialBundle aiProviderTypes = new AIProviderCredentialBundle(AIProviderCredentialBundle.DEFAULT);
 
-  AIProvidersGeneralSettings(AIProvidersSettings parent) {
+  AIProviderCredentialGeneralSettings(AIProvidersSettings parent) {
     super(parent);
   }
 
-  public AIProviderTypeBundle getAIProviderTypes() {
+  public AIProviderCredentialBundle getAIProviderTypes() {
     return aiProviderTypes;
   }
 
-  public boolean setAIProviderTypes(AIProviderTypeBundle aiProviderTypes) {
+  public boolean setAIProviderTypes(AIProviderCredentialBundle aiProviderTypes) {
     boolean changed = !Objects.equals(this.aiProviderTypes, aiProviderTypes);
-    this.aiProviderTypes = new AIProviderTypeBundle(aiProviderTypes);
+    this.aiProviderTypes = new AIProviderCredentialBundle(aiProviderTypes);
     return changed;
   }
 
@@ -53,7 +53,7 @@ public class AIProvidersGeneralSettings
     if (environmentTypesElement != null) {
       aiProviderTypes.clear();
       for (Element child : environmentTypesElement.getChildren()) {
-        AIProviderType environmentType = new AIProviderType(null);
+        AIProviderCredential environmentType = new AIProviderCredential(null);
         environmentType.readConfiguration(child);
         aiProviderTypes.add(environmentType);
       }
@@ -63,7 +63,7 @@ public class AIProvidersGeneralSettings
   @Override
   public void writeConfiguration(Element element) {
     Element environmentTypesElement = newElement(element, "ai-provider-types");
-    for (AIProviderType environmentType : aiProviderTypes) {
+    for (AIProviderCredential environmentType : aiProviderTypes) {
       Element itemElement = newElement(environmentTypesElement, "ai-provider-type");
       environmentType.writeConfiguration(itemElement);
     }

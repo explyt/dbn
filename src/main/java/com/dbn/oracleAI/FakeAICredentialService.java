@@ -10,6 +10,14 @@ import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Mockup credential service.
+ * This service use data from JSON dump files.
+ * Default location are
+ *     /var/tmp/credentials.json
+ * Location can be overided by following system properties
+ *  fake.services.credential.dump
+ */
 public class FakeAICredentialService implements AICredentialService {
 
   Type CREDENTIAL_TYPE = new TypeToken<List<Credential>>() {

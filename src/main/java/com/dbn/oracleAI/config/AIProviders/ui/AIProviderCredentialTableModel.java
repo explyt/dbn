@@ -4,38 +4,32 @@ import com.dbn.common.project.ProjectRef;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
-import com.dbn.oracleAI.config.AIProviders.AIProviderType;
-import com.dbn.oracleAI.config.AIProviders.AIProviderTypeBundle;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredential;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialBundle;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import org.jetbrains.annotations.NotNull;
 
-public class AIProviderTypesTableModel extends DBNEditableTableModel {
-  private AIProviderTypeBundle aiProviderTypes;
+public class AIProviderCredentialTableModel extends DBNEditableTableModel {
+  private AIProviderCredentialBundle aiProviderTypes;
   private final ProjectRef project;
 
-  AIProviderTypesTableModel(Project project, AIProviderTypeBundle environmentTypes) {
+  AIProviderCredentialTableModel(Project project, AIProviderCredentialBundle environmentTypes) {
     this.project = ProjectRef.of(project);
-    this.aiProviderTypes = new AIProviderTypeBundle(environmentTypes);
+    this.aiProviderTypes = new AIProviderCredentialBundle(environmentTypes);
   }
 
-  public AIProviderTypeBundle getAiProviderTypes() {
+  public AIProviderCredentialBundle getAiProviderTypes() {
     return aiProviderTypes;
   }
 
-  public void setAiProviderTypes(AIProviderTypeBundle environmentTypes) {
-    this.aiProviderTypes = new AIProviderTypeBundle(environmentTypes);
+  public void setAiProviderTypes(AIProviderCredentialBundle environmentTypes) {
+    this.aiProviderTypes = new AIProviderCredentialBundle(environmentTypes);
     notifyListeners(0, environmentTypes.size(), -1);
   }
 
   @Override
   public int getRowCount() {
     return aiProviderTypes.size();
-  }
-
-  @NotNull
-  public Project getProject() {
-    return project.ensure();
   }
 
   @Override
@@ -64,7 +58,7 @@ public class AIProviderTypesTableModel extends DBNEditableTableModel {
 
   @Override
   public Object getValueAt(int rowIndex, int columnIndex) {
-    AIProviderType environmentType = getAIProviderType(rowIndex);
+    AIProviderCredential environmentType = getAIProviderType(rowIndex);
     return
         columnIndex == 0 ? environmentType.getCredentialName() :
             columnIndex == 1 ? environmentType.getUsername() :
@@ -75,7 +69,7 @@ public class AIProviderTypesTableModel extends DBNEditableTableModel {
   public void setValueAt(Object o, int rowIndex, int columnIndex) {
     Object actualValue = getValueAt(rowIndex, columnIndex);
     if (!Commons.match(actualValue, o)) {
-      AIProviderType environmentType = aiProviderTypes.get(rowIndex);
+      AIProviderCredential environmentType = aiProviderTypes.get(rowIndex);
       if (columnIndex == 0) {
         environmentType.setCredentialName((String) o);
       } else if (columnIndex == 1) {
@@ -88,16 +82,16 @@ public class AIProviderTypesTableModel extends DBNEditableTableModel {
     }
   }
 
-  private AIProviderType getAIProviderType(int rowIndex) {
+  private AIProviderCredential getAIProviderType(int rowIndex) {
     while (aiProviderTypes.size() <= rowIndex) {
-      aiProviderTypes.add(new AIProviderType());
+      aiProviderTypes.add(new AIProviderCredential());
     }
     return aiProviderTypes.get(rowIndex);
   }
 
   @Override
   public void insertRow(int rowIndex) {
-    aiProviderTypes.add(rowIndex, new AIProviderType());
+    aiProviderTypes.add(rowIndex, new AIProviderCredential());
     notifyListeners(rowIndex, aiProviderTypes.size() - 1, -1);
   }
 
@@ -110,7 +104,7 @@ public class AIProviderTypesTableModel extends DBNEditableTableModel {
   }
 
   public void validate() throws ConfigurationException {
-    for (AIProviderType environmentType : aiProviderTypes) {
+    for (AIProviderCredential environmentType : aiProviderTypes) {
       if (Strings.isEmpty(environmentType.getCredentialName())) {
         throw new ConfigurationException("Please provide names for all environment types.");
       }

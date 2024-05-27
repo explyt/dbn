@@ -4,14 +4,22 @@ import com.dbn.common.dispose.Disposed;
 import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.index.IdentifiableMap;
 import com.dbn.common.util.CollectionUtil;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.ConnectionType;
+import com.dbn.connection.DatabaseType;
+import com.dbn.connection.SessionId;
 import com.dbn.database.DatabaseFeature;
 import com.intellij.openapi.Disposable;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Disposer.replace;
@@ -22,7 +30,8 @@ import static com.dbn.common.util.Lists.first;
 
 @Getter
 public class DatabaseSessionBundle extends StatefulDisposableBase implements Disposable{
-    private final ConnectionRef connection;
+    private final
+    ConnectionRef connection;
     private final DatabaseSession mainSession;
     private DatabaseSession debugSession;
     private DatabaseSession debuggerSession;

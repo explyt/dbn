@@ -27,6 +27,9 @@ import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+/**
+ * AI profile edition wizard class
+ */
 public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> {
 
   private static final Logger LOGGER = Logger.getInstance(ProfileEditionWizard.class.getPackageName());
@@ -42,6 +45,16 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private final Consumer<Boolean> callback;
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
+  /**
+   * Creates a new wizard
+   * A profile instance is passed form one step to another.
+   * In case of update the profile is pre-populated.
+   * @param project the current project
+   * @param profile the profile to be edited or created.
+   * @param existingProfileNames list of existing profile names. used to forbid naming collision
+   * @param isUpdate denote if current wizard is for an update
+   * @param callback callback to be called when wizard window closes
+   */
   public ProfileEditionWizard(@NotNull Project project, Profile profile, List<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
     super(false, new ProfileEditionWizardModel(
             ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profiles.settings.window.title"), project, profile, existingProfileNames, isUpdate));

@@ -8,6 +8,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 @Getter
+/**
+ * CallableStatementOutput to get list of views
+ */
 public class OracleViewsList implements CallableStatementOutput{
 
   private String[] views;

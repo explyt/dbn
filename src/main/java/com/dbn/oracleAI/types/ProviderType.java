@@ -6,6 +6,7 @@ import java.util.Set;
 
 /**
  * This enum is for listing the possible credential providers we have
+ * And the associated list of AI modle they support
  */
 @Getter
 public enum ProviderType {

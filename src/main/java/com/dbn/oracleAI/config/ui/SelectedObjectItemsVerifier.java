@@ -13,7 +13,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Input verifier for an AI profile name
+ * Input verifier for an AI profile object list
  */
 public class SelectedObjectItemsVerifier extends InputVerifier implements
     ActionListener {

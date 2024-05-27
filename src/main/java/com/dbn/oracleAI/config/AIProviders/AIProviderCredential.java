@@ -19,24 +19,24 @@ import static com.dbn.common.util.Strings.cachedLowerCase;
 @Getter
 @Setter
 @EqualsAndHashCode
-public class AIProviderType implements Cloneable<AIProviderType>, PersistentConfiguration, Presentable {
+public class AIProviderCredential implements Cloneable<AIProviderCredential>, PersistentConfiguration, Presentable {
 
-  public static final AIProviderType DEFAULT = new AIProviderType(AIProviderTypeId.DEFAULT, "", "", "");
+  public static final AIProviderCredential DEFAULT = new AIProviderCredential(AIProviderCredentialId.DEFAULT, "", "", "");
 
-  private AIProviderTypeId id;
+  private AIProviderCredentialId id;
   private String credentialName;
   private String username;
   private String key;
 
-  public AIProviderType() {
-    this(AIProviderTypeId.create());
+  public AIProviderCredential() {
+    this(AIProviderCredentialId.create());
   }
 
-  public AIProviderType(AIProviderTypeId id) {
+  public AIProviderCredential(AIProviderCredentialId id) {
     this.id = id;
   }
 
-  public AIProviderType(AIProviderTypeId id, String credentialName, String username, String key) {
+  public AIProviderCredential(AIProviderCredentialId id, String credentialName, String username, String key) {
     this.id = id;
     this.credentialName = credentialName;
     this.username = username;
@@ -57,8 +57,8 @@ public class AIProviderType implements Cloneable<AIProviderType>, PersistentConf
 
 
   @Override
-  public AIProviderType clone() {
-    return new AIProviderType(id, credentialName, username, key);
+  public AIProviderCredential clone() {
+    return new AIProviderCredential(id, credentialName, username, key);
   }
 
   @Override
@@ -69,12 +69,12 @@ public class AIProviderType implements Cloneable<AIProviderType>, PersistentConf
 
   @Override
   public void readConfiguration(Element element) {
-    id = AIProviderTypeId.get(stringAttribute(element, "id"));
+    id = AIProviderCredentialId.get(stringAttribute(element, "id"));
     credentialName = stringAttribute(element, "credential_name");
     username = stringAttribute(element, "username");
     key = stringAttribute(element, "key");
 
-    if (id == null) id = AIProviderTypeId.get(cachedLowerCase(credentialName));
+    if (id == null) id = AIProviderCredentialId.get(cachedLowerCase(credentialName));
 
   }
 

@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 @Setter
 @Getter
 @AllArgsConstructor
+/**
+ * Chatbox state holder class
+ */
 public class OracleAIChatBoxState {
   private List<AIProfileItem> profiles;
   private AIProfileItem selectedProfile;

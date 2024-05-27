@@ -7,8 +7,8 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.oracleAI.config.AIProviders.AIProviderTypeBundle;
-import com.dbn.oracleAI.config.AIProviders.AIProvidersGeneralSettings;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialBundle;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialGeneralSettings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -21,16 +21,16 @@ import javax.swing.table.TableCellEditor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
-public class AIProvidersGeneralSettingsForm extends ConfigurationEditorForm<AIProvidersGeneralSettings> {
+public class AIProvidersGeneralSettingsForm extends ConfigurationEditorForm<AIProviderCredentialGeneralSettings> {
   private JPanel mainPanel;
   private JPanel environmentTypesTablePanel;
 
-  private AIProviderEditorTable environmentTypesTable;
+  private AIProviderCredentialsEditorTable environmentTypesTable;
 
-  public AIProvidersGeneralSettingsForm(AIProvidersGeneralSettings settings) {
+  public AIProvidersGeneralSettingsForm(AIProviderCredentialGeneralSettings settings) {
     super(settings);
 
-    environmentTypesTable = new AIProviderEditorTable(this, settings.getAIProviderTypes());
+    environmentTypesTable = new AIProviderCredentialsEditorTable(this, settings.getAIProviderTypes());
 
 
     ToolbarDecorator decorator = UserInterface.createToolbarDecorator(environmentTypesTable);
@@ -65,10 +65,10 @@ public class AIProvidersGeneralSettingsForm extends ConfigurationEditorForm<AIPr
 
   @Override
   public void applyFormChanges() throws ConfigurationException {
-    AIProvidersGeneralSettings configuration = getConfiguration();
-    AIProviderTypesTableModel model = environmentTypesTable.getModel();
+    AIProviderCredentialGeneralSettings configuration = getConfiguration();
+    AIProviderCredentialTableModel model = environmentTypesTable.getModel();
     model.validate();
-    AIProviderTypeBundle environmentTypeBundle = model.getAiProviderTypes();
+    AIProviderCredentialBundle environmentTypeBundle = model.getAiProviderTypes();
     boolean settingsChanged = configuration.setAIProviderTypes(environmentTypeBundle);
 
 
@@ -84,7 +84,7 @@ public class AIProvidersGeneralSettingsForm extends ConfigurationEditorForm<AIPr
 
   @Override
   public void resetFormChanges() {
-    AIProvidersGeneralSettings settings = getConfiguration();
+    AIProviderCredentialGeneralSettings settings = getConfiguration();
     environmentTypesTable.getModel().setAiProviderTypes(settings.getAIProviderTypes());
   }
 }

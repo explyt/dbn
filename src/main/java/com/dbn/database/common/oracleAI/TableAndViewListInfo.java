@@ -12,6 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+/**
+ * CallableStatementOutput to get list of tables and views
+ * @see OracleAIInterface.listObjectListItems()
+ */
 public class TableAndViewListInfo implements CallableStatementOutput {
   private List<DBObjectItem> DBObjectListItems;
   private String schemaName;

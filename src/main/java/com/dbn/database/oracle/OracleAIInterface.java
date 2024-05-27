@@ -90,8 +90,8 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   @Override
   public void setProfileAttributes(DBNConnection connection, Profile profile) throws ProfileManagementException {
     if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("XXX setProfileAttributes for " + profile);
-      LOGGER.debug("XXX    attribute map " + profile.toAttributeMap());
+      LOGGER.debug("setProfileAttributes for " + profile);
+      LOGGER.debug("   attribute map " + profile.toAttributeMap());
     }
     try {
       executeCall(connection, null, "update-profile", profile.toAttributeMap());
@@ -164,6 +164,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     try {
       List<DBObjectItem> DBObjectItems = new ArrayList<>();
       // TODO : should be one roundtrip
+      //    refactor later
       List<DBObjectItem> tableDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.TABLE), "list-tables", schemaName).getDBObjectListItems();
       List<DBObjectItem> viewDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.VIEW), "list-views", schemaName).getDBObjectListItems();
       DBObjectItems.addAll(tableDBObjectListItems);

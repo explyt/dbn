@@ -8,7 +8,10 @@ import java.sql.SQLException;
 import java.sql.Types;
 
 @Getter
-public class OracleTablesList implements CallableStatementOutput{
+/**
+ * CallableStatementOutput to get list of tables
+ */
+public class OracleTablesList implements CallableStatementOutput {
 
   private String[] tables;
 

@@ -10,6 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+/**
+ * CallableStatementOutput to get information about schemas
+ */
 public class SchemasInfo implements CallableStatementOutput {
   private List<String> schemaList;
 

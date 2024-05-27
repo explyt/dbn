@@ -16,6 +16,9 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 
 
+/**
+ * Profile information service default implementation
+ */
 public class AIProfileServiceImpl implements AIProfileService {
   private final ConnectionRef connectionRef;
 

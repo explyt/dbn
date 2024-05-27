@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * User/password AI provider credential type
+ */
 public class PasswordCredential extends Credential {
   private final String password;
 

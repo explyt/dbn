@@ -5,6 +5,9 @@ import com.dbn.oracleAI.config.DBObjectItem;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Database information service
+ */
 public interface DatabaseService {
     /**
      * Loads all schemas that are accessible for the current user asynchronously

@@ -8,6 +8,10 @@ import java.util.List;
 import java.util.Objects;
 
 @Getter
+
+/**
+ * OCI AI provider credential type
+ */
 public class OciCredential extends Credential {
   private final String userTenancyOCID;
   private final String privateKey;

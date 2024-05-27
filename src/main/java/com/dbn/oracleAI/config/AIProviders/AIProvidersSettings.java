@@ -20,7 +20,7 @@ public class AIProvidersSettings
     extends CompositeProjectConfiguration<ProjectSettings, AIProvidersSettingsForm>
     implements TopLevelConfig {
 
-  private final AIProvidersGeneralSettings generalSettings = new AIProvidersGeneralSettings(this);
+  private final AIProviderCredentialGeneralSettings generalSettings = new AIProviderCredentialGeneralSettings(this);
 
   static private final ResourceBundle messages =
           ResourceBundle.getBundle("Messages", Locale.getDefault());

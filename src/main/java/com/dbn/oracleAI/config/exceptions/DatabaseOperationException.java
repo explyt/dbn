@@ -5,6 +5,10 @@ import lombok.Getter;
 import java.sql.SQLException;
 
 @Getter
+
+/**
+ * Custom exception class for database operation
+ */
 public class DatabaseOperationException extends Exception {
 
   public DatabaseOperationException(String message, SQLException cause) {

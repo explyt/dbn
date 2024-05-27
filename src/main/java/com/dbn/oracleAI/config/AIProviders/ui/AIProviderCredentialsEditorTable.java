@@ -2,7 +2,7 @@ package com.dbn.oracleAI.config.AIProviders.ui;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEditableTable;
-import com.dbn.oracleAI.config.AIProviders.AIProviderTypeBundle;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialBundle;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
@@ -14,19 +14,23 @@ import javax.swing.table.TableColumn;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
-public class AIProviderEditorTable extends DBNEditableTable<AIProviderTypesTableModel> {
+/**
+ * Table model for provider credentials information
+ * The template credential stored locally.
+ */
+public class AIProviderCredentialsEditorTable extends DBNEditableTable<AIProviderCredentialTableModel> {
 
-  AIProviderEditorTable(DBNComponent parent, AIProviderTypeBundle environmentTypes) {
+  AIProviderCredentialsEditorTable(DBNComponent parent, AIProviderCredentialBundle environmentTypes) {
     super(parent, createModel(parent.getProject(), environmentTypes), true);
     setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
     setSelectionBackground(UIUtil.getTableBackground());
     setSelectionForeground(UIUtil.getTableForeground());
     setCellSelectionEnabled(true);
-    setDefaultRenderer(String.class, new AIProviderTypesTableCellRenderer());
+    setDefaultRenderer(String.class, new AIProviderCredentialTableCellRenderer());
 
     JPasswordField pwf = new JPasswordField();
     DefaultCellEditor editor = new DefaultCellEditor(pwf);
-    getColumnModel().getColumn(AIProviderTypesTableCellRenderer.SECRET_COLUMN).setCellEditor(editor);
+    getColumnModel().getColumn(AIProviderCredentialTableCellRenderer.SECRET_COLUMN).setCellEditor(editor);
 
     addComponentListener(new ComponentAdapter() {
       @Override
@@ -37,8 +41,8 @@ public class AIProviderEditorTable extends DBNEditableTable<AIProviderTypesTable
   }
 
   @NotNull
-  private static AIProviderTypesTableModel createModel(Project project, AIProviderTypeBundle environmentTypes) {
-    return new AIProviderTypesTableModel(project, environmentTypes);
+  private static AIProviderCredentialTableModel createModel(Project project, AIProviderCredentialBundle environmentTypes) {
+    return new AIProviderCredentialTableModel(project, environmentTypes);
   }
 
   private void adjustColumnSizes() {
@@ -60,7 +64,7 @@ public class AIProviderEditorTable extends DBNEditableTable<AIProviderTypesTable
     }
   }
 
-  void setEnvironmentTypes(AIProviderTypeBundle environmentTypes) {
+  void setEnvironmentTypes(AIProviderCredentialBundle environmentTypes) {
     super.setModel(createModel(getProject(), environmentTypes));
     adjustColumnSizes();
   }

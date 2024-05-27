@@ -21,6 +21,10 @@ import java.util.Map;
 import java.util.Objects;
 
 @Getter
+/**
+ * Class to fetch profile attributes from profile tables and views
+ * @see OracleAIInterface.listProfiles()
+ */
 public class OracleProfilesAttributesInfo implements CallableStatementOutput {
 
   private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
@@ -41,7 +45,11 @@ public class OracleProfilesAttributesInfo implements CallableStatementOutput {
   }
 
   /**
+   * Reads a resultSet and build a list of profile
    * Since the result set has each attribute in a separate row, it was read accordingly
+   * @param rs resultSet that contains all profile attributes
+   * @return list of profiles
+   * @throws SQLException if parsing of data has failed
    */
   private List<Profile> buildProfilesFromResultSet(ResultSet rs) throws SQLException {
     Map<String, Profile> profileBuildersMap = new HashMap<>();

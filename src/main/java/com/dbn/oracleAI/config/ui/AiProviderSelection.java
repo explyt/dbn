@@ -1,8 +1,8 @@
 package com.dbn.oracleAI.config.ui;
 
-import com.dbn.oracleAI.config.AIProviders.AIProviderType;
-import com.dbn.oracleAI.config.AIProviders.AIProviderTypeBundle;
-import com.dbn.oracleAI.config.AIProviders.AIProvidersGeneralSettings;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredential;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialBundle;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialGeneralSettings;
 import com.dbn.oracleAI.config.AIProviders.AIProvidersSettings;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -25,7 +25,7 @@ public class AiProviderSelection extends DialogWrapper {
       ResourceBundle.getBundle("Messages", Locale.getDefault());
   private JPanel panel1;
   private JTable table1;
-  private AIProviderTypeBundle aiProviderTypes;
+  private AIProviderCredentialBundle aiProviderTypes;
   private ProvidersSelectionCallback callback;
 
 
@@ -39,7 +39,7 @@ public class AiProviderSelection extends DialogWrapper {
   }
 
   private void initializeProvidersList(Project project) {
-    AIProvidersGeneralSettings settings = AIProvidersSettings.getInstance(project).getGeneralSettings();
+    AIProviderCredentialGeneralSettings settings = AIProvidersSettings.getInstance(project).getGeneralSettings();
     aiProviderTypes = settings.getAIProviderTypes();
 
     AIProviderTableModel model = new AIProviderTableModel(aiProviderTypes);
@@ -54,10 +54,10 @@ public class AiProviderSelection extends DialogWrapper {
     private final int USERNAME_IDX = 1;
     private final String KEY = "Secret";
     private final int KEY_IDX = 2;
-    private final AIProviderTypeBundle aiProviderTypes;
+    private final AIProviderCredentialBundle aiProviderTypes;
     private final String[] columnNames = {NAME, USERNAME, KEY};
 
-    public AIProviderTableModel(AIProviderTypeBundle aiProviderTypes) {
+    public AIProviderTableModel(AIProviderCredentialBundle aiProviderTypes) {
       this.aiProviderTypes = aiProviderTypes;
     }
 
@@ -73,7 +73,7 @@ public class AiProviderSelection extends DialogWrapper {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-      AIProviderType provider = aiProviderTypes.get(rowIndex);
+      AIProviderCredential provider = aiProviderTypes.get(rowIndex);
       switch (columnIndex) {
         case NAME_IDX:
           return provider.getCredentialName();
@@ -102,7 +102,7 @@ public class AiProviderSelection extends DialogWrapper {
   private void doSelectAction() {
     int selectedRow = table1.getSelectedRow();
     if (selectedRow >= 0) {
-      AIProviderType selectedProvider = aiProviderTypes.get(selectedRow);
+      AIProviderCredential selectedProvider = aiProviderTypes.get(selectedRow);
       callback.onProviderSelected(selectedProvider);
     }
   }

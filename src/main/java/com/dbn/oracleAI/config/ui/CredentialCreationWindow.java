@@ -3,8 +3,8 @@ package com.dbn.oracleAI.config.ui;
 import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.AICredentialService;
 import com.dbn.oracleAI.AICredentialServiceImpl;
-import com.dbn.oracleAI.config.AIProviders.AIProviderType;
-import com.dbn.oracleAI.config.AIProviders.AIProvidersGeneralSettings;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredential;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialGeneralSettings;
 import com.dbn.oracleAI.config.AIProviders.AIProvidersSettings;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.OciCredential;
@@ -265,12 +265,12 @@ public class CredentialCreationWindow extends DialogWrapper {
   }
 
   private void saveProviderInfo() {
-    AIProvidersGeneralSettings settings = AIProvidersSettings.getInstance(project).getGeneralSettings();
-    AIProviderType aiProviderType = new AIProviderType();
-    aiProviderType.setCredentialName(credentialNameField.getText());
-    aiProviderType.setUsername(passwordCredentialUsernameField.getText());
-    aiProviderType.setKey(passwordCredentialPasswordField.getText());
-    settings.getAIProviderTypes().add(aiProviderType);
+    AIProviderCredentialGeneralSettings settings = AIProvidersSettings.getInstance(project).getGeneralSettings();
+    AIProviderCredential aiProviderCredential = new AIProviderCredential();
+    aiProviderCredential.setCredentialName(credentialNameField.getText());
+    aiProviderCredential.setUsername(passwordCredentialUsernameField.getText());
+    aiProviderCredential.setKey(passwordCredentialPasswordField.getText());
+    settings.getAIProviderTypes().add(aiProviderCredential);
   }
 
   private ValidationInfo doOCICredentialValidate() {

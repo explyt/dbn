@@ -1,5 +1,8 @@
 package com.dbn.oracleAI.types;
 
+/**
+ * AI models
+ */
 public enum ProviderModel {
   GPT_4("gpt-4"),
   GPT_4_0613("gpt-4-0613"),

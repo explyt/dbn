@@ -1,7 +1,7 @@
 package com.dbn.oracleAI.config.ui;
 
-import com.dbn.oracleAI.config.AIProviders.AIProviderType;
+import com.dbn.oracleAI.config.AIProviders.AIProviderCredential;
 
 public interface ProvidersSelectionCallback {
-  void onProviderSelected(AIProviderType aiProviderType);
+  void onProviderSelected(AIProviderCredential aiProviderCredential);
 }

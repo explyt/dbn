@@ -36,7 +36,6 @@ public class EditorAIQueryListener implements DocumentListener {
         if (line.startsWith("---") && line.endsWith(";")) {
           int hash = line.hashCode();
           if (!detectedPatternHashes.contains(hash)) {
-            System.out.println("Detected unique pattern: " + line);
             detectedPatternHashes.add(hash);
             processQuery(line, document);
           }

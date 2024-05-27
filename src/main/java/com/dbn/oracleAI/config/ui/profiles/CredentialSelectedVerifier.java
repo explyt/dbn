@@ -10,6 +10,9 @@ import java.awt.Color;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
+/**
+ * Input verifier for an AI profile credential
+ */
 public class CredentialSelectedVerifier extends InputVerifier {
   private static final Border ERROR_BORDER = BorderFactory.createLineBorder(Color.RED, 1);
   private static final Border DEFAULT_BORDER = UIManager.getBorder("TextField.border");

@@ -8,6 +8,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 
+/**
+ * AI profile credential service
+ */
 public interface AICredentialService {
   /**
    * Asynchronously creates a new credential.

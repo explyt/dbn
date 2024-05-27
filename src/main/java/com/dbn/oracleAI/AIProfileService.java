@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
+/**
+ * AI Profile service
+ */
 public interface AIProfileService {
     /**
      * Supplies the AI profile map of the current connection

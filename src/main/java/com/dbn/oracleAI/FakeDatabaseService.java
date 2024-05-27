@@ -16,6 +16,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Mockup database service.
+ * This service use data from JSON dump files.
+ * Default location are
+ *     /var/tmp/schemas.json
+ *     /var/tmp/dbitems.json
+ * Location can be overided by following system properties
+ *  fake.services.schema.dump
+ *  fake.services.dbitems.dump
+ */
 public class FakeDatabaseService implements DatabaseService {
 
     private static final Logger LOGGER = Logger.getInstance(DatabaseServiceImpl.class.getPackageName());
