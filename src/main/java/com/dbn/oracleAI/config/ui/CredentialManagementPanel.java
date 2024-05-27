@@ -102,6 +102,7 @@ public class CredentialManagementPanel extends JPanel {
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
     this.add(mainPane);
 
+    initializeUI();
     updateCredentialList();
 
   }
@@ -116,8 +117,7 @@ public class CredentialManagementPanel extends JPanel {
     addButton.setIcon(Icons.ACTION_ADD);
     deleteButton.setIcon(Icons.ACTION_DELETE);
 
-    credentialList.setListData(credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}));
-    credentialList.setSelectedIndex(0);
+    populateCredentialList();
 
     editButton.setEnabled(true);
     addButton.setEnabled(true);
@@ -214,6 +214,14 @@ public class CredentialManagementPanel extends JPanel {
   }
 
   /**
+   * Populate the list of credentials
+   */
+  private void populateCredentialList() {
+    credentialList.setListData(credentialNameToProfileNameMap.keySet().toArray(new Credential[]{}));
+    credentialList.setSelectedIndex(0);
+  }
+
+  /**
    * Removes a specified credential by name and updates the local cache of credentials.
    *
    * @param credential The name of the credential to be removed.
@@ -243,7 +251,10 @@ public class CredentialManagementPanel extends JPanel {
             .map(profile -> profile.getProfileName()).collect(Collectors.toList());
         credentialNameToProfileNameMap.put(cred, pNames);
       }
-      ApplicationManager.getApplication().invokeLater(() -> { initializeUI();this.activityNotifier.stop();});
+      ApplicationManager.getApplication().invokeLater(() -> {
+        populateCredentialList();
+        this.activityNotifier.stop();
+      });
     }).exceptionally(e -> {
       {
         ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(this.curProject, e.getCause().getMessage()));
