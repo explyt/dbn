@@ -3,6 +3,7 @@ package com.dbn.oracleAI;
 import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileUpdate;
+import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionWizardModel;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -49,15 +50,17 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
    * Creates a new wizard
    * A profile instance is passed form one step to another.
    * In case of update the profile is pre-populated.
-   * @param project the current project
-   * @param profile the profile to be edited or created.
-   * @param existingProfileNames list of existing profile names. used to forbid naming collision
-   * @param isUpdate denote if current wizard is for an update
-   * @param callback callback to be called when wizard window closes
+   *
+   * @param project                           the current project
+   * @param profile                           the profile to be edited or created.
+   * @param existingProfileNames              list of existing profile names. used to forbid naming collision
+   * @param isUpdate                          denote if current wizard is for an update
+   * @param callback                          callback to be called when wizard window closes
+   * @param profileEditionObjectListStepClass
    */
-  public ProfileEditionWizard(@NotNull Project project, Profile profile, List<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback) {
+  public ProfileEditionWizard(@NotNull Project project, Profile profile, List<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStep) {
     super(false, new ProfileEditionWizardModel(
-            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profiles.settings.window.title"), project, profile, existingProfileNames, isUpdate));
+            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profiles.settings.window.title"), project, profile, existingProfileNames, isUpdate,firstStep));
     profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
     this.initialProfile = new Profile(profile);
@@ -65,6 +68,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     this.isUpdate = isUpdate;
     this.callback = callback;
     finishButton.setText(messages.getString(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
+
   }
 
 
@@ -140,7 +144,15 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     }
   }
 
-  public static void showWizard(@NotNull Project project, @Nullable Profile profile, Map<String, Profile> profileMap, @NotNull Consumer<Boolean> callback) {
+  /**
+   * Show the profile creation/edition wizard
+   * @param project the current project
+   * @param profile the current profile to be edited (null if creating a new one)
+   * @param profileMap the existing profiles
+   * @param callback to be called once done
+   * @param firstStepClass if not null, the step to move to directly
+   */
+  public static void showWizard(@NotNull Project project, @Nullable Profile profile, Map<String, Profile> profileMap, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStepClass) {
     existingProfileNames = profileMap.values().stream().map(Profile::getProfileName).collect(Collectors.toList());
     SwingUtilities.invokeLater(() -> {
       Profile initialProfile = null;
@@ -153,7 +165,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         isUpdate = false;
       }
       ProfileUpdate toBeUpdatedProfile = new ProfileUpdate(initialProfile);
-      ProfileEditionWizard wizard = new ProfileEditionWizard(project, toBeUpdatedProfile, existingProfileNames, isUpdate, callback);
+      ProfileEditionWizard wizard = new ProfileEditionWizard(project, toBeUpdatedProfile, existingProfileNames, isUpdate, callback, firstStepClass);
       wizard.show();
 
     });

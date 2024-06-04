@@ -3,6 +3,7 @@ package com.dbn.oracleAI.config.ui.profiles;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
@@ -39,7 +40,9 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
 
 
   public ProfileEditionProviderStep(Project project, @Nullable Profile profile, boolean isUpdate) {
-    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.provider_step.title"));
+    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.provider_step.title"),
+            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.provider_step.explaination"),
+            AllIcons.General.Settings);
     this.profile = profile;
     configureTemperatureSlider();
     populateCombos();

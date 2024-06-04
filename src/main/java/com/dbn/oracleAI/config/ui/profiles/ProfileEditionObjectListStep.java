@@ -38,15 +38,18 @@ import javax.swing.table.TableRowSorter;
 import javax.swing.text.BadLocationException;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 /**
  * Profile edition Object list step for edition wizard
@@ -93,12 +96,17 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   Map<String, DatabaseObjectListTableModel> databaseObjectListTableModelCache = new HashMap<>();
 
   public ProfileEditionObjectListStep(Project project, Profile profile, boolean isUpdate) {
-    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.title"));
+    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.title"),
+            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.explaination"),
+            Icons.DB_GENERIC);
     this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
     this.profile = profile;
     this.isUpdate = isUpdate;
     this.databaseSvc = project.getService(DatabaseOracleAIManager.class).getDatabaseService();
+
+   if (this.profile != null)
+      prefetchObjectForProfile(this.profile);
 
     initializeTables();
 
@@ -189,13 +197,36 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   }
 
+  private Set<String> schemaInPrefetch = new HashSet<>();
+  private void prefetchObjectForProfile(Profile profile) {
+    schemaInPrefetch.clear();
+    // TODO : implement bulk fetch
+    profile.getObjectList().stream()
+            .map(profileDBObjectItem->profileDBObjectItem.getOwner())
+            .distinct().forEach(schemaName -> {
+              if (!databaseObjectListTableModelCache.containsKey(schemaName)) {
+                LOGGER.debug("prefetching schema : "+schemaName);
+                schemaInPrefetch.add(schemaName);
+                databaseSvc.getObjectItemsForSchema(schemaName).thenAccept(objs -> {
+                  DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
+                  LOGGER.debug("new schema prefetched: "+schemaName+" obj count: "+objs.size());
+                  databaseObjectListTableModelCache.put(schemaName, newModel);
+                  schemaInPrefetch.remove(schemaName);
+                  this.profileObjectListTable.repaint();
+                });
+              }
+    });
+  }
+
   private void initializeTables() {
     LOGGER.debug("initializing tables");
 
     DBObjectsTransferHandler th = new DBObjectsTransferHandler();
 
     initializeDatabaseObjectTable(th);
+
     initializeProfileObjectTable(th);
+
 
   }
   private void resetDatabaseObjectTableModel(DatabaseObjectListTableModel m) {
@@ -204,6 +235,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     this.databaseObjectsTableSorter.setModel(m);
   }
   private void initializeDatabaseObjectTable(DBObjectsTransferHandler th) {
+    LOGGER.debug("initializing databaseObjectsTable");
     // keep this !
     // if set to true a RowSorter is created each the model changes
     // and that breaks our logic
@@ -274,8 +306,10 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         return this;
       }
     });
+    LOGGER.debug("initialization databaseObjectsTable complete");
   }
   private void initializeProfileObjectTable(DBObjectsTransferHandler th) {
+    LOGGER.debug("initializing profileObjectListTable");
     this.profileObjectListTable.setTransferHandler(th);
 
     this.profileObjectListTable.setModel(profileObjListTableModel);
@@ -319,14 +353,21 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
             DatabaseObjectType currentItemType;
             try {
               currentItemType = locateTypeFor(currentItem);
-              if (locateTypeFor(currentItem) == DatabaseObjectType.VIEW) {
+              setFont(getFont().deriveFont(Font.PLAIN));
+              setToolTipText(null);
+              if (currentItemType == DatabaseObjectType.VIEW) {
                 setIcon(Icons.DBO_VIEW);
               } else {
                 setIcon(Icons.DBO_TABLE);
               }
             } catch (IllegalStateException e) {
-              setToolTipText(e.getMessage());
-              setForeground(Color.RED);
+              if (schemaInPrefetch.contains(currentItem.getOwner())) {
+                setToolTipText(messages.getString("profile.mgmt.object.information.loading"));
+                setFont(getFont().deriveFont(Font.ITALIC));
+              } else {
+                setToolTipText(e.getMessage());
+                setForeground(Color.RED);
+              }
             }
             break;
           case ProfileObjectListTableModel.OWNER_COLUMN_IDX:
@@ -346,6 +387,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         profileObjectListTable.getInputVerifier().verify(profileObjectListTable);
       }
     });
+    LOGGER.debug("initialization profileObjectListTable complete");
   }
   private void startActivityNotifier() {
     ((ActivityNotifier)activityProgress).start();
@@ -392,6 +434,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
   
   private void loadSchemas() {
+    LOGGER.debug("Loading schemas...");
     startActivityNotifier();
     databaseSvc.getSchemaNames().thenAccept(schemaList -> {
       for (String schema : schemaList) {
@@ -407,15 +450,20 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   }
 
   private void populateDatabaseObjectTable(String schema) {
-
     assert (schema != null && !schema.isEmpty()) : "Invalid schema passed";
+
+    LOGGER.debug("populateDatabaseObjectTable for "+schema);
+
     DatabaseObjectListTableModel model = databaseObjectListTableModelCache.get(schema);
 
     if (model == null) {
+      LOGGER.debug("populateDatabaseObjectTable no cache for "+schema);
       startActivityNotifier();
       databaseObjectsTable.setEnabled(false);
       databaseSvc.getObjectItemsForSchema(schema).thenAccept(objs -> {
         SwingUtilities.invokeLater(() -> {
+          if (LOGGER.isDebugEnabled())
+           LOGGER.debug("populateDatabaseObjectTable new model for "+schema +" objs count="+objs.size());
           DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
           databaseObjectListTableModelCache.put(schema, newModel);
           currentDbObjListTableModel = newModel;

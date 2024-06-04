@@ -57,7 +57,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         DatabaseServiceImpl.LOGGER.debug("fetching objects for schema " + schema);
         DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
         List<DBObjectItem> objectListItemsList = connectionRef.get().getOracleAIInterface().listObjectListItems(connection, schema);
-        DatabaseServiceImpl.LOGGER.debug(objectListItemsList.size() + " objects returned");
+        DatabaseServiceImpl.LOGGER.debug("getObjectItemsForSchema: "+objectListItemsList.size() + " objects returned ");
         if (System.getProperty("fake.services.dbitems.dump") != null) {
           try {
             FileWriter writer = new FileWriter(System.getProperty("fake.services.dbitems.dump"), true);

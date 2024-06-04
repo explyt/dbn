@@ -5,6 +5,7 @@ import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.ProfileNameVerifier;
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
@@ -43,7 +44,9 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   public ProfileEditionGeneralStep(Project project, Profile profile, List<String> existingProfileNames, boolean isUpdate) {
-    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.general_step.title"));
+    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.general_step.title"),
+            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.general_step.explaination"),
+            AllIcons.General.Settings);
     this.project = project;
     this.profile = profile;
     this.existingProfileNames = existingProfileNames;
