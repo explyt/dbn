@@ -206,12 +206,12 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
             .distinct().forEach(schemaName -> {
               if (!databaseObjectListTableModelCache.containsKey(schemaName)) {
                 LOGGER.debug("prefetching schema : "+schemaName);
-                schemaInPrefetch.add(schemaName);
+                schemaInPrefetch.add(schemaName.toLowerCase());
                 databaseSvc.getObjectItemsForSchema(schemaName).thenAccept(objs -> {
                   DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
                   LOGGER.debug("new schema prefetched: "+schemaName+" obj count: "+objs.size());
                   databaseObjectListTableModelCache.put(schemaName, newModel);
-                  schemaInPrefetch.remove(schemaName);
+                  schemaInPrefetch.remove(schemaName.toLowerCase());
                   this.profileObjectListTable.repaint();
                 });
               }
@@ -361,7 +361,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
                 setIcon(Icons.DBO_TABLE);
               }
             } catch (IllegalStateException e) {
-              if (schemaInPrefetch.contains(currentItem.getOwner())) {
+              if (schemaInPrefetch.contains(currentItem.getOwner().toLowerCase())) {
                 setToolTipText(messages.getString("profile.mgmt.object.information.loading"));
                 setFont(getFont().deriveFont(Font.ITALIC));
               } else {
