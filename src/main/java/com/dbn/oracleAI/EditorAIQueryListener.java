@@ -11,6 +11,10 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * This listener listens for a certain pattern (--- ...... ;).
+ * It displays the sql result right under the detected pattern position.
+ */
 public class EditorAIQueryListener implements DocumentListener {
   private final Project project;
   private final Set<Integer> detectedPatternHashes = new HashSet<>();

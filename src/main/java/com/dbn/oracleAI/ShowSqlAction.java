@@ -9,19 +9,19 @@ import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+/**
+ * This action runs when we select a text in the console and hit right click and chose "Show Sql".
+ * It displays the sql result right under the selected text.
+ */
 public class ShowSqlAction extends AnAction {
 
   @Override
   public void actionPerformed(@NotNull AnActionEvent e) {
     Project project = e.getProject();
-    if (project == null) {
-      return;
-    }
+    assert project != null;
 
     Editor editor = e.getData(CommonDataKeys.EDITOR);
-    if (editor == null) {
-      return;
-    }
+    assert editor != null;
 
     SelectionModel selectionModel = editor.getSelectionModel();
     String selectedText = selectionModel.getSelectedText();

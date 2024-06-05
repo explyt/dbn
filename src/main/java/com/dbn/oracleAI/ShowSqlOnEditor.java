@@ -6,6 +6,9 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 
+/**
+ * This is the class that handles processing the prompt from the console and displaying the results to it.
+ */
 public class ShowSqlOnEditor {
   private final Project project;
   private final DatabaseOracleAIManager manager;
