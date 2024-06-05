@@ -314,6 +314,11 @@ public class ProfileManagementPanel extends JPanel {
 
     @Override
     public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
+      // keep default for object name column
+      // keep default past the first row
+      if (column == 0 || row > 0) {
+        return super.getTableCellEditorComponent(table, value, isSelected, row, column);
+      }
 
       ProfileDBObjectActionPanel contain = new ProfileDBObjectActionPanel(value.toString(), ProfileDBObjectActionPanel.TYPE.ADD);
 
@@ -332,7 +337,8 @@ public class ProfileManagementPanel extends JPanel {
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
       // keep default for object name column
-      if (column == 0) {
+      // keep default past the first row
+      if (column == 0 || row > 0) {
         if (value != null) {
           setText(value.toString());
           setFont(getFont().deriveFont(Font.PLAIN));
@@ -346,7 +352,7 @@ public class ProfileManagementPanel extends JPanel {
 
         return this;
       }
-      // deal wiht owner column
+      // deal with owner column
       ProfileDBObjectActionPanel contain = new ProfileDBObjectActionPanel(value.toString(), ProfileDBObjectActionPanel.TYPE.ADD);
 
       return contain.getPanel();
@@ -365,7 +371,7 @@ public class ProfileManagementPanel extends JPanel {
     DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
       @Override
       public boolean isCellEditable(int row, int column) {
-       return  (column == 1);
+       return  (column == 1 && row == 0);
       }
     };
     objListTable.setModel(tableModel);
