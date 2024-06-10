@@ -50,6 +50,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Profile edition Object list step for edition wizard
@@ -210,6 +211,9 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
                 databaseSvc.getObjectItemsForSchema(schemaName).thenAccept(objs -> {
                   DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
                   LOGGER.debug("new schema prefetched: "+schemaName+" obj count: "+objs.size());
+                  newModel.hideItemByNames(
+                          this.profile.getObjectList().stream().filter(o->o.getOwner().equalsIgnoreCase(schemaName)).map(o->o.getName()).collect(Collectors.toList()));
+
                   databaseObjectListTableModelCache.put(schemaName, newModel);
                   schemaInPrefetch.remove(schemaName.toLowerCase());
                   this.profileObjectListTable.repaint();
@@ -224,10 +228,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     DBObjectsTransferHandler th = new DBObjectsTransferHandler();
 
     initializeDatabaseObjectTable(th);
-
     initializeProfileObjectTable(th);
-
-
   }
   private void resetDatabaseObjectTableModel(DatabaseObjectListTableModel m) {
     LOGGER.debug("resetDatabaseObjectTableModel for " + m);
@@ -465,6 +466,9 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
           if (LOGGER.isDebugEnabled())
            LOGGER.debug("populateDatabaseObjectTable new model for "+schema +" objs count="+objs.size());
           DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
+          // remove the one already selected
+          newModel.hideItemByNames(
+                  this.profile.getObjectList().stream().filter(o->o.getOwner().equalsIgnoreCase(schema)).map(o->o.getName()).collect(Collectors.toList()));
           databaseObjectListTableModelCache.put(schema, newModel);
           currentDbObjListTableModel = newModel;
           resetDatabaseObjectTableModel(currentDbObjListTableModel);

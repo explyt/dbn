@@ -13,11 +13,10 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 
+import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
-import javax.swing.DefaultCellEditor;
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -26,6 +25,7 @@ import javax.swing.JTable;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
@@ -66,6 +66,8 @@ public class ProfileManagementPanel extends JPanel {
   private JPanel profileMgntAttributesPanel;
   private JPanel attributesListPanel;
   private JPanel profileMgntTitlePanel;
+    private JPanel objListTableHeader;
+  private JButton goToAssociatedObjects;
 
 
   private JPanel windowActionPanel;
@@ -82,6 +84,8 @@ public class ProfileManagementPanel extends JPanel {
     // make sure we use box that stretch
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
+    objListTableHeader.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.BLACK));
+
     this.add(mainPane);
 
 
@@ -97,6 +101,12 @@ public class ProfileManagementPanel extends JPanel {
     updateProfileNames();
 
     ApplicationManager.getApplication().invokeLater(() -> addProfileButton.requestFocusInWindow());
+
+    goToAssociatedObjects.addActionListener(event -> {
+              ProfileEditionWizard.showWizard(currProject, currProfile, profileMap, isCommit -> {
+                  if (isCommit) updateProfileNames();
+                }, ProfileEditionObjectListStep.class);
+            });
 
   }
 
@@ -171,6 +181,10 @@ public class ProfileManagementPanel extends JPanel {
     makeDefaultProfileButton.addActionListener(event -> {
       manager.updateDefaultProfile(new AIProfileItem(currProfile.getProfileName(), currProfile.getProvider(), currProfile.getModel(), currProfile.isEnabled()));
     });
+  }
+
+  private void createUIComponents() {
+    // TODO: place custom component creation code here
   }
 
   /**
@@ -297,48 +311,9 @@ public class ProfileManagementPanel extends JPanel {
   private void initializeTable() {
 
     objListTable.setSelectionModel(new NullSelectionModel());
-
-    // for editor and renderer we cannot attach  to column model
-    // as model of that table changes.
-    objListTable.setDefaultEditor(Object.class, new MyCellEditor());
-    objListTable.setDefaultRenderer(Object.class,new MyCellRender());
-    objListTable.setRowHeight(25);
-
-  }
-  private class MyCellEditor extends DefaultCellEditor {
-
-
-    public MyCellEditor() {
-      super(new JCheckBox());
-    }
-
-    @Override
-    public Component getTableCellEditorComponent(JTable table, Object value, boolean isSelected, int row, int column) {
-      // keep default for object name column
-      // keep default past the first row
-      if (column == 0 || row > 0) {
-        return super.getTableCellEditorComponent(table, value, isSelected, row, column);
-      }
-
-      ProfileDBObjectActionPanel contain = new ProfileDBObjectActionPanel(value.toString(), ProfileDBObjectActionPanel.TYPE.ADD);
-
-      contain.getAddButton().addActionListener(event -> {
-        ProfileEditionWizard.showWizard(currProject, currProfile, profileMap, isCommit -> {
-          if (isCommit) updateProfileNames();
-        }, ProfileEditionObjectListStep.class);
-      });
-
-      return contain.getPanel();
-    }
-  }
-
-  private class MyCellRender extends DefaultTableCellRenderer {
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-      // keep default for object name column
-      // keep default past the first row
-      if (column == 0 || row > 0) {
+    objListTable.setDefaultRenderer(Object.class, new DefaultTableCellRenderer() {
+      @Override
+      public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         if (value != null) {
           setText(value.toString());
           setFont(getFont().deriveFont(Font.PLAIN));
@@ -346,20 +321,20 @@ public class ProfileManagementPanel extends JPanel {
           setText("<all>");
           setFont(getFont().deriveFont(Font.ITALIC));
         }
+
         setBorder(null);
         setForeground(isSelected ? table.getSelectionForeground() : table.getForeground());
-        setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        if (row % 2 == 0) {
+          setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+        } else {
+          setBackground(isSelected ? table.getSelectionBackground() : table.getBackground().darker());
+        }
 
         return this;
       }
-      // deal with owner column
-      ProfileDBObjectActionPanel contain = new ProfileDBObjectActionPanel(value.toString(), ProfileDBObjectActionPanel.TYPE.ADD);
+    });
 
-      return contain.getPanel();
-
-    }
   }
-
 
   private void populateTable(Profile profile) {
     String[] columnNames = {

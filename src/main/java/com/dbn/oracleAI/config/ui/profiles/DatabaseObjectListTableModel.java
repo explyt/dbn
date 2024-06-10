@@ -56,7 +56,7 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
                 if (obj.getType().equals(DatabaseObjectType.TABLE)) {
                     this.allItems.add(obj);
                 } else {
-                    // this is a view
+                    // this is a view, we hide it by default
                     this.parkedItems.add(obj);
                 }
             }
@@ -142,9 +142,12 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
      * A model only contains item for a given schema, no name collision
      * can happen
      *
-     * @param itemNames name of the object in the model to be hidden
+     * @param itemNames name of the object in the model to be hidden, can not be null
      */
     public void hideItemByNames(List<String> itemNames) {
+        assert itemNames != null:"cannot be null";
+        if (itemNames.size() == 0)
+            return;
         if (LOGGER.isDebugEnabled())
             LOGGER.debug("DatabaseObjectListTableModel.hideItemByNames: " + itemNames);
         List<DBObjectItem> matches = new ArrayList<>();
