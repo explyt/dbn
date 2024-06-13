@@ -35,7 +35,7 @@ public class EditorAIQueryListener implements DocumentListener {
           int hash = line.hashCode();
           if (!detectedPatternHashes.contains(hash)) {
             detectedPatternHashes.add(hash);
-            new ShowSqlOnEditor(project).processQuery(line, document);
+            new ShowSqlOnEditor(project).processQuery(line, document, true);
           }
         }
       }

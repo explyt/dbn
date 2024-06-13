@@ -18,11 +18,11 @@ public class ShowSqlOnEditor {
     this.manager = project.getService(DatabaseOracleAIManager.class);
   }
 
-  public void processQuery(String comment, Document document) {
+  public void processQuery(String comment, Document document, boolean withExplanation) {
     String prompt = comment.substring(3, comment.length() - 1);
     AIProfileItem currProfile = manager.getDefaultProfile();
-    manager.queryOracleAI(prompt, ActionAIType.EXPLAINSQL, currProfile.getLabel(), currProfile.getModel().getApiName())
-        .thenAccept(answer -> appendLine(document, processText(answer), comment))
+    manager.queryOracleAI(prompt, withExplanation ? ActionAIType.EXPLAINSQL : ActionAIType.SHOWSQL, currProfile.getLabel(), currProfile.getModel().getApiName())
+        .thenAccept(answer -> appendLine(document, processText(answer, withExplanation), comment))
         .exceptionally((e) -> {
           com.dbn.common.util.Messages.showErrorDialog(project, e.getMessage());
           return null;
@@ -35,6 +35,7 @@ public class ShowSqlOnEditor {
       WriteCommandAction.runWriteCommandAction(project, () -> {
         String content = document.getText();
         int pos = content.indexOf(afterComment);
+
         if (pos >= 0) {
           pos = content.indexOf("\n", pos);
           if (pos >= 0) {
@@ -49,42 +50,30 @@ public class ShowSqlOnEditor {
     });
   }
 
-  public static String processText(String input) {
+  public static String processText(String input, boolean withExplanation) {
     StringBuilder result = new StringBuilder();
     boolean inCodeBlock = false;
-    boolean inSqlQuery = false;
     String[] lines = input.split("\n");
     result.append("\n");
 
-    for (String line : lines) {
-      if (line.trim().startsWith("```")) {
-        inCodeBlock = !inCodeBlock;
-        result.append("\n");
-        continue;
-      }
-
-      if (inCodeBlock) {
+    if (!withExplanation) {
+      for (String line : lines) {
         result.append(line).append("\n");
-      } else {
-        if (inSqlQuery || line.trim().toUpperCase().contains("SELECT")) {
-          inSqlQuery = true;
-          result.append(line.trim()).append("\n");
+      }
+    } else {
+      for (String line : lines) {
+        if (line.trim().startsWith("```")) {
+          inCodeBlock = !inCodeBlock;
+          result.append("\n");
+          continue;
+        }
 
-          if (line.trim().endsWith(";")) {
-            inSqlQuery = false;
-          }
+        if (inCodeBlock) {
+          result.append(line).append("\n");
         } else {
-          if (inSqlQuery) {
-            inSqlQuery = false;
-            result.append("-- ").append(line.trim()).append("\n");
-          } else {
-            result.append("-- ").append(line).append("\n");
-          }
+          result.append("-- ").append(line).append("\n");
         }
       }
-    }
-    if (inSqlQuery) {
-      result.append("-- Incomplete SQL query above\n");
     }
 
     return result.toString();

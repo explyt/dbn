@@ -392,6 +392,17 @@
             <!--<add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="before"/>-->
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
+        <group id="DBNavigator.Actions.TextEditor.OracleCompanion.Group" text="Show Sql" popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="after"
+                          relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
+            <action id="DBNavigator.Actions.TextEditor.OracleCompanion" class="com.dbn.oracleAI.ShowSqlAction"
+                    text="Show Sql">
+            </action>
+            <action id="DBNavigator.Actions.TextEditor.OracleCompanion.ShowSqlExplanation"
+                    class="com.dbn.oracleAI.ShowSqlExplanationAction"
+                    text="Show Sql/Explanation">
+            </action>
+        </group>
         <group id="DBNavigator.ActionGroup.ProjectViewContext">
             <group id="DBNavigator.ActionGroup.ProjectViewPopup" text="DB Navigator" popup="true" keep-content="true">
                 <action id="DBNavigator.Actions.File.ExecuteScript"
@@ -874,10 +885,7 @@
                 <keyboard-shortcut keymap="$default" first-keystroke="ctrl ENTER"/>
             </action>
         </group>
-        <action id="DBNavigator.Actions.TextEditor.OracleCompanion" class="com.dbn.oracleAI.ShowSqlAction"
-                text="Show Sql">
-            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
-        </action>
+
     </actions>
     <projectListeners>
         <listener topic="com.intellij.openapi.fileEditor.FileEditorManagerListener"
