@@ -4,8 +4,8 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.AIProfileItem;
-import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.oracleAI.ManagedObjectServiceProxy;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.Profile;
 import com.intellij.openapi.application.ApplicationManager;
@@ -64,7 +64,7 @@ public class ProfileManagementPanel extends JPanel {
   private JPanel profileMgntTitlePanel;
 
   private JPanel windowActionPanel;
-  private final AIProfileService profileSvc;
+  private final ManagedObjectServiceProxy<Profile> profileSvc;
   private Project currProject;
   private final DatabaseOracleAIManager manager;
 
@@ -94,7 +94,7 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void updateProfileNames() {
-    profileSvc.getProfiles().thenAccept(pm -> {
+    profileSvc.list().thenAccept(pm -> {
       profileMap = pm.stream().collect(Collectors.toMap(Profile::getProfileName,
           Function.identity(),
           (existing, replacement) -> existing));
@@ -196,7 +196,7 @@ public class ProfileManagementPanel extends JPanel {
    * @param profile the profile ot be deleted
    */
   private void removeProfile(Profile profile) {
-    profileSvc.deleteProfile(profile.getProfileName()).thenRun(() -> {
+    profileSvc.delete(profile.getProfileName()).thenRun(() -> {
       profileMap.remove(profile.getProfileName());
       if (!profileMap.isEmpty()) {
         currProfile = profileMap.values().iterator().next();

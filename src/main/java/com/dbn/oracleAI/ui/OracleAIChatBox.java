@@ -349,7 +349,7 @@ public class OracleAIChatBox extends JPanel {
    * list of available profiles for the current connection
    */
   public CompletableFuture<Map<String, Profile>> updateProfiles() {
-    return currManager.getProfileService().getProfiles().thenApply(pl -> pl.stream()
+    return currManager.getProfileService().list().thenApply(pl -> pl.stream()
         .collect(Collectors.toMap(Profile::getProfileName,
             Function.identity(),
             (existing, replacement) -> existing)));

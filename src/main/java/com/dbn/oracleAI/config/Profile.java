@@ -121,6 +121,11 @@ public class Profile implements AttributeInput {
 
   }
 
+  @Override
+  public String getUuid() {
+    return this.profileName;
+  }
+
   public static Object clobToObject(String attributeName, Clob clob) throws SQLException, IOException, JsonParseException {
 
     try (Reader reader = clob.getCharacterStream();
@@ -138,9 +143,6 @@ public class Profile implements AttributeInput {
     }
   }
 
-  protected boolean canEqual(final Object other) {
-    return other instanceof Profile;
-  }
 
   // Inner class to handle the JSON serialization
   public static class ProviderModelSerializer implements JsonSerializer<ProviderModel> {

@@ -2,9 +2,9 @@ package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
-import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.DatabaseService;
+import com.dbn.oracleAI.ManagedObjectServiceProxy;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
@@ -79,7 +79,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   private JComboBox schemaComboBox;
   private JCheckBox withViewsButton;
   private JProgressBar activityProgress;
-  private final AIProfileService profileSvc;
+  private final ManagedObjectServiceProxy<Profile> profileSvc;
   private final DatabaseService databaseSvc;
   private final Project project;
   private final Profile profile;

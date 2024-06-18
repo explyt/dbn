@@ -5,9 +5,10 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AICredentialService;
-import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.oracleAI.ManagedObjectServiceProxy;
 import com.dbn.oracleAI.config.Credential;
+import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.ui.ActivityNotifier;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -60,7 +61,7 @@ public class CredentialManagementPanel extends JPanel {
   private JScrollPane usedByScrollPane;
   private JProgressBar progressBar1;
   private final AICredentialService credentialSvc;
-  private final AIProfileService profileSvc;
+  private final ManagedObjectServiceProxy<Profile> profileSvc;
   private final ConnectionRef connection;
   private final Project curProject;
 
@@ -245,7 +246,7 @@ public class CredentialManagementPanel extends JPanel {
   private void updateCredentialList() {
     this.activityNotifier.start();
     credentialNameToProfileNameMap.clear();
-    credentialSvc.getCredentials().thenAcceptBoth(profileSvc.getProfiles(), (credentials, profiles) -> {
+    credentialSvc.getCredentials().thenAcceptBoth(profileSvc.list(), (credentials, profiles) -> {
       for (Credential cred : credentials) {
         List<String> pNames = profiles.stream().filter(profile -> cred.getCredentialName().equals(profile.getCredentialName()))
             .map(profile -> profile.getProfileName()).collect(Collectors.toList());

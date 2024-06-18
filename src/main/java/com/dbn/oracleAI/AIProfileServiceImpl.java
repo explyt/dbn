@@ -41,8 +41,14 @@ public class AIProfileServiceImpl implements AIProfileService {
       }
   }
 
-  @Override
-  public CompletableFuture<List<Profile>> getProfiles()  {
+    @Override
+    public CompletableFuture<Profile> get(String uuid) {
+        assert false:"implement this !";
+        return null;
+    }
+
+    @Override
+  public CompletableFuture<List<Profile>> list()  {
     return CompletableFuture.supplyAsync(() -> {
       try {
         LOGGER.debug("getting profiles");
@@ -65,7 +71,7 @@ public class AIProfileServiceImpl implements AIProfileService {
 
 
   @Override
-  public CompletableFuture<Void> deleteProfile(String profileName) {
+  public CompletableFuture<Void> delete(String profileName) {
     return CompletableFuture.runAsync(() -> {
       try {
         DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
@@ -79,7 +85,7 @@ public class AIProfileServiceImpl implements AIProfileService {
   }
 
   @Override
-  public CompletionStage<Void> createProfile(Profile profile) {
+  public CompletionStage<Void> create(Profile profile) {
     return CompletableFuture.runAsync(() -> {
           try {
             DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
@@ -93,7 +99,7 @@ public class AIProfileServiceImpl implements AIProfileService {
   }
 
   @Override
-  public CompletionStage<Void> updateProfile(Profile updatedProfile) {
+  public CompletionStage<Void> update(Profile updatedProfile) {
     return CompletableFuture.runAsync(() -> {
           try {
             DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
