@@ -42,7 +42,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private JButton finishButton;
 
   private final Project project;
-  private final AIProfileService profileSvc;
+  private final ManagedObjectServiceProxy<Profile> profileSvc;
   private final Consumer<Boolean> callback;
   private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
@@ -121,7 +121,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private void commitWizardView() {
     LOGGER.debug("entering commitWizardView. isUpdate? " + isUpdate);
     if (isUpdate) {
-      profileSvc.updateProfile(editedProfile).thenRun(() -> {
+      profileSvc.update(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
           dispose();
           callback.accept(true);
@@ -132,7 +132,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         return null;
       });
     } else {
-      profileSvc.createProfile(editedProfile).thenRun(() -> {
+      profileSvc.create(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
           dispose();
           callback.accept(true);

@@ -71,4 +71,9 @@ public class Credential implements AttributeInput {
   public String toAttributeMap() {
     return null;
   }
+
+  @Override
+  public String getUuid() {
+    return this.credentialName;
+  }
 }

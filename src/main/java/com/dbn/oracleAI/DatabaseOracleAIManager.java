@@ -8,6 +8,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.OracleAISettingsOpenAction;
+import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
@@ -164,7 +165,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     });
   }
 
-  private Map<ConnectionId, AIProfileService> profileManagerMap = new HashMap<>();
+  private Map<ConnectionId, ManagedObjectServiceProxy<Profile>> profileManagerMap = new HashMap<>();
 
   private Map<ConnectionId, AICredentialService> credentialManagerMap = new HashMap<>();
 
@@ -177,17 +178,18 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
    *
    * @return a manager.
    */
-  public synchronized AIProfileService getProfileService() {
+  public synchronized ManagedObjectServiceProxy<Profile> getProfileService() {
     //TODO : later find better than using "synchronized"
-    AIProfileService svc = profileManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
+
+    ManagedObjectServiceProxy<Profile> svc = profileManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
     if (svc != null) {
       return svc;
     }
 
     if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
-      svc = new FakeAIProfileService();
+      svc = new ManagedObjectServiceProxy<Profile>(new FakeAIProfileService());
     } else {
-      svc = new AIProfileServiceImpl(ConnectionHandler.get(currConnection).ref());
+      svc = new ManagedObjectServiceProxy<Profile>(new AIProfileServiceImpl(ConnectionHandler.get(currConnection).ref()));
     }
     profileManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
     return svc;
