@@ -42,6 +42,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -54,7 +56,7 @@ import java.util.stream.Collectors;
 
 import static java.awt.event.InputEvent.BUTTON1_MASK;
 
-public class OracleAIChatBox extends JPanel {
+public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
 
   private void createUIComponents() {
     promptTextArea = new IdleJtextArea(messages.getString("companion.chat.prompt.tooltip"));
@@ -141,6 +143,7 @@ public class OracleAIChatBox extends JPanel {
    */
 
   private OracleAIChatBox() {
+    profileListModel = new ProfileComboBoxModel();
     initializeUI();
     this.setLayout(new BorderLayout(1, 1));
     this.add(chatBoxMainPanel, BorderLayout.CENTER);
@@ -154,22 +157,41 @@ public class OracleAIChatBox extends JPanel {
     return instance;
   }
 
-//  @Override
-//  public void propertyChange(PropertyChangeEvent evt) {
-//    if ("profileList".equals(evt.getPropertyName())) {
-//      updateProfileComboBox();
-//    }
-//  }
-//
-//  private void updateProfileComboBox() {
-//    SwingUtilities.invokeLater(() -> {
-//      profileListModel.removeAllElements();
-//      for (Profile profile : currManager.getProfileService().getCachedProfiles()) {
-//        profileListModel.addElement(new AIProfileItem(profile.getProfileName(), profile.getProvider(), profile.getModel(), profile.isEnabled()));
-//      }
-//      profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
-//    });
-//  }
+  @Override
+  public void propertyChange(PropertyChangeEvent evt) {
+    if ("com.dbn.oracleAI.AIProfileServiceImpl".equals(evt.getPropertyName())) {
+      updateProfileComboBox();
+    }
+  }
+
+  private void updateProfileComboBox() {
+    startActivityNotifier(messages.getString("companion.chat.fetching_profiles"));
+    updateProfiles().thenAccept(finalFetchedProfiles -> {
+      LOG.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
+      ApplicationManager.getApplication().invokeLater(() -> {
+        profileListModel.removeAllElements();
+        finalFetchedProfiles.forEach((pn, p) -> {
+          profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled()));
+        });
+
+        profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
+        if (profileListModel.getUsableProfiles().isEmpty()) {
+          disableWindow("companion.chat.no_profile_yet.tooltip");
+        } else {
+          enableWindow();
+        }
+        AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
+        if (currProfileItem != null && currProfileItem.getProvider() != null) updateModelsComboBox(currProfileItem);
+        stopActivityNotifier();
+      });
+
+    }).exceptionally(e -> {
+      LOG.error("Failed to fetch profiles", e);
+      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getCause().getMessage()));
+      stopActivityNotifier();
+      return null;
+    });
+  }
 
   public void setCurrentConnectionId(ConnectionId connectionId) {
     this.currentConnectionId = connectionId;
@@ -420,7 +442,7 @@ public class OracleAIChatBox extends JPanel {
    * TODO : try to be clever here...
    */
   private void startActivityNotifier(String message) {
-    ((ActivityNotifier)activityProgress).start();
+    ((ActivityNotifier) activityProgress).start();
     chatBoxNotificationMessage.setVisible(true);
     chatBoxNotificationMessage.setText(message);
   }
@@ -429,7 +451,7 @@ public class OracleAIChatBox extends JPanel {
    * Stops the spinning wheel
    */
   private void stopActivityNotifier() {
-    ((ActivityNotifier)activityProgress).stop();
+    ((ActivityNotifier) activityProgress).stop();
 
     chatBoxNotificationMessage.setVisible(false);
     chatBoxNotificationMessage.setText("");

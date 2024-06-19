@@ -111,7 +111,8 @@ public class ProfileManagementPanel extends JPanel {
   }
 
   private void initializeProfileNames() {
-    List<Profile> profileList = profileSvc.getCachedProfiles();
+//    List<Profile> profileList = profileSvc.getCachedProfiles();
+    List<Profile> profileList = null;
     if (profileList != null) {
       profileMap = profileList.stream().collect(Collectors.toMap(Profile::getProfileName,
           Function.identity(),
@@ -141,7 +142,7 @@ public class ProfileManagementPanel extends JPanel {
       }
       ApplicationManager.getApplication()
           .invokeLater(() -> {
-            manager.getProfileService().updateCachedProfiles(pm);
+//            manager.getProfileService().updateCachedProfiles(pm);
             this.initializeUIComponents();
           });
     }).exceptionally(e -> {
@@ -244,7 +245,7 @@ public class ProfileManagementPanel extends JPanel {
       } else {
         currProfile = null;
       }
-      manager.getProfileService().removeCachedProfile(profile);
+//      manager.getProfileService().removeCachedProfile(profile);
       updateProfileNames();
       updateWindow();
     }).exceptionally(throwable -> {

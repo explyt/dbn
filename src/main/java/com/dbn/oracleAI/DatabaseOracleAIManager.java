@@ -76,6 +76,8 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     OracleAIChatBoxState newState = chatBoxStates.get(connectionId);
     oracleAIChatBox.initState(newState, currConnection);
     oracleAIChatBox.enableWindow();
+    this.getProfileService().removePropertyChangeListener(oracleAIChatBox);
+    this.getProfileService().addPropertyChangeListener(oracleAIChatBox);
   }
 
   public ToolWindow getOracleAIWindow() {

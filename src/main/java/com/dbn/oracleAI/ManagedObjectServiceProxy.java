@@ -16,88 +16,90 @@ import java.util.concurrent.locks.ReentrantLock;
  * As for now there is no auto-invalidation (time based etc...)
  * This proxy fetch remotly a soon as a destruptive operation has been
  * performed
+ *
  * @param <E>
  */
 public class ManagedObjectServiceProxy<E extends AttributeInput> implements ManagedObjectService<E> {
-    ReentrantLock lock = new ReentrantLock();
-    private ManagedObjectService<E> backend;
-    private List<E> items = null;
+  ReentrantLock lock = new ReentrantLock();
+  private ManagedObjectService<E> backend;
+  private List<E> items = null;
 
-    private final PropertyChangeSupport support;
+  private final PropertyChangeSupport support;
 
-    public ManagedObjectServiceProxy(ManagedObjectService<E> backend) {
-        this.backend = backend;
-        this.support = new PropertyChangeSupport(this);
-    }
+  public ManagedObjectServiceProxy(ManagedObjectService<E> backend) {
+    this.backend = backend;
+    this.support = new PropertyChangeSupport(this);
+  }
 
-    /**
-     * make all items invalid
-     */
-    public void invalidate() {
+  /**
+   * make all items invalid
+   */
+  public void invalidate() {
 
-    }
+  }
 
-    @Override
-    public CompletableFuture<List<E>> list() {
-        try {
-            lock.lock();
-            if (this.items == null) {
-                return this.backend.list().thenCompose(list->{
-                    this.items = list;
-                    return CompletableFuture.completedFuture(list);
-                });
-            } else {
-                return CompletableFuture.completedFuture(this.items);
-            }
-        } finally {
-            lock.unlock();
-        }
-    }
-
-    @Override
-    public CompletableFuture<E> get(String uuid) {
-        Optional<E> item = this.items.stream().filter(e->e.getUuid().equalsIgnoreCase(uuid)).findFirst();
-        if (item.isPresent()) {
-            return CompletableFuture.completedFuture(item.get());
-        } else {
-            return CompletableFuture.completedFuture(null);
-        }
-    }
-
-    @Override
-    public CompletableFuture<Void> delete(String uuid) {
-        return backend.delete(uuid).thenRunAsync(() -> {
-            this.items.removeIf(e->e.getUuid().equalsIgnoreCase(uuid));
-            fireUpdatedProfileListEvent();
+  @Override
+  public CompletableFuture<List<E>> list() {
+    try {
+      lock.lock();
+      if (this.items == null) {
+        return this.backend.list().thenCompose(list -> {
+          this.items = list;
+          return CompletableFuture.completedFuture(list);
         });
+      } else {
+        return CompletableFuture.completedFuture(this.items);
+      }
+    } finally {
+      lock.unlock();
     }
+  }
 
-    @Override
-    public CompletionStage<Void> create(E newItem) {
-        return backend.create(newItem).thenRunAsync(() -> {
-            this.items.add(newItem);
-            // TODO : deal with errors
-            fireUpdatedProfileListEvent();
-        });
+  @Override
+  public CompletableFuture<E> get(String uuid) {
+    Optional<E> item = this.items.stream().filter(e -> e.getUuid().equalsIgnoreCase(uuid)).findFirst();
+    if (item.isPresent()) {
+      return CompletableFuture.completedFuture(item.get());
+    } else {
+      return CompletableFuture.completedFuture(null);
     }
+  }
 
-    @Override
-    public CompletionStage<Void> update(E updatedItem) {
-        return backend.update(updatedItem).thenRunAsync(() -> {
-            // TODO : dela with the list
-            fireUpdatedProfileListEvent();
-        });
+  @Override
+  public CompletableFuture<Void> delete(String uuid) {
+    return backend.delete(uuid).thenRunAsync(() -> {
+      this.items.removeIf(e -> e.getUuid().equalsIgnoreCase(uuid));
+      fireUpdatedProfileListEvent();
+    });
+  }
 
-    }
+  @Override
+  public CompletionStage<Void> create(E newItem) {
+    return backend.create(newItem).thenRunAsync(() -> {
+      this.items.add(newItem);
+      // TODO : deal with errors
+      fireUpdatedProfileListEvent();
+    });
+  }
 
-    private void fireUpdatedProfileListEvent() {
-        support.firePropertyChange(this.backend.getClass().getCanonicalName(), null, null);
-    }
-    public void addPropertyChangeListener(PropertyChangeListener pcl) {
-        support.addPropertyChangeListener(pcl);
-    }
+  @Override
+  public CompletionStage<Void> update(E updatedItem) {
+    return backend.update(updatedItem).thenRunAsync(() -> {
+      // TODO : dela with the list
+      fireUpdatedProfileListEvent();
+    });
 
-    public void removePropertyChangeListener(PropertyChangeListener pcl) {
-        support.removePropertyChangeListener(pcl);
-    }
+  }
+
+  private void fireUpdatedProfileListEvent() {
+    support.firePropertyChange(this.backend.getClass().getCanonicalName(), null, null);
+  }
+
+  public void addPropertyChangeListener(PropertyChangeListener pcl) {
+    support.addPropertyChangeListener(pcl);
+  }
+
+  public void removePropertyChangeListener(PropertyChangeListener pcl) {
+    support.removePropertyChangeListener(pcl);
+  }
 }

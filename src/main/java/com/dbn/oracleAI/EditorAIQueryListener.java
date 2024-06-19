@@ -31,7 +31,7 @@ public class EditorAIQueryListener implements DocumentListener {
       String content = document.getText();
       String[] lines = content.split("\n");
       for (String line : lines) {
-        if (line.startsWith("---") && line.endsWith(";")) {
+        if (line.startsWith("/*") && line.endsWith("*/")) {
           int hash = line.hashCode();
           if (!detectedPatternHashes.contains(hash)) {
             detectedPatternHashes.add(hash);
