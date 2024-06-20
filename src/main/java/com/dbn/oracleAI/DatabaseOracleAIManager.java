@@ -5,11 +5,8 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.SessionId;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.OracleAISettingsOpenAction;
 import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
 import com.dbn.oracleAI.ui.OracleAIChatBoxState;
@@ -30,13 +27,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
 @State(name = DatabaseOracleAIManager.COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
@@ -109,18 +104,19 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
   public CompletableFuture<String> queryOracleAI(String text, ActionAIType action,
                                                  String profile, String model) {
     return CompletableFuture.supplyAsync(() -> {
-      try {
-        String output;
-        DBNConnection mainConnection =
-            Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
-        output = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface()
-            .executeQuery(mainConnection, action, profile,
-                text, model)
-            .getQueryOutput();
-        return output;
-      } catch (QueryExecutionException | SQLException e) {
-        throw new CompletionException(e);
-      }
+      return "THIS IS a response " + new Random().nextInt();
+//      try {
+//        String output;
+//        DBNConnection mainConnection =
+//            Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
+//        output = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface()
+//            .executeQuery(mainConnection, action, profile,
+//                text, model)
+//            .getQueryOutput();
+//        return output;
+//      } catch (QueryExecutionException | SQLException e) {
+//        throw new CompletionException(e);
+//      }
     });
   }
 

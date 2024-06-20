@@ -9,6 +9,7 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
+import com.dbn.oracleAI.utils.FixedSizeList;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -61,6 +62,9 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   private void createUIComponents() {
     promptTextArea = new IdleJtextArea(messages.getString("companion.chat.prompt.tooltip"));
     activityProgress = new ActivityNotifier();
+    conversationPanel = new JPanel();
+    //conversationPanel = new RollingJPanelContainer();
+    //((RollingJPanelContainer)conversationPanel).setMaxCapacity(OracleAIChatBoxState.MAX_CHAR_MESSAGE_COUNT);
   }
 
   /**
@@ -125,7 +129,8 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   private JButton promptButton;
   private JTextArea promptTextArea;
   private JPanel buttonPanel;
-  private final List<ChatMessage> chatMessages = new ArrayList<>();
+  private JButton clearAllMessages;
+  private final List<ChatMessage> chatMessages = new FixedSizeList<ChatMessage>(OracleAIChatBoxState.MAX_CHAR_MESSAGE_COUNT);
 
   public static DatabaseOracleAIManager currManager;
 
@@ -218,6 +223,12 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
 
     profileComboBox.addActionListener(profileActionListener);
     profileComboBox.setRenderer(new ProfileComboBoxRenderer());
+
+    clearAllMessages.addActionListener(e -> {
+      chatMessages.clear();
+      populateChatPanel();
+    });
+
   }
 
   private ActionListener profileActionListener = new ActionListener() {
@@ -362,13 +373,17 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     // TODO : do we want to append the message even in case of error
     ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
     chatMessages.add(inputChatMessage);
-    appendMessageToChat(inputChatMessage);
+    populateChatPanel();
+    // TODO : use Rolling panel
+    //appendMessageToChat(inputChatMessage);
     currManager.queryOracleAI(question, actionType, item.getLabel(),
             ((ProviderModel) aiModelComboBox.getSelectedItem()).getApiName())
         .thenAccept((output) -> {
           ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
           chatMessages.add(outPutChatMessage);
-          appendMessageToChat(outPutChatMessage);
+          populateChatPanel();
+          // TODO : use Rolling panel
+          //appendMessageToChat(outPutChatMessage);
           LOG.debug("Query processed successfully.");
         })
         .exceptionally(e -> {
@@ -414,8 +429,8 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     AIProfileItem selectedProfile = (AIProfileItem) profileListModel.getSelectedItem();
     return OracleAIChatBoxState.builder()
         .currConnection(currConnection)
-        .aiAnswers(new ArrayList<>(chatMessages))
-        .profiles(new ArrayList<>(profileListModel.getAllProfiles()))
+        .aiAnswers(chatMessages)
+        .profiles(profileListModel.getAllProfiles())
         .currentQuestionText(promptTextArea.getText())
         .selectedProfile((selectedProfile != null && selectedProfile.isEffective()) ? selectedProfile : null)
         .build();
