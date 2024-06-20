@@ -357,7 +357,7 @@ public class ProfileManagementPanel extends JPanel {
         if (row % 2 == 0) {
           setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
         } else {
-          setBackground(isSelected ? table.getSelectionBackground() : table.getBackground().darker());
+          setBackground(isSelected ? table.getSelectionBackground() : new Color(224, 224, 244)); // light gray
         }
 
         return this;

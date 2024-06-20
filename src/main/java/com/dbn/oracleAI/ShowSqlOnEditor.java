@@ -53,29 +53,36 @@ public class ShowSqlOnEditor {
   public static String processText(String input, boolean withExplanation) {
     StringBuilder result = new StringBuilder();
     boolean inCodeBlock = false;
+    boolean inExplanationBlock = false;
     String[] lines = input.split("\n");
     result.append("\n");
 
-    if (!withExplanation) {
-      for (String line : lines) {
+    for (String line : lines) {
+      if (line.trim().startsWith("```")) {
+        if (!inCodeBlock && inExplanationBlock) {
+          result.append("*/\n\n");
+          inExplanationBlock = false;
+        }
+        inCodeBlock = !inCodeBlock;
+        continue;
+      }
+
+      if (inCodeBlock) {
+        result.append(line).append("\n");
+      } else {
+        if (!inExplanationBlock && withExplanation) {
+          result.append("\n/*\n");
+          inExplanationBlock = true;
+        }
         result.append(line).append("\n");
       }
-    } else {
-      for (String line : lines) {
-        if (line.trim().startsWith("```")) {
-          inCodeBlock = !inCodeBlock;
-          result.append("\n");
-          continue;
-        }
+    }
 
-        if (inCodeBlock) {
-          result.append(line).append("\n");
-        } else {
-          result.append("-- ").append(line).append("\n");
-        }
-      }
+    if (inExplanationBlock) {
+      result.append("*/\n\n");
     }
 
     return result.toString();
   }
+
 }

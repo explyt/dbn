@@ -227,6 +227,8 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     clearAllMessages.addActionListener(e -> {
       chatMessages.clear();
       populateChatPanel();
+      companionConversationPanel.revalidate();
+      companionConversationPanel.repaint();
     });
 
   }
@@ -501,9 +503,9 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
             enableWindow();
           }
           AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
-//          if (currManager.getDefaultProfile() == null) {
-//            currManager.updateDefaultProfile(currProfileItem);
-//          }
+          if (currManager.getDefaultProfile() == null) {
+            currManager.updateDefaultProfile(currProfileItem);
+          }
           if (currProfileItem != null && currProfileItem.getProvider() != null) updateModelsComboBox(currProfileItem);
           stopActivityNotifier();
         });
