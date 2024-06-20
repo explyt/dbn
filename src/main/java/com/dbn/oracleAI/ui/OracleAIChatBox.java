@@ -9,7 +9,7 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
-import com.dbn.oracleAI.utils.FixedSizeList;
+import com.dbn.oracleAI.utils.RollingJPanelWrapper;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
@@ -57,19 +57,60 @@ import java.util.stream.Collectors;
 
 import static java.awt.event.InputEvent.BUTTON1_MASK;
 
+/**
+ * Holder class for profile Combox box
+ */
 public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
+
+
+  private static final Logger LOG = Logger.getInstance(OracleAIChatBox.class.getPackageName());
+
+  private static OracleAIChatBox instance;
+  private ConnectionId currentConnectionId;
+  private JComboBox<AIProfileItem> profileComboBox;
+  private ProfileComboBoxModel profileListModel = new ProfileComboBoxModel();
+  private JPanel chatBoxMainPanel;
+  private JCheckBox explainSQLCheckbox;
+  private JPanel companionConversationPanel;
+  private JPanel conversationPanel;
+  private RollingJPanelWrapper conversationPanelWrapper;
+  private JScrollPane companionConversationScrollPan;
+  private JPanel companionCommandPanel;
+  private JComboBox<ProviderModel> aiModelComboBox;
+  private JPanel companionConversationPanelTop;
+  private JProgressBar activityProgress;
+  private JTextField chatBoxNotificationMessage;
+  private JPanel companionConversationPanelBottom;
+  private JButton promptButton;
+  private JTextArea promptTextArea;
+  private JPanel buttonPanel;
+  private JButton clearAllMessages;
+
+  public static DatabaseOracleAIManager currManager;
+
+  static private final ResourceBundle messages =
+      ResourceBundle.getBundle("Messages", Locale.getDefault());
+
+  /**
+   * special profile combobox item that lead to create a new profile
+   */
+  static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
+      new AIProfileItem(messages.getString("companion.profile.combobox.add"), false);
+
+
+  private OracleAIChatBox() {
+    profileListModel = new ProfileComboBoxModel();
+    initializeUI();
+    this.setLayout(new BorderLayout(1, 1));
+    this.add(chatBoxMainPanel, BorderLayout.CENTER);
+  }
 
   private void createUIComponents() {
     promptTextArea = new IdleJtextArea(messages.getString("companion.chat.prompt.tooltip"));
     activityProgress = new ActivityNotifier();
-    conversationPanel = new JPanel();
-    //conversationPanel = new RollingJPanelContainer();
-    //((RollingJPanelContainer)conversationPanel).setMaxCapacity(OracleAIChatBoxState.MAX_CHAR_MESSAGE_COUNT);
+
   }
 
-  /**
-   * Holder class for profile Combox box
-   */
 
   /**
    * Dedicated class for NL2SQL profile model.
@@ -105,54 +146,10 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
      */
     public List<AIProfileItem> getUsableProfiles() {
       return this.getAllProfiles().stream().filter(AIProfileItem::isEffective).collect(
-          Collectors.toList());
+              Collectors.toList());
     }
   }
 
-  private static final Logger LOG = Logger.getInstance(OracleAIChatBox.class.getPackageName());
-
-  private static OracleAIChatBox instance;
-  private ConnectionId currentConnectionId;
-  private JComboBox<AIProfileItem> profileComboBox;
-  private ProfileComboBoxModel profileListModel = new ProfileComboBoxModel();
-  private JPanel chatBoxMainPanel;
-  private JCheckBox explainSQLCheckbox;
-  private JPanel companionConversationPanel;
-  private JPanel conversationPanel;
-  private JScrollPane companionConversationScrollPan;
-  private JPanel companionCommandPanel;
-  private JComboBox<ProviderModel> aiModelComboBox;
-  private JPanel companionConversationPanelTop;
-  private JProgressBar activityProgress;
-  private JTextField chatBoxNotificationMessage;
-  private JPanel companionConversationPanelBottom;
-  private JButton promptButton;
-  private JTextArea promptTextArea;
-  private JPanel buttonPanel;
-  private JButton clearAllMessages;
-  private final List<ChatMessage> chatMessages = new FixedSizeList<ChatMessage>(OracleAIChatBoxState.MAX_CHAR_MESSAGE_COUNT);
-
-  public static DatabaseOracleAIManager currManager;
-
-  static private final ResourceBundle messages =
-      ResourceBundle.getBundle("Messages", Locale.getDefault());
-
-  /**
-   * special profile combobox item that lead to create a new profile
-   */
-  static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
-      new AIProfileItem(messages.getString("companion.profile.combobox.add"), false);
-
-  /**
-   * special profile combobox item that's a placeholder for when there is no effective profiles
-   */
-
-  private OracleAIChatBox() {
-    profileListModel = new ProfileComboBoxModel();
-    initializeUI();
-    this.setLayout(new BorderLayout(1, 1));
-    this.add(chatBoxMainPanel, BorderLayout.CENTER);
-  }
 
   public static OracleAIChatBox getInstance(Project project) {
     currManager = project.getService(DatabaseOracleAIManager.class);
@@ -224,11 +221,9 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     profileComboBox.addActionListener(profileActionListener);
     profileComboBox.setRenderer(new ProfileComboBoxRenderer());
 
+    clearAllMessages.setIcon(Icons.ACTION_DELETE);
     clearAllMessages.addActionListener(e -> {
-      chatMessages.clear();
-      populateChatPanel();
-      companionConversationPanel.revalidate();
-      companionConversationPanel.repaint();
+      conversationPanelWrapper.clear();
     });
 
   }
@@ -284,6 +279,10 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     companionConversationScrollPan.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
     companionConversationScrollPan.add(conversationPanel);
     companionConversationScrollPan.setViewportView(conversationPanel);
+
+    conversationPanelWrapper = new RollingJPanelWrapper(OracleAIChatBoxState.MAX_CHAR_MESSAGE_COUNT,
+            conversationPanel );
+
   }
 
   /**
@@ -374,18 +373,12 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
 
     // TODO : do we want to append the message even in case of error
     ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
-    chatMessages.add(inputChatMessage);
-    populateChatPanel();
-    // TODO : use Rolling panel
-    //appendMessageToChat(inputChatMessage);
+    appendMessageToChat(List.of(inputChatMessage));
     currManager.queryOracleAI(question, actionType, item.getLabel(),
             ((ProviderModel) aiModelComboBox.getSelectedItem()).getApiName())
         .thenAccept((output) -> {
           ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
-          chatMessages.add(outPutChatMessage);
-          populateChatPanel();
-          // TODO : use Rolling panel
-          //appendMessageToChat(outPutChatMessage);
+          appendMessageToChat(List.of(outPutChatMessage));
           LOG.debug("Query processed successfully.");
         })
         .exceptionally(e -> {
@@ -431,7 +424,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     AIProfileItem selectedProfile = (AIProfileItem) profileListModel.getSelectedItem();
     return OracleAIChatBoxState.builder()
         .currConnection(currConnection)
-        .aiAnswers(chatMessages)
+        .aiAnswers(conversationPanelWrapper.getMessages())
         .profiles(profileListModel.getAllProfiles())
         .currentQuestionText(promptTextArea.getText())
         .selectedProfile((selectedProfile != null && selectedProfile.isEffective()) ? selectedProfile : null)
@@ -448,9 +441,9 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     assert state != null : "cannot be null";
     this.updateProfiles(state.getProfiles());
     if (state.getSelectedProfile() != null) profileComboBox.setSelectedItem(state.getSelectedProfile());
-    chatMessages.clear();
-    chatMessages.addAll(state.getAiAnswers());
-    populateChatPanel();
+    conversationPanelWrapper.clear();
+    appendMessageToChat(state.getAiAnswers());
+
     promptTextArea.setText(state.getCurrentQuestionText());
   }
 
@@ -573,23 +566,12 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     }
   }
 
-  private void populateChatPanel() {
-    conversationPanel.removeAll();
-    for (ChatMessage message : chatMessages) {
-      appendMessageToChat(message);
-    }
-  }
+  private void appendMessageToChat(List<ChatMessage> chatMessages) {
 
-  private void appendMessageToChat(ChatMessage chatMessage) {
-    JPanel messagePane = createMessagePane(chatMessage);
-
-    conversationPanel.add(messagePane, chatMessage.getAuthor() == AuthorType.AI ? "wrap, w ::80%" : "wrap, al right, w ::80%");
-    conversationPanel.revalidate();
-    conversationPanel.repaint();
+    conversationPanelWrapper.addAll(chatMessages);
 
     SwingUtilities.invokeLater(() -> {
       companionConversationScrollPan.validate();
-
       JScrollBar verticalBar = companionConversationScrollPan.getVerticalScrollBar();
       verticalBar.setValue(verticalBar.getMaximum());
     });
@@ -597,11 +579,6 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   }
 
 
-  private JPanel createMessagePane(ChatMessage chatMessage) {
-    JIMSendTextPane messagePane = new JIMSendTextPane();
-    messagePane.setText(chatMessage.getMessage());
-    messagePane.setAuthorColor(chatMessage.getAuthor());
-    return messagePane;
-  }
+
 
 }
