@@ -57,57 +57,11 @@ import java.util.stream.Collectors;
 
 import static java.awt.event.InputEvent.BUTTON1_MASK;
 
+/**
+ * Holder class for profile Combox box
+ */
 public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
 
-  private void createUIComponents() {
-    promptTextArea = new IdleJtextArea(messages.getString("companion.chat.prompt.tooltip"));
-    activityProgress = new ActivityNotifier();
-    conversationPanel = new JPanel();
-    //conversationPanel = new RollingJPanelContainer();
-    //((RollingJPanelContainer)conversationPanel).setMaxCapacity(OracleAIChatBoxState.MAX_CHAR_MESSAGE_COUNT);
-  }
-
-  /**
-   * Holder class for profile Combox box
-   */
-
-  /**
-   * Dedicated class for NL2SQL profile model.
-   */
-  class ProfileComboBoxModel extends DefaultComboBoxModel<AIProfileItem> {
-
-    @Override
-    public void removeAllElements() {
-      profileComboBox.removeActionListener(profileActionListener);
-      super.removeAllElements();
-      profileComboBox.addActionListener(profileActionListener);
-
-    }
-
-    /**
-     * Gets the list of labels
-     *
-     * @return all item labels i.e profile names
-     */
-    public List<AIProfileItem> getAllProfiles() {
-      List<AIProfileItem> result = new ArrayList<>();
-      for (int i = 0; i < this.getSize() - 1; i++) {
-        result.add(this.getElementAt(i));
-      }
-      return result;
-    }
-
-    /**
-     * Get list of effective profiles.
-     * remove non-effective profiles and the special
-     *
-     * @return
-     */
-    public List<AIProfileItem> getUsableProfiles() {
-      return this.getAllProfiles().stream().filter(AIProfileItem::isEffective).collect(
-          Collectors.toList());
-    }
-  }
 
   private static final Logger LOG = Logger.getInstance(OracleAIChatBox.class.getPackageName());
 
@@ -143,9 +97,6 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
       new AIProfileItem(messages.getString("companion.profile.combobox.add"), false);
 
-  /**
-   * special profile combobox item that's a placeholder for when there is no effective profiles
-   */
 
   private OracleAIChatBox() {
     profileListModel = new ProfileComboBoxModel();
@@ -153,6 +104,55 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     this.setLayout(new BorderLayout(1, 1));
     this.add(chatBoxMainPanel, BorderLayout.CENTER);
   }
+
+  private void createUIComponents() {
+    promptTextArea = new IdleJtextArea(messages.getString("companion.chat.prompt.tooltip"));
+    activityProgress = new ActivityNotifier();
+    conversationPanel = new JPanel();
+    //conversationPanel = new RollingJPanelContainer();
+    //((RollingJPanelContainer)conversationPanel).setMaxCapacity(OracleAIChatBoxState.MAX_CHAR_MESSAGE_COUNT);
+
+  }
+
+
+  /**
+   * Dedicated class for NL2SQL profile model.
+   */
+  class ProfileComboBoxModel extends DefaultComboBoxModel<AIProfileItem> {
+
+    @Override
+    public void removeAllElements() {
+      profileComboBox.removeActionListener(profileActionListener);
+      super.removeAllElements();
+      profileComboBox.addActionListener(profileActionListener);
+
+    }
+
+    /**
+     * Gets the list of labels
+     *
+     * @return all item labels i.e profile names
+     */
+    public List<AIProfileItem> getAllProfiles() {
+      List<AIProfileItem> result = new ArrayList<>();
+      for (int i = 0; i < this.getSize() - 1; i++) {
+        result.add(this.getElementAt(i));
+      }
+      return result;
+    }
+
+    /**
+     * Get list of effective profiles.
+     * remove non-effective profiles and the special
+     *
+     * @return
+     */
+    public List<AIProfileItem> getUsableProfiles() {
+      return this.getAllProfiles().stream().filter(AIProfileItem::isEffective).collect(
+              Collectors.toList());
+    }
+  }
+
 
   public static OracleAIChatBox getInstance(Project project) {
     currManager = project.getService(DatabaseOracleAIManager.class);
@@ -224,6 +224,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     profileComboBox.addActionListener(profileActionListener);
     profileComboBox.setRenderer(new ProfileComboBoxRenderer());
 
+    clearAllMessages.setIcon(Icons.ACTION_DELETE);
     clearAllMessages.addActionListener(e -> {
       chatMessages.clear();
       populateChatPanel();
