@@ -124,7 +124,7 @@
             </properties>
             <border type="none"/>
             <children>
-              <grid id="68ea8" binding="conversationPanel" custom-create="true" layout-manager="BorderLayout" hgap="0" vgap="0">
+              <grid id="68ea8" binding="conversationPanel" layout-manager="BorderLayout" hgap="0" vgap="0">
                 <constraints/>
                 <properties/>
                 <border type="none"/>
