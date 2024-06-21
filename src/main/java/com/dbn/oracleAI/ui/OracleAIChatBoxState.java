@@ -33,6 +33,8 @@ public class OracleAIChatBoxState {
   private List<ChatMessage> aiAnswers;
   private String currConnection;
 
+  public static final short MAX_CHAR_MESSAGE_COUNT = 100;
+
   /**
    * Converts the state of the OracleAIChatBox into an XML Element.
    *

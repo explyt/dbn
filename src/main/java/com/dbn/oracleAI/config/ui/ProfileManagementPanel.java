@@ -4,8 +4,8 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.AIProfileItem;
-import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.oracleAI.ManagedObjectServiceProxy;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
@@ -30,6 +30,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -66,12 +67,12 @@ public class ProfileManagementPanel extends JPanel {
   private JPanel profileMgntAttributesPanel;
   private JPanel attributesListPanel;
   private JPanel profileMgntTitlePanel;
-    private JPanel objListTableHeader;
+  private JPanel objListTableHeader;
   private JButton goToAssociatedObjects;
 
 
   private JPanel windowActionPanel;
-  private final AIProfileService profileSvc;
+  private final ManagedObjectServiceProxy<Profile> profileSvc;
   private Project currProject;
   private final DatabaseOracleAIManager manager;
 
@@ -88,7 +89,6 @@ public class ProfileManagementPanel extends JPanel {
 
     this.add(mainPane);
 
-
     initComponent();
   }
 
@@ -98,20 +98,39 @@ public class ProfileManagementPanel extends JPanel {
   private void initComponent() {
     initializeButtons();
     initializeUIComponents();
-    updateProfileNames();
+    initializeProfileNames();
 
     ApplicationManager.getApplication().invokeLater(() -> addProfileButton.requestFocusInWindow());
 
     goToAssociatedObjects.addActionListener(event -> {
-              ProfileEditionWizard.showWizard(currProject, currProfile, profileMap, isCommit -> {
-                  if (isCommit) updateProfileNames();
-                }, ProfileEditionObjectListStep.class);
-            });
+      ProfileEditionWizard.showWizard(currProject, currProfile, profileMap, isCommit -> {
+        if (isCommit) updateProfileNames();
+      }, ProfileEditionObjectListStep.class);
+    });
 
   }
 
+  private void initializeProfileNames() {
+//    List<Profile> profileList = profileSvc.getCachedProfiles();
+    List<Profile> profileList = null;
+    if (profileList != null) {
+      profileMap = profileList.stream().collect(Collectors.toMap(Profile::getProfileName,
+          Function.identity(),
+          (existing, replacement) -> existing));
+
+      if (!profileMap.isEmpty()) {
+        currProfile = profileMap.values().iterator().next();
+      } else {
+        currProfile = null;
+      }
+      this.initializeUIComponents();
+    } else {
+      updateProfileNames();
+    }
+  }
+
   private void updateProfileNames() {
-    profileSvc.getProfiles().thenAccept(pm -> {
+    profileSvc.list().thenAccept(pm -> {
       profileMap = pm.stream().collect(Collectors.toMap(Profile::getProfileName,
           Function.identity(),
           (existing, replacement) -> existing));
@@ -122,7 +141,10 @@ public class ProfileManagementPanel extends JPanel {
         currProfile = null;
       }
       ApplicationManager.getApplication()
-          .invokeLater(this::initializeUIComponents);
+          .invokeLater(() -> {
+//            manager.getProfileService().updateCachedProfiles(pm);
+            this.initializeUIComponents();
+          });
     }).exceptionally(e -> {
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currProject, e.getCause().getMessage()));
       return null;
@@ -170,12 +192,12 @@ public class ProfileManagementPanel extends JPanel {
     editProfileButton.addActionListener(event -> {
       ProfileEditionWizard.showWizard(currProject, currProfile, profileMap, isCommit -> {
         if (isCommit) updateProfileNames();
-      },null);
+      }, null);
     });
     addProfileButton.addActionListener(event -> {
       ProfileEditionWizard.showWizard(currProject, null, profileMap, isCommit -> {
-            if (isCommit) updateProfileNames();
-          },null);
+        if (isCommit) updateProfileNames();
+      }, null);
     });
 
     makeDefaultProfileButton.addActionListener(event -> {
@@ -216,14 +238,16 @@ public class ProfileManagementPanel extends JPanel {
    * @param profile the profile ot be deleted
    */
   private void removeProfile(Profile profile) {
-    profileSvc.deleteProfile(profile.getProfileName()).thenRun(() -> {
+    profileSvc.delete(profile.getProfileName()).thenRun(() -> {
       profileMap.remove(profile.getProfileName());
       if (!profileMap.isEmpty()) {
         currProfile = profileMap.values().iterator().next();
       } else {
         currProfile = null;
       }
+//      manager.getProfileService().removeCachedProfile(profile);
       updateProfileNames();
+      updateWindow();
     }).exceptionally(throwable -> {
       Messages.showErrorDialog(currProject,
           messages.getString("profiles.mgnt.attr.deletion.failed.title"),
@@ -242,6 +266,7 @@ public class ProfileManagementPanel extends JPanel {
     deleteProfileButton.setEnabled(false);
     editProfileButton.setEnabled(false);
     makeDefaultProfileButton.setEnabled(false);
+    goToAssociatedObjects.setEnabled(false);
   }
 
   private void initializeFilledWindow() {
@@ -253,6 +278,7 @@ public class ProfileManagementPanel extends JPanel {
     deleteProfileButton.setEnabled(true);
     editProfileButton.setEnabled(true);
     makeDefaultProfileButton.setEnabled(true);
+    goToAssociatedObjects.setEnabled(true);
   }
 
   /**
@@ -279,6 +305,10 @@ public class ProfileManagementPanel extends JPanel {
       modelField.setText(currProfile.getModel() == null ? currProfile.getProvider().getDefaultModel().name() : currProfile.getModel().name());
     } else {
       initializeEmptyWindow();
+      credentialField.setText(messages.getString("ai.messages.unknown"));
+      providerField.setText(messages.getString("ai.messages.unknown"));
+      modelField.setText(messages.getString("ai.messages.unknown"));
+      objListTable.setModel(new DefaultTableModel());
     }
   }
 
@@ -327,7 +357,7 @@ public class ProfileManagementPanel extends JPanel {
         if (row % 2 == 0) {
           setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
         } else {
-          setBackground(isSelected ? table.getSelectionBackground() : table.getBackground().darker());
+          setBackground(isSelected ? table.getSelectionBackground() : new Color(224, 224, 244)); // light gray
         }
 
         return this;
@@ -346,7 +376,7 @@ public class ProfileManagementPanel extends JPanel {
     DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
       @Override
       public boolean isCellEditable(int row, int column) {
-       return  (column == 1 && row == 0);
+        return (column == 1 && row == 0);
       }
     };
     objListTable.setModel(tableModel);

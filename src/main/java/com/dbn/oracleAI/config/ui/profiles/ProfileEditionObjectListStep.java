@@ -2,9 +2,9 @@ package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
-import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.DatabaseService;
+import com.dbn.oracleAI.ManagedObjectServiceProxy;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
@@ -83,7 +83,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   private JComboBox schemaComboBox;
   private JCheckBox withViewsButton;
   private JProgressBar activityProgress;
-  private final AIProfileService profileSvc;
+  private final ManagedObjectServiceProxy<Profile> profileSvc;
   private final DatabaseService databaseSvc;
   private final Project project;
   private final Profile profile;
@@ -98,15 +98,15 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   public ProfileEditionObjectListStep(Project project, Profile profile, boolean isUpdate) {
     super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.title"),
-            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.explaination"),
-            Icons.DB_GENERIC);
+        ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.explaination"),
+        Icons.DB_GENERIC);
     this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
     this.profile = profile;
     this.isUpdate = isUpdate;
     this.databaseSvc = project.getService(DatabaseOracleAIManager.class).getDatabaseService();
 
-   if (this.profile != null)
+    if (this.profile != null)
       prefetchObjectForProfile(this.profile);
 
     initializeTables();
@@ -131,7 +131,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     patternFilter.getDocument().addDocumentListener(new DocumentListener() {
       public void changedUpdate(DocumentEvent e) {
         // experience showed that's never called
-        assert false: "changedUpdate called??";
+        assert false : "changedUpdate called??";
       }
 
       public void removeUpdate(DocumentEvent e) {
@@ -141,7 +141,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         try {
           filter = e.getDocument().getText(0, e.getDocument().getLength()).trim();
         } catch (BadLocationException ignored) {
-          LOGGER.debug("BadLocationException",ignored);
+          LOGGER.debug("BadLocationException", ignored);
         }
         if (filter.isEmpty()) {
           // filter cleared
@@ -161,7 +161,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
             triggerFiltering();
           }
         } catch (BadLocationException ignored) {
-          LOGGER.debug("BadLocationException",ignored);
+          LOGGER.debug("BadLocationException", ignored);
         }
       }
 
@@ -178,48 +178,51 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         e -> {
           if (((JCheckBox) e.getSource()).isSelected()) {
             currentDbObjListTableModel.unhideItemByType(DatabaseObjectType.VIEW);
+            currentDbObjListTableModel.unhideItemByType(DatabaseObjectType.MATERIALIZED_VIEW);
           } else {
             currentDbObjListTableModel.hideItemByType(DatabaseObjectType.VIEW);
+            currentDbObjListTableModel.hideItemByType(DatabaseObjectType.MATERIALIZED_VIEW);
           }
 
         }
     ));
 
     selectAllCheckBox.addItemListener((
-            e -> {
-              if (((JCheckBox) e.getSource()).isSelected()) {
-                databaseObjectsTable.selectAll();
-              } else {
-                databaseObjectsTable.clearSelection();
-              }
+        e -> {
+          if (((JCheckBox) e.getSource()).isSelected()) {
+            databaseObjectsTable.selectAll();
+          } else {
+            databaseObjectsTable.clearSelection();
+          }
 
-            }
+        }
     ));
 
   }
 
   private Set<String> schemaInPrefetch = new HashSet<>();
+
   private void prefetchObjectForProfile(Profile profile) {
     schemaInPrefetch.clear();
     // TODO : implement bulk fetch
     profile.getObjectList().stream()
-            .map(profileDBObjectItem->profileDBObjectItem.getOwner())
-            .distinct().forEach(schemaName -> {
-              if (!databaseObjectListTableModelCache.containsKey(schemaName)) {
-                LOGGER.debug("prefetching schema : "+schemaName);
-                schemaInPrefetch.add(schemaName.toLowerCase());
-                databaseSvc.getObjectItemsForSchema(schemaName).thenAccept(objs -> {
-                  DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
-                  LOGGER.debug("new schema prefetched: "+schemaName+" obj count: "+objs.size());
-                  newModel.hideItemByNames(
-                          this.profile.getObjectList().stream().filter(o->o.getOwner().equalsIgnoreCase(schemaName)).map(o->o.getName()).collect(Collectors.toList()));
+        .map(profileDBObjectItem -> profileDBObjectItem.getOwner())
+        .distinct().forEach(schemaName -> {
+          if (!databaseObjectListTableModelCache.containsKey(schemaName)) {
+            LOGGER.debug("prefetching schema : " + schemaName);
+            schemaInPrefetch.add(schemaName.toLowerCase());
+            databaseSvc.getObjectItemsForSchema(schemaName).thenAccept(objs -> {
+              DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
+              LOGGER.debug("new schema prefetched: " + schemaName + " obj count: " + objs.size());
+              newModel.hideItemByNames(
+                  this.profile.getObjectList().stream().filter(o -> o.getOwner().equalsIgnoreCase(schemaName)).map(o -> o.getName()).collect(Collectors.toList()));
 
-                  databaseObjectListTableModelCache.put(schemaName, newModel);
-                  schemaInPrefetch.remove(schemaName.toLowerCase());
-                  this.profileObjectListTable.repaint();
-                });
-              }
-    });
+              databaseObjectListTableModelCache.put(schemaName, newModel);
+              schemaInPrefetch.remove(schemaName.toLowerCase());
+              this.profileObjectListTable.repaint();
+            });
+          }
+        });
   }
 
   private void initializeTables() {
@@ -230,11 +233,13 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     initializeDatabaseObjectTable(th);
     initializeProfileObjectTable(th);
   }
+
   private void resetDatabaseObjectTableModel(DatabaseObjectListTableModel m) {
     LOGGER.debug("resetDatabaseObjectTableModel for " + m);
     this.databaseObjectsTable.setModel(m);
     this.databaseObjectsTableSorter.setModel(m);
   }
+
   private void initializeDatabaseObjectTable(DBObjectsTransferHandler th) {
     LOGGER.debug("initializing databaseObjectsTable");
     // keep this !
@@ -250,15 +255,15 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
       public boolean include(Entry<? extends DatabaseObjectListTableModel, ? extends Integer> entry) {
         String currentFilter = patternFilter.getText().trim().toLowerCase();
         // by default we show the entry
-        boolean shallInclude  = true;
+        boolean shallInclude = true;
         if (!currentFilter.isEmpty()) {
           //shallInclude = entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX).matches(currentFilter);
           // keep it simple for now
           shallInclude = entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX).toLowerCase().contains(currentFilter);
         }
-        if (LOGGER.isDebugEnabled() ) {
-            LOGGER.debug(this + " filtering model "+entry.getModel()+" on ["+currentFilter+"] for ["+
-                    entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX)+"] => "+shallInclude);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug(this + " filtering model " + entry.getModel() + " on [" + currentFilter + "] for [" +
+              entry.getStringValue(TABLES_COLUMN_HEADERS_NAME_IDX) + "] => " + shallInclude);
         }
         return shallInclude;
       }
@@ -280,8 +285,8 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
             for (int i = 0; i < selectedRows.length; i++) {
               DBObjectItem item = currentDbObjListTableModel.getItemAt(selectedRows[i]);
               newItems.add(new ProfileDBObjectItem(
-                      item.getOwner(),
-                      item.getName()));
+                  item.getOwner(),
+                  item.getName()));
               namesTobeHidden.add(item.getName());
 
             }
@@ -309,6 +314,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     });
     LOGGER.debug("initialization databaseObjectsTable complete");
   }
+
   private void initializeProfileObjectTable(DBObjectsTransferHandler th) {
     LOGGER.debug("initializing profileObjectListTable");
     this.profileObjectListTable.setTransferHandler(th);
@@ -390,15 +396,16 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     });
     LOGGER.debug("initialization profileObjectListTable complete");
   }
+
   private void startActivityNotifier() {
-    ((ActivityNotifier)activityProgress).start();
+    ((ActivityNotifier) activityProgress).start();
   }
 
   /**
    * Stops the spining wheel
    */
   private void stopActivityNotifier() {
-    ((ActivityNotifier)activityProgress).stop();
+    ((ActivityNotifier) activityProgress).stop();
   }
 
   /**
@@ -433,7 +440,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     // at this point, no way to no have something
     return oitem.get().getType();
   }
-  
+
   private void loadSchemas() {
     LOGGER.debug("Loading schemas...");
     startActivityNotifier();
@@ -453,22 +460,22 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   private void populateDatabaseObjectTable(String schema) {
     assert (schema != null && !schema.isEmpty()) : "Invalid schema passed";
 
-    LOGGER.debug("populateDatabaseObjectTable for "+schema);
+    LOGGER.debug("populateDatabaseObjectTable for " + schema);
 
     DatabaseObjectListTableModel model = databaseObjectListTableModelCache.get(schema);
 
     if (model == null) {
-      LOGGER.debug("populateDatabaseObjectTable no cache for "+schema);
+      LOGGER.debug("populateDatabaseObjectTable no cache for " + schema);
       startActivityNotifier();
       databaseObjectsTable.setEnabled(false);
       databaseSvc.getObjectItemsForSchema(schema).thenAccept(objs -> {
         SwingUtilities.invokeLater(() -> {
           if (LOGGER.isDebugEnabled())
-           LOGGER.debug("populateDatabaseObjectTable new model for "+schema +" objs count="+objs.size());
+            LOGGER.debug("populateDatabaseObjectTable new model for " + schema + " objs count=" + objs.size());
           DatabaseObjectListTableModel newModel = new DatabaseObjectListTableModel(objs, !withViewsButton.isSelected());
           // remove the one already selected
           newModel.hideItemByNames(
-                  this.profile.getObjectList().stream().filter(o->o.getOwner().equalsIgnoreCase(schema)).map(o->o.getName()).collect(Collectors.toList()));
+              this.profile.getObjectList().stream().filter(o -> o.getOwner().equalsIgnoreCase(schema)).map(o -> o.getName()).collect(Collectors.toList()));
           databaseObjectListTableModelCache.put(schema, newModel);
           currentDbObjListTableModel = newModel;
           resetDatabaseObjectTableModel(currentDbObjListTableModel);

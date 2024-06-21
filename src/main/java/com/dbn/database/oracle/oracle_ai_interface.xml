@@ -101,6 +101,13 @@
             FROM all_views WHERE OWNER = '{0}'
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="list-materialized-views" timeout="120">
+        <statement>
+            SELECT owner, myview_name
+            FROM sys.all_mviews
+            WHERE owner = '{0}'
+        </statement>
+    </statement-execution-processor>
     <statement-execution-processor id="list-schemas" timeout="120">
         <statement>
             SELECT DISTINCT OWNER

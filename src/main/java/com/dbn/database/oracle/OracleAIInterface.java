@@ -167,8 +167,10 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
       //    refactor later
       List<DBObjectItem> tableDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.TABLE), "list-tables", schemaName).getDBObjectListItems();
       List<DBObjectItem> viewDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.VIEW), "list-views", schemaName).getDBObjectListItems();
+      List<DBObjectItem> materializedViewDBObjectListItems = executeCall(connection, new TableAndViewListInfo(schemaName, DatabaseObjectType.MATERIALIZED_VIEW), "list-materialized-views", schemaName).getDBObjectListItems();
       DBObjectItems.addAll(tableDBObjectListItems);
       DBObjectItems.addAll(viewDBObjectListItems);
+      DBObjectItems.addAll(materializedViewDBObjectListItems);
       return DBObjectItems;
     } catch (SQLException e) {
       throw new DatabaseOperationException(e.getMessage(), e);

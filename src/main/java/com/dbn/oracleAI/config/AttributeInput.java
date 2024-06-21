@@ -14,4 +14,10 @@ public interface AttributeInput {
    **/
   String toAttributeMap();
 
+  /**
+   * Gets unique identifier
+   * @return the uuid
+   */
+  String getUuid();
+
 }

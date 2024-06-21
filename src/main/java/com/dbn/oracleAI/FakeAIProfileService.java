@@ -12,14 +12,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 
-/**
- * Mockup profile service.
- * This service use data from JSON dump files.
- * Default location are
- *     /var/tmp/profiles.json
- * Location can be overided by following system properties
- *  fake.services.profile.dump
- */
 public class FakeAIProfileService implements AIProfileService {
 
     Type PROFILE_TYPE = new TypeToken<List<Profile>>() {
@@ -30,7 +22,13 @@ public class FakeAIProfileService implements AIProfileService {
     List<Profile> profiles = null;
 
     @Override
-    public CompletableFuture<List<Profile>> getProfiles() {
+    public CompletableFuture<Profile> get(String uuid) {
+        assert false:"implement this !";
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<List<Profile>> list() {
         if (profiles == null) {
             try {
                 this.profiles = new Gson().fromJson(new FileReader(profilesRepoFilename), PROFILE_TYPE);
@@ -43,19 +41,19 @@ public class FakeAIProfileService implements AIProfileService {
 
 
     @Override
-    public CompletableFuture<Void> deleteProfile(String profileName) {
+    public CompletableFuture<Void> delete(String profileName) {
         this.profiles.removeIf(profile -> profile.getProfileName().equalsIgnoreCase(profileName));
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public CompletionStage<Void> createProfile(Profile profile) {
+    public CompletionStage<Void> create(Profile profile) {
         this.profiles.add(profile);
         return CompletableFuture.completedFuture(null);
     }
 
     @Override
-    public CompletionStage<Void> updateProfile(Profile updatedProfile) {
+    public CompletionStage<Void> update(Profile updatedProfile) {
         this.profiles.removeIf(p -> p.getProfileName().equalsIgnoreCase(updatedProfile.getProfileName()));
         this.profiles.add(updatedProfile);
         return CompletableFuture.completedFuture(null);
