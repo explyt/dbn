@@ -64,6 +64,6 @@ public class RollingJPanelWrapper {
     }
 
     public List<ChatMessage> getMessages() {
-        return Collections.unmodifiableList(this.getMessages());
+        return Collections.unmodifiableList(this.items);
     }
 }
