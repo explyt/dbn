@@ -1113,6 +1113,10 @@
         </intentionAction>
         <!--<intentionAction><className>com.dbn.code.common.intention.SetupCodeCompletionIntentionAction</className><category>Database</category></intentionAction>-->
 
+        <intentionAction>
+            <className>com.dbn.oracleAI.ShowSqlIntentionAction</className>
+            <category>Database/Connectivity</category>
+        </intentionAction>
         <fileDocumentManagerListener implementation="com.dbn.connection.console.DatabaseConsoleFileInitializer"/>
 
     </extensions>

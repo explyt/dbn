@@ -3,9 +3,6 @@ package com.dbn.editor.console;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.util.Editors;
 import com.dbn.editor.console.ui.SQLConsoleEditorToolbarForm;
-import com.dbn.oracleAI.EditorAIQueryListener;
-import com.intellij.openapi.editor.Document;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -26,10 +23,10 @@ public class SQLConsoleEditorListener extends DBNFileEditorManagerListener {
     Project project = source.getProject();
     SQLConsoleEditorToolbarForm toolbarForm = new SQLConsoleEditorToolbarForm(project, fileEditor);
     Editors.addEditorToolbar(fileEditor, toolbarForm);
-
-    Document document = FileDocumentManager.getInstance().getDocument(file);
-    if (document != null) {
-      document.addDocumentListener(new EditorAIQueryListener(source.getProject()));
-    }
+//
+//    Document document = FileDocumentManager.getInstance().getDocument(file);
+//    if (document != null) {
+//      document.addDocumentListener(new EditorAIQueryListener(source.getProject()));
+//    }
   }
 }
