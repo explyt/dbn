@@ -65,6 +65,9 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
   public void switchToConnection(ConnectionId connectionId) {
     assert oracleAIChatBox != null : "oracleAIChatBox not initialize";
 
+    if (!getOracleAIWindow().isVisible()) {
+      initOracleAIWindow().show(null);
+    }
     // First save the current one
     if (currConnection != null) {
       OracleAIChatBoxState chatBoxState = oracleAIChatBox.captureState(currConnection.toString());

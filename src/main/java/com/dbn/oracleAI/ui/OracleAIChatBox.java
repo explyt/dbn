@@ -146,7 +146,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
      */
     public List<AIProfileItem> getUsableProfiles() {
       return this.getAllProfiles().stream().filter(AIProfileItem::isEffective).collect(
-              Collectors.toList());
+          Collectors.toList());
     }
   }
 
@@ -281,7 +281,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     companionConversationScrollPan.setViewportView(conversationPanel);
 
     conversationPanelWrapper = new RollingJPanelWrapper(OracleAIChatBoxState.MAX_CHAR_MESSAGE_COUNT,
-            conversationPanel );
+        conversationPanel);
 
   }
 
@@ -425,7 +425,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     return OracleAIChatBoxState.builder()
         .currConnection(currConnection)
         .aiAnswers(conversationPanelWrapper.getMessages())
-        .profiles(profileListModel.getAllProfiles())
+        .profiles(new ArrayList<>(profileListModel.getAllProfiles()))
         .currentQuestionText(promptTextArea.getText())
         .selectedProfile((selectedProfile != null && selectedProfile.isEffective()) ? selectedProfile : null)
         .build();
@@ -577,8 +577,6 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     });
 
   }
-
-
 
 
 }
