@@ -4,6 +4,7 @@ import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.codeInsight.intention.impl.config.IntentionManagerImpl;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
@@ -12,8 +13,11 @@ public class ShowSqlIntentionAction extends PsiElementBaseIntentionAction {
 
   @Override
   public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-    String text = element.getText();
-    return text.startsWith("---") && text.endsWith(";\n");
+    if (element instanceof PsiComment) {
+      String text = element.getText();
+      return text.startsWith("---") && (text.endsWith(";") || text.endsWith(";\n"));
+    }
+    return false;
   }
 
   @Override
