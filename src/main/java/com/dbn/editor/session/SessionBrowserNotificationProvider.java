@@ -1,6 +1,6 @@
 package com.dbn.editor.session;
 
-import com.dbn.common.compatibility.LegacyEditorNotificationsProvider;
+import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Strings;
@@ -15,18 +15,11 @@ import com.intellij.ui.EditorNotifications;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SessionBrowserNotificationProvider extends LegacyEditorNotificationsProvider<SessionBrowserErrorNotificationPanel> {
+public class SessionBrowserNotificationProvider extends EditorNotificationProvider<SessionBrowserErrorNotificationPanel> {
     private static final Key<SessionBrowserErrorNotificationPanel> KEY = Key.create("DBNavigator.SessionBrowserErrorNotificationPanel");
 
     public SessionBrowserNotificationProvider() {
         ProjectEvents.subscribe(SessionBrowserLoadListener.TOPIC, sessionBrowserLoadListener());
-    }
-
-    @Deprecated
-    public SessionBrowserNotificationProvider(@NotNull Project project) {
-        super(project);
-        ProjectEvents.subscribe(project, this, SessionBrowserLoadListener.TOPIC, sessionBrowserLoadListener());
-
     }
 
     @NotNull

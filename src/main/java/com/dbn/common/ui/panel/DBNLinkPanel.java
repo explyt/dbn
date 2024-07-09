@@ -1,5 +1,6 @@
 package com.dbn.common.ui.panel;
 
+import com.dbn.common.ui.util.Cursors;
 import com.intellij.ui.JBColor;
 
 import javax.swing.*;
@@ -11,8 +12,8 @@ public class DBNLinkPanel extends JPanel{
     public DBNLinkPanel(String text) {
         label = new JLabel(text);
         label.setForeground(JBColor.BLUE);
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        setCursor(Cursors.handCursor());
+        label.setCursor(Cursors.handCursor());
         setLayout(new BorderLayout());
         add(label, BorderLayout.CENTER);
     }

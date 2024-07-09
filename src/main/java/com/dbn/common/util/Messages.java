@@ -6,7 +6,7 @@ import com.dbn.common.message.MessageBundle;
 import com.dbn.common.message.MessageCallback;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.progress.ProgressDialogHandler;
+import com.dbn.nls.NlsResources;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
@@ -17,13 +17,15 @@ import javax.swing.*;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
+// TODO NLS
 @UtilityClass
 public class Messages {
 
     public static final String[] OPTIONS_OK = options("OK");
-    public static final String[] OPTIONS_YES_NO = options("Yes", "No");
-    public static final String[] OPTIONS_YES_CANCEL = options("Yes", "No", "Cancel");
+    public static final String[] OPTIONS_YES_NO = options(txt("app.shared.button.Yes"), txt("app.shared.button.No"));
+    public static final String[] OPTIONS_YES_CANCEL = options(txt("app.shared.button.Yes"), txt("app.shared.button.No"), txt("app.shared.button.Cancel"));
 
     public static void showErrorDialog(@Nullable Project project, String title, MessageBundle messages) {
         StringBuilder buffer = new StringBuilder();
@@ -59,13 +61,13 @@ public class Messages {
 
             //String className = NamingUtil.getClassName(exception.getClass());
             //message = message + "\nCause: [" + className + "] " + exception.getMessage();
-            String exceptionMessage = exception.getMessage();
+            String exceptionMessage = exception.getLocalizedMessage();
             if (exceptionMessage == null) {
                 exceptionMessage = exception.getClass().getName();
             }
             message = message + "\n" + exceptionMessage.trim();
         }
-        if (title == null) title = "Error";
+        if (title == null) title = txt("msg.shared.title.Error");
         showDialog(project, message, title, OPTIONS_OK, 0, Icons.DIALOG_ERROR, null, null);
     }
 

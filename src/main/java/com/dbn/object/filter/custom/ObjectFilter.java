@@ -6,9 +6,15 @@ import com.dbn.common.filter.Filter;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.language.common.DBLanguage;
+import com.dbn.language.common.DBLanguageDialect;
+import com.dbn.language.common.DBLanguagePsiFile;
+import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiFile;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -99,7 +105,27 @@ public class ObjectFilter<T extends DBObject> implements Filter<T>, PersistentCo
         return getSettings().getProject();
     }
 
+    public ConnectionId getConnectionId() {
+        return getSettings().getConnectionId();
+    }
+
     public ConnectionHandler getConnection() {
         return getSettings().getConnection();
+    }
+
+    public DBLanguagePsiFile createPreviewFile() {
+        DBLanguage language = SQLLanguage.INSTANCE;
+        ConnectionHandler connection = getConnection();
+        DBLanguageDialect languageDialect = connection == null ?
+                language.getMainLanguageDialect() :
+                connection.getLanguageDialect(language);
+
+        return DBLanguagePsiFile.createFromText(
+                getProject(),
+                "preview",
+                languageDialect,
+                expression,
+                connection,
+                null);
     }
 }

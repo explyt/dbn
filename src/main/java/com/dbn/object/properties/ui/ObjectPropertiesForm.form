@@ -8,8 +8,8 @@
     <properties/>
     <border type="none"/>
     <children>
-      <grid id="10312" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
-        <margin top="4" left="8" bottom="4" right="4"/>
+      <grid id="10312" binding="headerPanel" layout-manager="GridLayoutManager" row-count="1" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+        <margin top="6" left="8" bottom="6" right="6"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -45,7 +45,14 @@
             </constraints>
             <properties/>
             <border type="none"/>
-            <children/>
+            <children>
+              <component id="69f84" class="javax.swing.JLabel" binding="closeLabel">
+                <constraints border-constraint="North"/>
+                <properties>
+                  <text value="[close]"/>
+                </properties>
+              </component>
+            </children>
           </grid>
         </children>
       </grid>

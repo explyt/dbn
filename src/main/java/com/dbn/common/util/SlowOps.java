@@ -5,6 +5,8 @@ import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.util.UserDataHolder;
+import com.intellij.openapi.vfs.LocalFileSystem;
+import com.intellij.openapi.vfs.VirtualFile;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 

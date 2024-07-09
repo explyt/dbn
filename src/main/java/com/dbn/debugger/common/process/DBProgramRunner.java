@@ -1,7 +1,6 @@
 package com.dbn.debugger.common.process;
 
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
@@ -15,6 +14,7 @@ import com.dbn.debugger.common.config.ui.CompileDebugDependenciesDialog;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.ExecutionInput;
 import com.dbn.execution.compiler.*;
+import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
@@ -35,13 +35,13 @@ import com.intellij.history.LocalHistory;
 import com.intellij.openapi.project.Project;
 import com.intellij.xdebugger.XDebugSession;
 import com.intellij.xdebugger.XDebuggerManager;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.common.notification.NotificationGroup.DEBUGGER;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.common.util.Messages.showWarningDialog;
@@ -49,14 +49,8 @@ import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.openapi.ui.DialogWrapper.OK_EXIT_CODE;
 
-public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericProgramRunner {
+public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericProgramRunner implements NlsSupport {
     public static final String INVALID_RUNNER_ID = "DBNInvalidRunner";
-
-    @Nullable
-    @Override
-    protected RunContentDescriptor doExecute(@NotNull RunProfileState state, @NotNull ExecutionEnvironment environment) throws ExecutionException {
-        return doExecute(environment.getProject(), environment.getExecutor(), state, null, environment);
-    }
 
     public abstract DBDebuggerType getDebuggerType();
 
@@ -75,20 +69,10 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
         return false;
     }
 
-    @Override
     @Nullable
-    @SneakyThrows
-    protected RunContentDescriptor doExecute(@NotNull Project project, @NotNull RunProfileState state, RunContentDescriptor contentToReuse, @NotNull ExecutionEnvironment env) {
-        return doExecute(project, env.getExecutor(), state, contentToReuse, env);
-    }
-
-    private RunContentDescriptor doExecute(
-            Project project,
-            Executor executor,
-            RunProfileState state,
-            RunContentDescriptor contentToReuse,
-            ExecutionEnvironment environment) throws ExecutionException {
-
+    @Override
+    protected RunContentDescriptor doExecute(@NotNull RunProfileState state, @NotNull ExecutionEnvironment environment) {
+        Project project = environment.getProject();
         DBRunConfig runProfile = (DBRunConfig) environment.getRunProfile();
         ConnectionHandler connection = runProfile.getConnection();
         if (connection == null) return null;
@@ -280,10 +264,8 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
 
         } catch (ExecutionException e) {
             conditionallyLog(e);
-            NotificationSupport.sendErrorNotification(
-                    project,
-                    NotificationGroup.DEBUGGER,
-                    "Error initializing environment: {0}", e);
+            NotificationSupport.sendErrorNotification(project, DEBUGGER,
+                    txt("ntf.debugger.error.ErrorInitializingEnvironment", e));
         }
     }
 /*

@@ -10,7 +10,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.options.ui.ConfigurationEditorUtil;
+import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Commons;
@@ -65,7 +65,8 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
 
         environmentTypesComboBox.addActionListener(e -> notifyPresentationChanges());
 
-        TextContent autoConnectHintText = plain("NOTE: If \"Connect automatically\" is not selected, the system will not restore the workspace the next time you open the project (i.e. all open editors for this connection will not be reopened automatically).");
+        // TODO NLS
+        TextContent autoConnectHintText = plain(txt("cfg.connection.hint.DisabledAutoConnect"));
         DBNHintForm hintForm = new DBNHintForm(this, autoConnectHintText, MessageType.INFO, false);
         autoConnectHintPanel.add(hintForm.getComponent());
 
@@ -167,11 +168,11 @@ public class ConnectionDetailSettingsForm extends ConfigurationEditorForm<Connec
         configuration.setEnableDdlFileBinding(ddlFileBindingCheckBox.isSelected());
         configuration.setEnableDatabaseLogging(databaseLoggingCheckBox.isSelected());
         configuration.setAlternativeStatementDelimiter(alternativeStatementDelimiterTextField.getText());
-        int connectivityTimeout = ConfigurationEditorUtil.validateIntegerValue(connectivityTimeoutTextField, "Connectivity timeout (seconds)", true, 0, 30, "");
-        int idleTimeToDisconnect = ConfigurationEditorUtil.validateIntegerValue(idleTimeTextField, "Idle time to disconnect (minutes)", true, 0, 60, "");
-        int idleTimeToDisconnectPool = ConfigurationEditorUtil.validateIntegerValue(idleTimePoolTextField, "Idle time to disconnect pool (minutes)", true, 1, 60, "");
-        int passwordExpiryTime = ConfigurationEditorUtil.validateIntegerValue(passwordExpiryTextField, "Idle time to request password (minutes)", true, 0, 60, "");
-        int maxPoolSize = ConfigurationEditorUtil.validateIntegerValue(maxPoolSizeTextField, "Max connection pool size", true, 3, 20, "");
+        int connectivityTimeout = ConfigurationEditors.validateIntegerValue(connectivityTimeoutTextField, txt("cfg.connection.field.ConnectivityTimeout"), true, 0, 30, "");
+        int idleTimeToDisconnect = ConfigurationEditors.validateIntegerValue(idleTimeTextField, txt("cfg.connection.field.IdleTimeToDisconnect"), true, 0, 60, "");
+        int idleTimeToDisconnectPool = ConfigurationEditors.validateIntegerValue(idleTimePoolTextField, txt("cfg.connection.field.IdleTimeToDisconnectPool"), true, 1, 60, "");
+        int passwordExpiryTime = ConfigurationEditors.validateIntegerValue(passwordExpiryTextField, txt("cfg.connection.field.IdleTimeToRequestPassword"), true, 0, 60, "");
+        int maxPoolSize = ConfigurationEditors.validateIntegerValue(maxPoolSizeTextField, txt("cfg.connection.field.MaxConnectionPoolSize"), true, 3, 20, "");
         configuration.setConnectivityTimeoutSeconds(connectivityTimeout);
         configuration.setIdleMinutesToDisconnect(idleTimeToDisconnect);
         configuration.setIdleMinutesToDisconnectPool(idleTimeToDisconnectPool);

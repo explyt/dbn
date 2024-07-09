@@ -14,8 +14,10 @@ import com.intellij.featureStatistics.FeatureUsageTracker;
 import com.intellij.find.FindInProjectSettings;
 import com.intellij.find.FindManager;
 import com.intellij.find.FindModel;
+import com.intellij.find.SearchTextArea;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.editor.event.SelectionEvent;
@@ -24,6 +26,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.IdeFocusManager;
 import com.intellij.ui.LightColors;
 import com.intellij.util.ArrayUtil;
+import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -47,25 +50,38 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
     private JPanel mainPanel;
     private JPanel actionsPanel;
-    private JTextField searchField;
     private JLabel matchesLabel;
     private JLabel closeLabel;
+    private JPanel searchFieldPanel;
 
     private DataFindModel findModel;
     private boolean myListeningSelection = false;
     private ActionToolbar actionsToolbar;
     private final DataSearchResultController searchResultController;
+    private final SearchTextArea searchTextField = new SearchTextArea(new JTextArea(), true);
 
-    public JTextField getSearchField() {
-        return searchField;
+    public JTextComponent getSearchField() {
+        return searchTextField.getTextArea();
     }
 
     public DataSearchComponent(@NotNull SearchableDataComponent searchableComponent) {
         super(searchableComponent);
+        searchFieldPanel.add(searchTextField, BorderLayout.CENTER);
+        searchTextField.setExtraActions(createExtraActions());
+        searchTextField.setMultilineEnabled(false);
+        //searchTextField.setBorder(Borders.EMPTY_BORDER);
+        //searchTextField.getTextArea().setBorder(Borders.EMPTY_BORDER);
+        //searchTextField.setShowNewLineButton(false);
+
         BasicTable<?> table = searchableComponent.getTable();
         DataModel<?, ?> dataModel = table.getModel();
         dataModel.addDataModelListener(this);
+
+
         initializeFindModel();
+        matchesLabel.setFont(Fonts.smaller(UIUtil.getLabelFont(), 2));
+        matchesLabel.setText("0 results");
+        matchesLabel.setForeground(Colors.getLabelInfoForeground());
 
         findModel = new DataFindModel();
         DataSearchResult searchResult = dataModel.getSearchResult();
@@ -105,6 +121,15 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
                 }
             }
         });
+        //UserInterface.setBackgroundRecursive(mainPanel, searchTextField.getBackground());
+        //UserInterface.removeBorders(mainPanel);
+    }
+
+    private AnAction[] createExtraActions() {
+        return new AnAction[]{
+                new MatchCaseToggleAction(this),
+                new WholeWordsToggleAction(this),
+                new RegexToggleAction(this)};
     }
 
     @NotNull
@@ -121,7 +146,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     @Nullable
     @Override
     public JComponent getPreferredFocusedComponent() {
-        return searchField;
+        return getSearchField();
     }
 
     @Override
@@ -131,6 +156,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
     @Override
     public void searchResultUpdated(DataSearchResult searchResult) {
+        JTextComponent searchField = getSearchField();
         int count = searchResult.size();
         if (searchField.getText().isEmpty()) {
             updateUIWithEmptyResults();
@@ -138,19 +164,14 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
             if (count <= searchResult.getMatchesLimit()) {
                 if (count > 0) {
                     setRegularBackground();
-                    if (count > 1) {
-                        matchesLabel.setText(count + " matches");
-                    } else {
-                        matchesLabel.setText("1 match");
-                    }
+                    updateMatchesLabel(count > 1 ? count + " results" : "1 result", false);
                 } else {
                     setNotFoundBackground();
-                    matchesLabel.setText("No matches");
+                    updateMatchesLabel("0 results", true);
                 }
             } else {
                 setRegularBackground();
-                matchesLabel.setText("More than " + searchResult.getMatchesLimit() + " matches");
-                boldMatchInfo();
+                updateMatchesLabel("More than " + searchResult.getMatchesLimit() + " results", false);
             }
         }
     }
@@ -167,7 +188,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         findModel.setStringToFind(StringUtil.isEmpty(stringToFind) ? "" : stringToFind);
 */
     }
-    
+
     public void resetFindModel() {
         if (findModel != null) {
             findModel.setStringToFind("");
@@ -176,24 +197,14 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
     private void configureLeadPanel() {
         initTextField();
+        JTextComponent searchField = getSearchField();
         onTextChange(searchField, e -> searchFieldDocumentChanged());
 
-        DefaultActionGroup myActionsGroup = new DefaultActionGroup("Search Bar", false);
-        myActionsGroup.add(new ShowHistoryAction(searchField, this));
-        myActionsGroup.add(new PrevOccurrenceAction(this, searchField, true));
-        myActionsGroup.add(new NextOccurrenceAction(this, searchField, true));
-        //myActionsGroup.add(new FindAllAction(this));
-        myActionsGroup.add(new ToggleMatchCase(this));
-        myActionsGroup.add(new ToggleRegex(this));
-
-        actionsToolbar = Actions.createActionToolbar(actionsPanel, "SearchBar", true, myActionsGroup);
-
-        myActionsGroup.addAction(new ToggleWholeWordsOnlyAction(this));
-
-        actionsToolbar.setLayoutPolicy(ActionToolbar.AUTO_LAYOUT_POLICY);
+        DefaultActionGroup actionsGroup = new DefaultActionGroup("Search Bar", false);
+        actionsGroup.add(new PrevOccurrenceAction(this, searchField, true));
+        actionsGroup.add(new NextOccurrenceAction(this, searchField, true));
+        actionsToolbar = Actions.createActionToolbar(actionsPanel, "SearchBar", true, actionsGroup);
         actionsPanel.add(actionsToolbar.getComponent(), BorderLayout.CENTER);
-
-        setSmallerFontAndOpaque(matchesLabel);
 
 
         JLabel closeLabel = new JLabel(" ", AllIcons.Actions.Close, SwingConstants.RIGHT);
@@ -208,7 +219,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
             } else {
                 // TODO
                 //requestFocus(myEditor.getContentComponent());
-                addTextToRecent(DataSearchComponent.this.searchField);
+                addTextToRecent(searchField);
             }
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, UserInterface.ctrlDownMask()),
                 JComponent.WHEN_FOCUSED);
@@ -219,6 +230,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     }
 
     private void searchFieldDocumentChanged() {
+        JTextComponent searchField = getSearchField();
         String text = searchField.getText();
         findModel.setStringToFind(text);
         if (!Strings.isEmpty(text)) {
@@ -226,14 +238,6 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         } else {
             nothingToSearchFor();
         }
-    }
-
-    public boolean isRegexp() {
-        return findModel.isRegularExpressions();
-    }
-
-    public void setRegexp(boolean val) {
-        findModel.setRegularExpressions(val);
     }
 
     public FindModel getFindModel() {
@@ -248,6 +252,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     }
 
     private void updateUIWithFindModel() {
+        JTextComponent searchField = getSearchField();
         String stringToFind = findModel.getStringToFind();
 
         if (!Objects.equals(stringToFind, searchField.getText())) {
@@ -282,12 +287,13 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     public void showHistory(boolean byClickingToolbarButton, JTextField textField) {
         FeatureUsageTracker.getInstance().triggerFeatureUsed("find.recent.search");
         FindInProjectSettings settings = getFindSettings();
-        String[] recent = textField == searchField ? settings.getRecentFindStrings() : settings.getRecentReplaceStrings();
+        String[] recent = textField == getSearchField() ? settings.getRecentFindStrings() : settings.getRecentReplaceStrings();
         List<String> recentOptions = Arrays.asList(ArrayUtil.reverseArray(recent));
         Popups.showCompletionPopup(byClickingToolbarButton ? actionsPanel : null, recentOptions, "Recent Searches", textField, null);
     }
 
     private void initTextField() {
+        JTextComponent searchField = getSearchField();
         //searchField.setColumns(25);
         if (CompatibilityUtil.isUnderGTKLookAndFeel()) {
             searchField.setOpaque(false);
@@ -311,6 +317,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     public void setInitialText(final String initialText) {
         String text = initialText != null ? initialText : "";
         setTextInField(text);
+        JTextComponent searchField = getSearchField();
         searchField.selectAll();
     }
 
@@ -320,23 +327,27 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
     }
 
     public void searchBackward() {
+        JTextComponent searchField = getSearchField();
         moveCursor(DataSearchDirection.UP);
         addTextToRecent(searchField);
     }
 
     public void searchForward() {
+        JTextComponent searchField = getSearchField();
         moveCursor(DataSearchDirection.DOWN);
         addTextToRecent(searchField);
     }
 
     private void addTextToRecent(JTextComponent textField) {
-        final String text = textField.getText();
-        if (text.length() > 0) {
-            if (textField == searchField) {
-                getFindSettings().addStringToFind(text);
-            } else {
-                getFindSettings().addStringToReplace(text);
-            }
+        String text = textField.getText();
+        if (text.isEmpty()) return;
+
+        JTextComponent searchField = getSearchField();
+        FindInProjectSettings findSettings = getFindSettings();
+        if (textField == searchField) {
+            findSettings.addStringToFind(text);
+        } else {
+            findSettings.addStringToReplace(text);
         }
     }
 
@@ -353,12 +364,8 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         searchResultController.moveCursor(direction);
     }
 
-    private static void setSmallerFontAndOpaque(final JComponent component) {
-        CompatibilityUtil.setSmallerFont(component);
-        component.setOpaque(false);
-    }
-
     public void requestFocus() {
+        JTextComponent searchField = getSearchField();
         searchField.setSelectionStart(0);
         searchField.setSelectionEnd(searchField.getText().length());
         requestFocus(searchField);
@@ -375,14 +382,15 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         myLivePreview.cleanUp();
         myLivePreview.dispose();
 */
+        JTextComponent searchField = getSearchField();
         setTrackingSelection(false);
         addTextToRecent(searchField);
     }
 
     private void updateResults(final boolean allowedToChangedEditorSelection) {
-        matchesLabel.setFont(Fonts.deriveFont(matchesLabel.getFont(), Font.PLAIN));
+        JTextComponent searchField = getSearchField();
         String text = searchField.getText();
-        if (text.length() == 0) {
+        if (text.isEmpty()) {
             nothingToSearchFor();
             SearchableDataComponent searchableComponent = getSearchableComponent();
             searchableComponent.cancelEditActions();
@@ -397,8 +405,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
                 } catch (Exception e) {
                     conditionallyLog(e);
                     setNotFoundBackground();
-                    matchesLabel.setText("Incorrect regular expression");
-                    boldMatchInfo();
+                    updateMatchesLabel("Incorrect regular expression", true);
                     getSearchResult().clear();
                     return;
                 }
@@ -417,6 +424,13 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         }
     }
 
+    private void updateMatchesLabel(String text, boolean error) {
+        matchesLabel.setText(text);
+        matchesLabel.setForeground(error ?
+                Colors.getLabelErrorForeground() :
+                Colors.getLabelInfoForeground());
+    }
+
     private FindManager getFindManager() {
         Project project = getSearchableComponent().getTable().getProject();
         return FindManager.getInstance(project);
@@ -429,28 +443,24 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
 
     private void updateUIWithEmptyResults() {
         setRegularBackground();
-        matchesLabel.setText("");
-    }
+        updateMatchesLabel("0 results", false);
 
-    private void boldMatchInfo() {
-        matchesLabel.setFont(Fonts.deriveFont(matchesLabel.getFont(), Font.BOLD));
     }
-
 
     private void setNotFoundBackground() {
-        searchField.setBackground(LightColors.RED);
+        getSearchField().setBackground(LightColors.RED);
     }
 
     private void setRegularBackground() {
-        searchField.setBackground(Colors.getTextFieldBackground());
+        getSearchField().setBackground(Colors.getTextFieldBackground());
     }
 
     public String getTextInField() {
-        return searchField.getText();
+        return getSearchField().getText();
     }
 
     public void setTextInField(final String text) {
-        searchField.setText(text);
+        getSearchField().setText(text);
         findModel.setStringToFind(text);
     }
 

@@ -2,6 +2,7 @@ package com.dbn.common.environment.options.ui;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEditableTable;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.environment.EnvironmentTypeBundle;
 import com.intellij.openapi.project.Project;
@@ -76,9 +77,9 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
     protected void processMouseMotionEvent(MouseEvent e) {
         Object value = getValueAtMouseLocation();
         if (value instanceof Color) {
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setCursor(Cursors.handCursor());
         } else {
-            setCursor(Cursor.getDefaultCursor());
+            setCursor(Cursors.defaultCursor());
         }
     }
 

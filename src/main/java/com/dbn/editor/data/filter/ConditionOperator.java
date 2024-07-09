@@ -1,11 +1,13 @@
 package com.dbn.editor.data.filter;
 
 import com.dbn.common.ui.Presentable;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Date;
 import java.util.Objects;
 
+@Getter
 public enum ConditionOperator implements Presentable {
     EQUAL("=", false),
     NOT_EQUAL("!=", false),
@@ -91,20 +93,12 @@ public enum ConditionOperator implements Presentable {
         return ALL_CONDITION_OPERATORS;
     }
 
-    private String text;
-    private boolean isFinal;
+    private final String text;
+    private final boolean terminal;
 
-    ConditionOperator(String text, boolean isFinal) {
+    ConditionOperator(String text, boolean terminal) {
         this.text = text;
-        this.isFinal = isFinal;
-    }
-
-    public String getText() {
-        return text;
-    }
-
-    public boolean isFinal() {
-        return isFinal;
+        this.terminal = terminal;
     }
 
     public String toString() {

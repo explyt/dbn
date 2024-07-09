@@ -43,7 +43,7 @@ public class Formatter implements Cloneable, Signed {
 
     public Formatter(int signature, @NotNull Locale locale, DBDateFormat dateFormatOption, DBNumberFormat numberFormatOption) {
         this.signature = signature;
-        int dFormat = dateFormatOption.getDateFormat();
+        int dFormat = dateFormatOption.getFormat();
         dateFormat = SimpleDateFormat.getDateInstance(dFormat, locale);
         timeFormat = SimpleDateFormat.getTimeInstance(dFormat, locale);
         dateTimeFormat = SimpleDateFormat.getDateTimeInstance(dFormat, dFormat, locale);

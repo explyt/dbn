@@ -4,6 +4,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComponentAligner;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.resultSet.ResultSetDataModelCell;
@@ -50,7 +51,7 @@ public class ResultSetRecordViewerColumnForm extends DBNFormBase implements Comp
 
         valueFieldPanel.add(valueTextField, BorderLayout.CENTER);
         valueTextField.setEditable(false);
-        valueTextField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+        valueTextField.setCursor(Cursors.textCursor());
         valueTextField.setBackground(Colors.getTextFieldBackground());
         setCell(cell);
     }

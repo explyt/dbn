@@ -34,8 +34,6 @@ import static com.dbn.common.dispose.Failsafe.nd;
 
 public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
     private static final WeakRefCache<DBObjectRef, DBObjectVirtualFile> virtualFileCache = WeakRefCache.weakKey();
-
-    private static final byte[] EMPTY_BYTE_CONTENT = new byte[0];
     protected final DBObjectRef<T> object;
 
     public DBObjectVirtualFile(@NotNull Project project, @NotNull DBObjectRef<T> object) {
@@ -165,25 +163,8 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
     }
 
     @Override
-    @NotNull
-    public OutputStream getOutputStream(Object o, long l, long l1) throws IOException {
-        return DevNullStreams.OUTPUT_STREAM;
-    }
-
-    @Override
-    @NotNull
-    public byte[] contentsToByteArray() throws IOException {
-        return EMPTY_BYTE_CONTENT;
-    }
-
-    @Override
     public long getLength() {
         return 0;
-    }
-
-    @Override
-    public void refresh(boolean b, boolean b1, Runnable runnable) {
-
     }
 
     @Override

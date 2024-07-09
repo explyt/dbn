@@ -10,11 +10,11 @@ import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.logging.ui.DatabaseLoggingResultConsole;
 import com.dbn.execution.logging.ui.DatabaseLoggingResultForm;
+import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.execution.impl.ConsoleViewImpl;
 import com.intellij.execution.ui.ConsoleView;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -88,7 +88,7 @@ public class DatabaseLoggingResult extends ExecutionResultBase<DatabaseLoggingRe
     }
 
     @Override
-    public PsiFile createPreviewFile() {
+    public DBLanguagePsiFile createPreviewFile() {
         return null;
     }
 
@@ -117,9 +117,7 @@ public class DatabaseLoggingResult extends ExecutionResultBase<DatabaseLoggingRe
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.DATABASE_LOG_OUTPUT.is(dataId)) {
-            return DatabaseLoggingResult.this;
-        }
+        if (DataKeys.DATABASE_LOG_OUTPUT.is(dataId)) return this;
         return null;
     }
 

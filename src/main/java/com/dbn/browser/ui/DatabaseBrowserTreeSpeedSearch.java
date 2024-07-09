@@ -1,27 +1,24 @@
 package com.dbn.browser.ui;
 
 import com.dbn.browser.model.BrowserTreeNode;
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.latent.Latent;
+import com.dbn.common.ui.SpeedSearchBase;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
-import com.intellij.ui.SpeedSearchBase;
 import lombok.Getter;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<JTree> implements StatefulDisposable, TreeModelListener {
+public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<DatabaseBrowserTree> implements StatefulDisposable, TreeModelListener {
     private static final Object[] EMPTY_ARRAY = new Object[0];
     private final Latent<Object[]> elements = Latent.basic(() -> {
         List<BrowserTreeNode> nodes = new ArrayList<>();
@@ -59,46 +56,29 @@ public class DatabaseBrowserTreeSpeedSearch extends SpeedSearchBase<JTree> imple
         return null;
     }
 
-    @NotNull
     @Override
-    @Compatibility
-    protected Object[] getAllElements() {
+    protected Object[] getElements() {
         return elements.get();
     }
 
-    @Override
-    protected int getElementCount() {
-        return elements.get().length;
-    }
-
-    //@Override
-    protected Object getElementAt(int viewIndex) {
-        return elements.get()[viewIndex];
-    }
-
     private static void loadElements(List<BrowserTreeNode> nodes, BrowserTreeNode browserTreeNode) {
-        if (browserTreeNode.isTreeStructureLoaded()) {
-            if (browserTreeNode instanceof ConnectionBundle) {
-                ConnectionBundle connectionBundle = (ConnectionBundle) browserTreeNode;
-                for (ConnectionHandler connection : connectionBundle.getConnections()){
-                    DBObjectBundle objectBundle = connection.getObjectBundle();
-                    loadElements(nodes, objectBundle);
-                }
-            }
-            else {
-                for (BrowserTreeNode treeNode : browserTreeNode.getChildren()) {
-                    if (treeNode instanceof DBObject) {
-                        nodes.add(treeNode);
-                    }
-                    loadElements(nodes, treeNode);
-                }
+        if (!browserTreeNode.isTreeStructureLoaded()) return;
+
+        if (browserTreeNode instanceof ConnectionBundle) {
+            ConnectionBundle connectionBundle = (ConnectionBundle) browserTreeNode;
+            for (ConnectionHandler connection : connectionBundle.getConnections()){
+                DBObjectBundle objectBundle = connection.getObjectBundle();
+                loadElements(nodes, objectBundle);
             }
         }
-    }
-
-    @Override
-    public DatabaseBrowserTree getComponent() {
-        return (DatabaseBrowserTree) super.getComponent();
+        else {
+            for (BrowserTreeNode treeNode : browserTreeNode.getChildren()) {
+                if (treeNode instanceof DBObject) {
+                    nodes.add(treeNode);
+                }
+                loadElements(nodes, treeNode);
+            }
+        }
     }
 
     @Override

@@ -15,7 +15,9 @@ public abstract class DBNColoredTableCellRenderer extends ColoredTableCellRender
         try {
             DBNTable dbnTable = (DBNTable) table;
             customizeCellRenderer(dbnTable, value, selected, hasFocus, row, column);
-        } catch (ProcessCanceledException | IllegalStateException | AbstractMethodError e){
+        } catch (ProcessCanceledException e){
+            conditionallyLog(e);
+        } catch (IllegalStateException | AbstractMethodError e){
             conditionallyLog(e);
         }
     }

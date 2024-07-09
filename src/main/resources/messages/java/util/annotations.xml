@@ -1,0 +1,5 @@
+<root>
+    <item name='java.util.Timer'>
+        <annotation name='org.jetbrains.annotations.NonNls'/>
+    </item>
+</root>

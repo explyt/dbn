@@ -2,9 +2,9 @@ package com.dbn.connection.transaction.options;
 
 import com.dbn.common.option.InteractiveOptionBroker;
 import com.dbn.common.options.BasicConfiguration;
-import com.dbn.connection.transaction.options.ui.TransactionManagerSettingsForm;
 import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.connection.transaction.TransactionOption;
+import com.dbn.connection.transaction.options.ui.TransactionManagerSettingsForm;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -88,7 +88,7 @@ public class TransactionManagerSettings extends BasicConfiguration<OperationSett
 
     @Override
     public String getDisplayName() {
-        return "Transaction manager settings";
+        return txt("cfg.transactions.title.TransactionManager");
     }
 
     @Override

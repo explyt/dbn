@@ -8,6 +8,7 @@ import com.dbn.common.ui.table.DBNEditableTable;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.object.common.editor.DefaultEditorOption;
 import com.dbn.object.common.editor.DefaultEditorType;
 import com.dbn.object.type.DBObjectType;
@@ -114,9 +115,9 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
             Point mouseLocation = e.getPoint();
             int columnIndex = columnAtPoint(mouseLocation);
             if (columnIndex == 1) {
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                setCursor(Cursors.handCursor());
             } else {
-                setCursor(Cursor.getDefaultCursor());
+                setCursor(Cursors.defaultCursor());
             }
             super.processMouseMotionEvent(e);
         }

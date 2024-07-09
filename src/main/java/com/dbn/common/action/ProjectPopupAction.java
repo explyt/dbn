@@ -2,7 +2,6 @@ package com.dbn.common.action;
 
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -33,11 +32,6 @@ public abstract class ProjectPopupAction extends ProjectAction {
                         JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
                         true, null, 10);
 
-                //Project project = (Project) e.getDataContext().getData(DataConstants.PROJECT);
-                DataProvider dataProvider = getDataProvider(e);
-                if (dataProvider != null) {
-                    DataProviders.register(popup.getContent(), dataProvider);
-                }
                 showBelowComponent(popup, component);
             }
         }
@@ -51,9 +45,6 @@ public abstract class ProjectPopupAction extends ProjectAction {
         popup.showInScreenCoordinates(component, location);
     }
 
-    public DataProvider getDataProvider(AnActionEvent e) {
-        return null;
-    }
 
     public abstract AnAction[] getChildren(AnActionEvent e);
 }

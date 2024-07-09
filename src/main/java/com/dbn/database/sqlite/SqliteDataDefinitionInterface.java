@@ -3,6 +3,7 @@ package com.dbn.database.sqlite;
 import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -13,7 +14,6 @@ import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 
 import java.sql.SQLException;
 
@@ -28,7 +28,7 @@ public class SqliteDataDefinitionInterface extends DatabaseDataDefinitionInterfa
 
     @Override
     public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
-        if (StringUtil.isEmpty(alternativeDelimiter)) {
+        if (Strings.isEmpty(alternativeDelimiter)) {
             alternativeDelimiter = getInterfaces().getCompatibilityInterface().getDefaultAlternativeStatementDelimiter();
         }
 

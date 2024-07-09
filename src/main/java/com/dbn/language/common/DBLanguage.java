@@ -12,6 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.tree.IFileElementType;
 import lombok.Getter;
 import org.jetbrains.annotations.NonNls;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -24,6 +25,13 @@ public abstract class DBLanguage<D extends DBLanguageDialect> extends Language i
 
     protected DBLanguage(final @NonNls String id, final @NonNls String... mimeTypes){
         super(id, mimeTypes);
+    }
+
+    @NotNull
+    public static DBLanguage unwrap(@Nullable Language language) {
+        if (language instanceof DBLanguage) return (DBLanguage) language;
+        if (language instanceof DBLanguageDialect) return ((DBLanguageDialect) language).getBaseLanguage();
+        return SQLLanguage.INSTANCE;
     }
 
     protected abstract D[] createLanguageDialects();

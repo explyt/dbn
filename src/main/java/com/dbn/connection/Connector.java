@@ -2,8 +2,6 @@ package com.dbn.connection;
 
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.notification.NotificationGroup;
-import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Timeout;
 import com.dbn.common.util.Classes;
 import com.dbn.common.util.Strings;
@@ -18,8 +16,10 @@ import com.dbn.connection.ssh.SshTunnelManager;
 import com.dbn.connection.ssl.SslConnectionManager;
 import com.dbn.debugger.jdwp.process.tunnel.NSTunnelConnectionProxy;
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
@@ -31,12 +31,19 @@ import java.util.Map;
 import java.util.Properties;
 
 import static com.dbn.common.exception.Exceptions.toSqlException;
+import static com.dbn.common.notification.NotificationGroup.CONNECTION;
+import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.data.Activity.CONNECT;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 class Connector {
+    @NonNls
+    public static final String APP_NAME_SUFFIX = "Database Navigator - ";
+
+    @NonNls
     private interface Property {
         String APPLICATION_NAME = "ApplicationName";
         String SESSION_PROGRAM = "v$session.program";
@@ -124,7 +131,8 @@ class Connector {
 
             // SESSION INFO
             ConnectionType connectionType = sessionId.getConnectionType();
-            String appName = "Database Navigator - " + connectionType.getName();
+
+            String appName = APP_NAME_SUFFIX + connectionType.getName();
             if (connectionSettings.isSigned()) {
                 properties.put(Property.APPLICATION_NAME, appName);
             }
@@ -196,10 +204,7 @@ class Connector {
                         databaseAttachmentHandler.attachDatabase(connection, filePath, databaseFile.getSchema());
                     } catch (Exception e) {
                         conditionallyLog(e);
-                        NotificationSupport.sendErrorNotification(
-                                project,
-                                NotificationGroup.CONNECTION,
-                                "Unable to attach database file {0}: {1}", filePath, e);
+                        sendErrorNotification(project, CONNECTION, txt("ntf.connection.error.UnableToAttachFile", filePath, e));
                     }
                 }
             }

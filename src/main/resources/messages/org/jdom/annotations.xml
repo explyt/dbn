@@ -1,0 +1,5 @@
+<root>
+    <item name='org.jdom.Element'>
+        <annotation name='org.jetbrains.annotations.NonNls'/>
+    </item>
+</root>

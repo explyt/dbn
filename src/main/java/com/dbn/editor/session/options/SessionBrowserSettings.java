@@ -21,9 +21,8 @@ public class SessionBrowserSettings extends BasicConfiguration<OperationSettings
     private final InteractiveOptionBroker<SessionInterruptionOption> disconnectSession =
             new InteractiveOptionBroker<>(
                     "disconnect-session",
-                    "Disconnect Sessions",
-                    "Are you sure you want to disconnect the {0} from connection {1}?\nPlease select your disconnect option." +
-                            REMEMBER_OPTION_HINT,
+                    "app.sessions.title.DisconnectSessions",
+                    "app.sessions.message.DisconnectSessions" /*+ REMEMBER_OPTION_HINT*/,
                     SessionInterruptionOption.ASK,
                     SessionInterruptionOption.IMMEDIATE,
                     SessionInterruptionOption.POST_TRANSACTION,
@@ -32,9 +31,8 @@ public class SessionBrowserSettings extends BasicConfiguration<OperationSettings
     private final InteractiveOptionBroker<SessionInterruptionOption> killSession =
             new InteractiveOptionBroker<>(
                     "kill-session",
-                    "Kill Sessions",
-                    "Are you sure you want to kill the {0} from connection {1}?\nPlease select your kill option." +
-                            REMEMBER_OPTION_HINT,
+                    "app.sessions.title.KillSessions",
+                    "app.sessions.message.KillSessions"/* + REMEMBER_OPTION_HINT*/,
                     SessionInterruptionOption.ASK,
                     SessionInterruptionOption.NORMAL,
                     SessionInterruptionOption.IMMEDIATE,
@@ -46,7 +44,7 @@ public class SessionBrowserSettings extends BasicConfiguration<OperationSettings
 
     @Override
     public String getDisplayName() {
-        return "Session Browser Settings";
+        return txt("cfg.sessions.title.SessionBrowser");
     }
 
     @Override

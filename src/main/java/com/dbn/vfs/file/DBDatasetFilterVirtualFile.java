@@ -7,6 +7,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.session.DatabaseSession;
+import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.DBDataset;
@@ -14,7 +15,6 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DBParseableVirtualFile;
 import com.dbn.vfs.DBVirtualFileBase;
 import com.dbn.vfs.DatabaseFileViewProvider;
-import com.intellij.lang.Language;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
@@ -45,7 +45,7 @@ public class DBDatasetFilterVirtualFile extends DBVirtualFileBase implements DBP
     }
 
     @Override
-    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, Language language) {
+    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, DBLanguage<?> language) {
         ConnectionHandler connection = Failsafe.nn(getConnection());
         DBLanguageDialect languageDialect = connection.resolveLanguageDialect(language);
         return languageDialect == null ? null : fileViewProvider.initializePsiFile(languageDialect);
@@ -97,16 +97,6 @@ public class DBDatasetFilterVirtualFile extends DBVirtualFileBase implements DBP
     }
 
     @Override
-    public boolean isDirectory() {
-        return false;
-    }
-
-    @Override
-    public VirtualFile getParent() {
-        return null;
-    }
-
-    @Override
     @NotNull
     public OutputStream getOutputStream(Object requestor, long modificationStamp, long timeStamp) throws IOException {
         return new ByteArrayOutputStream() {
@@ -130,10 +120,6 @@ public class DBDatasetFilterVirtualFile extends DBVirtualFileBase implements DBP
     @Override
     public long getLength() {
         return content.length();
-    }
-
-    @Override
-    public void refresh(boolean asynchronous, boolean recursive, Runnable postRunnable) {
     }
 
     @NotNull

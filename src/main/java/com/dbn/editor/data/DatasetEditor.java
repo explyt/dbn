@@ -60,11 +60,13 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.beans.PropertyChangeListener;
 import java.sql.SQLException;
+import java.sql.SQLRecoverableException;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.editor.data.DatasetEditorStatus.*;
+import static com.dbn.editor.data.filter.DatasetFilterManager.EMPTY_FILTER;
 import static com.dbn.editor.data.model.RecordStatus.INSERTING;
 
 @Slf4j
@@ -343,7 +345,7 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
             DatasetFilter filter = filterManager.getActiveFilter(dataset);
             String datasetName = dataset.getQualifiedNameWithType();
             if (connection.isValid()) {
-                if (filter == null || filter == DatasetFilterManager.EMPTY_FILTER || filter.getError() != null) {
+                if (filter == null || filter == EMPTY_FILTER || filter.getError() != null || e instanceof SQLRecoverableException) {
                     if (instr.isDeliberateAction()) {
                         String message =
                                 "Error loading data for " + datasetName + ".\n" + (
@@ -624,9 +626,7 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.DATASET_EDITOR.is(dataId)) {
-            return DatasetEditor.this;
-        }
+        if (DataKeys.DATASET_EDITOR.is(dataId)) return this;
         return null;
     }
 

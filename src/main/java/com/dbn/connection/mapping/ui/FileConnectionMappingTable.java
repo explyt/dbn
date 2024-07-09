@@ -97,7 +97,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
             if (!selected) {
                 ConnectionHandler connection = entry.getConnection();
                 if (connection != null) {
-                    JBColor color = connection.getEnvironmentType().getColor();
+                    Color color = connection.getEnvironmentType().getColor();
                     if (color != null) {
                         setBackground(Colors.softer(color, 30));
                         //setBackground(color.brighter());

@@ -6,6 +6,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.session.DatabaseSession;
+import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
@@ -13,7 +14,6 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DBParseableVirtualFile;
 import com.dbn.vfs.DBVirtualFileBase;
 import com.dbn.vfs.DatabaseFileViewProvider;
-import com.intellij.lang.Language;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
@@ -47,7 +47,7 @@ public class DBLooseContentVirtualFile extends DBVirtualFileBase implements DBPa
     }
 
     @Override
-    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, Language language) {
+    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, DBLanguage<?> language) {
         ConnectionHandler connection = Failsafe.nn(getConnection());
         DBLanguageDialect languageDialect = connection.resolveLanguageDialect(language);
         return languageDialect == null ? null : fileViewProvider.initializePsiFile(languageDialect);
@@ -88,12 +88,6 @@ public class DBLooseContentVirtualFile extends DBVirtualFileBase implements DBPa
         return getConnection().getSessionBundle().getMainSession();
     }
 
-    @NotNull
-    @Override
-    public FileType getFileType() {
-        return fileType;
-    }
-
     @Override
     @NotNull
     public OutputStream getOutputStream(Object requestor, final long modificationStamp, long timeStamp) throws IOException {
@@ -118,10 +112,6 @@ public class DBLooseContentVirtualFile extends DBVirtualFileBase implements DBPa
     @Override
     public long getLength() {
         return content.length();
-    }
-
-    @Override
-    public void refresh(boolean asynchronous, boolean recursive, Runnable postRunnable) {
     }
 
     @NotNull

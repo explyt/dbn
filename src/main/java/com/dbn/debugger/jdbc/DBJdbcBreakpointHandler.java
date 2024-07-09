@@ -1,7 +1,6 @@
 package com.dbn.debugger.jdbc;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.thread.Write;
 import com.dbn.common.util.Documents;
 import com.dbn.connection.ConnectionHandler;
@@ -36,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
+import static com.dbn.common.notification.NotificationGroup.DEBUGGER;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -114,9 +114,7 @@ public class DBJdbcBreakpointHandler extends DBBreakpointHandler<DBJdbcDebugProc
                 } catch (SQLException e) {
                     conditionallyLog(e);
                     console.error("Error removing breakpoint: " + breakpointDesc + ". " + e.getMessage());
-                    sendErrorNotification(
-                            NotificationGroup.DEBUGGER,
-                            "Error unregistering breakpoints: {0}", e);
+                    sendErrorNotification(DEBUGGER, txt("ntf.debugger.error.ErrorUnregisteringBreakpoints", e));
                 } finally {
                     DBBreakpointUtil.setBreakpointId(breakpoint, null);
                 }

@@ -1,5 +1,6 @@
 package com.dbn.editor.data.ui;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.DBNTooltip;
@@ -11,7 +12,6 @@ import com.dbn.editor.data.model.DatasetEditorModelCell;
 import com.dbn.editor.data.model.DatasetEditorModelRow;
 import com.dbn.editor.data.ui.table.DatasetEditorTable;
 import com.intellij.ide.IdeTooltipManager;
-import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -22,9 +22,6 @@ import java.awt.*;
 import static com.dbn.common.dispose.Failsafe.nd;
 
 public class DatasetEditorErrorForm extends DBNFormBase implements ChangeListener {
-    public static final Color BACKGROUND_COLOR = new JBColor(
-            new Color(0xFFCCCC),
-            new Color(0x743A3A));
     private JPanel mainPanel;
     private JLabel errorIconLabel;
     private JTextArea errorMessageTextArea;
@@ -39,7 +36,7 @@ public class DatasetEditorErrorForm extends DBNFormBase implements ChangeListene
         //errorIconLabel.setIcon(Icons.EXEC_MESSAGES_ERROR);
         errorIconLabel.setText("");
         errorMessageTextArea.setText(Strings.textWrap(error.getMessage(), 60, ": ,."));
-        Color backgroundColor = BACKGROUND_COLOR;
+        Color backgroundColor = Colors.getErrorHintColor();
         errorMessageTextArea.setBackground(backgroundColor);
         errorMessageTextArea.setFont(mainPanel.getFont());
         errorMessageTextArea.setFont(Fonts.deriveFont(Fonts.REGULAR, (float) 14));
@@ -65,7 +62,7 @@ public class DatasetEditorErrorForm extends DBNFormBase implements ChangeListene
 
         JPanel component = this.getMainComponent();
         DBNTooltip tooltip = new DBNTooltip(table, cellLocation, component);
-        tooltip.setTextBackground(BACKGROUND_COLOR);
+        tooltip.setTextBackground(Colors.getErrorHintColor());
         tooltip.setDismissOnTimeout(false);
 
         Dispatch.delayed(200, () -> IdeTooltipManager.getInstance().show(tooltip, true));

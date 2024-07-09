@@ -24,7 +24,7 @@ public class MethodEditAction extends AbstractMethodExecutionResultAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable MethodExecutionResult target) {
         presentation.setText("Edit Method");
-        presentation.setIcon(Icons.OBEJCT_EDIT_SOURCE);
+        presentation.setIcon(Icons.OBJECT_EDIT_SOURCE);
 
     }
 }

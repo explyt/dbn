@@ -14,11 +14,12 @@ import java.util.Date;
 @Data
 public class LogOutput {
 
+    @Getter
     public enum Type {
         SYS(ProcessOutputTypes.SYSTEM),
         STD(ProcessOutputTypes.STDOUT),
         ERR(ProcessOutputTypes.STDERR);
-        private final @Getter Key<?> key;
+        private final Key<?> key;
 
         Type(Key<?> key) {
             this.key = key;

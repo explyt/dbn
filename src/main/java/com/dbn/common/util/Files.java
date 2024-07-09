@@ -77,23 +77,6 @@ public final class Files {
         return file == null ? null : file.getPath();
     }
 
-    public static boolean isValidFileUrl(String fileUrl, Project project) {
-        DatabaseFileSystem databaseFileSystem = DatabaseFileSystem.getInstance();
-        LocalFileSystem localFileSystem = LocalFileSystem.getInstance();
-
-        if (databaseFileSystem.isDatabaseUrl(fileUrl)) {
-            if (!databaseFileSystem.isValidPath(fileUrl, project)) {
-                return false;
-            }
-        } else if (fileUrl.startsWith("file://")) {
-            VirtualFile virtualFile = localFileSystem.findFileByPath(fileUrl.substring(7));
-            if (virtualFile == null) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public static File findFileRecursively(File directory, String fileName) {
         File[] files = directory.listFiles();
         if (files == null) return null;

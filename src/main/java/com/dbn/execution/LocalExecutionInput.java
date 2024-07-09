@@ -3,6 +3,7 @@ package com.dbn.execution;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.session.DatabaseSession;
+import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.database.DatabaseFeature;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -31,6 +32,14 @@ public abstract class LocalExecutionInput extends ExecutionInput{
 
     public void setTargetSession(DatabaseSession databaseSession) {
         setTargetSessionId(databaseSession == null ? SessionId.MAIN : databaseSession.getId());
+    }
+
+    public String getTargetSessionName() {
+        ConnectionHandler connection = getConnection();
+        if (connection == null) return "Main";
+
+        DatabaseSessionBundle sessionBundle = connection.getSessionBundle();
+        return sessionBundle.getSessionName(targetSessionId);
     }
 
     public abstract boolean hasExecutionVariables();

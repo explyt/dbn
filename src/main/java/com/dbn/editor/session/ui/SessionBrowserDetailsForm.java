@@ -4,16 +4,14 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.ui.tab.TabbedPane;
+import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
+import com.dbn.editor.session.SessionBrowser;
 import com.dbn.editor.session.details.SessionDetailsTable;
 import com.dbn.editor.session.details.SessionDetailsTableModel;
 import com.dbn.editor.session.model.SessionBrowserModelRow;
-import com.dbn.editor.session.SessionBrowser;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.tabs.TabInfo;
-import com.intellij.ui.tabs.TabsListener;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,7 +23,7 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
     private JPanel sessionDetailsTabsPanel;
     private JBScrollPane sessionDetailsTablePane;
     private final SessionDetailsTable sessionDetailsTable;
-    private final TabbedPane detailsTabbedPane;
+    private final DBNTabbedPane<DBNFormBase> detailsTabbedPane;
     private JPanel explainPlanPanel;
 
     private final WeakRef<SessionBrowser> sessionBrowser;
@@ -37,32 +35,23 @@ public class SessionBrowserDetailsForm extends DBNFormBase {
         sessionDetailsTable = new SessionDetailsTable(this);
         sessionDetailsTablePane.setViewportView(sessionDetailsTable);
 
-        detailsTabbedPane = new TabbedPane(this);
+        detailsTabbedPane = new DBNTabbedPane<>(this);
         sessionDetailsTabsPanel.add(detailsTabbedPane, BorderLayout.CENTER);
 
         currentSqlPanel = new SessionBrowserCurrentSqlPanel(this, sessionBrowser);
-        TabInfo currentSqlTabInfo = new TabInfo(currentSqlPanel.getComponent());
-        currentSqlTabInfo.setText("Current Statement");
-        currentSqlTabInfo.setIcon(Icons.FILE_SQL_CONSOLE);
-        currentSqlTabInfo.setObject(currentSqlPanel);
-        detailsTabbedPane.addTab(currentSqlTabInfo);
+        detailsTabbedPane.addTab("Current Statement", Icons.FILE_SQL_CONSOLE, currentSqlPanel.getComponent(), currentSqlPanel);
 
         ConnectionHandler connection = getConnection();
         if (DatabaseFeature.EXPLAIN_PLAN.isSupported(connection)) {
             explainPlanPanel = new JPanel(new BorderLayout());
-            TabInfo explainPlanTabInfo = new TabInfo(new JPanel());
-            explainPlanTabInfo.setText("Explain Plan");
-            explainPlanTabInfo.setIcon(Icons.EXPLAIN_PLAN_RESULT);
             //explainPlanTabInfo.setObject(currentSqlPanel);
-            detailsTabbedPane.addTab(explainPlanTabInfo);
+            detailsTabbedPane.addTab("Explain Plan", Icons.EXPLAIN_PLAN_RESULT, new JPanel());
         }
 
-        detailsTabbedPane.addListener(new TabsListener(){
-            @Override
-            public void selectionChanged(TabInfo oldSelection, TabInfo newSelection) {
-                if (newSelection.getText().equals("Explain Plan")) {
-
-                }
+        detailsTabbedPane.addTabsListener(i ->  {
+            String title = detailsTabbedPane.getTitleAt(i);
+            if (title.equals("Explain Plan")) {
+                // TODO
             }
         });
     }

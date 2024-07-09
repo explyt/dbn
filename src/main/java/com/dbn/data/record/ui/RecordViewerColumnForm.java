@@ -4,6 +4,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComponentAligner;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.data.record.DatasetRecord;
 import com.dbn.data.type.DBDataType;
 import com.dbn.object.DBColumn;
@@ -49,7 +50,7 @@ public class RecordViewerColumnForm extends DBNFormBase implements ComponentAlig
 
         valueFieldPanel.add(valueTextField, BorderLayout.CENTER);
         valueTextField.setEditable(false);
-        valueTextField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+        valueTextField.setCursor(Cursors.textCursor());
         valueTextField.setBackground(Colors.getTextFieldBackground());
         updateColumnValue(column);
     }

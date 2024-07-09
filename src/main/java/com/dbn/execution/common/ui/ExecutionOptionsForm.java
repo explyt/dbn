@@ -9,6 +9,7 @@ import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionType;
@@ -29,9 +30,7 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
 import java.awt.event.ActionListener;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
@@ -47,7 +46,7 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
     private AutoCommitLabel autoCommitLabel;
 
     private final LocalExecutionInput executionInput;
-    private final Set<ChangeListener> changeListeners = new HashSet<>();
+    private final Listeners<ChangeListener> changeListeners = Listeners.create(this);
     private final DBDebuggerType debuggerType;
 
     public ExecutionOptionsForm(DBNForm parent, LocalExecutionInput executionInput, @NotNull DBDebuggerType debuggerType) {
@@ -144,10 +143,10 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
         String connectionToken = getConnection().getName();
         LocalExecutionInput executionInput = getExecutionInput();
         SchemaId schemaId = executionInput.getTargetSchemaId();
-        SessionId sessionId = executionInput.getTargetSessionId();
+        String sessionName = executionInput.getTargetSessionName();
 
         String schemaToken = schemaId == null ? "" : (" / " + schemaId);
-        String sessionToken = sessionId == null ? "" : (" / " + sessionId);
+        String sessionToken = sessionName == null ? "" : (" / " + sessionName);
         return connectionToken + schemaToken + sessionToken;
     }
 
@@ -206,11 +205,7 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
         return Failsafe.nn(connection);
     }
 
-    private final ActionListener actionListener = e -> {
-        for (ChangeListener changeListener : changeListeners) {
-            changeListener.stateChanged(new ChangeEvent(this));
-        }
-    };
+    private final ActionListener actionListener = e -> changeListeners.notify(l -> l.stateChanged(new ChangeEvent(this)));
 
     public void addChangeListener(ChangeListener changeListener) {
         changeListeners.add(changeListener);

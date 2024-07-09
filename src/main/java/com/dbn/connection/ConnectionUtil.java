@@ -1,6 +1,7 @@
 package com.dbn.connection;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionPropertiesSettings;
 import com.dbn.connection.config.ConnectionSettings;
@@ -13,7 +14,6 @@ import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.driver.DatabaseDriverManager;
 import com.dbn.driver.DriverBundle;
 import com.dbn.driver.DriverSource;
-import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -132,7 +132,7 @@ public class ConnectionUtil {
         DatabaseDriverManager driverManager = DatabaseDriverManager.getInstance();
         DriverSource driverSource = databaseSettings.getDriverSource();
         String driverClassName = databaseSettings.getDriver();
-        if (StringUtil.isEmpty(driverClassName)) return null;
+        if (Strings.isEmpty(driverClassName)) return null;
 
         DriverBundle drivers = null;
         if (driverSource == DriverSource.EXTERNAL) {

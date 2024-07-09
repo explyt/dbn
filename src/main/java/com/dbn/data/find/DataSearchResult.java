@@ -52,29 +52,26 @@ public class DataSearchResult implements Disposable {
 
     public Iterator<DataSearchResultMatch> getMatches(DataModelCell cell) {
         DataSearchResultMatch first = matches.isEmpty() ? null : findMatch(null, cell);
-        if (first != null) {
-            return new Iterator<DataSearchResultMatch>() {
-                private DataSearchResultMatch next = first;
+        if (first == null) return null;
 
-                @Override
-                public boolean hasNext() {
-                    return next != null;
-                }
+        return new Iterator<>() {
+            private DataSearchResultMatch next = first;
 
-                @Override
-                public DataSearchResultMatch next() {
-                    DataSearchResultMatch current = next;
-                    next = findMatch(next, cell);
-                    return current;
-                }
+            @Override
+            public boolean hasNext() {
+                return next != null;
+            }
 
-                @Override
-                public void remove() {}
+            @Override
+            public DataSearchResultMatch next() {
+                DataSearchResultMatch current = next;
+                next = findMatch(next, cell);
+                return current;
+            }
 
-            };
-        } else {
-            return null;
-        }
+            @Override
+            public void remove() {}
+        };
     }
 
     private DataSearchResultMatch findMatch(DataSearchResultMatch previous, DataModelCell cell) {

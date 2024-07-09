@@ -1,13 +1,11 @@
 package com.dbn.browser.action;
 
-import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectActionGroup;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.DatabaseType;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
@@ -21,11 +19,6 @@ public class ConnectionCreateDropdownAction extends ProjectActionGroup {
             Actions.SEPARATOR,
             new TnsNamesImportAction()
     };
-
-    @Override
-    public DataProvider getDataProvider(AnActionEvent e) {
-        return e.getData((DataKeys.CONNECTION_BUNDLE_SETTINGS));
-    }
 
     @NotNull
     @Override

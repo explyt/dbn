@@ -4,6 +4,7 @@ import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -15,7 +16,6 @@ import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.ArgumentFactoryInput;
 import com.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 
 import java.sql.SQLException;
 
@@ -55,28 +55,28 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
     @Override
     public void computeSourceCodeOffsets(SourceCodeContent content, DatabaseObjectTypeId objectTypeId, String objectName) {
         String sourceCode = content.getText().toString();
-        if (StringUtil.isNotEmpty(sourceCode)) {
-            if (objectTypeId == DatabaseObjectTypeId.DATASET_TRIGGER || objectTypeId == DatabaseObjectTypeId.DATABASE_TRIGGER) {
-                if (!sourceCode.isEmpty()) {
-                    int startIndex = StringUtil.indexOfIgnoreCase(sourceCode, objectName, 0) + objectName.length();
-                    int headerEndOffset = StringUtil.indexOfIgnoreCase(sourceCode, "declare", startIndex);
-                    if (headerEndOffset == -1) headerEndOffset = StringUtil.indexOfIgnoreCase(sourceCode, "begin", startIndex);
-                    if (headerEndOffset == -1) headerEndOffset = StringUtil.indexOfIgnoreCase(sourceCode, "call", startIndex);
-                    if (headerEndOffset == -1) headerEndOffset = 0;
-                    content.getOffsets().setHeaderEndOffset(headerEndOffset);
-                }
-            }
+        if (Strings.isEmpty(sourceCode)) return;
 
-            if (objectTypeId != DatabaseObjectTypeId.VIEW && objectTypeId != DatabaseObjectTypeId.MATERIALIZED_VIEW) {
-                int nameIndex = StringUtil.indexOfIgnoreCase(sourceCode, objectName, 0);
-                if (nameIndex > -1) {
-                    int guardedBlockEndOffset = nameIndex + objectName.length();
-                    if (guardedBlockEndOffset < sourceCode.length()) {
-                        if (sourceCode.charAt(guardedBlockEndOffset) == '"'){
-                            guardedBlockEndOffset++;
-                        }
-                        content.getOffsets().addGuardedBlock(0, guardedBlockEndOffset);
+        if (objectTypeId == DatabaseObjectTypeId.DATASET_TRIGGER || objectTypeId == DatabaseObjectTypeId.DATABASE_TRIGGER) {
+            if (!sourceCode.isEmpty()) {
+                int startIndex = Strings.indexOfIgnoreCase(sourceCode, objectName, 0) + objectName.length();
+                int headerEndOffset = Strings.indexOfIgnoreCase(sourceCode, "declare", startIndex);
+                if (headerEndOffset == -1) headerEndOffset = Strings.indexOfIgnoreCase(sourceCode, "begin", startIndex);
+                if (headerEndOffset == -1) headerEndOffset = Strings.indexOfIgnoreCase(sourceCode, "call", startIndex);
+                if (headerEndOffset == -1) headerEndOffset = 0;
+                content.getOffsets().setHeaderEndOffset(headerEndOffset);
+            }
+        }
+
+        if (objectTypeId != DatabaseObjectTypeId.VIEW && objectTypeId != DatabaseObjectTypeId.MATERIALIZED_VIEW) {
+            int nameIndex = Strings.indexOfIgnoreCase(sourceCode, objectName, 0);
+            if (nameIndex > -1) {
+                int guardedBlockEndOffset = nameIndex + objectName.length();
+                if (guardedBlockEndOffset < sourceCode.length()) {
+                    if (sourceCode.charAt(guardedBlockEndOffset) == '"'){
+                        guardedBlockEndOffset++;
                     }
+                    content.getOffsets().addGuardedBlock(0, guardedBlockEndOffset);
                 }
             }
         }
@@ -132,13 +132,13 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         for (ArgumentFactoryInput argument : method.getArguments()) {
             buffer.append("\n    ");
             buffer.append(oco.format(argument.getObjectName()));
-            buffer.append(StringUtil.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
+            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
             String direction =
                     argument.isInput() && argument.isOutput() ? kco.format("in out") :
                     argument.isInput() ? kco.format("in") :
                     argument.isOutput() ? kco.format("out") : "";
             buffer.append(direction);
-            buffer.append(StringUtil.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
+            buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             buffer.append(dco.format(argument.getDataType()));
             if (argument != method.getArguments().get(method.getArguments().size() -1)) {
                 buffer.append(",");

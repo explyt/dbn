@@ -57,7 +57,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
         boolean promptConnectionSelection = objectsLookupSettings.getPromptConnectionSelection().value();
 
         if (promptConnectionSelection) {
-            ConnectionHandler singleConnectionHandler = null;
+            ConnectionHandler singleConnection = null;
             DefaultActionGroup actionGroup = new DefaultActionGroup();
 
             ConnectionManager connectionManager = ConnectionManager.getInstance(project);
@@ -70,7 +70,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
                 for (ConnectionHandler connection : connectionBundle.getConnections()) {
                     SelectConnectionAction connectionAction = new SelectConnectionAction(connection);
                     actionGroup.add(connectionAction);
-                    singleConnectionHandler = connection;
+                    singleConnection = connection;
                 }
             }
 
@@ -121,7 +121,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
                 }*/
                 popupBuilder.showCenteredInCurrentWindow(project);
             } else {
-                showLookupPopup(event, project, singleConnectionHandler, null);
+                showLookupPopup(event, project, singleConnection, null);
             }
         } else {
             ConnectionManager connectionManager = ConnectionManager.getInstance(project);

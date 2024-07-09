@@ -79,7 +79,7 @@ public class DebugStatementIntentionAction extends GenericIntentionAction implem
         contextManager.selectConnectionAndSchema(
                 databasePsiFile.getVirtualFile(),
                 dataContext,
-                () -> ConnectionAction.invoke("", false, databasePsiFile,
+                () -> ConnectionAction.invoke(null, false, databasePsiFile,
                         action -> {
                             StatementExecutionManager executionManager = StatementExecutionManager.getInstance(project);
                             StatementExecutionProcessor executionProcessor = executionManager.getExecutionProcessor(fileEditor, executable, true);

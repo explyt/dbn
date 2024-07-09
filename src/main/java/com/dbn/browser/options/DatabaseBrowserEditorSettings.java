@@ -69,7 +69,7 @@ public class DatabaseBrowserEditorSettings extends BasicProjectConfiguration<Dat
 
     @Override
     public String getDisplayName() {
-        return "Database Browser";
+        return txt("app.browser.title.DatabaseBrowser");
     }
 
     @Override

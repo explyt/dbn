@@ -9,6 +9,7 @@ public enum ThreadProperty implements Property.IntBase {
     COMPONENT_STATE(true),
     DATABASE_INTERFACE(true),
     WORKSPACE_RESTORE(true),
+    DEBUGGER_NAVIGATION(true),
 
     TIMEOUT    (true),
     PROMPTED   (true),

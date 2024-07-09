@@ -41,7 +41,7 @@ public class CodeCompletionSettings extends CompositeProjectConfiguration<Projec
 
     @Override
     public String getDisplayName() {
-        return "Code Completion";
+        return txt("cfg.codeCompletion.title.CodeCompletion");
     }
 
     @Override

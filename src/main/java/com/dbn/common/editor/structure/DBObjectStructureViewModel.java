@@ -1,5 +1,6 @@
 package com.dbn.common.editor.structure;
 
+import com.dbn.common.ui.util.Listeners;
 import com.intellij.ide.structureView.FileEditorPositionListener;
 import com.intellij.ide.structureView.ModelListener;
 import com.intellij.ide.structureView.StructureViewModel;
@@ -9,12 +10,9 @@ import com.intellij.ide.util.treeView.smartTree.Grouper;
 import com.intellij.ide.util.treeView.smartTree.Sorter;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public abstract class DBObjectStructureViewModel implements StructureViewModel, StructureViewModel.ElementInfoProvider {
-    protected Set<FileEditorPositionListener> fileEditorPositionListeners = new HashSet<>();
-    protected Set<ModelListener> modelListeners = new HashSet<>();
+    protected Listeners<FileEditorPositionListener> fileEditorPositionListeners = Listeners.create(this);
+    protected Listeners<ModelListener> modelListeners = Listeners.create(this);
 
     @Override
     public void addEditorPositionListener(@NotNull FileEditorPositionListener listener) {
@@ -64,13 +62,8 @@ public abstract class DBObjectStructureViewModel implements StructureViewModel, 
     }
 
     public void rebuild() {
-        for (ModelListener modelListener : modelListeners) {
-            modelListener.onModelChanged();
-        }
-
-        for (FileEditorPositionListener positionListener : fileEditorPositionListeners) {
-            positionListener.onCurrentElementChanged();
-        }
+        modelListeners.notify(l -> l.onModelChanged());
+        fileEditorPositionListeners.notify(l -> l.onCurrentElementChanged());
     }
 
     @Override

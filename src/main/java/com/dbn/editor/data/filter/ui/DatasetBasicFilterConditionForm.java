@@ -227,8 +227,8 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     private void updateValueTextField() {
         JTextField valueTextField = editorComponent.getTextField();
         ConditionOperator selectedOperator = getSelectedOperator();
-        valueTextField.setEnabled(selectedOperator!= null && !selectedOperator.isFinal() && active);
-        if (selectedOperator == null || selectedOperator.isFinal()) valueTextField.setText(null);
+        valueTextField.setEnabled(selectedOperator!= null && !selectedOperator.isTerminal() && active);
+        if (selectedOperator == null || selectedOperator.isTerminal()) valueTextField.setText(null);
     }
 
     @Override

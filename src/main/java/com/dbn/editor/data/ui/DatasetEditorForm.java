@@ -1,6 +1,7 @@
 package com.dbn.editor.data.ui;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
@@ -31,6 +32,7 @@ import com.dbn.editor.data.ui.table.cell.DatasetTableCellEditor;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +40,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.TableColumn;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -96,8 +99,8 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             conditionallyLog(e);
             Messages.showErrorDialog(
                     getProject(),
-                    "Error",
-                    "Error opening data editor for " + dataset.getQualifiedNameWithType(), e);
+                    txt("msg.dataEditor.title.FailedToOpenEditor"),
+                    txt("msg.dataEditor.error.FailedToOpenEditor", dataset.getQualifiedNameWithType(), e));
         }
 
         if (dataset.isEditable(DBContentType.DATA)) {
@@ -202,7 +205,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         DataSearchComponent dataSearchComponent = getSearchComponent();
         dataSearchComponent.initializeFindModel();
 
-        JTextField searchField = dataSearchComponent.getSearchField();
+        JTextComponent searchField = dataSearchComponent.getSearchField();
         if (searchPanel.isVisible()) {
             searchField.selectAll();
         } else {
@@ -245,10 +248,6 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     }
 
     private class CancelLoadingAction extends BasicAction {
-        CancelLoadingAction() {
-            super("Cancel", null, Icons.DATA_EDITOR_STOP_LOADING);
-        }
-
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             getEditorTable().getModel().cancelDataLoad();
@@ -256,7 +255,10 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
 
         @Override
         public void update(@NotNull AnActionEvent e) {
-            e.getPresentation().setEnabled(!getEditorTable().getModel().isLoadCancelled());
+            Presentation presentation = e.getPresentation();
+            presentation.setText(txt("app.shared.action.Cancel"));
+            presentation.setIcon(Icons.DATA_EDITOR_STOP_LOADING);
+            presentation.setEnabled(!getEditorTable().getModel().isLoadCancelled());
         }
     }
 
@@ -264,10 +266,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        Object data = super.getData(dataId);
-        if (data == null) {
-            data = getDatasetEditor().getData(dataId);
-        }
-        return data;
+        if (DataKeys.DATASET_EDITOR.is(dataId)) return getDatasetEditor();
+        return null;
     }
 }

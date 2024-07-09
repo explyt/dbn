@@ -3,15 +3,13 @@ package com.dbn.diagnostics.ui;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
-import com.dbn.common.ui.tab.TabbedPane;
+import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.table.DBNMutableTableModel;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.diagnostics.ui.model.AbstractDiagnosticsTableModel;
 import com.dbn.diagnostics.ui.model.ConnectivityDiagnosticsTableModel;
 import com.dbn.diagnostics.ui.model.MetadataDiagnosticsTableModel2;
-import com.intellij.ui.tabs.TabInfo;
-import com.intellij.ui.tabs.TabsListener;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -26,7 +24,7 @@ public class ConnectionDiagnosticsDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel headerPanel;
     private JPanel diagnosticsTabsPanel;
-    private final TabbedPane diagnosticsTabs;
+    private final DBNTabbedPane<DBNTable> diagnosticsTabs;
 
     public ConnectionDiagnosticsDetailsForm(@NotNull ConnectionDiagnosticsForm parent, ConnectionHandler connection) {
         super(parent);
@@ -34,7 +32,7 @@ public class ConnectionDiagnosticsDetailsForm extends DBNFormBase {
         DBNHeaderForm headerForm = new DBNHeaderForm(this, connection).withEmptyBorder();
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
-        diagnosticsTabs = new TabbedPane(this);
+        diagnosticsTabs = new DBNTabbedPane<>(this);
         diagnosticsTabsPanel.add(diagnosticsTabs, BorderLayout.CENTER);
 
 
@@ -48,29 +46,22 @@ public class ConnectionDiagnosticsDetailsForm extends DBNFormBase {
         connectivityTable.getRowSorter().toggleSortOrder(0);
         addTab(connectivityTable, "Database Connectivity");
 
-        diagnosticsTabs.addListener(new TabsListener() {
-            @Override
-            public void selectionChanged(TabInfo oldSelection, TabInfo newSelection) {
-                int selectedIndex = diagnosticsTabs.getTabs().indexOf(newSelection);
-                ConnectionDiagnosticsForm parent = nd(getParentComponent());
-                parent.setTabSelectionIndex(selectedIndex);
-            }
+
+        diagnosticsTabs.addTabsListener(i -> {
+            ConnectionDiagnosticsForm parentForm = nd(getParentComponent());
+            parentForm.setTabSelectionIndex(i);
+
         });
    }
 
-    private void addTab(JComponent component, String title) {
+    private void addTab(DBNTable component, String title) {
         JScrollPane scrollPane = new DBNScrollPane(component);
-        TabInfo tabInfo = new TabInfo(scrollPane);
-        tabInfo.setText(title);
-        tabInfo.setObject(component);
-        //tabInfo.setTabColor(GUIUtil.getWindowColor());
-        diagnosticsTabs.addTab(tabInfo);
+        diagnosticsTabs.addTab(title, scrollPane, component);
     }
 
     protected void selectTab(int tabIndex) {
-        TabInfo tabInfo = diagnosticsTabs.getTabs().get(tabIndex);
-        diagnosticsTabs.select(tabInfo, false);
-        DBNTable table = (DBNTable) tabInfo.getObject();
+        diagnosticsTabs.setSelectedIndex(tabIndex);
+        DBNTable table = diagnosticsTabs.getContentAt(tabIndex);
         DBNMutableTableModel model = (DBNMutableTableModel) table.getModel();
         model.notifyRowChanges();
     }

@@ -8,7 +8,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ConfigurationHandle;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.options.ui.ConfigurationEditorUtil;
+import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.ui.util.UserInterface;
@@ -20,7 +20,6 @@ import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.DocumentAdapter;
-import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -119,16 +118,11 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         ConnectionDatabaseSettings configuration = getConfiguration();
         String name = nameTextField.getText();
         ConnectivityStatus connectivityStatus = configuration.getConnectivityStatus();
-        ConnectionSettings connectionSettings = configuration.getParent();
-        ConnectionSettingsForm connectionSettingsForm = connectionSettings.getSettingsEditor();
-
-        Icon icon = connectionSettings.isNew() ? Icons.CONNECTION_NEW :
-                connectionSettingsForm != null && !connectionSettingsForm.isConnectionActive() ? Icons.CONNECTION_DISABLED :
-                        connectivityStatus == ConnectivityStatus.VALID ? Icons.CONNECTION_CONNECTED :
-                        connectivityStatus == ConnectivityStatus.INVALID ? Icons.CONNECTION_INVALID : Icons.CONNECTION_INACTIVE;
+        ConnectionSettings connectionSettings = configuration.ensureParent();
+        Icon icon = getIcon(connectionSettings, connectivityStatus);
 
         EnvironmentType environmentType = connectionSettings.getDetailSettings().getEnvironmentType();
-        JBColor color = environmentType.getColor();
+        Color color = environmentType.getColor();
         ConnectionId connectionId = configuration.getConnectionId();
         DatabaseType databaseType = configuration.getDatabaseType();
 
@@ -136,6 +130,16 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 configuration.getProject(),
                 ConnectionPresentationChangeListener.TOPIC,
                 (listener) -> listener.presentationChanged(name, icon, color, connectionId, databaseType));
+    }
+
+    private static @NotNull Icon getIcon(ConnectionSettings connectionSettings, ConnectivityStatus connectivityStatus) {
+        ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
+
+        Icon icon = connectionSettings.isNew() ? Icons.CONNECTION_NEW :
+                settingsEditor != null && !settingsEditor.isConnectionActive() ? Icons.CONNECTION_DISABLED :
+                        connectivityStatus == ConnectivityStatus.VALID ? Icons.CONNECTION_CONNECTED :
+                        connectivityStatus == ConnectivityStatus.INVALID ? Icons.CONNECTION_INVALID : Icons.CONNECTION_INACTIVE;
+        return icon;
     }
 
     //protected abstract ConnectionDatabaseSettings createConfig(ConnectionSettings configuration);
@@ -155,7 +159,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 }
 
                 if (document == nameTextField.getDocument()) {
-                    ConnectionBundleSettings connectionBundleSettings = configuration.getParent().getParent();
+                    ConnectionBundleSettings connectionBundleSettings = getConnectionBundleSettings();
                     ConnectionBundleSettingsForm settingsEditor = connectionBundleSettings.getSettingsEditor();
                     if (settingsEditor != null) {
                         JList<?> connectionList = settingsEditor.getList();
@@ -175,7 +179,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             ConnectionDatabaseSettings configuration = getConfiguration();
             configuration.setModified(true);
             if (source == nameTextField) {
-                ConnectionBundleSettings connectionBundleSettings = configuration.getParent().getParent();
+                ConnectionBundleSettings connectionBundleSettings = getConnectionBundleSettings();
                 ConnectionBundleSettingsForm settingsEditor = connectionBundleSettings.getSettingsEditor();
 
                 if (settingsEditor != null) {
@@ -187,7 +191,11 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         };
     }
 
-	public String getConnectionName() {
+    private @NotNull ConnectionBundleSettings getConnectionBundleSettings() {
+        return getConfiguration().ensureParent().ensureParent();
+    }
+
+    public String getConnectionName() {
         return nameTextField.getText();
     }
 
@@ -243,7 +251,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
-        ConfigurationEditorUtil.validateStringValue(nameTextField, "Name", true);
+        ConfigurationEditors.validateStringValue(nameTextField, txt("cfg.connection.field.Name"), true);
         ConnectionDatabaseSettings configuration = getConfiguration();
 
         DatabaseType selectedDatabaseType = getSelectedDatabaseType();
@@ -252,7 +260,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             if (selectedDatabaseType == DatabaseType.GENERIC) {
                 // TODO hint there is dedicated support for the database type resolved from driver
             } else {
-                throw new ConfigurationException("The provided driver library is not a valid " + selectedDatabaseType.getName() + " driver library.");
+                throw new ConfigurationException(txt("cfg.connection.error.InvalidDriverLibraryType", selectedDatabaseType.getName()));
             }
         }
 
@@ -311,13 +319,10 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         DatabaseType driverDatabaseType = driverSettingsForm.getDriverDatabaseType();
         if (selectedDatabaseType == DatabaseType.GENERIC && driverDatabaseType != null && driverDatabaseType != selectedDatabaseType) {
             String databaseTypeName = driverDatabaseType.getName();
-            TextContent hintText = TextContent.plain(
-                    "Your database type was identified as \"" + databaseTypeName + "\".\n" +
-                    "Use specific connection type instead of \"Generic\", " +
-                    "to enable dedicated support for this database");
+            TextContent hintText = TextContent.plain(txt("cfg.connection.hint.KnownDatabaseType", databaseTypeName));
             DBNHintForm hintForm = new DBNHintForm(this,
                     hintText, null, true,
-                    "Change to " + databaseTypeName,
+                    txt("cfg.connection.action.ChangeToDatabaseType", databaseTypeName),
                     () -> setSelection(databaseTypeComboBox, driverDatabaseType));
             hintForm.setHighlighted(true);
             databaseTypeHintPanel.add(hintForm.getComponent(), BorderLayout.CENTER);

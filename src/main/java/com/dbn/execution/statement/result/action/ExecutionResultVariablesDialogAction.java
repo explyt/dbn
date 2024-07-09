@@ -1,8 +1,6 @@
 package com.dbn.execution.statement.result.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.common.notification.NotificationGroup;
-import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.statement.StatementExecutionManager;
@@ -18,6 +16,8 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.common.notification.NotificationGroup.EXECUTION;
+import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class ExecutionResultVariablesDialogAction extends AbstractExecutionResultAction {
@@ -38,10 +38,7 @@ public class ExecutionResultVariablesDialogAction extends AbstractExecutionResul
                                 executionProcessor.execute();
                             } catch (SQLException ex) {
                                 conditionallyLog(ex);
-                                NotificationSupport.sendErrorNotification(
-                                        project,
-                                        NotificationGroup.EXECUTION,
-                                        "Error executing statement. {0}", ex);
+                                sendErrorNotification(project, EXECUTION, txt("ntf.execution.error.StatementExecutionError", ex));
                             }
                         }));
     }

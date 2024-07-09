@@ -34,7 +34,7 @@ public class GeneralProjectSettings extends CompositeProjectConfiguration<Projec
 
     @Override
     public String getDisplayName() {
-        return "General";
+        return txt("cfg.general.title.General");
     }
 
     @Override

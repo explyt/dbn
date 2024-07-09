@@ -14,6 +14,7 @@ import com.dbn.connection.mapping.FileConnectionContextProvider;
 import com.dbn.connection.session.DatabaseSession;
 import com.dbn.database.interfaces.DatabaseDebuggerInterface;
 import com.dbn.editor.code.content.SourceCodeContent;
+import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.psql.PSQLLanguage;
 import com.dbn.language.sql.SQLFileType;
@@ -22,7 +23,6 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.vfs.DBConsoleType;
 import com.dbn.vfs.DBParseableVirtualFile;
 import com.dbn.vfs.DatabaseFileViewProvider;
-import com.intellij.lang.Language;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.RangeMarker;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -69,7 +69,7 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     }
 
     @Override
-    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, Language language) {
+    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, DBLanguage<?> language) {
         ConnectionHandler connection = getConnection();
         DBLanguageDialect languageDialect = connection.resolveLanguageDialect(language);
         return languageDialect == null ? null : fileViewProvider.initializePsiFile(languageDialect);
@@ -186,10 +186,6 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
         return content.length();
     }
 
-    @Override
-    public void refresh(boolean asynchronous, boolean recursive, Runnable postRunnable) {
-    }
-
     @NotNull
     @Override
     public InputStream getInputStream() throws IOException {
@@ -204,11 +200,6 @@ public class DBConsoleVirtualFile extends DBObjectVirtualFile<DBConsole> impleme
     @Override
     public int compareTo(@NotNull DBConsoleVirtualFile o) {
         return getName().compareTo(o.getName());
-    }
-
-    @Override
-    public void beforeDocumentChange(@NotNull DocumentEvent event) {
-
     }
 
     @Override

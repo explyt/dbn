@@ -6,10 +6,12 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
+import com.dbn.nls.NlsResources;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.jdesktop.swingx.util.OS;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,11 +34,11 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
 
     public interface Defaults {
         String extension = OS.isWindows() ? ".exe" : "";
-        CmdLineInterface ORACLE = new CmdLineInterface(DEFAULT_ID, DatabaseType.ORACLE, "sqlplus", "Oracle SQL*Plus client", "sqlplus" + extension + "");
-        CmdLineInterface MYSQL = new CmdLineInterface(DEFAULT_ID, DatabaseType.MYSQL, "mysql", "MySQL client", "mysql" + extension + "");
-        CmdLineInterface POSTGRES = new CmdLineInterface(DEFAULT_ID, DatabaseType.POSTGRES, "psql ", "PostgreSQL terminal", "psql" + extension);
-        CmdLineInterface SQLITE = new CmdLineInterface(DEFAULT_ID, DatabaseType.SQLITE, "sqlite3 ", "SQLite terminal", "sqlite3" + extension);
-        CmdLineInterface GENERIC = new CmdLineInterface(DEFAULT_ID, DatabaseType.GENERIC, "sql ", "SQL terminal", "sql" + extension);
+        CmdLineInterface ORACLE = new CmdLineInterface(DEFAULT_ID, DatabaseType.ORACLE, "sqlplus", NlsResources.txt("app.execution.const.CmdLineInterface_ORACLE"), "sqlplus" + extension);
+        CmdLineInterface MYSQL = new CmdLineInterface(DEFAULT_ID, DatabaseType.MYSQL, "mysql", NlsResources.txt("app.execution.const.CmdLineInterface_MYSQL"), "mysql" + extension);
+        CmdLineInterface POSTGRES = new CmdLineInterface(DEFAULT_ID, DatabaseType.POSTGRES, "psql ", NlsResources.txt("app.execution.const.CmdLineInterface_POSTGRES"), "psql" + extension);
+        CmdLineInterface SQLITE = new CmdLineInterface(DEFAULT_ID, DatabaseType.SQLITE, "sqlite3 ", NlsResources.txt("app.execution.const.CmdLineInterface_SQLITE"), "sqlite3" + extension);
+        CmdLineInterface GENERIC = new CmdLineInterface(DEFAULT_ID, DatabaseType.GENERIC, "sql ", NlsResources.txt("app.execution.const.CmdLineInterface_GENERIC"), "sql" + extension);
     }
 
     public static CmdLineInterface getDefault(@Nullable DatabaseType databaseType) {
@@ -55,11 +57,11 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
 
     }
 
-    public CmdLineInterface(DatabaseType databaseType, String executablePath, String name, String description) {
+    public CmdLineInterface(DatabaseType databaseType, @NonNls String executablePath, String name, String description) {
         this(UUID.randomUUID().toString(), databaseType, executablePath, name, description);
     }
 
-    public CmdLineInterface(String id, DatabaseType databaseType, String executablePath, String name, String description) {
+    public CmdLineInterface(String id, DatabaseType databaseType, @NonNls String executablePath, String name, String description) {
         this.id = id;
         this.name = name;
         this.databaseType = databaseType;

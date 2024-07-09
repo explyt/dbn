@@ -52,8 +52,9 @@ public class DatabaseConnectIntentionAction extends GenericIntentionAction imple
                 SessionId sessionId = databaseSession == null ? SessionId.MAIN : databaseSession.getId();
                 SchemaId schemaId = dbLanguagePsiFile.getSchemaId();
 
-                ConnectionAction.invoke("", true, connection,
-                        (action) -> ConnectionManager.testConnection(connection, schemaId, sessionId, false, true));
+                ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+                ConnectionAction.invoke(null, true, connection,
+                        (action) -> connectionManager.testConnection(connection, schemaId, sessionId, false, true));
             }
         }
     }

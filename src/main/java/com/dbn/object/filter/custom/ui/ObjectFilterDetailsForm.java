@@ -1,6 +1,7 @@
 package com.dbn.object.filter.custom.ui;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.expression.ExpressionEvaluator;
 import com.dbn.common.expression.ExpressionEvaluatorContext;
 import com.dbn.common.icon.Icons;
@@ -14,6 +15,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.language.sql.SQLLanguage;
@@ -30,7 +32,6 @@ import com.intellij.openapi.editor.event.DocumentListener;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
-import com.intellij.ui.JBColor;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 
@@ -38,6 +39,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.greatest;
 import static com.dbn.common.util.Lists.toCsv;
@@ -117,14 +119,18 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
 
     private void initHeaderPanel() {
         DBObjectType objectType = filter.getObjectType();
-        ConnectionHandler connection = filter.getSettings().getConnection();
-
-        JBColor color = connection.getEnvironmentType().getColor();
+        EnvironmentType environmentType = getEnvironmentType();
+        Color color = environmentType.getColor();
         Icon icon = objectType.getIcon();
         String title = toUpperCase(objectType.getName());
 
         DBNHeaderForm headerForm = new DBNHeaderForm(this, title, icon, color);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+    }
+
+    private @NotNull EnvironmentType getEnvironmentType() {
+        ConnectionSettings connectionSettings = nd(filter.getSettings().getParentOfType(ConnectionSettings.class));
+        return connectionSettings.getDetailSettings().getEnvironmentType();
     }
 
     private void initExpressionEditor() {
@@ -135,7 +141,7 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
 
         document = Documents.ensureDocument(selectStatementFile);
         editor = Editors.createEditor(document, project, expressionFile, SQLFileType.INSTANCE);
-        Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, filter.getConnection());
+        Editors.initEditorHighlighter(editor, SQLLanguage.INSTANCE, (ConnectionHandler) null);
 
         editor.setEmbeddedIntoDialogWrapper(true);
         document.addDocumentListener(new DocumentListener() {
@@ -167,7 +173,9 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
     }
 
     private void verifyExpression() {
-        Dispatch.background(getProject(),
+        Dispatch.async(
+                getProject(),
+                mainPanel,
                 () -> verifyExpression(filter),
                 c -> applyVerificationResult(c));
     }

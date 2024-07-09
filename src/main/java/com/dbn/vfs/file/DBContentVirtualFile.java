@@ -155,11 +155,6 @@ public abstract class DBContentVirtualFile extends DBVirtualFileBase implements 
         return objectType.getIcon(contentType);
     }
 
-    @Override
-    public void refresh(boolean b, boolean b1, Runnable runnable) {
-
-    }
-
     public void setModified(boolean modified) {
         set(MODIFIED, modified);
     }

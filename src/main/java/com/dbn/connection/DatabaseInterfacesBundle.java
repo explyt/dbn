@@ -7,16 +7,18 @@ import com.dbn.database.mysql.MySqlDatabaseInterfaces;
 import com.dbn.database.oracle.OracleDatabaseInterfaces;
 import com.dbn.database.postgres.PostgresDatabaseInterfaces;
 import com.dbn.database.sqlite.SqliteDatabaseInterfaces;
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.EnumMap;
 import java.util.Map;
 
+@UtilityClass
 public class DatabaseInterfacesBundle {
     private static final Map<DatabaseType, DatabaseInterfaces> REGISTRY = new EnumMap<>(DatabaseType.class);
 
     // fixme replace with generic data dictionary
-    static final DatabaseInterfaces GENERIC_INTERFACES = new GenericDatabaseInterfaces();
+    private static final DatabaseInterfaces GENERIC_INTERFACES = new GenericDatabaseInterfaces();
     private static final DatabaseInterfaces ORACLE_INTERFACES = new OracleDatabaseInterfaces();
     private static final DatabaseInterfaces MYSQL_INTERFACES = new MySqlDatabaseInterfaces();
     private static final DatabaseInterfaces POSTGRES_INTERFACES = new PostgresDatabaseInterfaces();

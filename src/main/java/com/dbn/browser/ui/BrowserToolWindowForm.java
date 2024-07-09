@@ -18,7 +18,6 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,29 +30,24 @@ public class BrowserToolWindowForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel actionsPanel;
     private JPanel browserPanel;
-    private JPanel closeActionPanel;
     private JPanel objectPropertiesPanel;
     private @Getter DatabaseBrowserForm browserForm;
 
-    private @Getter @Setter BrowserDisplayMode displayMode;
+    private BrowserDisplayMode displayMode;
     private final ObjectPropertiesForm objectPropertiesForm;
 
     public BrowserToolWindowForm(Disposable parent, @NotNull Project project) {
         super(parent, project);
         //toolWindow.setIcon(dbBrowser.getIcon(0));
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-
-        rebuildTabs();
+        rebuild();
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(
                 actionsPanel,
                 "DBNavigator.ActionGroup.Browser.Controls", "",
-                true
-        );
-        actionsPanel.add(actionToolbar.getComponent());
+                true);
 
-        /*ActionToolbar objectPropertiesActionToolbar = ActionUtil.createActionToolbar("", false, "DBNavigator.ActionGroup.Browser.ObjectProperties");
-        closeActionPanel.add(objectPropertiesActionToolbar.getComponent(), BorderLayout.CENTER);*/
+        actionsPanel.add(actionToolbar.getComponent());
 
         objectPropertiesPanel.setVisible(browserManager.getShowObjectProperties().value());
         objectPropertiesForm = new ObjectPropertiesForm(this);
@@ -64,24 +58,20 @@ public class BrowserToolWindowForm extends DBNFormBase {
         ProjectEvents.subscribe(project, this,
                 ConnectionConfigListener.TOPIC,
                 ConnectionConfigListener
-                        .whenSetupChanged(() -> rebuildTabs())
+                        .whenSetupChanged(() -> rebuild())
                         .whenNameChanged(id -> refreshTabs(id)));
     }
 
-    public void rebuildTabs() {
+    public void rebuild() {
         Project project = ensureProject();
         DatabaseBrowserSettings browserSettings = DatabaseBrowserSettings.getInstance(project);
         displayMode = browserSettings.getGeneralSettings().getDisplayMode();
         DatabaseBrowserForm oldBrowserForm = this.browserForm;
-        TabbedBrowserForm previousTabbedForm =
-                oldBrowserForm instanceof TabbedBrowserForm ?
-                (TabbedBrowserForm) oldBrowserForm : null;
 
         this.browserForm =
-                displayMode == BrowserDisplayMode.TABBED ? new TabbedBrowserForm(this, previousTabbedForm) :
-                displayMode == BrowserDisplayMode.SIMPLE ? new SimpleBrowserForm(this) : null;
-
-
+                displayMode == BrowserDisplayMode.TABBED ? new TabbedBrowserForm(this) :
+                displayMode == BrowserDisplayMode.SIMPLE ? new SimpleBrowserForm(this) :
+                displayMode == BrowserDisplayMode.SELECTOR ? new SelectorBrowserForm(this) : null;
 
         browserPanel.removeAll();
         browserPanel.add(this.browserForm.getComponent(), BorderLayout.CENTER);
@@ -94,6 +84,11 @@ public class BrowserToolWindowForm extends DBNFormBase {
         if (browserForm instanceof TabbedBrowserForm) {
             TabbedBrowserForm tabbedBrowserForm = (TabbedBrowserForm) browserForm;
             return tabbedBrowserForm.getBrowserTree(connectionId);
+        }
+
+        if (browserForm instanceof SelectorBrowserForm) {
+            SelectorBrowserForm selectorBrowserForm = (SelectorBrowserForm) browserForm;
+            return selectorBrowserForm.getBrowserTree(connectionId);
         }
 
         if (browserForm instanceof SimpleBrowserForm) {
@@ -134,9 +129,9 @@ public class BrowserToolWindowForm extends DBNFormBase {
     }
 
     private void changeDisplayMode(BrowserDisplayMode displayMode) {
-        if (getDisplayMode() != displayMode) {
-            setDisplayMode(displayMode);
-            rebuildTabs();
+        if (this.displayMode != displayMode) {
+            this.displayMode = displayMode;
+            rebuild();
         }
     }
 

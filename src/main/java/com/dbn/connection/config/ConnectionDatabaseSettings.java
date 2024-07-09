@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,7 +35,7 @@ import static com.dbn.common.options.setting.Settings.*;
 @EqualsAndHashCode(callSuper = false)
 public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSettings, ConnectionDatabaseSettingsForm> {
 
-    private String name;
+    private @NonNls String name;
     private String description;
     private DatabaseType databaseType;
     private DatabaseType derivedDatabaseType = DatabaseType.GENERIC;
@@ -155,7 +156,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
                     port,
                     databaseInfo.getDatabase(),
                     databaseInfo.getMainFilePath(),
-                    databaseInfo.getTnsFolder(),
+                    databaseInfo.ensureTnsFolder(),
                     databaseInfo.getTnsProfile());
         }
     }
@@ -215,6 +216,7 @@ public class ConnectionDatabaseSettings extends BasicConfiguration<ConnectionSet
             for (String error : errors) {
                 message.append("\n - ").append(error);
             }
+            // TODO NLS
             throw new ConfigurationException(message.toString());
         }
     }

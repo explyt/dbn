@@ -1,7 +1,7 @@
 package com.dbn.data.value;
 
+import com.dbn.common.util.Strings;
 import com.dbn.data.type.GenericDataType;
-import com.intellij.openapi.util.text.StringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.sql.*;
 
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -20,10 +21,9 @@ public class BlobValue extends LargeObjectValue {
     public BlobValue() {}
 
     private Blob createSerialBlob(String charset) throws SQLException {
-        if (StringUtil.isNotEmpty(charset)) {
-            return new SerialBlob(charset.getBytes());
-        }
-        return null;
+        if (isEmpty(charset)) return null;
+
+        return new SerialBlob(charset.getBytes());
     }
 
     public BlobValue(CallableStatement callableStatement, int parameterIndex) throws SQLException {
@@ -73,7 +73,7 @@ public class BlobValue extends LargeObjectValue {
     @Override
     public void write(Connection connection, ResultSet resultSet, int columnIndex, @Nullable String value) throws SQLException {
         try {
-            if (StringUtil.isEmpty(value)) {
+            if (isEmpty(value)) {
                 blob = null;
             } else {
                 blob = connection.createBlob();
@@ -82,7 +82,7 @@ public class BlobValue extends LargeObjectValue {
             resultSet.updateBlob(columnIndex, blob);
         } catch (SQLFeatureNotSupportedException e) {
             conditionallyLog(e);
-            if (StringUtil.isEmpty(value)) {
+            if (isEmpty(value)) {
                 blob = null;
             } else {
                 blob = createSerialBlob(value);

@@ -1,10 +1,11 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.nls.NlsSupport;
 
 import java.sql.SQLException;
 
-public interface DatabaseInterface {
+public interface DatabaseInterface extends NlsSupport {
 
     default void reset() {
     }

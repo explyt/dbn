@@ -15,6 +15,7 @@ import com.dbn.editor.code.content.GuardedBlockMarkers;
 import com.dbn.editor.code.content.GuardedBlockType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.editor.code.content.SourceCodeOffsets;
+import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.PsiUtil;
@@ -22,7 +23,6 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.vfs.DBParseableVirtualFile;
 import com.dbn.vfs.DatabaseFileViewProvider;
-import com.intellij.lang.Language;
 import com.intellij.notebook.editor.BackedVirtualFile;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -33,6 +33,7 @@ import com.intellij.openapi.util.Key;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -47,6 +48,7 @@ import static com.dbn.vfs.file.status.DBFileStatus.*;
 
 @Slf4j
 @Getter
+@Setter
 public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBParseableVirtualFile, DocumentListener, BackedVirtualFile {
 
     private SourceCodeContent originalContent = new SourceCodeContent();
@@ -68,7 +70,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
     }
 
     @Override
-    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, Language language) {
+    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, DBLanguage<?> language) {
         ConnectionHandler connection = this.getConnection();
         String parseRootId = getParseRootId();
         if (parseRootId != null) {
@@ -265,21 +267,12 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         return localContent.length();
     }
 
-    public void setSourceLoadError(String sourceLoadError) {
-        this.sourceLoadError = sourceLoadError;
-    }
-
     @Override
     public <T> void putUserData(@NotNull Key<T> key, T value) {
         if (key == FileDocumentManagerImpl.HARD_REF_TO_DOCUMENT_KEY && contentType.isOneOf(DBContentType.CODE, DBContentType.CODE_BODY) ) {
             getMainDatabaseFile().putUserData(FileDocumentManagerImpl.HARD_REF_TO_DOCUMENT_KEY, (Document) value);
         }
         super.putUserData(key, value);
-    }
-
-    @Override
-    public void beforeDocumentChange(@NotNull DocumentEvent event) {
-
     }
 
     @Override

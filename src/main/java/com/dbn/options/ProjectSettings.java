@@ -73,7 +73,7 @@ public class ProjectSettings
         if (settingsEditor == null) {
             return super.getHelpTopic();
         } else {
-            Configuration selectedConfiguration = settingsEditor.getActiveSettings();
+            Configuration selectedConfiguration = settingsEditor.getActiveConfiguration();
             return selectedConfiguration.getHelpTopic();
         }
     }
@@ -97,7 +97,7 @@ public class ProjectSettings
     @Override
     @Nls
     public String getDisplayName() {
-        return "Database Navigator";
+        return txt("cfg.project.title.DatabaseNavigator");
     }
 
     @Override

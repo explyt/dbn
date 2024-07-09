@@ -4,6 +4,7 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
@@ -30,7 +31,6 @@ import java.util.Map;
 
 public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGroup> implements ListSelectionListener {
     private final Map<String, ConfigurationEditorForm> filterDetailPanels = DisposableContainers.map(this);
-    private static final String BLANK_PANEL_ID = "BLANK_PANEL";
 
     private JPanel mainPanel;
     private JList filtersList;
@@ -56,7 +56,7 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
                 new MoveFilterUpAction(filters),
                 new MoveFilterDownAction(filters));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
-        filterDetailsPanel.add(new JPanel(), BLANK_PANEL_ID);
+        CardLayouts.addBlankCard(filterDetailsPanel);
 
         DatasetFilterManager filterManager = DatasetFilterManager.getInstance(project);
         DatasetFilter filter = filterManager.getActiveFilter(dataset);
@@ -115,22 +115,21 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
             }
         }
 
-        CardLayout cardLayout = (CardLayout) filterDetailsPanel.getLayout();
         if (filter == null) {
-            cardLayout.show(filterDetailsPanel, BLANK_PANEL_ID);
+            CardLayouts.showBlankCard(filterDetailsPanel);
         } else {
             String id = filter.getId();
             ConfigurationEditorForm configurationEditorForm = filterDetailPanels.get(id);
             if (configurationEditorForm == null) {
                 JComponent component = filter.createComponent();
-                filterDetailsPanel.add(component, id);
+                CardLayouts.addCard(filterDetailsPanel, component, id);
 
                 configurationEditorForm = filter.ensureSettingsEditor();
                 filterDetailPanels.put(id, configurationEditorForm);
 
                 Disposer.register(this, configurationEditorForm);
             }
-            cardLayout.show(filterDetailsPanel, id);
+            CardLayouts.showCard(filterDetailsPanel, id);
             configurationEditorForm.focus();
         }
     }

@@ -1,16 +1,17 @@
 package com.dbn.connection.ssh;
 
 import com.dbn.common.ui.Presentable;
+import com.dbn.nls.NlsResources;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-@Getter
-public enum SshAuthType implements Presentable{
-    PASSWORD("Password"),
-    KEY_PAIR("Key Pair (Open SSH)");
+import static com.dbn.nls.NlsResources.txt;
 
-    SshAuthType(String name) {
-        this.name = name;
-    }
+@Getter
+@AllArgsConstructor
+public enum SshAuthType implements Presentable{
+    PASSWORD(txt("cfg.connection.const.SshAuthType_PASSWORD")),
+    KEY_PAIR(txt("cfg.connection.const.SshAuthType_KEY_PAIR"));
 
     private final String name;
 }

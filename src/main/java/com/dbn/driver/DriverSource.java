@@ -1,19 +1,20 @@
 package com.dbn.driver;
 
 import com.dbn.common.ui.Presentable;
+import com.dbn.nls.NlsResources;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
+@AllArgsConstructor
 public enum DriverSource implements Presentable{
     @Deprecated // replaced by BUNDLED
-    BUILTIN("Built-in library"),
+    BUILTIN(txt("cfg.connection.const.DriverSource_BUILTIN")),
 
-    BUNDLED("Bundled library"),
-    EXTERNAL("External library");
-
-    DriverSource(String name) {
-        this.name = name;
-    }
+    BUNDLED(txt("cfg.connection.const.DriverSource_BUNDLED")),
+    EXTERNAL(txt("cfg.connection.const.DriverSource_EXTERNAL"));
 
     private final String name;
 }

@@ -15,6 +15,7 @@ import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.JBColor;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -29,11 +30,10 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 
 
 public class ConnectionDriverSettingsForm extends DBNFormBase {
-    private TextFieldWithBrowseButton driverLibraryTextField;
+    private @Getter TextFieldWithBrowseButton driverLibraryTextField;
     private JPanel mainPanel;
-    private JPanel driverSetupPanel;
     private JComboBox<DriverSource> driverSourceComboBox;
-    private JComboBox<DriverOption> driverComboBox;
+    private @Getter JComboBox<DriverOption> driverComboBox;
     private JLabel driverErrorLabel;
     private JLabel driverLabel;
     private JLabel driverLibraryLabel;
@@ -58,15 +58,16 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
             //driverSetupPanel.setVisible(isExternalLibrary);
         });
 
+        // TODO NLS
         driverLibraryTextField.addBrowseFolderListener(
-                "Select Driver Library or Directory",
-                "Library must contain classes implementing the 'java.sql.Driver' class.",
+                txt("cfg.connection.title.SelectDriverLibrary"),
+                txt("cfg.connection.text.LibraryDriverClasses"),
                 null, LIBRARY_FILE_DESCRIPTOR);
 
         reloadDriversCheckLabel.setText("");
         reloadDriversCheckLabel.setIcon(Icons.COMMON_CHECK);
         reloadDriversCheckLabel.setVisible(false);
-        reloadDriversLink.setHyperlinkText("Reload drivers");
+        reloadDriversLink.setHyperlinkText(txt("cfg.connection.link.ReloadDrivers"));
         reloadDriversLink.addHyperlinkListener(e -> {
             reloadDriversLink.setVisible(false);
             DatabaseDriverManager driverManager = DatabaseDriverManager.getInstance();
@@ -76,10 +77,10 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 drivers = driverManager.loadDrivers(driverLibrary, true);
                 if (drivers == null || drivers.isEmpty()) {
                     reloadDriversCheckLabel.setIcon(Icons.COMMON_WARNING);
-                    reloadDriversCheckLabel.setText("No drivers found");
+                    reloadDriversCheckLabel.setText(txt("cfg.connection.text.NoDriversFound"));
                 } else {
                     reloadDriversCheckLabel.setIcon(Icons.COMMON_CHECK);
-                    reloadDriversCheckLabel.setText("Drivers reloaded");
+                    reloadDriversCheckLabel.setText(txt("cfg.connection.text.DriversReloaded"));
                 }
             } catch (Exception ex) {
                 conditionallyLog(ex);
@@ -125,7 +126,7 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                 libraryTextField.setForeground(Colors.getTextFieldForeground());
                 DatabaseType libraryDatabaseType = DatabaseType.resolve(driverLibrary);
                 if (isBuiltInLibrarySupported(databaseType) && libraryDatabaseType != getDatabaseType()) {
-                    error = "The driver library does not match the selected database type";
+                    error = txt("cfg.connection.error.DriverLibraryMismatch");
                     initComboBox(driverComboBox);
                     setSelection(driverComboBox, null);
                 } else {
@@ -156,16 +157,16 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
                             selectedOption = driverOptions.get(0);
                         }
                     } else {
-                        error = "Invalid driver library";
+                        error = txt("cfg.connection.error.InvalidDriverLibrary");
                     }
                     setSelection(driverComboBox, selectedOption);
                 }
             } else {
                 libraryTextField.setForeground(JBColor.RED);
                 if (Strings.isEmpty(driverLibrary)) {
-                    error = "Driver library is not specified";
+                    error = txt("cfg.connection.error.DriverLibraryNotSpecified");
                 } else {
-                    error = "Cannot locate driver library file";
+                    error = txt("cfg.connection.error.CannotLocateDriverFile");
                 }
                 initComboBox(driverComboBox);
                 //driverComboBox.addItem("");
@@ -241,14 +242,6 @@ public class ConnectionDriverSettingsForm extends DBNFormBase {
 
         List<DriverOption> driverOptions = getElements(driverComboBox);
         setSelection(driverComboBox, DriverOption.get(driverOptions, configuration.getDriver()));
-    }
-
-    public JComboBox<DriverOption> getDriverComboBox() {
-        return driverComboBox;
-    }
-
-    public TextFieldWithBrowseButton getDriverLibraryTextField() {
-        return driverLibraryTextField;
     }
 }
 

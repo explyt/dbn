@@ -28,7 +28,6 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 
 public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFileBase {
-    private static final byte[] EMPTY_BYTE_CONTENT = new byte[0];
     private final WeakRef<T> objectList;
 
     public DBObjectListVirtualFile(T objectList) {
@@ -121,25 +120,8 @@ public class DBObjectListVirtualFile<T extends DBObjectList> extends DBVirtualFi
     }
 
     @Override
-    @NotNull
-    public OutputStream getOutputStream(Object o, long l, long l1) throws IOException {
-        return DevNullStreams.OUTPUT_STREAM;
-    }
-
-    @Override
-    @NotNull
-    public byte[] contentsToByteArray() throws IOException {
-        return EMPTY_BYTE_CONTENT;
-    }
-
-    @Override
     public long getLength() {
         return 0;
-    }
-
-    @Override
-    public void refresh(boolean b, boolean b1, Runnable runnable) {
-
     }
 
     @Override

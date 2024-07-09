@@ -32,7 +32,7 @@ public class CodeEditorSettings extends CompositeProjectConfiguration<ProjectSet
 
     @Override
     public String getDisplayName() {
-        return "Code Editor";
+        return txt("cfg.codeEditor.title.CodeEditor");
     }
 
     @Override

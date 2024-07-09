@@ -9,21 +9,11 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-
 public class ConnectionCreateAction extends ConnectionSettingsAction {
     private final DatabaseType databaseType;
 
     ConnectionCreateAction(@Nullable DatabaseType databaseType) {
         this.databaseType = databaseType;
-    }
-
-    private static Icon getIcon(@Nullable DatabaseType databaseType) {
-        return databaseType == null ? null : databaseType.getIcon();
-    }
-
-    private static String getName(@Nullable DatabaseType databaseType) {
-        return databaseType == null ? "Custom..." : databaseType.getName();
     }
 
     @Override
@@ -44,8 +34,8 @@ public class ConnectionCreateAction extends ConnectionSettingsAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionBundleSettingsForm target) {
-        presentation.setText(getName(databaseType));
-        presentation.setIcon(getIcon(databaseType));
+        presentation.setText(databaseType == null ? "Custom..." : databaseType.getName());
+        presentation.setIcon(databaseType == null ? null : databaseType.getIcon());
     }
 }
 

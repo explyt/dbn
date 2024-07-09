@@ -4,9 +4,10 @@ import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.execution.common.result.ui.ExecutionResultForm;
+import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.openapi.actionSystem.DataProvider;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -29,6 +30,10 @@ public interface ExecutionResult<F extends ExecutionResultForm> extends Stateful
 
     default void setName(@NotNull String name, boolean sticky) {}
 
+    default @Nullable Object getData(@NotNull String dataId) {
+        return null;
+    }
+
     Icon getIcon();
 
     @NotNull
@@ -39,7 +44,7 @@ public interface ExecutionResult<F extends ExecutionResultForm> extends Stateful
     @NotNull
     ConnectionHandler getConnection();
 
-    PsiFile createPreviewFile();
+    DBLanguagePsiFile createPreviewFile();
 
     ExecutionResult<F> getPrevious();
 

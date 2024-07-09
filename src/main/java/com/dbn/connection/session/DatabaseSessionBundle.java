@@ -77,6 +77,11 @@ public class DatabaseSessionBundle extends StatefulDisposableBase implements Dis
         return sessions;
     }
 
+    public String getSessionName(SessionId sessionId) {
+        DatabaseSession session = getSession(sessionId);
+        return session.getName();
+    }
+
     public Set<String> getSessionNames() {
         return sessions.stream().map(s -> s.getName()).collect(Collectors.toSet());
     }

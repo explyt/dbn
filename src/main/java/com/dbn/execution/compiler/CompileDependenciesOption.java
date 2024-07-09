@@ -1,29 +1,21 @@
 package com.dbn.execution.compiler;
 
 import com.dbn.common.option.InteractiveOption;
-import org.jetbrains.annotations.NotNull;
+import com.dbn.nls.NlsResources;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-import java.util.Arrays;
-import java.util.Objects;
+import static com.dbn.nls.NlsResources.txt;
 
+@Getter
+@AllArgsConstructor
 public enum CompileDependenciesOption implements InteractiveOption {
-    YES("Yes", true),
-    NO("No", true),
-    ASK("Ask", false);
+    YES(txt("cfg.compiler.const.DependenciesOption_YES"), true),
+    NO(txt("cfg.compiler.const.DependenciesOption_NO"), true),
+    ASK(txt("cfg.compiler.const.DependenciesOption_ASK"), false);
 
     private final String name;
     private final boolean persistable;
-
-    CompileDependenciesOption(String name, boolean persistable) {
-        this.name = name;
-        this.persistable = persistable;
-    }
-
-    @Override
-    @NotNull
-    public String getName() {
-        return name;
-    }
 
     @Override
     public boolean isCancel() {
@@ -34,12 +26,4 @@ public enum CompileDependenciesOption implements InteractiveOption {
     public boolean isAsk() {
         return this == ASK;
     }
-
-
-    public static CompileDependenciesOption get(String name) {
-        return Arrays
-                .stream(CompileDependenciesOption.values())
-                .filter(option -> Objects.equals(option.name, name) || Objects.equals(option.name(), name))
-                .findFirst()
-                .orElse(null);
-    }}
+}

@@ -1,6 +1,8 @@
 package com.dbn.error.jira;
 
+import com.dbn.error.IssueReport;
 import com.dbn.error.TicketRequest;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import lombok.Getter;
 
@@ -8,7 +10,8 @@ import lombok.Getter;
 class JiraTicketRequest implements TicketRequest {
     private final JsonObject jsonObject = new JsonObject();
 
-    JiraTicketRequest(String summary, String description) {
+    JiraTicketRequest(IssueReport report) {
+        String summary = report.getSummary();
         summary = summary.replace("\r\n", " ").replace("\t", " ");
 
         // project
@@ -19,13 +22,21 @@ class JiraTicketRequest implements TicketRequest {
         JsonObject issueType = new JsonObject();
         issueType.addProperty("name", "Exception");
 
+        JsonArray versions = new JsonArray();
+        JsonObject version = new JsonObject();
+        version.addProperty("id", report.getPluginVersion());
+        versions.add(version);
+
+
 
         // fields
         JsonObject fields = new JsonObject();
         fields.add("project", project);
         fields.addProperty("summary", summary);
-        fields.addProperty("description", description);
+        fields.addProperty("description", report.getDescription());
+        fields.addProperty("environment", report.getIdeVersion());
         fields.add("issuetype", issueType);
+        //fields.add("versions", versions); TODO create versions on the fly
         jsonObject.add("fields", fields);
     }
 }

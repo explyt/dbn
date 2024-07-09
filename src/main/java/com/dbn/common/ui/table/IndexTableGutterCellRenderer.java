@@ -17,7 +17,7 @@ public class IndexTableGutterCellRenderer extends DBNTableGutterRendererBase {
                 Colors.getTableSelectionBackground(true) :
                 isCaretRow ?
                         Colors.getTableCaretRowColor() :
-                        Colors.getPanelBackground());
+                        table.getBackground());
         textLabel.setForeground(isSelected ?
                 Colors.getTableSelectionForeground(cellHasFocus) :
                 Colors.getTableGutterForeground());

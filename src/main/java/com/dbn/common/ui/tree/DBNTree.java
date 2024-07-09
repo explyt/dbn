@@ -76,6 +76,10 @@ public class DBNTree extends Tree implements DBNComponent {
         return (T) parent.ensure();
     }
 
+    protected void showContextMenu(TreePath path, int x, int y) {
+
+    }
+
     /********************************************************
      *                    Disposable                        *
      ********************************************************/

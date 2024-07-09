@@ -1,5 +1,6 @@
 package com.dbn.common.project;
 
+import com.dbn.common.dispose.AlreadyDisposedException;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.routine.Consumer;
@@ -10,6 +11,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.project.ProjectManager;
 import com.intellij.openapi.project.ProjectManagerListener;
 import com.intellij.openapi.wm.impl.welcomeScreen.WelcomeFrame;
+import com.intellij.util.IncorrectOperationException;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,7 +67,11 @@ public final class Projects {
     }
 
     public static Project getDefaultProject() {
-        return ProjectManager.getInstance().getDefaultProject();
+        try {
+            return ProjectManager.getInstance().getDefaultProject();
+        } catch (IncorrectOperationException e) {
+            throw AlreadyDisposedException.INSTANCE;
+        }
     }
 
 

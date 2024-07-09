@@ -23,6 +23,7 @@ import com.dbn.database.interfaces.DatabaseInterfaceQueue;
 import com.dbn.execution.statement.StatementExecutionQueue;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.DBSchema;
 import com.dbn.vfs.file.DBSessionBrowserVirtualFile;
 import com.intellij.lang.Language;
@@ -37,6 +38,7 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.nls.NlsResources.txt;
 
 public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypeProvider, DatabaseContextBase, Presentable, Referenceable<ConnectionRef> {
 
@@ -238,7 +240,7 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
     }
 
     default String getQualifiedName() {
-        return getDatabaseType() + " connection " + getName();
+        return txt("app.connection.label.QualifiedName", getDatabaseType(), getName());
     }
 
     default void updateLastAccess() {};

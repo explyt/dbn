@@ -6,6 +6,7 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.PooledThread;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Strings;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.data.model.DataModel;
 import com.dbn.data.model.DataModelCell;
@@ -13,7 +14,6 @@ import com.dbn.data.model.DataModelRow;
 import com.dbn.data.model.basic.BasicDataModel;
 import com.intellij.find.FindManager;
 import com.intellij.find.FindResult;
-import com.intellij.openapi.util.text.StringUtil;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
@@ -96,7 +96,7 @@ public class DataSearchResultController {
                     for (Object c : row.getCells()) {
                         DataModelCell cell = (DataModelCell) c;
                         String userValue = cell.getPresentableValue();
-                        if (StringUtil.isNotEmpty(userValue)) {
+                        if (Strings.isNotEmpty(userValue)) {
                             int findOffset = 0;
                             while (true) {
                                 FindResult findResult = findManager.findString(userValue, findOffset, findModel);

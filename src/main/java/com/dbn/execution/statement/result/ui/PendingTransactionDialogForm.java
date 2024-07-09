@@ -52,7 +52,7 @@ public class PendingTransactionDialogForm extends DBNFormBase {
         Icon headerIcon = executionProcessor.getIcon();
 
         DBLanguagePsiFile psiFile = executionProcessor.getPsiFile();
-        JBColor headerColor = psiFile == null ?
+        Color headerColor = psiFile == null ?
                 EnvironmentType.DEFAULT.getColor() :
                 psiFile.getEnvironmentType().getColor();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, headerName, headerIcon, headerColor);

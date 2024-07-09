@@ -331,7 +331,7 @@ public class LargeValuePreviewPopup extends DBNFormBase {
 
     private class LoadReloadAction extends BasicAction {
         private LoadReloadAction() {
-            super("Load / Reload Content", null, Icons.ACTION_RERUN);
+            super("Load / Reload Content", null, Icons.ACTION_RESUME);
         }
 
         @Override

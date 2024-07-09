@@ -1,12 +1,10 @@
 package com.dbn.data.grid.ui.table.basic;
 
-import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.ui.SpeedSearchBase;
 import com.dbn.data.model.ColumnInfo;
 import com.dbn.data.model.DataModelHeader;
 import com.dbn.data.model.basic.BasicDataModel;
-import com.intellij.ui.SpeedSearchBase;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 
 public class BasicTableSpeedSearch extends SpeedSearchBase<BasicTable<? extends BasicDataModel>> {
 
@@ -27,20 +25,9 @@ public class BasicTableSpeedSearch extends SpeedSearchBase<BasicTable<? extends 
         return columnIndex;
     }
 
-    @NotNull
     @Override
-    @Compatibility
-    protected Object[] getAllElements() {
+    protected Object[] getElements() {
         return getColumnInfos();
-    }
-
-    @Override
-    protected int getElementCount() {
-        return getColumnInfos().length;
-    }
-
-    protected Object getElementAt(int viewIndex) {
-        return getColumnInfos()[viewIndex];
     }
 
     @Override

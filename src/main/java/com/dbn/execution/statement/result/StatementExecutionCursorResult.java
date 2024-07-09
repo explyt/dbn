@@ -185,9 +185,7 @@ public class StatementExecutionCursorResult extends StatementExecutionBasicResul
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.STATEMENT_EXECUTION_CURSOR_RESULT.is(dataId)) {
-            return StatementExecutionCursorResult.this;
-        }
+        if (DataKeys.STATEMENT_EXECUTION_CURSOR_RESULT.is(dataId)) return this;
         return null;
     }
 }

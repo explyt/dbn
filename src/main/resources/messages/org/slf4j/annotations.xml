@@ -1,0 +1,5 @@
+<root>
+    <item name='org.slf4j.Logger'>
+        <annotation name='org.jetbrains.annotations.NonNls'/>
+    </item>
+</root>

@@ -12,6 +12,7 @@ import com.dbn.database.CmdLineExecutionInput;
 import com.dbn.database.interfaces.DatabaseExecutionInterface;
 import com.dbn.execution.script.CmdLineInterface;
 import com.dbn.object.DBMethod;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -19,6 +20,7 @@ import java.util.List;
 
 import static java.lang.Character.isWhitespace;
 
+@NonNls
 public class OracleExecutionInterface implements DatabaseExecutionInterface {
     private static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]/[PASSWORD]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";
     private static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]/[PASSWORD]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
@@ -59,11 +61,12 @@ public class OracleExecutionInterface implements DatabaseExecutionInterface {
 
         String fileArg = "\"@" + filePath + "\"";
 
-        List<String> command = executionInput.getCommand();
+        @NonNls List<String> command = executionInput.getCommand();
         command.add(cmdLineInterface.getExecutablePath());
         command.add(connectArg);
         command.add(fileArg);
 
+        @NonNls
         StringBuilder builder = executionInput.getContent();
         if (schemaId != null) builder.insert(0, "alter session set current_schema = " + schemaId + ";\n");
 

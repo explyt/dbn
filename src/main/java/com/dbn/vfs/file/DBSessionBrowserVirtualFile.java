@@ -91,11 +91,7 @@ public class DBSessionBrowserVirtualFile extends DBVirtualFileBase implements Co
 
     @Override
     public long getLength() {
-        return 0;
-    }
-
-    @Override
-    public void refresh(boolean asynchronous, boolean recursive, Runnable postRunnable) {
+        return content.length();
     }
 
     @NotNull

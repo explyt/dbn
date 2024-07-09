@@ -10,11 +10,6 @@ import org.jetbrains.annotations.NotNull;
 
 public class AutoscrollToEditorAction extends ToggleAction implements DumbAware{
 
-    public AutoscrollToEditorAction() {
-        super("Autoscroll to editor"/*, "", Icons.BROWSER_AUTOSCROLL_TO_EDITOR*/);
-    }
-
-
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
         Project project = Lookups.getProject(e);

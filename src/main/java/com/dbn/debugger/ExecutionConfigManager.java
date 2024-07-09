@@ -1,6 +1,5 @@
 package com.dbn.debugger;
 
-import com.dbn.debugger.common.config.*;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
@@ -17,7 +16,6 @@ import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.extensions.Extensions;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.containers.ContainerUtil;
 import org.jdom.Element;
@@ -59,12 +57,12 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
     }
 
     public DBMethodRunConfigType getMethodConfigurationType() {
-        ConfigurationType[] configurationTypes = Extensions.getExtensions(ConfigurationType.CONFIGURATION_TYPE_EP);
+        List<ConfigurationType> configurationTypes = ConfigurationType.CONFIGURATION_TYPE_EP.getExtensionList();
         return ContainerUtil.findInstance(configurationTypes, DBMethodRunConfigType.class);
     }
 
     public DBStatementRunConfigType getStatementConfigurationType() {
-        ConfigurationType[] configurationTypes = Extensions.getExtensions(ConfigurationType.CONFIGURATION_TYPE_EP);
+        List<ConfigurationType> configurationTypes = ConfigurationType.CONFIGURATION_TYPE_EP.getExtensionList();
         return ContainerUtil.findInstance(configurationTypes, DBStatementRunConfigType.class);
     }
 
@@ -86,7 +84,7 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
     @NotNull
     public RunnerAndConfigurationSettings createConfiguration(@NotNull DBMethod method, DBDebuggerType debuggerType) {
         DBMethodRunConfigType configType = getMethodConfigurationType();
-        DBMethodRunConfigFactory configFactory = configType.getConfigurationFactory(debuggerType);
+        DBMethodRunConfigFactory<?, ?> configFactory = configType.getConfigurationFactory(debuggerType);
         DBMethodRunConfig config = configFactory.createConfiguration(method);
 
         return getRunManager().createConfiguration(config, configFactory);
@@ -94,7 +92,7 @@ public class ExecutionConfigManager extends ProjectComponentBase implements Pers
 
     public RunnerAndConfigurationSettings createConfiguration(@NotNull StatementExecutionProcessor executionProcessor, DBDebuggerType debuggerType) {
         DBStatementRunConfigType configType = getStatementConfigurationType();
-        DBStatementRunConfigFactory configFactory = configType.getConfigurationFactory(debuggerType);
+        DBStatementRunConfigFactory<?, ?> configFactory = configType.getConfigurationFactory(debuggerType);
         DBStatementRunConfig config = configFactory.createConfiguration(executionProcessor);
 
         return getRunManager().createConfiguration(config, configFactory);

@@ -24,7 +24,7 @@ public class DBNHeaderForm extends DBNFormBase {
 
     public DBNHeaderForm(DBNForm parent) {
         super(parent);
-        mainPanel.setBorder(BORDER);
+        //mainPanel.setBorder(BORDER);
         objectLabel.setForeground(Colors.getLabelForeground());
     }
 
@@ -36,9 +36,7 @@ public class DBNHeaderForm extends DBNFormBase {
         this(parent);
         objectLabel.setText(title);
         objectLabel.setIcon(icon);
-        if (background != null) {
-            mainPanel.setBackground(background);
-        }
+        mainPanel.setBackground(background);
     }
 
     public DBNHeaderForm(DBNForm parent, @NotNull DBObject object) {
@@ -114,7 +112,7 @@ public class DBNHeaderForm extends DBNFormBase {
             DatabaseContext connectionProvider = (DatabaseContext) presentable;
             updateBorderAndBackground(connectionProvider);
         }
-        mainPanel.setBorder(BORDER);
+        //mainPanel.setBorder(BORDER);
     }
 
     private void updateBorderAndBackground(DatabaseContext connectionProvider) {
@@ -142,7 +140,7 @@ public class DBNHeaderForm extends DBNFormBase {
     }
 
     public DBNHeaderForm withEmptyBorder() {
-        mainPanel.setBorder(null);
+        //mainPanel.setBorder(null);
         return this;
     }
 

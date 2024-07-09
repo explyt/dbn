@@ -4,6 +4,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.table.DBNTableHeaderRendererBase;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
 
 import javax.swing.*;
 import java.awt.*;
@@ -37,7 +38,7 @@ public class BasicTableHeaderRenderer extends DBNTableHeaderRendererBase {
         Icon icon = null;
         RowSorter rowSorter = table.getRowSorter();
         if (rowSorter != null) {
-            final Cursor handCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+            Cursor handCursor = Cursors.handCursor();
             mainPanel.setCursor(handCursor);
             nameLabel.setCursor(handCursor);
             sortingLabel.setCursor(handCursor);

@@ -9,7 +9,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import static com.dbn.common.options.ui.ConfigurationEditorUtil.validateIntegerValue;
+import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 
 public class DatatEditorValueListPopupSettingsForm extends ConfigurationEditorForm<DataEditorValueListPopupSettings> {
     private JTextField elementCountThresholdTextBox;

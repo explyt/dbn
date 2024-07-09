@@ -4,7 +4,6 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.navigation.NavigationInstructions;
-import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
@@ -17,8 +16,8 @@ import com.dbn.execution.statement.StatementExecutionInput;
 import com.dbn.execution.statement.StatementExecutionMessage;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.execution.statement.result.ui.StatementExecutionResultForm;
+import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -53,7 +52,7 @@ public class StatementExecutionBasicResult extends ExecutionResultBase<Statement
     }
 
     @Override
-    public PsiFile createPreviewFile() {
+    public DBLanguagePsiFile createPreviewFile() {
         return getExecutionInput().createPreviewFile();
     }
 

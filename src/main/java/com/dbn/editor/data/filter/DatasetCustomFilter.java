@@ -4,10 +4,10 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.setting.Settings;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dbn.common.util.Strings;
 import com.dbn.data.sorting.SortingState;
 import com.dbn.editor.data.filter.ui.DatasetCustomFilterForm;
 import com.dbn.object.DBDataset;
-import com.intellij.openapi.util.text.StringUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -80,8 +80,8 @@ public class DatasetCustomFilter extends DatasetFilterImpl {
         super.readConfiguration(element);
         Element conditionElement = element.getChild("condition");
         condition = Settings.readCdata(conditionElement);
-        condition = StringUtil.replace(condition, "<br>", "\n");
-        condition = StringUtil.replace(condition, "<sp>", "  ");
+        condition = Strings.replace(condition, "<br>", "\n");
+        condition = Strings.replace(condition, "<sp>", "  ");
     }
 
     @Override
@@ -91,8 +91,8 @@ public class DatasetCustomFilter extends DatasetFilterImpl {
         Element conditionElement = newElement(element, "condition");
         if (this.condition == null) return;
 
-        String condition = StringUtil.replace(this.condition, "\n", "<br>");
-        condition = StringUtil.replace(condition, "  ", "<sp>");
+        String condition = Strings.replace(this.condition, "\n", "<br>");
+        condition = Strings.replace(condition, "  ", "<sp>");
         CDATA cdata = new CDATA(condition);
         conditionElement.setContent(cdata);
     }

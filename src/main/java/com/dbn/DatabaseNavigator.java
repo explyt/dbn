@@ -10,7 +10,7 @@ import com.dbn.diagnostics.Diagnostics;
 import com.dbn.plugin.DBNPluginStateListener;
 import com.dbn.plugin.PluginConflictManager;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.ide.plugins.PluginStateManager;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -71,7 +71,7 @@ public class DatabaseNavigator extends ApplicationComponentBase implements Persi
 
     @NotNull
     public static IdeaPluginDescriptor getPluginDescriptor() {
-        return Objects.requireNonNull(PluginManager.getPlugin(DBN_PLUGIN_ID));
+        return Objects.requireNonNull(PluginManagerCore.getPlugin(DBN_PLUGIN_ID));
     }
 
     public String getName() {

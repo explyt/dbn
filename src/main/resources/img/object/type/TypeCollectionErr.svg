@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="16" height="16" version="1.1" viewBox="0 0 16 16" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><path d="m4.5996 6.0996a4.5 4.5 0 0 0-3.5996 4.4219 4.5 4.5 0 0 0 4.5117 4.4785 4.5 4.5 0 0 0 2.7637-0.97266 4.5 4.5 0 0 1-0.17578-0.62695h-2.6992v-0.40039l2.291-3.5996h-3.0918v-3.3008z" fill="#589bc0"/><path d="m5 2v7h2.9453l2.8008-4.4004h0.51562l0.73828 1.207v-3.8066h-7z" fill="#d67876" stroke-miterlimit="0" stroke-width="0"/><path d="m11 5-5 8h2.0352a4.5 4.5 0 0 1-0.035156-0.5 4.5 4.5 0 0 1 4.5-4.5 4.5 4.5 0 0 1 0.38672 0.017578l-1.8867-3.0176z" fill="#5eba6a"/><g fill-rule="evenodd">
+<svg width="16" height="16" version="1.1" viewBox="0 0 16 16"  xmlns="http://www.w3.org/2000/svg"><path d="m4.5996 6.0996a4.5 4.5 0 0 0-3.5996 4.4219 4.5 4.5 0 0 0 4.5117 4.4785 4.5 4.5 0 0 0 2.7637-0.97266 4.5 4.5 0 0 1-0.17578-0.62695h-2.6992v-0.40039l2.291-3.5996h-3.0918v-3.3008z" fill="#589bc0"/><path d="m5 2v7h2.9453l2.8008-4.4004h0.51562l0.73828 1.207v-3.8066h-7z" fill="#d67876"/><path d="m11 5-5 8h2.0352a4.5 4.5 0 0 1-0.035156-0.5 4.5 4.5 0 0 1 4.5-4.5 4.5 4.5 0 0 1 0.38672 0.017578l-1.8867-3.0176z" fill="#5eba6a"/><g fill-rule="evenodd">
         
         <path d="m13 14v1h-1v-1zm0-4v3h-1v-3z" fill="#fff"/>
     </g><g transform="translate(0 .0090555)" fill-rule="evenodd">

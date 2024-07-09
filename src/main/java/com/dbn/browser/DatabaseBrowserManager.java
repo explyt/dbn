@@ -3,7 +3,7 @@ package com.dbn.browser;
 import com.dbn.DatabaseNavigator;
 import com.dbn.browser.model.BrowserTreeModel;
 import com.dbn.browser.model.BrowserTreeNode;
-import com.dbn.browser.model.TabbedBrowserTreeModel;
+import com.dbn.browser.model.ConnectionBrowserTreeModel;
 import com.dbn.browser.options.BrowserDisplayMode;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.browser.options.ObjectFilterChangeListener;
@@ -92,17 +92,17 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
     @Nullable
     public ConnectionHandler getActiveConnection() {
         DatabaseBrowserTree activeBrowserTree = getActiveBrowserTree();
-        if (activeBrowserTree != null) {
-            BrowserTreeModel browserTreeModel = activeBrowserTree.getModel();
-            if (browserTreeModel instanceof TabbedBrowserTreeModel) {
-                TabbedBrowserTreeModel tabbedBrowserTreeModel = (TabbedBrowserTreeModel) browserTreeModel;
-                return tabbedBrowserTreeModel.getConnection();
-            }
+        if (activeBrowserTree == null) return null;
 
-            BrowserTreeNode browserTreeNode = activeBrowserTree.getSelectedNode();
-            if (browserTreeNode != null && !(browserTreeNode instanceof ConnectionBundle)) {
-                return browserTreeNode.getConnection();
-            }
+        BrowserTreeModel model = activeBrowserTree.getModel();
+        if (model instanceof ConnectionBrowserTreeModel) {
+            ConnectionBrowserTreeModel treeModel = (ConnectionBrowserTreeModel) model;
+            return treeModel.getConnection();
+        }
+
+        BrowserTreeNode node = activeBrowserTree.getSelectedNode();
+        if (node != null && !(node instanceof ConnectionBundle)) {
+            return node.getConnection();
         }
 
         return null;
@@ -135,6 +135,22 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
         return getToolWindowForm().getBrowserForm();
     }
 
+    public void selectConnection(ConnectionId connectionId) {
+        getBrowserForm().selectConnection(connectionId);
+    }
+
+    @Nullable
+    public ConnectionId getSelectedConnectionId() {
+        return getBrowserForm().getSelectedConnection();
+    }
+
+    @Nullable
+    public ConnectionHandler getSelectedConnection() {
+        ConnectionId connectionId = getSelectedConnectionId();
+        return ConnectionHandler.get(connectionId);
+    }
+
+
     private void navigateToElement(@Nullable BrowserTreeNode treeNode, boolean scroll) {
         if (treeNode == null) return;
 
@@ -165,9 +181,9 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
         });
     }
 
-    public boolean isTabbedMode() {
+    public boolean isSingleTreeMode() {
         DatabaseBrowserSettings browserSettings = DatabaseBrowserSettings.getInstance(getProject());
-        return browserSettings.getGeneralSettings().getDisplayMode() == BrowserDisplayMode.TABBED;
+        return browserSettings.getGeneralSettings().getDisplayMode() == BrowserDisplayMode.SIMPLE;
     }
 
     /**********************************************************
@@ -270,16 +286,16 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
     public List<DBObject> getSelectedObjects() {
         List<DBObject> selectedObjects = new ArrayList<>();
         DatabaseBrowserTree activeBrowserTree = getActiveBrowserTree();
-        if (activeBrowserTree != null) {
-            TreePath[] selectionPaths = activeBrowserTree.getSelectionPaths();
-            if (selectionPaths != null) {
-                for (TreePath treePath : selectionPaths) {
-                    Object lastPathComponent = treePath.getLastPathComponent();
-                    if (lastPathComponent instanceof DBObject) {
-                        DBObject object = (DBObject) lastPathComponent;
-                        selectedObjects.add(object);
-                    }
-                }
+        if (activeBrowserTree == null) return selectedObjects;
+
+        TreePath[] selectionPaths = activeBrowserTree.getSelectionPaths();
+        if (selectionPaths == null) return selectedObjects;
+
+        for (TreePath treePath : selectionPaths) {
+            Object lastPathComponent = treePath.getLastPathComponent();
+            if (lastPathComponent instanceof DBObject) {
+                DBObject object = (DBObject) lastPathComponent;
+                selectedObjects.add(object);
             }
         }
         return selectedObjects;
@@ -346,7 +362,6 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
         }
     }
 
-
     private void initTouchedNodes(Element element) {
         Element nodesElement = element.getChild("loaded-nodes");
         if (nodesElement == null) return;
@@ -391,5 +406,16 @@ public class DatabaseBrowserManager extends ProjectComponentBase implements Pers
     public void disposeInner() {
         toolWindowForm.set(null);
         super.disposeInner();
+    }
+
+    public DatabaseBrowserSettings getSettings() {
+        return DatabaseBrowserSettings.getInstance(getProject());
+    }
+
+    public void changeDisplayMode(BrowserDisplayMode mode) {
+        DatabaseBrowserSettings browserSettings = getSettings();
+        browserSettings.getGeneralSettings().setDisplayMode(mode);
+        getToolWindowForm().rebuild();
+
     }
 }

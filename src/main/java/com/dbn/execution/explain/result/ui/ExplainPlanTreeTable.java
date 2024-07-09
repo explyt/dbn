@@ -7,6 +7,7 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.tree.Trees;
 import com.dbn.common.ui.util.Borderless;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Strings;
 import com.dbn.data.editor.ui.UserValueHolder;
@@ -23,7 +24,7 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.markup.TextAttributes;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopup;
-import com.intellij.openapi.ui.popup.JBPopupAdapter;
+import com.intellij.openapi.ui.popup.JBPopupListener;
 import com.intellij.openapi.ui.popup.LightweightWindowEvent;
 import com.intellij.ui.ColoredTableCellRenderer;
 import com.intellij.ui.ColoredTreeCellRenderer;
@@ -169,7 +170,7 @@ public class ExplainPlanTreeTable extends TreeTable implements StatefulDisposabl
             //setBorder(new CustomLineBorder(DBNTable.GRID_COLOR, 0, 0, 1, 1));
             ExplainPlanTreeTableModel tableModel = (ExplainPlanTreeTableModel) getTableModel();
             if (tableModel.isLargeValue(column)) {
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                setCursor(Cursors.handCursor());
             }
         }
     };
@@ -198,7 +199,7 @@ public class ExplainPlanTreeTable extends TreeTable implements StatefulDisposabl
 
                 largeValuePopup = viewer.show(this, location);
                 largeValuePopup.addListener(
-                        new JBPopupAdapter() {
+                        new JBPopupListener() {
                             @Override
                             public void onClosed(@NotNull LightweightWindowEvent event) {
                                 largeValuePopup.cancel();

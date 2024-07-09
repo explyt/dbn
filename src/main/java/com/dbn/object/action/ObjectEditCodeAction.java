@@ -24,7 +24,7 @@ public class ObjectEditCodeAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Edit Code");
-        presentation.setIcon(Icons.OBEJCT_EDIT_SOURCE);
+        presentation.setIcon(Icons.OBJECT_EDIT_SOURCE);
     }
 
     @Nullable

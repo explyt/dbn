@@ -4,6 +4,9 @@ import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.TreeNavigationHistory;
 import com.dbn.browser.model.*;
+import com.dbn.browser.options.BrowserDisplayMode;
+import com.dbn.browser.options.DatabaseBrowserSettings;
+import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.filter.Filter;
@@ -14,6 +17,7 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.ui.tree.Trees;
 import com.dbn.common.ui.util.Borderless;
+import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionBundle;
@@ -29,9 +33,12 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.action.ObjectListActionGroup;
 import com.dbn.object.common.property.DBObjectProperty;
+import com.intellij.ide.IdeTooltip;
+import com.intellij.ide.IdeTooltipManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.ActionCallback;
 import com.intellij.util.ui.tree.TreeUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -43,6 +50,8 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
 import java.awt.event.*;
 
+import static com.dbn.browser.options.BrowserDisplayMode.SIMPLE;
+import static com.dbn.browser.options.BrowserDisplayMode.TABBED;
 import static com.dbn.common.dispose.Checks.isNotValid;
 
 @Getter
@@ -53,19 +62,19 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
 
     public DatabaseBrowserTree(@NotNull DBNComponent parent, @Nullable ConnectionHandler connection) {
         super(parent, createModel(parent.ensureProject(), connection));
-        BrowserTreeModel treeModel = getModel();
 
         addKeyListener(createKeyListener());
         addMouseListener(createMouseListener());
         addTreeSelectionListener(createTreeSelectionListener());
 
         setToggleClickCount(0);
-        setRootVisible(treeModel instanceof TabbedBrowserTreeModel);
+        setRootVisible(true);
+        setRowHeight(Math.max(getRowHeight(), 22));
         setShowsRootHandles(true);
         setAutoscrolls(true);
+        setBorder(Borders.EMPTY_BORDER);
         DatabaseBrowserTreeCellRenderer browserTreeCellRenderer = new DatabaseBrowserTreeCellRenderer(parent.ensureProject());
         setCellRenderer(browserTreeCellRenderer);
-        //setExpandedState(DatabaseBrowserUtils.createTreePath(treeModel.getRoot()), false);
 
         new DatabaseBrowserTreeSpeedSearch(this);
 
@@ -77,8 +86,8 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
     private static BrowserTreeModel createModel(@NotNull Project project, @Nullable ConnectionHandler connection) {
         ConnectionManager connectionManager = ConnectionManager.getInstance(project);
         return connection == null ?
-                new SimpleBrowserTreeModel(project, connectionManager.getConnectionBundle()) :
-                new TabbedBrowserTreeModel(connection);
+                new ConnectionBundleBrowserTreeModel(project, connectionManager.getConnectionBundle()) :
+                new ConnectionBrowserTreeModel(connection);
 
     }
 
@@ -153,7 +162,19 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
     }
 
     private void selectPath(TreePath treePath) {
-        Dispatch.run(() -> TreeUtil.selectPath(DatabaseBrowserTree.this, treePath, true));
+        Dispatch.run(() -> {
+            DatabaseBrowserTree tree = DatabaseBrowserTree.this;
+            ActionCallback callback = TreeUtil.selectPath(tree, treePath, true);
+            if (callback == ActionCallback.REJECTED) {
+                Object target = treePath.getLastPathComponent();
+                if (target instanceof DBObject) {
+                    DBObject object = (DBObject) target;
+                    IdeTooltip tooltip = new IdeTooltip(tree, tree.getMousePosition(), new JLabel("Cannot navigate to " + object.getQualifiedNameWithType() + ". "));
+                    tooltip.setTextBackground(Colors.getWarningHintColor());
+                    IdeTooltipManager.getInstance().show(tooltip, true);
+                }
+            }
+        });
     }
 
 
@@ -333,41 +354,46 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                     if (e.getButton() != MouseEvent.BUTTON3) return;
 
                     TreePath path = Trees.getPathAtMousePosition(this, e);
-                    if (path == null) return;
-
-                    BrowserTreeNode lastPathEntity = (BrowserTreeNode) path.getLastPathComponent();
-                    if (lastPathEntity.isDisposed()) return;
-
-                    ActionGroup actionGroup = null;
-                    if (lastPathEntity instanceof DBObjectList) {
-                        DBObjectList<?> objectList = (DBObjectList<?>) lastPathEntity;
-                        actionGroup = new ObjectListActionGroup(objectList);
-                    } else if (lastPathEntity instanceof DBObject) {
-                        DBObject object = (DBObject) lastPathEntity;
-                        Progress.prompt(
-                                getProject(),
-                                object,
-                                true,
-                                "Loading object properties",
-                                "Loading properties of " + object.getQualifiedNameWithType(),
-                                progress -> showPopupMenu(e, new ObjectActionGroup(object)));
-                    } else if (lastPathEntity instanceof DBObjectBundle) {
-                        DBObjectBundle objectsBundle = (DBObjectBundle) lastPathEntity;
-                        ConnectionHandler connection = objectsBundle.getConnection();
-                        actionGroup = new ConnectionActionGroup(connection);
-                    }
-
-                    showPopupMenu(e, actionGroup);
+                    showContextMenu(path, e.getX(), e.getY());
                 });
     }
 
-    private void showPopupMenu(MouseEvent e, ActionGroup actionGroup) {
+    @Override
+    protected void showContextMenu(TreePath path, int x, int y) {
+        if (isNotValid(path)) return;
+
+        BrowserTreeNode lastPathEntity = (BrowserTreeNode) path.getLastPathComponent();
+        if (isNotValid(lastPathEntity)) return;
+
+        ActionGroup actionGroup = null;
+        if (lastPathEntity instanceof DBObjectList) {
+            DBObjectList<?> objectList = (DBObjectList<?>) lastPathEntity;
+            actionGroup = new ObjectListActionGroup(objectList);
+        } else if (lastPathEntity instanceof DBObject) {
+            DBObject object = (DBObject) lastPathEntity;
+            Progress.prompt(
+                    getProject(),
+                    object,
+                    true,
+                    "Loading object properties",
+                    "Loading properties of " + object.getQualifiedNameWithType(),
+                    progress -> showPopupMenu(new ObjectActionGroup(object), x, y));
+        } else if (lastPathEntity instanceof DBObjectBundle) {
+            DBObjectBundle objectsBundle = (DBObjectBundle) lastPathEntity;
+            ConnectionHandler connection = objectsBundle.getConnection();
+            actionGroup = new ConnectionActionGroup(connection);
+        }
+
+        showPopupMenu(actionGroup, x, y);
+    }
+
+    private void showPopupMenu(ActionGroup actionGroup, int x, int y) {
         if (actionGroup == null) return;
         ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, "", actionGroup);
         JPopupMenu popupMenu = actionPopupMenu.getComponent();
         Dispatch.run(() -> {
             if (!isShowing()) return;
-            popupMenu.show(this, e.getX(), e.getY());
+            popupMenu.show(this, x, y);
         });
     }
 

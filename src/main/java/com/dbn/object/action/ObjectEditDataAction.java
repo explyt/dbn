@@ -24,7 +24,7 @@ public class ObjectEditDataAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText("Edit Data");
-        presentation.setIcon(Icons.OBEJCT_EDIT_DATA);
+        presentation.setIcon(Icons.OBJECT_EDIT_DATA);
     }
 
     public DBSchemaObject getObject() {

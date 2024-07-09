@@ -5,6 +5,7 @@ import com.dbn.common.exception.ProcessDeferredException;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -15,23 +16,16 @@ public abstract class OverridingShortcutInterceptor extends ShortcutInterceptor 
         super(delegateActionId);
     }
 
-/*
-    // TODO alternative invocation as of 212.* IDE builds
-    @Override
+    //@Override
     @Compatibility
     public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
         attemptDelegation(action, event);
     }
-*/
 
-    @Override
+    //@Override
     @Compatibility
-    public void beforeActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
+    public void beforeActionPerformed(@NotNull AnAction action, @NotNull DataContext dataContext, @NotNull AnActionEvent event) {
         attemptDelegation(action, event);
-    }
-
-    @Override
-    public void beforeEditorTyping(char c, DataContext dataContext) {
     }
 
     private void attemptDelegation(AnAction action, AnActionEvent event) {

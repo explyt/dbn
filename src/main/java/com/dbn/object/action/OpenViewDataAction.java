@@ -24,7 +24,7 @@ public class OpenViewDataAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setText("View Data");
-        presentation.setIcon(Icons.OBEJCT_VIEW_DATA);
+        presentation.setIcon(Icons.OBJECT_VIEW_DATA);
     }
 
     public DBView getView() {

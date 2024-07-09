@@ -46,7 +46,7 @@ public class RecordViewerDialog extends DBNDialog<RecordViewerForm> {
 
     private class OpenInEditorAction extends AbstractAction {
         public OpenInEditorAction() {
-            super("Open In Editor", Icons.OBEJCT_EDIT_DATA);
+            super("Open In Editor", Icons.OBJECT_EDIT_DATA);
         }
 
         @Override

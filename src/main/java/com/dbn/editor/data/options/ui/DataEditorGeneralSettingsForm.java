@@ -1,7 +1,7 @@
 package com.dbn.editor.data.options.ui;
 
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.options.ui.ConfigurationEditorUtil;
+import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.editor.data.options.DataEditorGeneralSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
@@ -32,8 +32,8 @@ public class DataEditorGeneralSettingsForm extends ConfigurationEditorForm<DataE
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
-        ConfigurationEditorUtil.validateIntegerValue(fetchBlockSizeTextField, "Fetch block size", true, 1, 10000, null);
-        ConfigurationEditorUtil.validateIntegerValue(fetchTimeoutTextField, "Fetch timeout", true, 0, 300, "\nUse value 0 for no timeout");
+        ConfigurationEditors.validateIntegerValue(fetchBlockSizeTextField, "Fetch block size", true, 1, 10000, null);
+        ConfigurationEditors.validateIntegerValue(fetchTimeoutTextField, "Fetch timeout", true, 0, 300, "\nUse value 0 for no timeout");
 
         DataEditorGeneralSettings settings = getConfiguration();
         settings.getFetchBlockSize().to(fetchBlockSizeTextField);

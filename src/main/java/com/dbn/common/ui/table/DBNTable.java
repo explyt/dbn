@@ -4,6 +4,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.util.Strings;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
@@ -133,7 +134,7 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
         setRowSorter(new DBNTableSorter(getModel()));
         JTableHeader tableHeader = getTableHeader();
         if (tableHeader != null) {
-            tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            tableHeader.setCursor(Cursors.handCursor());
         }
     }
 

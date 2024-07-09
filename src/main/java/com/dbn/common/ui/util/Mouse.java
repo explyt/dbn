@@ -48,7 +48,6 @@ public class Mouse {
         });
     }
 
-
     public static Listener listener() {
         return new Listener();
     }

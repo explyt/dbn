@@ -58,7 +58,7 @@ public class ColumnStateSelectable implements Selectable {
     @Override
     public boolean isSecondary() {
         DBColumn column = getColumn();
-        return column == null ? false : column.isAudit();
+        return column != null && column.isAudit();
     }
 
     @Override

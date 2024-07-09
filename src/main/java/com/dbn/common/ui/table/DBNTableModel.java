@@ -2,10 +2,11 @@ package com.dbn.common.ui.table;
 
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.exception.OutdatedContentException;
+import com.dbn.nls.NlsSupport;
 
 import javax.swing.table.TableModel;
 
-public interface DBNTableModel<R> extends TableModel, StatefulDisposable {
+public interface DBNTableModel<R> extends TableModel, StatefulDisposable, NlsSupport {
     default String getPresentableValue(R rowObject, int column) {
         return rowObject == null ? "" : rowObject.toString();
     };

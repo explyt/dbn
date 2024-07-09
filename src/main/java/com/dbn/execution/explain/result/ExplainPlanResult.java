@@ -7,14 +7,12 @@ import com.dbn.common.util.Commons;
 import com.dbn.connection.*;
 import com.dbn.execution.ExecutionResultBase;
 import com.dbn.execution.explain.result.ui.ExplainPlanResultForm;
-import com.dbn.connection.*;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -88,7 +86,7 @@ public class ExplainPlanResult extends ExecutionResultBase<ExplainPlanResultForm
     }
 
     @Override
-    public PsiFile createPreviewFile() {
+    public DBLanguagePsiFile createPreviewFile() {
         ConnectionHandler connection = getConnection();
         SchemaId currentSchema = getCurrentSchema();
         DBLanguageDialect languageDialect = connection.getLanguageDialect(SQLLanguage.INSTANCE);
@@ -134,9 +132,7 @@ public class ExplainPlanResult extends ExecutionResultBase<ExplainPlanResultForm
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.EXPLAIN_PLAN_RESULT.is(dataId)) {
-            return ExplainPlanResult.this;
-        }
+        if (DataKeys.EXPLAIN_PLAN_RESULT.is(dataId)) return this;
         return null;
     }
 

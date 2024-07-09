@@ -1,26 +1,19 @@
 package com.dbn.common.option;
 
-import org.jetbrains.annotations.NotNull;
+import com.dbn.nls.NlsResources;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
-import java.util.Objects;
+import static com.dbn.nls.NlsResources.txt;
 
+@Getter
+@AllArgsConstructor
 public enum YesNoOption implements InteractiveOption {
-    YES("Yes", true),
-    NO("No", true);
+    YES(txt("cfg.shared.const.YesNoOption_YES"), true),
+    NO(txt("cfg.shared.const.YesNoOption_NO"), true);
 
-    private String name;
-    private boolean persistable;
-
-    YesNoOption(String name, boolean persistable) {
-        this.name = name;
-        this.persistable = persistable;
-    }
-
-    @Override
-    @NotNull
-    public String getName() {
-        return name;
-    }
+    private final String name;
+    private final boolean persistable;
 
     @Override
     public boolean isCancel() {
@@ -31,13 +24,4 @@ public enum YesNoOption implements InteractiveOption {
     public boolean isAsk() {
         return false;
     }
-
-
-    public static YesNoOption get(String name) {
-        for (YesNoOption option : YesNoOption.values()) {
-            if (Objects.equals(option.name, name) || Objects.equals(option.name(), name)) {
-                return option;
-            }
-        }
-        return null;
-    }}
+}

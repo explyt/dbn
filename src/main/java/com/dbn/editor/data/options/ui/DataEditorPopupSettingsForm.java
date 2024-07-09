@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.event.ActionListener;
 
-import static com.dbn.common.options.ui.ConfigurationEditorUtil.validateIntegerValue;
+import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 
 public class DataEditorPopupSettingsForm extends ConfigurationEditorForm<DataEditorPopupSettings> {
     private JTextField lengthThresholdTextField;

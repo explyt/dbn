@@ -46,13 +46,11 @@ public class CodeCompletionFilterSettings
         anySchemaOptions = new CodeCompletionFilterOptionBundle("Any schema", this);
     }
 
-    public boolean isExtended() {
-        return extended;
-    }
-
     @Override
     public String getDisplayName() {
-        return extended ? "Extended code completion" : "Basic code completion";
+        return extended ?
+                txt("cfg.codeCompletion.title.Extended") :
+                txt("cfg.codeCompletion.title.Basic");
     }
 
     public boolean acceptReservedWord(TokenTypeCategory tokenTypeCategory) {

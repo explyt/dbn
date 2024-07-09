@@ -1,16 +1,16 @@
 package com.dbn.vfs.file;
 
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.filter.custom.ObjectFilter;
 import com.dbn.vfs.DBParseableVirtualFile;
 import com.dbn.vfs.DBVirtualFileBase;
 import com.dbn.vfs.DatabaseFileViewProvider;
-import com.intellij.lang.Language;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import lombok.Setter;
@@ -21,6 +21,7 @@ import java.io.*;
 import java.nio.charset.Charset;
 
 import static com.dbn.common.action.UserDataKeys.LANGUAGE_DIALECT;
+import static com.dbn.common.dispose.Failsafe.nd;
 
 @Getter
 @Setter
@@ -33,18 +34,31 @@ public class DBObjectFilterExpressionFile extends DBVirtualFileBase implements D
         this.filter = filter;
         this.content = filter.getExpression();
 
-        ConnectionHandler connection = getConnection();
-        Charset charset = connection.getSettings().getDetailSettings().getCharset();
+        Charset charset = resolveCharset();
+        DBLanguageDialect languageDialect = getLanguageDialect();
+
         setCharset(charset);
         putUserData(PARSE_ROOT_ID_KEY, "condition");
-        putUserData(LANGUAGE_DIALECT, DBLanguageDialect.get(SQLLanguage.INSTANCE, connection));
+        putUserData(LANGUAGE_DIALECT, languageDialect);
+    }
+
+    private Charset resolveCharset() {
+        return getConnectionSettings().getDetailSettings().getCharset();
+    }
+
+    private @NotNull ConnectionSettings getConnectionSettings() {
+        return nd(filter.getSettings().getParentOfType(ConnectionSettings.class));
     }
 
     @Override
-    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, Language language) {
-        ConnectionHandler connection = Failsafe.nn(getConnection());
-        DBLanguageDialect languageDialect = connection.resolveLanguageDialect(language);
+    public PsiFile initializePsiFile(DatabaseFileViewProvider fileViewProvider, DBLanguage<?> language) {
+        DBLanguageDialect languageDialect = getLanguageDialect();
         return languageDialect == null ? null : fileViewProvider.initializePsiFile(languageDialect);
+    }
+
+    private DBLanguageDialect getLanguageDialect() {
+        ConnectionSettings connectionSettings = getConnectionSettings();
+        return connectionSettings.getLanguageDialect(SQLLanguage.INSTANCE);
     }
 
     @Override
@@ -66,7 +80,7 @@ public class DBObjectFilterExpressionFile extends DBVirtualFileBase implements D
     @NotNull
     @Override
     public ConnectionId getConnectionId() {
-        return getConnection().getConnectionId();
+        return filter.getConnectionId();
     }
 
 
@@ -99,10 +113,6 @@ public class DBObjectFilterExpressionFile extends DBVirtualFileBase implements D
     @Override
     public long getLength() {
         return content.length();
-    }
-
-    @Override
-    public void refresh(boolean asynchronous, boolean recursive, Runnable postRunnable) {
     }
 
     @NotNull

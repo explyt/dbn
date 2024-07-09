@@ -26,13 +26,13 @@ public class ConnectionSslSettingsForm extends ConfigurationEditorForm<Connectio
         enableDisableFields();
         registerComponent(mainPanel);
 
-        certificateAuthFileField.addBrowseFolderListener("Select certificate authority (CA) file", "",
+        certificateAuthFileField.addBrowseFolderListener(txt("cfg.connection.title.SelectCertificateAuthorityFile"), "",
                 null, new FileChooserDescriptor(true, false, false, false, false, false));
 
-        clientCertificateFile.addBrowseFolderListener("Select client certificate file", "",
+        clientCertificateFile.addBrowseFolderListener(txt("cfg.connection.title.SelectClientCertificateFile"), "",
                 null, new FileChooserDescriptor(true, false, false, false, false, false));
 
-        clientKeyFile.addBrowseFolderListener("Select client key file", "",
+        clientKeyFile.addBrowseFolderListener(txt("cfg.connection.title.SelectClientKeyFile"), "",
                 null, new FileChooserDescriptor(true, false, false, false, false, false));
     }
 

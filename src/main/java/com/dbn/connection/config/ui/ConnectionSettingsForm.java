@@ -9,7 +9,7 @@ import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.CompositeConfigurationEditorForm;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.tab.TabbedPane;
+import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Safe;
@@ -20,9 +20,7 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.*;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.tabs.TabInfo;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -41,53 +39,38 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     private JButton testButton;
     private JCheckBox activeCheckBox;
 
-    private final TabbedPane tabbedPane;
+    private final DBNTabbedPane tabbedPane;
     private final DBNHeaderForm headerForm;
 
     public ConnectionSettingsForm(ConnectionSettings connectionSettings) {
         super(connectionSettings);
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
-        tabbedPane = new TabbedPane(this);
+        tabbedPane = new DBNTabbedPane(this);
         contentPanel.add(tabbedPane, BorderLayout.CENTER);
 
-
-        TabInfo connectionTabInfo = new TabInfo(new JBScrollPane(databaseSettings.createComponent()));
-        connectionTabInfo.setText("Database");
-        tabbedPane.addTab(connectionTabInfo);
+        tabbedPane.addTab(txt("cfg.connection.title.Database"), databaseSettings.createComponent());
 
         if (databaseSettings.getConfigType() == ConnectionConfigType.BASIC) {
             ConnectionSslSettings sslSettings = connectionSettings.getSslSettings();
-            TabInfo sslTabInfo = new TabInfo(new JBScrollPane(sslSettings.createComponent()));
-            sslTabInfo.setText("SSL");
-            tabbedPane.addTab(sslTabInfo);
+            tabbedPane.addTab(txt("cfg.connection.title.Ssl"), new JBScrollPane(sslSettings.createComponent()));
 
             ConnectionSshTunnelSettings sshTunnelSettings = connectionSettings.getSshTunnelSettings();
-            TabInfo sshTunnelTabInfo = new TabInfo(new JBScrollPane(sshTunnelSettings.createComponent()));
-            sshTunnelTabInfo.setText("SSH Tunnel");
-            tabbedPane.addTab(sshTunnelTabInfo);
+            tabbedPane.addTab(txt("cfg.connection.title.SslTunnel"), new JBScrollPane(sshTunnelSettings.createComponent()));
         }
 
         ConnectionPropertiesSettings propertiesSettings = connectionSettings.getPropertiesSettings();
-        TabInfo propertiesTabInfo = new TabInfo(new JBScrollPane(propertiesSettings.createComponent()));
-        propertiesTabInfo.setText("Properties");
-        tabbedPane.addTab(propertiesTabInfo);
+        tabbedPane.addTab(txt("cfg.connection.title.Properties"), new JBScrollPane(propertiesSettings.createComponent()));
 
         ConnectionDetailSettings detailSettings = connectionSettings.getDetailSettings();
-        TabInfo detailsTabInfo = new TabInfo(new JBScrollPane(detailSettings.createComponent()));
-        detailsTabInfo.setText("Details");
-        tabbedPane.addTab(detailsTabInfo);
+        tabbedPane.addTab(txt("cfg.connection.title.Details"), new JBScrollPane(detailSettings.createComponent()));
 
         if (databaseSettings.getDatabaseType() == DatabaseType.ORACLE) {
             ConnectionDebuggerSettings debuggerSettings = connectionSettings.getDebuggerSettings();
-            TabInfo debuggerTabInfo = new TabInfo(new JBScrollPane(debuggerSettings.createComponent()));
-            debuggerTabInfo.setText("Debugger");
-            tabbedPane.addTab(debuggerTabInfo);
+            tabbedPane.addTab(txt("cfg.connection.title.Debugger"), new JBScrollPane(debuggerSettings.createComponent()));
         }
 
         ConnectionFilterSettings filterSettings = connectionSettings.getFilterSettings();
-        TabInfo filtersTabInfo = new TabInfo(new JBScrollPane(filterSettings.createComponent()));
-        filtersTabInfo.setText("Filters");
-        tabbedPane.addTab(filtersTabInfo);
+        tabbedPane.addTab(txt("cfg.connection.title.Filters"), new JBScrollPane(filterSettings.createComponent()));
 
         ConnectivityStatus connectivityStatus = databaseSettings.getConnectivityStatus();
         Icon icon = connectionSettings.isNew() ? Icons.CONNECTION_NEW :
@@ -96,7 +79,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
                    connectivityStatus == ConnectivityStatus.INVALID ? Icons.CONNECTION_INVALID : Icons.CONNECTION_INACTIVE;
 
         String name = connectionSettings.getDatabaseSettings().getName();
-        JBColor color = detailSettings.getEnvironmentType().getColor();
+        Color color = detailSettings.getEnvironmentType().getColor();
 
         headerForm = new DBNHeaderForm(this, name, icon, color);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
@@ -188,7 +171,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
             }
 
             private void refreshConnectionList(ConnectionSettings configuration) {
-                ConnectionBundleSettings bundleSettings = configuration.getParent();
+                ConnectionBundleSettings bundleSettings = configuration.ensureParent();
                 ConnectionBundleSettingsForm bundleSettingsEditor = bundleSettings.getSettingsEditor();
                 if (bundleSettingsEditor == null) return;
 
@@ -211,7 +194,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
     }
 
     public String getSelectedTabName() {
-        return Safe.call(tabbedPane, t -> t.getSelectedTabName());
+        return Safe.call(tabbedPane, t -> t.getSelectedTabTitle());
     }
 
     @NotNull

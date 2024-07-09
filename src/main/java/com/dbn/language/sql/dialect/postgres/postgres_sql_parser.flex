@@ -2,6 +2,7 @@ package com.dbn.language.sql.dialect.postgres;
 
 import com.dbn.language.common.DBLanguageDialectIdentifier;
 import com.dbn.language.common.TokenTypeBundle;
+import com.dbn.language.common.lexer.DBLanguageLexerBase;
 import com.intellij.psi.tree.IElementType;
 
 %%
@@ -89,6 +90,12 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
     "="{wso}">" {return tt.getOperatorTokenType(7);}
     ".."        {return tt.getOperatorTokenType(8);}
     "::"        {return tt.getOperatorTokenType(9);}
+    "~~"        {return tt.getOperatorTokenType(10);}
+    "!~~"       {return tt.getOperatorTokenType(11);}
+    "~"         {return tt.getOperatorTokenType(12);}
+    "~*"        {return tt.getOperatorTokenType(13);}
+    "!~"        {return tt.getOperatorTokenType(14);}
+    "!~*"       {return tt.getOperatorTokenType(15);}
 
 
     "("{wso}"+"{wso}")"  {return tt.getTokenType("CT_OUTER_JOIN");}
@@ -116,7 +123,7 @@ VARIABLE = ":"{wso}({IDENTIFIER}|{INTEGER})
     "*" {return tt.getCharacterTokenType(20);}
     "|" {return tt.getCharacterTokenType(21);}
     "&" {return tt.getCharacterTokenType(22);}
-    "~" {return tt.getCharacterTokenType(23);}
+//    "~" {return tt.getCharacterTokenType(23);}
 
 
 

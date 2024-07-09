@@ -86,16 +86,17 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
     public void createConsole(ConnectionHandler connection, String name, DBConsoleType type) {
         Project project = connection.getProject();
         Progress.background(project, connection, true,
-                "Creating console",
-                "Creating " + type.getName() + " \"" + name + "\"",indicator -> {
-            DBConsole console = connection.getConsoleBundle().createConsole(name, type);
-            DBConsoleVirtualFile consoleFile = console.getVirtualFile();
-            consoleFile.setText("");
-            consoleFile.setDatabaseSchema(connection.getDefaultSchema());
+                txt("msg.consoles.title.CreatingConsole"),
+                txt("msg.consoles.info.CreatingConsole", type.getName(), name),
+                indicator -> {
+                    DBConsole console = connection.getConsoleBundle().createConsole(name, type);
+                    DBConsoleVirtualFile consoleFile = console.getVirtualFile();
+                    consoleFile.setText("");
+                    consoleFile.setDatabaseSchema(connection.getDefaultSchema());
 
-            reloadConsoles(connection);
-            Editors.openFileEditor(project, consoleFile, true);
-        });
+                    reloadConsoles(connection);
+                    Editors.openFileEditor(project, consoleFile, true);
+                });
     }
 
     public void renameConsole(@NotNull DBConsole console, String newName) {
@@ -116,9 +117,8 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
         Project project = getProject();
         Messages.showQuestionDialog(
                 project,
-                "Delete console",
-                "You will loose the information contained in this console.\n" +
-                        "Are you sure you want to delete the console?",
+                txt("msg.consoles.title.DeleteConsole"),
+                txt("msg.consoles.question.DeleteConsole"),
                 Messages.OPTIONS_YES_NO, 0,
                 option -> when(option == 0, () -> {
                     ConnectionHandler connection = console.getConnection();
@@ -145,16 +145,17 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
 
     public void saveConsoleToFile(DBConsoleVirtualFile consoleFile) {
         Project project = getProject();
+        String consoleName = consoleFile.getName();
         FileSaverDescriptor fileSaverDescriptor = new FileSaverDescriptor(
-                Titles.signed("Save Console to File"),
-                "Save content of the console \"" + consoleFile.getName() + "\" to file", "sql");
+                Titles.signed(txt("msg.consoles.title.SaveToFile")),
+                txt("msg.consoles.info.SaveToFile", consoleName), "sql");
 
         FileChooserFactory fileChooserFactory = FileChooserFactory.getInstance();
         FileSaverDialog fileSaverDialog = fileChooserFactory.createSaveFileDialog(fileSaverDescriptor, project);
         Document document = Documents.getDocument(consoleFile);
         if (document == null) return;
 
-        VirtualFileWrapper fileWrapper = fileSaverDialog.save((VirtualFile) null, consoleFile.getName());
+        VirtualFileWrapper fileWrapper = fileSaverDialog.save((VirtualFile) null, consoleName);
         if (fileWrapper == null) return;
 
         VirtualFile file = fileWrapper.getVirtualFile(true);
@@ -166,7 +167,10 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                 file.setBinaryContent(content);
             } catch (IOException e) {
                 conditionallyLog(e);
-                Messages.showErrorDialog(project, "Error saving to file", "Could not save console content to file \"" + fileWrapper.getFile().getName() + "\"", e);
+                String fileName = fileWrapper.getFile().getName();
+                Messages.showErrorDialog(project,
+                        txt("msg.consoles.title.CouldNotSaveToFile"),
+                        txt("msg.consoles.error.CouldNotSaveToFile", fileName), e);
             }
         });
 
@@ -204,7 +208,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newElement("state");
         ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
         List<ConnectionHandler> connections = connectionManager.getConnectionBundle().getAllConnections();
         for (ConnectionHandler connection : connections) {

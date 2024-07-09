@@ -4,9 +4,9 @@ import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.common.options.setting.Settings;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.project.ProjectSupplier;
-import com.dbn.execution.statement.options.ui.StatementExecutionSettingsForm;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.execution.common.options.ExecutionTimeoutSettings;
+import com.dbn.execution.statement.options.ui.StatementExecutionSettingsForm;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +31,7 @@ public class StatementExecutionSettings extends BasicProjectConfiguration<Execut
 
     @Override
     public String getDisplayName() {
-        return "Statement execution settings";
+        return txt("cfg.execution.title.StatementExecution");
     }
 
     @Override

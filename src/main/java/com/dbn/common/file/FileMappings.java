@@ -21,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.file.util.VirtualFiles.*;
@@ -102,6 +104,11 @@ public class FileMappings<T> implements Disposable {
         return value;
     }
 
+    private void clearCache() {
+        urlCache.clear();
+        fileCache.clear();
+    }
+
     public void addEventHandler(ParametricRunnable<FileMappingEvent<T>, Throwable> handler) {
         eventHandlers.add(handler);
     }
@@ -127,8 +134,7 @@ public class FileMappings<T> implements Disposable {
         T removed = mappings.remove(fileUrl);
         if (removed == null) return null;
 
-        urlCache.clear();
-        fileCache.clear();
+        clearCache();
         return removed;
     }
 
@@ -138,8 +144,7 @@ public class FileMappings<T> implements Disposable {
 
     public void put(@NotNull String url, T value) {
         mappings.put(url, value);
-        urlCache.clear();
-        fileCache.clear();
+        clearCache();
     }
 
     public Set<String> fileUrls() {
@@ -171,14 +176,12 @@ public class FileMappings<T> implements Disposable {
                 return !verifier.test(url, value);
             });
         }
-        urlCache.clear();
-        fileCache.clear();
+        clearCache();
     }
 
     public void clear() {
         mappings.clear();
-        urlCache.clear();
-        fileCache.clear();
+        clearCache();
     }
 
     public Collection<T> values() {
@@ -190,5 +193,12 @@ public class FileMappings<T> implements Disposable {
         clear();
         verifiers.clear();
         eventHandlers.clear();
+    }
+
+    public T computeIfAbsent(String fileUrl, Function<String, T> valueProvider) {
+        return mappings.computeIfAbsent(fileUrl, k -> {
+            clearCache();
+            return valueProvider.apply(k);
+        });
     }
 }

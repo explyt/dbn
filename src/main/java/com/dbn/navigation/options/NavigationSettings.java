@@ -31,7 +31,7 @@ public class NavigationSettings extends CompositeProjectConfiguration<ProjectSet
 
     @Override
     public String getDisplayName() {
-        return "Navigation";
+        return txt("cfg.navigation.title.Navigation");
     }
 
     @Override

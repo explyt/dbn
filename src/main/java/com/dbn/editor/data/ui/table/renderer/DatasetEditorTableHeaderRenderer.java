@@ -4,6 +4,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.table.DBNTableHeaderRendererBase;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.sorting.SortDirection;
 import com.dbn.data.sorting.SortingInstruction;
@@ -76,7 +77,7 @@ public class DatasetEditorTableHeaderRenderer extends DBNTableHeaderRendererBase
             width += fontMetrics.stringWidth(columnName) + 20;
             int height = fontMetrics.getHeight() + 6;
             mainPanel.setPreferredSize(new Dimension(width, height));
-            mainPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            mainPanel.setCursor(Cursors.handCursor());
             updateTooltip(column);
             return mainPanel;
         });

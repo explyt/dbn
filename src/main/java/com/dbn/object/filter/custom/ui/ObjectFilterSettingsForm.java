@@ -88,6 +88,11 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
                 (dialog, exitCode) -> when(exitCode == 0, callback));
     }
 
+    public void showFilterPreview(ObjectFilter<?> filter, Component source) {
+        ObjectFilterPreviewPopup previewPopup = new ObjectFilterPreviewPopup(filter);
+        previewPopup.show(source);
+    }
+
     private class ObjectTypeSelector extends ValueSelector<DBObjectType> {
         ObjectTypeSelector() {
             super(PlatformIcons.ADD_ICON, "Add Filter", null, ValueSelectorOption.HIDE_DESCRIPTION);

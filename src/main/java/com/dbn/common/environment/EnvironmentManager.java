@@ -1,11 +1,12 @@
 package com.dbn.common.environment;
 
+import com.dbn.DatabaseNavigator;
+import com.dbn.common.Reflection;
+import com.dbn.common.component.PersistentState;
+import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.util.Editors;
-import com.dbn.DatabaseNavigator;
-import com.dbn.common.component.PersistentState;
-import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatusHolder;
@@ -13,7 +14,6 @@ import com.dbn.vfs.file.DBContentVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileEditor.impl.FileEditorManagerImpl;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
@@ -46,11 +46,9 @@ public class EnvironmentManager extends ProjectComponentBase implements Persiste
         return new EnvironmentManagerListener() {
             @Override
             public void configurationChanged(Project project) {
-                FileEditorManagerImpl fileEditorManager = (FileEditorManagerImpl) FileEditorManager.getInstance(getProject());
+                FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
                 VirtualFile[] openFiles = fileEditorManager.getOpenFiles();
-                for (VirtualFile virtualFile : openFiles) {
-                    fileEditorManager.updateFilePresentation(virtualFile);
-                }
+                Editors.updateEditorPresentations(project, openFiles);
             }
         };
     }

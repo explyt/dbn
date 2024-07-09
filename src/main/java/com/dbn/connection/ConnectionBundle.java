@@ -246,9 +246,15 @@ public class ConnectionBundle extends StatefulDisposableBase implements BrowserT
     @Override
     @Nullable
     public BrowserTreeNode getParent() {
+/*
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(getProject());
         DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();
-        return browserManager.isTabbedMode() ? null : activeBrowserTree == null ? null : activeBrowserTree.getModel().getRoot();
+
+        if (activeBrowserTree == null) return null;
+        if (browserManager.isSingleTreeMode()) return activeBrowserTree.getModel().getRoot();
+*/
+
+        return null;
     }
 
     @Override

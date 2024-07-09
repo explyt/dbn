@@ -55,6 +55,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.allValid;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.navigation.NavigationInstruction.*;
+import static com.dbn.common.thread.ThreadProperty.*;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Editors.getEditorTabInfos;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
@@ -261,8 +262,9 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     }
 
     private static void prepareSourcecodeEditor(@NotNull DBEditableObjectVirtualFile databaseFile, @NotNull Runnable callback) {
-        // do not prompt ddl file attachments during workspace restore
-        if (ThreadInfo.current().is(ThreadProperty.WORKSPACE_RESTORE)) {
+        // do not prompt ddl file attachments during workspace restore or debugger navigation
+        ThreadInfo threadInfo = ThreadInfo.current();
+        if (threadInfo.isOneOf(WORKSPACE_RESTORE, DEBUGGER_NAVIGATION)) {
             callback.run();
             return;
         }
@@ -312,7 +314,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
 
     private static void prepareDatasetEditor(DBEditableObjectVirtualFile databaseFile, @NotNull Runnable callback) {
         // do not prompt filter dialogs attachments during workspace restore
-        if (ThreadInfo.current().is(ThreadProperty.WORKSPACE_RESTORE)) {
+        if (ThreadInfo.current().is(WORKSPACE_RESTORE)) {
             callback.run();
             return;
         }

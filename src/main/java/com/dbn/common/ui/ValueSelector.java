@@ -5,10 +5,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.property.PropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
-import com.dbn.common.ui.util.Listeners;
-import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.ui.util.Popups;
-import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.ui.util.*;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Context;
@@ -70,7 +67,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         this.values = values;
 
         label = new JLabel(Commons.nvl(text, ""), cropIcon(icon), SwingConstants.LEFT);
-        label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        label.setCursor(Cursors.handCursor());
         label.addMouseListener(mouseListener);
 
         setBorder(defaultBorder);
@@ -78,7 +75,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         innerPanel = new JPanel(new BorderLayout());
         innerPanel.add(label, BorderLayout.WEST);
         innerPanel.addMouseListener(mouseListener);
-        innerPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        innerPanel.setCursor(Cursors.handCursor());
         add(innerPanel, BorderLayout.CENTER);
 
         setMinimumSize(new Dimension(0, 30));
@@ -116,8 +113,8 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
     @Override
     public void setEnabled(boolean isEnabled) {
         this.isEnabled = isEnabled;
-        label.setCursor(isEnabled ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR): Cursor.getDefaultCursor());
-        innerPanel.setCursor(isEnabled ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) : Cursor.getDefaultCursor());
+        label.setCursor(isEnabled ? Cursors.handCursor(): Cursors.defaultCursor());
+        innerPanel.setCursor(isEnabled ? Cursors.handCursor() : Cursors.defaultCursor());
 
         innerPanel.setBackground(Colors.getPanelBackground());
         innerPanel.setFocusable(isEnabled);
@@ -161,8 +158,8 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
             });
 
     private void showPopup() {
-        innerPanel.setCursor(Cursor.getDefaultCursor());
-        label.setCursor(Cursor.getDefaultCursor());
+        innerPanel.setCursor(Cursors.defaultCursor());
+        label.setCursor(Cursors.defaultCursor());
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         for (T value : getValues()) {
             actionGroup.add(new SelectValueAction(value));
@@ -183,8 +180,8 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
 
                     innerPanel.setBorder(defaultBorder);
                     innerPanel.setBackground(Colors.getPanelBackground());
-                    innerPanel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                    label.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    innerPanel.setCursor(Cursors.handCursor());
+                    label.setCursor(Cursors.handCursor());
 
                     innerPanel.requestFocus();
                     UserInterface.repaint(ValueSelector.this);

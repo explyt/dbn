@@ -42,7 +42,7 @@
         <token id="00012" optional="true" type-id="CHR_SEMICOLON" />
         <element optional="true" ref-id="end" />
     </element-def>
-    <element-def attributes="SPECIFIC, SCOPE_DEMARCATION" description="Anonymous block" formatting-indent="ABSOLUTE_NONE" id="anonymous_block">
+    <element-def attributes="SPECIFIC, SCOPE_DEMARCATION" description="DECLARE block" formatting-indent="ABSOLUTE_NONE" id="anonymous_block">
         <sequence id="00013" optional="true">
             <token id="00014" type-id="KW_DECLARE" />
             <element optional="true" ref-id="declare_section" />
@@ -4672,7 +4672,7 @@
                     <token id="02365" type-id="FN_LOCALTIMESTAMP" />
                 </one-of>
                 <wrapper id="02366" optional="true" template="PARENTHESES">
-                    <element ref-id="expression" />
+                    <element ref-id="expression" optional="true"/>
                 </wrapper>
             </sequence>
             <sequence id="02367">

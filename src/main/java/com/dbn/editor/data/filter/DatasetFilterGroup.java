@@ -196,14 +196,6 @@ public class DatasetFilterGroup extends BasicProjectConfiguration<ProjectConfigu
         }
     }
 
-    /*************************************************
-    *                      Settings                  *
-    *************************************************/
-    @Override
-    public String getDisplayName() {
-        return null;
-    }
-
     /****************************************************
      *                   Configuration                  *
      ****************************************************/

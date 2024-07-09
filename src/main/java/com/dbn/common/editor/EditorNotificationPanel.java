@@ -3,7 +3,6 @@ package com.dbn.common.editor;
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.message.MessageType;
-import com.intellij.codeInsight.hint.HintUtil;
 import com.intellij.ui.HyperlinkAdapter;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.util.ui.PlatformColors;
@@ -33,17 +32,17 @@ public class EditorNotificationPanel extends JPanel{
         switch (messageType) {
             case INFO: {
                 icon = Icons.COMMON_INFO;
-                background = Colors.getLightPanelBackground();
+                background = Colors.getInfoHintColor();
                 break;
             }
             case WARNING:{
                 icon = Icons.COMMON_WARNING;
-                background = Colors.getLightPanelBackground();
+                background = Colors.getWarningHintColor();
                 break;
             }
             case ERROR:{
                 //icon = AllIcons.General.Error;
-                background = HintUtil.getErrorColor();
+                background = Colors.getErrorHintColor();
                 break;
             }
             default:{

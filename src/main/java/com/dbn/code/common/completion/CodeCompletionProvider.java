@@ -320,7 +320,7 @@ public class CodeCompletionProvider extends CompletionProvider<CompletionParamet
 
         for (int i = 0; i< aliasNames.length; i++) {
             while (true) {
-                PsiLookupAdapter lookupAdapter = LookupAdapters.aliasDefinition(DBObjectType.ANY);
+                PsiLookupAdapter lookupAdapter = LookupAdapters.aliasDefinition(null, DBObjectType.ANY, aliasNames[i]);
                 boolean isExisting = scope != null && lookupAdapter.findInScope(scope) != null;
                 boolean isKeyword = aliasElement.getLanguageDialect().isReservedWord(aliasNames[i]);
                 if (isKeyword || isExisting) {

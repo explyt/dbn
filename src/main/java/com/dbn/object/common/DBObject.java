@@ -144,4 +144,8 @@ public interface DBObject extends
     default ConnectionContext createConnectionContext() {
         return new ConnectionContext(getProject(), getConnectionId(), getSchemaId());
     }
+
+    default boolean matches(DBObjectType objectType) {
+        return getObjectType().matches(objectType);
+    };
 }

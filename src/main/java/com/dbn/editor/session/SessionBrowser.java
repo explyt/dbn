@@ -408,9 +408,7 @@ public class SessionBrowser extends DisposableUserDataHolderBase implements File
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.SESSION_BROWSER.is(dataId)) {
-            return SessionBrowser.this;
-        }
+        if (DataKeys.SESSION_BROWSER.is(dataId)) return this;
         return null;
     }
 

@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
-import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -40,12 +39,6 @@ public class CodeCompletionSortingItem extends BasicConfiguration<CodeCompletion
 
     public String toString() {
         return objectType == null ? tokenTypeCategory.getName() : objectType.getName();
-    }
-
-    @Nls
-    @Override
-    public String getDisplayName() {
-        return null;
     }
 
     /*********************************************************

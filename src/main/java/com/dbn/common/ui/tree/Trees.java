@@ -10,14 +10,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.event.TreeModelEvent;
-import javax.swing.event.TreeModelListener;
+import javax.swing.event.*;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -73,6 +73,15 @@ public final class Trees {
         }
     }
 
+    public static void attachStickyPath(DBNTree tree, @Nullable Supplier<Boolean> enabled) {
+        new DBNStickyPathTree(tree) {
+            @Override
+            protected boolean checkFeatureEnabled() {
+                return enabled == null || enabled.get();
+            }
+        };
+    }
+
     public static void notifyTreeModelListeners(Object source, Listeners<TreeModelListener> listeners, @Nullable TreePath path, TreeEventType eventType) {
         if (path == null) return;
 
@@ -110,7 +119,7 @@ public final class Trees {
         return getPathForLocation(tree, event.getPoint());
     }
 
-    private static TreePath getPathForLocation(JTree tree, Point location) {
+    public static TreePath getPathForLocation(JTree tree, Point location) {
         return tree.getClosestPathForLocation((int) location.getX(), (int) location.getY());
     }
 }

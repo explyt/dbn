@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Getter
 @Setter
 public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtualFile, Presentable, VirtualFilePathWrapper {
+    private static final byte[] EMPTY_CONTENT = new byte[0];
     private static final AtomicInteger ID_STORE = new AtomicInteger(1000);
     private final int id;
     private final ProjectRef project;
@@ -61,11 +62,6 @@ public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtual
         return connection == null ? EnvironmentType.DEFAULT : connection.getEnvironmentType();
     }
 
-    @Override
-    public boolean isInLocalFileSystem() {
-        return false;
-    }
-
     @NotNull
     @Override
     public DatabaseFileSystem getFileSystem() {
@@ -80,12 +76,6 @@ public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtual
 
     @Override
     public abstract Icon getIcon();
-
-    @Nullable
-    @Override
-    public String getDescription() {
-        return null;
-    }
 
     @Override
     public VirtualFile[] getChildren() {
@@ -189,6 +179,19 @@ public abstract class DBVirtualFileBase extends VirtualFile implements DBVirtual
     public DatabaseFileViewProvider getCachedViewProvider() {
         return getUserData(DatabaseFileViewProvider.CACHED_VIEW_PROVIDER);
     }
+
+    @Override
+    public byte[] contentsToByteArray() throws IOException {
+        return EMPTY_CONTENT;
+    }
+
+    @Override
+    public long getLength() {
+        return 0;
+    }
+
+    @Override
+    public void refresh(boolean asynchronous, boolean recursive, Runnable postRunnable) {}
 
     public void invalidate() {
         DatabaseFileViewProvider cachedViewProvider = getCachedViewProvider();

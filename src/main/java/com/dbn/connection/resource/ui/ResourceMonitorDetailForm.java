@@ -112,15 +112,15 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         rollbackButton.setEnabled(enabled);
     }
 
-    private final AnActionButton disconnectAction = new BasicActionButton("Disconnect", null, Icons.ACTION_DISCONNECT_SESSION) {
+    private final AnActionButton disconnectAction = new BasicActionButton(txt("app.sessions.action.Disconnect"), null, Icons.ACTION_DISCONNECT_SESSION) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
             if (session != null) {
                 ConnectionHandler connection = getConnection();
                 Messages.showQuestionDialog(getProject(),
-                        "Disconnect Session",
-                        "Are you sure you want to disconnect the session \"" + session.getName() + "\" for connection\"" + connection.getName() + "\"" ,
+                        txt("msg.sessions.title.DisconnectSession"),
+                        txt("msg.sessions.question.DisconnectSession", session, connection),
                         Messages.OPTIONS_YES_NO, 0,
                         option -> when(option == 0, () -> {
                             DBNConnection conn = getSelectedConnection();
@@ -145,14 +145,14 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
 
     };
 
-    private final AnActionButton deleteSessionAction = new BasicActionButton("Delete Session", null, Icons.ACTION_DELETE) {
+    private final AnActionButton deleteSessionAction = new BasicActionButton(txt("app.sessions.action.DeleteSession"), null, Icons.ACTION_DELETE) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();
             if (session != null) {
                 Messages.showQuestionDialog(getProject(),
-                        "Delete Session",
-                        "Are you sure you want to delete the session \"" + session.getName() + "\" for connection\"" + getConnection().getName() + "\"" ,
+                        txt("msg.sessions.title.DeleteSession"),
+                        txt("msg.sessions.question.DeleteSession", session, getConnection()),
                         Messages.OPTIONS_YES_NO, 0,
                         option -> when(option == 0, () -> {
                             Project project = ensureProject();
@@ -173,7 +173,7 @@ public class ResourceMonitorDetailForm extends DBNFormBase {
         }
     };
 
-    private final AnActionButton renameSessionAction = new BasicActionButton("Rename Session", null, Icons.ACTION_EDIT) {
+    private final AnActionButton renameSessionAction = new BasicActionButton(txt("app.sessions.action.RenameSession"), null, Icons.ACTION_EDIT) {
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             DatabaseSession session = getSelectedSession();

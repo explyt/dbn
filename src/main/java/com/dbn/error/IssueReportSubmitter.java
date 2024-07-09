@@ -2,10 +2,10 @@ package com.dbn.error;
 
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.action.Lookups;
-import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Strings;
+import com.dbn.nls.NlsSupport;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
 import com.intellij.openapi.diagnostic.ErrorReportSubmitter;
 import com.intellij.openapi.diagnostic.IdeaLoggingEvent;
@@ -18,13 +18,14 @@ import org.jetbrains.annotations.Nullable;
 
 import java.awt.*;
 
+import static com.dbn.common.notification.NotificationGroup.REPORTING;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.openapi.diagnostic.SubmittedReportInfo.SubmissionStatus.FAILED;
 import static com.intellij.openapi.diagnostic.SubmittedReportInfo.SubmissionStatus.NEW_ISSUE;
 
 @Slf4j
-public abstract class IssueReportSubmitter extends ErrorReportSubmitter {
+public abstract class IssueReportSubmitter extends ErrorReportSubmitter implements NlsSupport {
 
     @Override
     public IdeaPluginDescriptor getPluginDescriptor() {
@@ -38,7 +39,7 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter {
     @NotNull
     @Override
     public String getReportActionText() {
-        return "Submit Issue Report";
+        return txt("msg.reporting.title.SubmitIssueReport");
     }
 
     public abstract String getTicketUrl(String ticketId);
@@ -63,20 +64,16 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter {
     private void submitReport(IssueReport report) {
         Project project = report.getProject();
 
-        Progress.prompt(project, null, true, "Submitting issue report", null, progress -> {
+        Progress.prompt(project, null, true, txt("prc.reporting.title.SubmittingIssueReport"), null, progress -> {
             TicketResponse response;
             Consumer<SubmittedReportInfo> consumer = report.getConsumer();
             try {
-                response = submit(
-                        report.getSummary(),
-                        report.getDescription());
+                response = submit(report);
             } catch (Exception e) {
                 conditionallyLog(e);
 
-                NotificationSupport.sendErrorNotification(
-                        project,
-                        NotificationGroup.REPORTING,
-                        "<html>Failed to send error report: {0}</html>", e);
+                NotificationSupport.sendErrorNotification(project, REPORTING,
+                        txt("ntf.reporting.error.FailedToSendIssueReport", e));
 
                 consumer.consume(new SubmittedReportInfo(null, null, FAILED));
                 return;
@@ -84,27 +81,23 @@ public abstract class IssueReportSubmitter extends ErrorReportSubmitter {
 
             String errorMessage = response.getErrorMessage();
             if (Strings.isEmpty(errorMessage)) {
-                log.info("Error report submitted, response: " + response);
+                log.info("Error report submitted, response: {}", response);
 
                 String ticketId = response.getTicketId();
                 String ticketUrl = getTicketUrl(ticketId);
-                NotificationSupport.sendInfoNotification(
-                        project,
-                        NotificationGroup.REPORTING,
-                        "<html>Error report successfully sent. Ticket <a href='" + ticketUrl + "'>" + ticketId + "</a> created.</html>");
+                NotificationSupport.sendInfoNotification(project, REPORTING,
+                        txt("ntf.reporting.info.IssueReportSuccessfullySent", ticketUrl, ticketId));
 
                 consumer.consume(new SubmittedReportInfo(ticketUrl, ticketId, NEW_ISSUE));
             } else {
-                NotificationSupport.sendErrorNotification(
-                        project,
-                        NotificationGroup.REPORTING,
-                        "<html>Failed to send error report: " + errorMessage + "</html>");
+                NotificationSupport.sendErrorNotification(project, REPORTING,
+                        txt("ntf.reporting.error.ErrorSendingIssueReport", errorMessage));
                 consumer.consume(new SubmittedReportInfo(null, null, FAILED));
             }
         });
     }
 
     @NotNull
-    public abstract TicketResponse submit(String summary, String description) throws Exception;
+    public abstract TicketResponse submit(IssueReport report) throws Exception;
 
 }

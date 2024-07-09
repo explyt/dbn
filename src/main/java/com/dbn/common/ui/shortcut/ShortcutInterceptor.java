@@ -1,6 +1,5 @@
 package com.dbn.common.ui.shortcut;
 
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.Keyboard;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.actionSystem.ex.AnActionListener;
@@ -46,6 +45,6 @@ public abstract class ShortcutInterceptor implements AnActionListener {
                 new Presentation(),
                 ActionManager.getInstance(), 0);
 
-        Dispatch.run(() -> delegateAction.actionPerformed(delegateEvent));
+        delegateAction.actionPerformed(delegateEvent);
     }
 }

@@ -3,13 +3,20 @@ package com.dbn.common.ui.util;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.lookup.Visitor;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
+import com.intellij.ide.ui.UISettings;
+import com.intellij.openapi.actionSystem.ActionToolbarPosition;
 import com.intellij.openapi.util.SystemInfo;
 import com.intellij.openapi.util.registry.Registry;
+import com.intellij.ui.AncestorListenerAdapter;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.border.IdeaTitledBorder;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
 import lombok.Getter;
+import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -17,18 +24,39 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.AncestorEvent;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.InputEvent;
+import java.util.Arrays;
 import java.util.function.Predicate;
 
+import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.ui.util.Borderless.isBorderless;
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Unsafe.silent;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
+@UtilityClass
 public class UserInterface {
+
+    public static final String NEW_UI_REGISTRY_KEY = "ide.experimental.ui";
+    public static final String NEW_UI_RELEASE_VERSION = "2022.3";
+
+    @Getter
     @Compatibility
-    @Getter(lazy = true)
-    private static final boolean newUI = Unsafe.silent(false, () -> Registry.is("ide.experimental.ui"));
+    private static final boolean newUI = silent(false, () -> evaluateNewUi());
+
+    @Compatibility
+    public static boolean isCompactMode() {
+        //UISettings.getInstance().getCompactMode();
+        return nvl(invokeMethod(UISettings.getInstance(), "getCompactMode"), true);
+    }
+
+    private static boolean evaluateNewUi() {
+        return Environment.isIdeNewerThan(NEW_UI_RELEASE_VERSION) && Registry.is(NEW_UI_REGISTRY_KEY);
+    }
+
 
     public static void stopTableCellEditing(JComponent root) {
         visitRecursively(root, component -> {
@@ -40,6 +68,20 @@ public class UserInterface {
                 }
             }
         });
+    }
+
+    public static void whenShown(JComponent component, Runnable runnable) {
+        component.addAncestorListener(new AncestorListenerAdapter() {
+            @Override
+            public void ancestorAdded(AncestorEvent event) {
+                runnable.run();
+            }
+        });
+    }
+
+
+    public static void removeBorders(JComponent root) {
+        UserInterface.visitRecursively(root, component -> component.setBorder(null));
     }
 
     @Nullable
@@ -201,7 +243,7 @@ public class UserInterface {
     @NotNull
     public static ToolbarDecorator createToolbarDecorator(JTable table) {
         ToolbarDecorator decorator = ToolbarDecorator.createDecorator(table);
-        decorator.setAsUsualTopToolbar();
+        decorator.setToolbarPosition(ActionToolbarPosition.TOP);
         decorator.setToolbarBorder(Borders.TOOLBAR_DECORATOR_BORDER);
         decorator.setPanelBorder(Borders.EMPTY_BORDER);
         return decorator;
@@ -210,5 +252,44 @@ public class UserInterface {
 
     public static void updateSplitPanes(JComponent component) {
         visitRecursively(component, JSplitPane.class, sp -> Splitters.replaceSplitPane(sp));
+    }
+
+    public static void setBackgroundRecursive(JComponent component, Color color) {
+        component.setBackground(color);
+        Component[] children = component.getComponents();
+        Arrays
+            .stream(children)
+            .filter(child -> child instanceof JComponent)
+            .map(child -> (JComponent) child)
+            .forEach(child -> setBackgroundRecursive(child, color));
+
+    }
+
+    public static void replaceComponent(JComponent oldComponent, JComponent newComponent) {
+        Container container = oldComponent.getParent();
+        LayoutManager layout = container.getLayout();
+        for (int i = 0; i < container.getComponentCount(); i++) {
+            if (container.getComponent(i) != oldComponent) continue;
+
+            if (layout instanceof GridLayoutManager) {
+                GridLayoutManager gridLayout = (GridLayoutManager) layout;
+                GridConstraints constraints = gridLayout.getConstraintsForComponent(oldComponent);
+                container.remove(i);
+                container.add(newComponent, constraints);
+            } else {
+                container.remove(i);
+                container.add(newComponent, i);
+            }
+
+        }
+    }
+
+    public static int getComponentIndex(Container container, Component component) {
+        for (int i = 0; i < container.getComponentCount(); i++) {
+            if (container.getComponent(i) == component) {
+                return i;
+            }
+        }
+        return -1;
     }
 }

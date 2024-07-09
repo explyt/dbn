@@ -65,4 +65,12 @@ public class SetCollector<T> implements Consumer<T> {
     public boolean isNotEmpty() {
         return !isEmpty();
     }
+
+    public int size() {
+        return elements == null ? 0 : elements.size();
+    }
+
+    public void clear() {
+        elements.clear();
+    }
 }

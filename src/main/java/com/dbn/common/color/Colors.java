@@ -1,14 +1,18 @@
 package com.dbn.common.color;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.ui.util.LookAndFeel;
+import com.dbn.common.util.Commons;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
+import com.intellij.codeInsight.hint.HintUtil;
 import com.intellij.ide.ui.laf.darcula.DarculaUIUtil;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.HighlighterColors;
 import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
+import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
 import lombok.experimental.UtilityClass;
@@ -20,6 +24,7 @@ import java.awt.*;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.color.ColorCache.cached;
 import static com.dbn.common.color.ColorSchemes.background;
 import static com.dbn.common.color.ColorSchemes.foreground;
@@ -27,8 +32,6 @@ import static com.dbn.common.dispose.Failsafe.guarded;
 
 @UtilityClass
 public final class Colors {
-    private static final AtomicInteger index = new AtomicInteger(0);
-
     public static Color LIGHT_BLUE = new JBColor(new Color(235, 244, 254), new Color(0x2D3548));
     public static Color HINT_COLOR = new JBColor(new Color(-12029286), new Color(-10058060));
 
@@ -167,8 +170,36 @@ public final class Colors {
         return cached(30, () -> new JBColor(() -> Colors.lafDarker(UIUtil.getPanelBackground(), 2)));
     }
 
+    public static Color getInfoHintColor() {
+        return cached(31, () -> HintUtil.getInformationColor());
+    }
+
+    public static Color getLabelInfoForeground() {
+        return cached(32, () -> JBColor.namedColor("Label.infoForeground", new JBColor(Gray._120, Gray._135)));
+    }
+
+    public static Color getLabelErrorForeground() {
+        return cached(33, () -> JBColor.namedColor("Label.errorForeground", new JBColor(new Color(0xC7222D), JBColor.RED)));
+    }
+
+
+    @Compatibility
+    public static Color getWarningHintColor() {
+        return cached(34, () -> Commons.coalesce(
+                () -> invokeMethod(HintUtil.class, "getWarningColor"),
+                () -> new JBColor(0xfff8dc, 0x665014)));
+    }
+
+    public static Color getErrorHintColor() {
+        return cached(35, () -> HintUtil.getErrorColor());
+    }
+
     public static Color getOutlineColor() {
-        return cached(31, () -> DarculaUIUtil.getOutlineColor(true, false));
+        return cached(36, () -> DarculaUIUtil.getOutlineColor(true, false));
+    }
+
+    public static Color getTextFieldInactiveForeground() {
+        return cached(37, () -> UIManager.getColor("TextField.inactiveForeground"));
     }
 
 

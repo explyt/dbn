@@ -25,7 +25,7 @@ public class DataEditorGeneralSettings extends BasicConfiguration<DataEditorSett
 
     @Override
     public String getDisplayName() {
-        return "Data editor general settings";
+        return txt("cfg.dataEditor.title.GeneralSettings");
     }
 
     @Override

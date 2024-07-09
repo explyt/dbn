@@ -7,6 +7,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseType;
@@ -165,7 +166,7 @@ public class ConnectionInfoForm extends DBNFormBase {
         textField.setBackground(Colors.getPanelBackground());
         textField.setEditable(false);
         textField.setText(getPresentableText(value));
-        textField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+        textField.setCursor(Cursors.textCursor());
 
         String text = textField.getText();
         if (Strings.isNotEmpty(text)) {

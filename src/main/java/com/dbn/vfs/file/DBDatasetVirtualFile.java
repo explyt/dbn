@@ -18,21 +18,6 @@ public class DBDatasetVirtualFile extends DBContentVirtualFile {
         return (DBDataset) super.getObject();
     }
 
-    /*********************************************************
-     *                     VirtualFile                       *
-     *********************************************************/
-
-    @Override
-    @NotNull
-    public byte[] contentsToByteArray() throws IOException {
-        return new byte[0];
-    }
-
-    @Override
-    public long getLength() {
-        return 0;
-    }
-
     @Override
     public DatabaseSession getSession() {
         return this.getConnection().getSessionBundle().getMainSession();

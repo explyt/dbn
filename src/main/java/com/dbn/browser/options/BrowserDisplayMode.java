@@ -1,23 +1,19 @@
 package com.dbn.browser.options;
 
 import com.dbn.common.ui.Presentable;
-import org.jetbrains.annotations.NotNull;
+import com.dbn.nls.NlsResources;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
+import static com.dbn.nls.NlsResources.txt;
+
+
+@Getter
+@AllArgsConstructor
 public enum BrowserDisplayMode implements Presentable{
+    SIMPLE(txt("app.browser.const.DisplayMode_SIMPLE")),
+    TABBED(txt("app.browser.const.DisplayMode_TABBED")),
+    SELECTOR(txt("app.browser.const.DisplayMode_SELECTOR"));
 
-    @Deprecated SINGLE("Single tree"),
-    SIMPLE("Single tree"),
-    TABBED("Multiple connection tabs");
-
-    private String name;
-
-    BrowserDisplayMode(String name) {
-        this.name = name;
-    }
-
-    @NotNull
-    @Override
-    public String getName() {
-        return name;
-    }
+    private final String name;
 }

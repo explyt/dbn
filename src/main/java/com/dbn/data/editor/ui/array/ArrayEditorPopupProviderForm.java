@@ -87,10 +87,8 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.ARRAY_EDITOR_POPUP_PROVIDER_FORM.is(dataId)) {
-            return this;
-        }
-        return super.getData(dataId);
+        if (DataKeys.ARRAY_EDITOR_POPUP_PROVIDER_FORM.is(dataId)) return this;
+        return null;
     }
 
     public boolean isChanged() {
@@ -113,7 +111,7 @@ public class ArrayEditorPopupProviderForm extends TextFieldPopupProviderForm {
             }
         } catch (SQLException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(project, e.getMessage(), e);
+            Messages.showErrorDialog(project, e.getLocalizedMessage(), e);
             return null;
         }
         list.setStringValues(stringValues);

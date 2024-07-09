@@ -4,6 +4,7 @@ import com.dbn.language.common.psi.IdentifierPsiElement;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashSet;
@@ -17,7 +18,7 @@ import static com.dbn.common.util.Strings.toUpperCase;
 @UtilityClass
 public class Naming {
 
-    public static String nextNumberedIdentifier(String identifier, boolean insertWhitespace) {
+    public static String nextNumberedIdentifier(@NonNls String identifier, boolean insertWhitespace) {
         StringBuilder text = new StringBuilder();
         StringBuilder number = new StringBuilder();
         for (int i=identifier.length() -1; i >= 0; i--) {
@@ -35,7 +36,7 @@ public class Naming {
         return text.toString() + nr;
     }
 
-    public static String nextNumberedIdentifier(String identifier, boolean insertWhitespace, Supplier<Set<String>> taken) {
+    public static String nextNumberedIdentifier(@NonNls String identifier, boolean insertWhitespace, Supplier<Set<String>> taken) {
         Set<String> takenIdentifiers = taken.get();
         while (takenIdentifiers.contains(identifier)) {
             identifier = nextNumberedIdentifier(identifier, insertWhitespace);

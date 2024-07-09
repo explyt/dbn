@@ -1,5 +1,6 @@
 package com.dbn.execution.statement.result.ui;
 
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
@@ -25,6 +26,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -168,6 +170,16 @@ public class StatementExecutionResultForm extends ExecutionResultFormBase<Statem
 
     @Override
     public String getSelectedText() {
+        return null;
+    }
+
+    /********************************************************
+     *                    Data Provider                     *
+     ********************************************************/
+    @Nullable
+    @Override
+    public Object getData(@NotNull String dataId) {
+        if (DataKeys.STATEMENT_EXECUTION_CURSOR_RESULT.is(dataId)) return getExecutionResult();
         return null;
     }
 }

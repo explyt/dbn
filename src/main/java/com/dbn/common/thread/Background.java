@@ -49,7 +49,7 @@ public final class Background {
             }));
         } catch (RejectedExecutionException e) {
             conditionallyLog(e);
-            log.warn("Background execution rejected: " + e.getMessage());
+            log.warn("Background execution rejected: {}", e.getMessage());
         }
     }
 
@@ -89,7 +89,7 @@ public final class Background {
             }));
         } catch (RejectedExecutionException e) {
             conditionallyLog(e);
-            log.warn("Background execution rejected: " + e.getMessage());
+            log.warn("Background execution rejected: {}", e.getMessage());
         }
     }
 

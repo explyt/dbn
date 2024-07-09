@@ -50,6 +50,13 @@ public class DBEditableObjectVirtualFile extends DBObjectVirtualFile<DBSchemaObj
         }
     }
 
+    public static DBEditableObjectVirtualFile of(@Nullable VirtualFile file) {
+        if (file == null) return null;
+        if (file instanceof DBEditableObjectVirtualFile) return (DBEditableObjectVirtualFile) file;
+        if (file instanceof DBContentVirtualFile) return ((DBContentVirtualFile) file).getMainDatabaseFile();
+        return null;
+    }
+
     public boolean isEditorReady() {
         if (!getObjectRef().isLoaded()) return false;
         return getObject().isEditorReady();

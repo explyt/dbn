@@ -31,7 +31,7 @@ public class DatabaseBrowserFilterSettings
 
     @Override
     public String getDisplayName() {
-        return "Database Browser";
+        return txt("cfg.browser.title.FilterSettings");
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.dbn.code.sql.style.options;
 
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.lang.Language;
-import com.intellij.openapi.options.Configurable;
+import com.intellij.psi.codeStyle.CodeStyleConfigurable;
 import com.intellij.psi.codeStyle.CodeStyleSettings;
 import com.intellij.psi.codeStyle.CodeStyleSettingsProvider;
 import com.intellij.psi.codeStyle.CustomCodeStyleSettings;
@@ -16,15 +16,8 @@ public class SQLCodeStyleSettingsProvider extends CodeStyleSettingsProvider {
         return new SQLCodeStyleSettingsWrapper(codeStyleSettings);
     }
 
-    @Override
     @NotNull
-    public Configurable createSettingsPage(CodeStyleSettings settings, CodeStyleSettings modelSettings) {
-        SQLCodeStyleSettingsWrapper settingsProvider = settings.getCustomSettings(SQLCodeStyleSettingsWrapper.class);
-        return settingsProvider.getSettings();
-    }
-
-    @NotNull
-    public Configurable createSettingsPage(CodeStyleSettings settings) {
+    public CodeStyleConfigurable createConfigurable(@NotNull CodeStyleSettings settings, @NotNull CodeStyleSettings modelSettings) {
         SQLCodeStyleSettingsWrapper settingsProvider = settings.getCustomSettings(SQLCodeStyleSettingsWrapper.class);
         return settingsProvider.getSettings();
     }

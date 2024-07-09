@@ -10,6 +10,7 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.ui.tree.Trees;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -226,10 +227,10 @@ public class ObjectDependencyTree extends DBNTree{
         }
 
         if (navigable) {
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setCursor(Cursors.handCursor());
         } else {
             super.processMouseMotionEvent(e);
-            setCursor(Cursor.getDefaultCursor());
+            setCursor(Cursors.defaultCursor());
         }
     }
 

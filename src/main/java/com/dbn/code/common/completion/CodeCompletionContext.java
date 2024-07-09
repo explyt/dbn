@@ -58,7 +58,7 @@ public class CodeCompletionContext {
     private final Map<String, LeafElementType> completionCandidates = new HashMap<>();
     private final AsyncTaskExecutor queue = new AsyncTaskExecutor(
             Threads.getCodeCompletionExecutor(),
-            200, TimeUnit.MILLISECONDS);
+            300, TimeUnit.MILLISECONDS);
 
     public CodeCompletionContext(DBLanguagePsiFile file, CompletionParameters parameters, CompletionResultSet result) {
         this.file = PsiFileRef.of(file);
@@ -145,12 +145,12 @@ public class CodeCompletionContext {
     }
 
     public void addCompletionCandidate(@Nullable LeafElementType leafElementType) {
-        if (leafElementType != null) {
-            String leafUniqueKey = getLeafUniqueKey(leafElementType);
-            if (leafUniqueKey != null) {
-                completionCandidates.put(leafUniqueKey, leafElementType);
-            }
-        }
+        if (leafElementType == null) return;
+
+        String leafUniqueKey = getLeafUniqueKey(leafElementType);
+        if (leafUniqueKey == null) return;
+
+        completionCandidates.put(leafUniqueKey, leafElementType);
     }
 
     public boolean hasCompletionCandidates() {
@@ -173,4 +173,5 @@ public class CodeCompletionContext {
         }
         return null;
     }
+
 }

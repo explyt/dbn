@@ -2,19 +2,19 @@
 <!-- Copyright 2000-2023 JetBrains s.r.o. and contributors. Use of this source code is governed by the Apache 2.0 license. -->
 
 <svg
-   width="16"
-   height="16"
-   viewBox="0 0 16 16"
-   fill="none"
-   version="1.1"
-   id="svg8"
-   sodipodi:docname="File.svg"
-   inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
-   xml:space="preserve"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"><sodipodi:namedview
+        width="16"
+        height="16"
+        viewBox="0 0 16 16"
+        fill="none"
+        version="1.1"
+        id="svg8"
+        sodipodi:docname="File.svg"
+        inkscape:version="1.3.2 (091e20e, 2023-11-25, custom)"
+
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        xmlns="http://www.w3.org/2000/svg"
+><sodipodi:namedview
      id="namedview8"
      pagecolor="#505050"
      bordercolor="#ffffff"

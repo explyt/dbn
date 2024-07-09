@@ -1,6 +1,7 @@
 package com.dbn.data.grid.ui.table.sortable;
 
 import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.data.grid.ui.table.basic.BasicTable;
 import com.dbn.data.grid.ui.table.basic.BasicTableSpeedSearch;
@@ -20,7 +21,7 @@ public abstract class SortableTable<T extends SortableDataModel<?, ?>> extends B
         JTableHeader tableHeader = getTableHeader();
         tableHeader.setDefaultRenderer(new SortableTableHeaderRenderer());
         tableHeader.addMouseListener(new SortableTableHeaderMouseListener(this));
-        tableHeader.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        tableHeader.setCursor(Cursors.handCursor());
 
         setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
         setCellSelectionEnabled(true);

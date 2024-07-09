@@ -1,6 +1,8 @@
 package com.dbn.common.util;
 
+import com.dbn.common.Reflection;
 import com.dbn.common.color.Colors;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.file.util.VirtualFiles;
@@ -482,6 +484,17 @@ public class Editors {
         return EditorNotifications.getInstance(Failsafe.nd(project));
     }
 
+    public static void updateAllNotifications(@NotNull Project project) {
+        updateNotifications(project, null);
+    }
+
+    public static void updateNotifications(@NotNull Project project, @Nullable VirtualFile file) {
+        EditorNotifications notifications = getNotifications(project);
+        if (file == null)
+            notifications.updateAllNotifications(); else
+            notifications.updateNotifications(file);
+    }
+
     public static boolean isDdlFileEditor(FileEditor fileEditor) {
         return fileEditor instanceof DDLFileEditor;
     }
@@ -520,15 +533,18 @@ public class Editors {
             try {
                 markSkipBrowserAutoscroll(file);
                 FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+                boolean wasOpen = fileEditorManager.isFileOpen(file);
+
                 FileEditor[] fileEditors = fileEditorManager.openFile(file, focus);
                 if (callback != null) callback.accept(fileEditors);
+
+                if (!wasOpen) updateNotifications(project, file);
             } finally {
                 unmarkSkipBrowserAutoscroll(file);
             }
         }));
 
     }
-
 
     public static EditorEx createEditor(Document document, Project project, @Nullable VirtualFile file, @NotNull FileType fileType) {
         EditorFactory editorFactory = EditorFactory.getInstance();
@@ -557,5 +573,17 @@ public class Editors {
 
         FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
         Dispatch.run(() -> fileEditorManager.setSelectedEditor(file, editorProviderId.getId()));
+    }
+
+    @Workaround
+    public static void updateEditorPresentations(Project project, VirtualFile... files) {
+        if (files == null || files.length == 0) return;
+
+        FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
+        for (VirtualFile file : files) {
+            //fileEditorManager.updateFilePresentation(virtualFile);
+            Reflection.invokeMethod(fileEditorManager, "updateFilePresentation", file);
+        }
+
     }
 }

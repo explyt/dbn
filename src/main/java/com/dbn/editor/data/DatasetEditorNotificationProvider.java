@@ -30,13 +30,6 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
         ProjectEvents.subscribe(EnvironmentManagerListener.TOPIC, environmentManagerListener());
     }
 
-    @Deprecated
-    public DatasetEditorNotificationProvider(@NotNull Project project) {
-        super(project);
-        ProjectEvents.subscribe(project, this, DatasetLoadListener.TOPIC, datasetLoadListener());
-        ProjectEvents.subscribe(project, this, EnvironmentManagerListener.TOPIC, environmentManagerListener());
-    }
-
     @NotNull
     private static DatasetLoadListener datasetLoadListener() {
         return new DatasetLoadListener() {

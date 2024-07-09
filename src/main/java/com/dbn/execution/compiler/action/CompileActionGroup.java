@@ -13,7 +13,7 @@ public class CompileActionGroup extends DefaultActionGroup implements DumbAware 
     public CompileActionGroup(DBSchemaObject object) {
         super("Compile", true);
         boolean debugSupported = DatabaseFeature.DEBUGGING.isSupported(object);
-        getTemplatePresentation().setIcon(Icons.OBEJCT_COMPILE);
+        getTemplatePresentation().setIcon(Icons.OBJECT_COMPILE);
         if (object.getContentType() == DBContentType.CODE_SPEC_AND_BODY) {
             add(new CompileObjectAction(object, DBContentType.CODE_SPEC_AND_BODY, CompileType.NORMAL));
             if (debugSupported) {

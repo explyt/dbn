@@ -5,6 +5,7 @@ import com.dbn.common.util.Commons;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -18,7 +19,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 class IconLoader {
     static final Map<String, Icon> REGISTRY = new HashMap<>();
 
-    static Icon load(String path) {
+    static Icon load(@NonNls String path) {
         return new LatentIcon(path) {
             @Override
             protected Icon load() {
@@ -46,7 +47,7 @@ class IconLoader {
         return find(svgPath);
     }
 
-    private static @Nullable Icon find(String path) {
+    private static @Nullable Icon find(@NonNls String path) {
         try {
             Icon icon = findIcon(path);
             if (icon != null && icon.getIconWidth() > 1) return icon;
@@ -63,7 +64,7 @@ class IconLoader {
         return com.intellij.openapi.util.IconLoader.findIcon(path, Icons.class.getClassLoader());
     }
 
-    static Icon load(String path, String key) {
+    static Icon load(@NonNls String path, @NonNls String key) {
         Icon icon = load(path);
         REGISTRY.put(key, icon);
         return icon;

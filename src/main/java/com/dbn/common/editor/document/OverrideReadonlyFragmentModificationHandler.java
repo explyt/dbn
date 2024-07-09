@@ -2,6 +2,7 @@ package com.dbn.common.editor.document;
 
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Messages;
+import com.dbn.nls.NlsResources;
 import com.dbn.vfs.file.DBConsoleVirtualFile;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
 import com.intellij.openapi.editor.Document;
@@ -14,6 +15,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.testFramework.LightVirtualFile;
 
 import static com.dbn.common.action.UserDataKeys.GUARDED_BLOCK_REASON;
+import static com.dbn.nls.NlsResources.txt;
 
 public class OverrideReadonlyFragmentModificationHandler implements
         ReadonlyFragmentModificationHandler {
@@ -32,7 +34,7 @@ public class OverrideReadonlyFragmentModificationHandler implements
         Document document = guardedBlock.getDocument();
         String message = document.getUserData(GUARDED_BLOCK_REASON);
         if (message != null) {
-            Messages.showErrorDialog(null, "Action denied", message);
+            Messages.showErrorDialog(null, txt("msg.codeEditor.title.ActionDenied"), message);
         } else {
             VirtualFile virtualFile = FileDocumentManager.getInstance().getFile(document);
             if (virtualFile instanceof DBSourceCodeVirtualFile || virtualFile instanceof LightVirtualFile || virtualFile instanceof DBConsoleVirtualFile) {

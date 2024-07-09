@@ -8,6 +8,7 @@ import com.dbn.object.DBMethod;
 import com.intellij.execution.ExecutionTarget;
 import com.intellij.execution.configurations.LocatableConfiguration;
 import com.intellij.execution.configurations.RunConfigurationBase;
+import com.intellij.execution.configurations.RunProfileWithCompileBeforeLaunchOption;
 import com.intellij.execution.runners.RunConfigurationWithSuppressedDefaultRunAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.InvalidDataException;
@@ -25,7 +26,10 @@ import static com.dbn.common.options.setting.Settings.setEnum;
 
 @Getter
 @Setter
-public abstract class DBRunConfig<I extends ExecutionInput> extends RunConfigurationBase implements RunConfigurationWithSuppressedDefaultRunAction, LocatableConfiguration {
+public abstract class DBRunConfig<I extends ExecutionInput> extends RunConfigurationBase implements
+        RunConfigurationWithSuppressedDefaultRunAction,
+        RunProfileWithCompileBeforeLaunchOption,
+        LocatableConfiguration {
     private boolean generatedName = true;
     private DBRunConfigCategory category;
     private DBDebuggerType debuggerType = DBDebuggerType.JDBC;
@@ -77,9 +81,18 @@ public abstract class DBRunConfig<I extends ExecutionInput> extends RunConfigura
         return databaseContext == null ? null : databaseContext.getConnection();
     }
 
+    @Override
+    public boolean isBuildProjectOnEmptyModuleList() {
+        return false;
+    }
 
     @Override
-    public boolean excludeCompileBeforeLaunchOption() {
+    public boolean isBuildBeforeLaunchAddedByDefault() {
+        return false;
+    }
+
+    @Override
+    public boolean isExcludeCompileBeforeLaunchOption() {
         return true;
     }
 }

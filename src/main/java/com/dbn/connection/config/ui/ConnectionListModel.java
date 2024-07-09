@@ -6,6 +6,7 @@ import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.data.sorting.SortDirection;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
 import javax.swing.*;
 import java.util.ArrayList;
@@ -28,7 +29,7 @@ public class ConnectionListModel extends DefaultListModel<ConnectionSettings> im
         }
     }
 
-    public ConnectionSettings getConnectionConfig(String name) {
+    public ConnectionSettings getConnectionConfig(@NonNls String name) {
         for (int i=0; i< getSize(); i++){
             ConnectionSettings connectionSettings = getElementAt(i);
             if (Objects.equals(connectionSettings.getDatabaseSettings().getName(), name)) {

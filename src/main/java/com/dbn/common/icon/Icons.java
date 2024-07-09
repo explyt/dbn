@@ -4,7 +4,6 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.ScalableIcon;
 import com.intellij.ui.RowIcon;
 import com.intellij.util.IconUtil;
-import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.*;
@@ -13,7 +12,6 @@ import static com.dbn.common.icon.IconLoader.load;
 
 @SuppressWarnings("unused")
 @Slf4j
-@UtilityClass
 public class Icons {
 
     public static final Icon DBN_SPLASH = load("/img/DBN.png");
@@ -47,7 +45,7 @@ public class Icons {
     public static final Icon ACTION_ADD_SPECIAL               = load("/img/action/AddSpecial.png");
     public static final Icon ACTION_MOVE_UP                   = load("/img/action/MoveUp.svg");
     public static final Icon ACTION_MOVE_DOWN                 = load("/img/action/MoveDown.svg");
-    public static final Icon ACTION_EDIT                      = load("/img/action/EditSource.svg");
+    public static final Icon ACTION_EDIT                      = AllIcons.Actions.EditSource; //load("/img/action/EditSource.svg");
     public static final Icon ACTION_COLLAPSE_ALL              = AllIcons.Actions.Collapseall;
     public static final Icon ACTION_EXPAND_ALL                = AllIcons.Actions.Expandall;
     public static final Icon ACTION_GROUP                     = load("/img/action/Group.svg");
@@ -55,6 +53,7 @@ public class Icons {
     public static final Icon ACTION_EXECUTE                   = AllIcons.Actions.Execute;
     public static final Icon ACTION_DEBUG                     = AllIcons.Actions.StartDebugger;
     public static final Icon ACTION_CLOSE                     = AllIcons.Actions.Cancel;
+    public static final Icon ACTION_CLOSE_SMALL               = load("/img/action/Close.svg");
     public static final Icon ACTION_UP_DOWN                   = load("/img/action/UpDown.svg");
     public static final Icon ACTION_REFRESH                   = AllIcons.Actions.Refresh;
     public static final Icon ACTION_TIMED_REFRESH             = load("/img/action/TimedSynchronize.png");
@@ -69,7 +68,7 @@ public class Icons {
     public static final Icon ACTION_STOP                      = AllIcons.Actions.Suspend;
     public static final Icon ACTION_RELOAD                    = AllIcons.Actions.Refresh;
     public static final Icon ACTION_REVERT                    = AllIcons.Actions.Rollback;
-    public static final Icon ACTION_SAVE                      = AllIcons.Actions.Menu_saveall;
+    public static final Icon ACTION_SAVE                      = load("/img/action/Save.svg");
     public static final Icon ACTION_SELECT_ALL                = AllIcons.Actions.Selectall;
     public static final Icon ACTION_OPTIONS                   = AllIcons.General.GearPlain;
     public static final Icon ACTION_NAVIGATE                  = load("/img/action/Navigate.png");
@@ -85,9 +84,29 @@ public class Icons {
     public static final Icon DATABASE_MODULE = load("/img/project/DatabaseModule.png");
 
     public static final Icon WINDOW_DATABASE_BROWSER = load("/img/window/DatabaseBrowser.svg");
+    public static final Icon WINDOW_DATABASE_BROWSER_S = load("/img/window/DatabaseBrowserSelected.svg");
+    public static final Icon WINDOW_DATABASE_BROWSER_L = load("/img/window/DatabaseBrowserLarge.svg");
+    public static final Icon WINDOW_DATABASE_BROWSER_LS = load("/img/window/DatabaseBrowserLargeSelected.svg");
+
     public static final Icon WINDOW_EXECUTION_CONSOLE = load("/img/window/ExecutionConsole.svg");
+    public static final Icon WINDOW_EXECUTION_CONSOLE_S = load("/img/window/ExecutionConsoleSelected.svg");
+    public static final Icon WINDOW_EXECUTION_CONSOLE_L = load("/img/window/ExecutionConsoleLarge.svg");
+    public static final Icon WINDOW_EXECUTION_CONSOLE_LS = load("/img/window/ExecutionConsoleLargeSelected.svg");
+
     public static final Icon WINDOW_DATABASE_DIAGNOSTICS = load("/img/window/DatabaseDiagnostics.svg");
+    public static final Icon WINDOW_DATABASE_DIAGNOSTICS_S = load("/img/window/DatabaseDiagnosticsSelected.svg");
+    public static final Icon WINDOW_DATABASE_DIAGNOSTICS_L = load("/img/window/DatabaseDiagnosticsLarge.svg");
+    public static final Icon WINDOW_DATABASE_DIAGNOSTICS_LS = load("/img/window/DatabaseDiagnosticsLargeSelected.svg");
+
     public static final Icon WINDOW_DATABASE_COMPANION = load("/img/window/DatabaseCompanion.svg");
+    public static final Icon WINDOW_DATABASE_COMPANION_S = load("/img/window/DatabaseCompanionSelected.svg");
+    public static final Icon WINDOW_DATABASE_COMPANION_L = load("/img/window/DatabaseCompanionLarge.svg");
+    public static final Icon WINDOW_DATABASE_COMPANION_LS = load("/img/window/DatabaseCompanionLargeSelected.svg");
+
+
+
+
+
 
     public static final Icon SQL_CONSOLE = load("/img/tools/SQLConsole.svg");
     public static final Icon SESSION_BROWSER = load("/img/tools/SessionBrowser.svg");
@@ -252,13 +271,13 @@ public class Icons {
     public static final Icon CODE_EDITOR_SPEC             = load("/img/CodeSpec.png");
     public static final Icon CODE_EDITOR_BODY             = load("/img/CodeBody.png");
 
-    public static final Icon OBEJCT_COMPILE     = load("/img/action/Compile.png");
-    public static final Icon OBEJCT_COMPILE_DEBUG = load("/img/action/CompileDebug.png");
-    //public static final Icon OBEJCT_COMPILE_KEEP = load("/main.resources.img/CompileKeep.png");
-    public static final Icon OBEJCT_COMPILE_ASK = load("/img/action/CompileAsk.png");
-    public static final Icon OBEJCT_EDIT_SOURCE = load("/img/action/EditSource.svg");
-    public static final Icon OBEJCT_EDIT_DATA = load("/img/action/EditData.svg");
-    public static final Icon OBEJCT_VIEW_DATA = load("/img/ViewData.png");
+    public static final Icon OBJECT_COMPILE = load("/img/action/Compile.png");
+    public static final Icon OBJECT_COMPILE_DEBUG = load("/img/action/CompileDebug.png");
+    //public static final Icon OBJECT_COMPILE_KEEP = load("/main.resources.img/CompileKeep.png");
+    public static final Icon OBJECT_COMPILE_ASK = load("/img/action/CompileAsk.png");
+    public static final Icon OBJECT_EDIT_SOURCE = load("/img/action/EditSource.svg");
+    public static final Icon OBJECT_EDIT_DATA = load("/img/action/EditData.svg");
+    public static final Icon OBJECT_VIEW_DATA = load("/img/ViewData.png");
 
     public static final Icon CONNECTION_COMMIT   = load("/img/action/ConnectionCommit.svg", "CONNECTION_COMMIT");
     public static final Icon CONNECTION_ROLLBACK = load("/img/action/ConnectionRollback.svg", "CONNECTION_ROLLBACK");

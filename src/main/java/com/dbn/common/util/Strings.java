@@ -1,5 +1,6 @@
 package com.dbn.common.util;
 
+import com.intellij.openapi.util.text.StringUtil;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 import static java.lang.Character.isWhitespace;
 
 @UtilityClass
-public class Strings extends com.intellij.openapi.util.text.StringUtil {
+public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
     private static final Map<String, String> UPPER_CASE_STRINGS = new ConcurrentHashMap<>();
     private static final Map<String, String> LOWER_CASE_STRINGS = new ConcurrentHashMap<>();
@@ -65,9 +66,20 @@ public class Strings extends com.intellij.openapi.util.text.StringUtil {
         return false;
     }
 
+    public static boolean isEmpty(CharSequence string) {
+        return StringUtil.isEmpty(string);
+    }
+
+    public static boolean isNotEmpty(String string) {
+        return StringUtil.isNotEmpty(string);
+    }
 
     public static boolean isNotEmptyOrSpaces(String string) {
         return !isEmptyOrSpaces(string);
+    }
+
+    public static boolean isEmptyOrSpaces(String string) {
+        return StringUtil.isEmptyOrSpaces(string);
     }
 
     public static boolean isOneOf(String string, String ... values) {
@@ -84,9 +96,27 @@ public class Strings extends com.intellij.openapi.util.text.StringUtil {
         return false;
     }
 
+    public static boolean equals(@Nullable CharSequence s1, @Nullable CharSequence s2) {
+        // assuming most of the strings in DBN are .intern() "==" may speed up the evaluation (??)
+        return s1 == s2 || StringUtil.equals(s1, s2);
+    }
+
     public static boolean equalsIgnoreCase(@Nullable CharSequence s1, @Nullable CharSequence s2) {
         // assuming most of the strings in DBN are .intern() "==" may speed up the evaluation (??)
-        return s1 == s2 || com.intellij.openapi.util.text.StringUtil.equalsIgnoreCase(s1, s2);
+        return s1 == s2 || StringUtil.equalsIgnoreCase(s1, s2);
+    }
+
+    public static String replace(String text, String oldS, String newS) {
+        return StringUtil.replace(text, oldS, newS);
+    }
+
+    public static String repeatSymbol(char chr, int count) {
+        return StringUtil.repeatSymbol(chr, count);
+    }
+
+
+    public static int parseInt(String string, int defaultValue) {
+        return StringUtil.parseInt(string, defaultValue);
     }
 
     public static boolean isInteger(@Nullable String string) {
@@ -245,6 +275,10 @@ public class Strings extends com.intellij.openapi.util.text.StringUtil {
         return -1;
     }
 
+    private static boolean charsEqualIgnoreCase(char c, char first) {
+        return StringUtil.charsEqualIgnoreCase(c, first);
+    }
+
     public static String toUpperCase(CharSequence string) {
         return toUpperCase(string.toString());
     }
@@ -337,13 +371,44 @@ public class Strings extends com.intellij.openapi.util.text.StringUtil {
         return LOWER_CASE_STRINGS.computeIfAbsent(string, k -> toLowerCase(k).intern());
     }
 
-    public interface CharPredicate {
-        boolean test(char chr);
+    public static boolean containsIgnoreCase(String name, String option) {
+        return StringUtil.containsIgnoreCase(name, option);
     }
 
-    public static String replaceCarriageReturns(String string) {
-        if (string == null) return null;
-        return string.replaceAll("[\\n|\\r]", " ").replaceAll("\\s+", " ").trim();
+    public static boolean containsWhitespaces(CharSequence s) {
+        return StringUtil.containsWhitespaces(s);
+    }
+
+    public static String replaceIgnoreCase(String text, String oldS, String newS) {
+        return StringUtil.replaceIgnoreCase(text, oldS, newS);
+    }
+
+    public static boolean endsWithIgnoreCase(String str, String suffix) {
+        return StringUtil.endsWithIgnoreCase(str, suffix);
+    }
+
+    public static boolean containsLineBreak(CharSequence text) {
+        return StringUtil.containsLineBreak(text);
+    }
+
+    public static String capitalize(String s) {
+        return StringUtil.capitalize(s);
+    }
+
+    public static int countNewLines(String text) {
+        return StringUtil.countNewLines(text);
+    }
+
+    public static boolean startsWith(CharSequence text, CharSequence prefix) {
+        return StringUtil.startsWith(text, prefix);
+    }
+
+    public static String repeat(String space, int playgroundSize) {
+        return StringUtil.repeat(space, playgroundSize);
+    }
+
+    public interface CharPredicate {
+        boolean test(char chr);
     }
 }
 

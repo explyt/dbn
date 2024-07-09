@@ -111,7 +111,7 @@ public class StatementExecutionInput extends LocalExecutionInput {
         this.executionVariables = replace(this.executionVariables, executionVariables);
     }
 
-    public PsiFile createPreviewFile() {
+    public DBLanguagePsiFile createPreviewFile() {
         ConnectionHandler connection = getConnection();
         SchemaId schema = getTargetSchemaId();
         DBLanguageDialect languageDialect = connection == null ?

@@ -7,7 +7,7 @@ import com.dbn.common.project.Projects;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionManager;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
-import com.intellij.ide.plugins.PluginManager;
+import com.intellij.ide.plugins.PluginManagerCore;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -84,7 +84,7 @@ public class PluginStatusManager extends ApplicationComponentBase implements Per
 
     private static DBPluginStatus evaluateSqlPluginStatus(Project project) {
         try {
-            IdeaPluginDescriptor pluginDescriptor = PluginManager.getPlugin(DatabaseNavigator.SQL_PLUGIN_ID);
+            IdeaPluginDescriptor pluginDescriptor = PluginManagerCore.getPlugin(DatabaseNavigator.SQL_PLUGIN_ID);
             if (pluginDescriptor == null) return MISSING; // not installed
 
             ClassLoader pluginClassLoader = pluginDescriptor.getPluginClassLoader();
@@ -95,7 +95,7 @@ public class PluginStatusManager extends ApplicationComponentBase implements Per
 
             Object psiFacade = getInstanceMethod.invoke(psiFacadeClass, project);
             Method getDataSourcesMethod = psiFacadeClass.getMethod("getDataSources");
-            List configs = (List) getDataSourcesMethod.invoke(psiFacade);
+            List<?> configs = (List<?>) getDataSourcesMethod.invoke(psiFacade);
             if (!configs.isEmpty()) return ACTIVE; // connection configs found
 
             return PASSIVE;

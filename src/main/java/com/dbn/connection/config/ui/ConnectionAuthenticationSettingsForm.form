@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="4" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="389" height="127"/>
+      <xy x="20" y="20" width="389" height="136"/>
     </constraints>
     <properties/>
     <border type="none"/>
@@ -16,7 +16,7 @@
         </constraints>
         <properties>
           <labelFor value="c246e"/>
-          <text value="&amp;User"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.User"/>
         </properties>
       </component>
       <vspacer id="363e1">
@@ -31,7 +31,7 @@
           </grid>
         </constraints>
         <properties>
-          <margin top="2" left="5" bottom="2" right="5"/>
+          <margin top="2" left="9" bottom="2" right="6"/>
         </properties>
       </component>
       <component id="8b995" class="javax.swing.JLabel" binding="passwordLabel">
@@ -42,7 +42,7 @@
         </constraints>
         <properties>
           <labelFor value="4ee9a"/>
-          <text value="&amp;Password"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Password"/>
         </properties>
       </component>
       <component id="4ee9a" class="javax.swing.JPasswordField" binding="passwordField">
@@ -62,7 +62,7 @@
           </grid>
         </constraints>
         <properties>
-          <text value="Authentication"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Authentication"/>
         </properties>
       </component>
       <component id="bf2ec" class="com.intellij.openapi.ui.ComboBox" binding="authTypeComboBox">

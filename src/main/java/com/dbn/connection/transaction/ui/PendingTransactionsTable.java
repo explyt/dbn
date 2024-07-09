@@ -4,6 +4,7 @@ import com.dbn.common.dispose.Checks;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Editors;
 import com.dbn.connection.ConnectionHandler;
@@ -58,10 +59,10 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
     @Override
     protected void processMouseMotionEvent(MouseEvent e) {
         if (e.getID() != MouseEvent.MOUSE_DRAGGED && getChangeAtMouseLocation() != null) {
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setCursor(Cursors.handCursor());
         } else {
             super.processMouseMotionEvent(e);
-            setCursor(Cursor.getDefaultCursor());
+            setCursor(Cursors.defaultCursor());
         }
     }
 

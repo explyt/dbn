@@ -11,6 +11,8 @@ import com.dbn.data.grid.ui.table.sortable.SortableTable;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
+import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,8 +23,11 @@ import java.io.IOException;
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
+@Getter
+@Setter
 @State(
     name = DataExportManager.COMPONENT_NAME,
     storages = @Storage(DatabaseNavigator.STORAGE_FILE)
@@ -75,20 +80,21 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
             DataExportInstructions.Destination destination = instructions.getDestination();
             List<String> warnings = exportModel.getWarnings();
 
+            String warningsBlock = warnings.isEmpty() ? null : String.join("\n", warnings);
             if (destination == DataExportInstructions.Destination.CLIPBOARD) {
                 successCallback.run();
-                if(warnings.isEmpty()) {
+                if (warningsBlock == null) {
                     Messages.showInfoDialog(
                             project,
-                            "Export info",
-                            "Content exported to clipboard.",
-                            new String[]{"OK"}, 0, null);
+                            txt("msg.data.title.DataExported"),
+                            txt("msg.data.info.DataExportedToClipboard"),
+                            new String[]{txt("app.shared.button.OK")}, 0, null);
                 } else {
                     Messages.showWarningDialog(
                             project,
-                            "Export info",
-                            "Content exported to clipboard.\n\n" + String.join("\n", warnings),
-                            new String[]{"OK"}, 0, null);
+                            txt("msg.data.title.DataExported"),
+                            txt("msg.data.warning.DataExportedToClipboard", warningsBlock),
+                            new String[]{txt("app.shared.button.OK")}, 0, null);
 
                 }
 
@@ -99,12 +105,12 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
                     //FileSystemView view = FileSystemView.getFileSystemView();
                     //Icon icon = view.getSystemIcon(file);
 
-                    if(warnings.isEmpty()) {
+                    if (warningsBlock == null) {
                         Messages.showInfoDialog(
                                 project,
-                                "Export info",
-                                "Content exported to file " + filePath + ".",
-                                new String[]{"OK", "Open File"}, 0,
+                                txt("msg.data.title.DataExported"),
+                                txt("msg.data.info.DataExportedToFile", filePath),
+                                new String[]{txt("app.shared.button.OK"), txt("app.shared.button.OpenFile")}, 0,
                                 o -> {
                                     successCallback.run();
                                     if (o == 1) openFile(project, file);
@@ -113,9 +119,9 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
                     else {
                         Messages.showWarningDialog(
                                 project,
-                                "Export info",
-                                "Content exported to file " + filePath + ".\n\n" + String.join("\n", warnings),
-                                new String[]{"OK", "Open File"}, 0,
+                                txt("msg.data.title.DataExported"),
+                                txt("msg.data.warning.DataExportedToFile", filePath, warningsBlock),
+                                new String[]{txt("app.shared.button.OK"), txt("app.shared.button.OpenFile")}, 0,
                                 o -> {
                                     successCallback.run();
                                     if (o == 1) openFile(project, file);
@@ -123,25 +129,25 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
                     }
 
                 } else {
-                    if (warnings.isEmpty()) {
+                    if (warningsBlock == null) {
                         sendInfoNotification(
                                 NotificationGroup.DATA,
-                                "Content exported to file: {0}", filePath);
+                                txt("ntf.data.info.DataExportedToFile", filePath));
                     } else {
                         sendWarningNotification(
                                 NotificationGroup.DATA,
-                                "Content exported to file: {0}\n{1}", filePath, String.join("\n", warnings));
+                                txt("ntf.data.warning.DataExportedToFile", filePath, warningsBlock));
                     }
                 }
             }
 
         } catch (DataExportException e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(project, "Error performing data export.", e);
+            Messages.showErrorDialog(project, txt("msg.data.error.ExportFailure"), e);
         }
     }
 
-    private static void openFile(Project project, File file) {
+    private void openFile(Project project, File file) {
         try {
             Desktop.getDesktop().open(file);
         } catch (IOException e) {
@@ -149,19 +155,10 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
             String filePath = file.getPath();
             Messages.showErrorDialog(
                     project,
-                    "Open file",
-                    "Could not open file " + filePath + ".\n" +
-                            "The file type is most probably not associated with any program."
+                    txt("msg.data.title.OpenFile"),
+                    txt("msg.data.error.FailedToOpenFile", filePath)
             );
         }
-    }
-
-    public DataExportInstructions getExportInstructions() {
-        return exportInstructions.clone();
-    }
-
-    public void setExportInstructions(DataExportInstructions exportInstructions) {
-        this.exportInstructions = exportInstructions;
     }
 
     /****************************************
@@ -170,7 +167,7 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newElement("state");
         exportInstructions.writeState(element);
         return element;
     }

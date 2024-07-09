@@ -2,12 +2,12 @@ package com.dbn.common.color;
 
 import com.dbn.common.latent.Latent;
 import com.dbn.common.ui.util.LookAndFeel;
+import com.dbn.common.util.Strings;
 import com.intellij.openapi.editor.colors.ColorKey;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.colors.TextAttributesKey;
 import com.intellij.openapi.editor.markup.TextAttributes;
-import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -115,7 +115,7 @@ public class ColorSchemes {
 
     private static boolean matches(String name, String ... options) {
         for (String option : options) {
-            if (!StringUtil.containsIgnoreCase(name, option)) {
+            if (!Strings.containsIgnoreCase(name, option)) {
                 return false;
             }
         }

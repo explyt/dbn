@@ -9,7 +9,6 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.filter.FilterDelegate;
 import com.dbn.common.list.FilteredList;
-import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.property.DisposablePropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
@@ -22,6 +21,7 @@ import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseEntity;
+import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -32,14 +32,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.common.notification.NotificationGroup.METADATA;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 public abstract class DynamicContentBase<T extends DynamicContentElement>
         extends PropertyHolderBase.IntStore<DynamicContentProperty>
         implements DisposablePropertyHolder<DynamicContentProperty>,
-                   DynamicContent<T>,
-        NotificationSupport {
+                   DynamicContent<T>, NotificationSupport, NlsSupport {
 
     protected static final List<?> EMPTY_CONTENT = Collections.unmodifiableList(new ArrayList<>(0));
     protected static final List<?> EMPTY_DISPOSED_CONTENT = Collections.unmodifiableList(new ArrayList<>(0));
@@ -290,10 +290,8 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
             elements = Unsafe.cast(EMPTY_CONTENT);
             set(DynamicContentProperty.LOADED, true);
             set(DynamicContentProperty.ERROR, true);
-            sendWarningNotification(
-                    NotificationGroup.METADATA,
-                    "Failed to load {0}. Feature not supported: {1}",
-                    getContentDescription(), e);
+            sendWarningNotification(METADATA,
+                    txt("ntf.metadata.error.FailedToLoadContent", getContentDescription(), e));
 
         } catch (SQLException e) {
             conditionallyLog(e);

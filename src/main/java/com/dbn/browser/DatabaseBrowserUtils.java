@@ -24,10 +24,10 @@ public class DatabaseBrowserUtils {
         try {
             Project project = treeNode.getProject();
             DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
-            boolean isTabbedMode = browserManager.isTabbedMode();
+            boolean isSingleRoot = browserManager.isSingleTreeMode();
 
             int treeDepth = treeNode.getTreeDepth();
-            int nodeIndex = isTabbedMode ? treeDepth - 1 : treeDepth + 1;
+            int nodeIndex = isSingleRoot ? treeDepth : treeDepth - 1;
             if (nodeIndex < 0) {
                 return null;
             }
@@ -35,13 +35,16 @@ public class DatabaseBrowserUtils {
             BrowserTreeNode[] path = new BrowserTreeNode[nodeIndex];
             while (treeNode != null) {
                 treeDepth = treeNode.getTreeDepth();
-                path[isTabbedMode ? treeDepth -2 : treeDepth] = treeNode;
+                path[isSingleRoot ? treeDepth - 1 : treeDepth - 2] = treeNode;
                 if (treeNode instanceof DatabaseBrowserManager) break;
-                if (isTabbedMode && treeNode instanceof DBObjectBundle) break;
+                if (!isSingleRoot && treeNode instanceof DBObjectBundle) break;
                 treeNode = treeNode.getParent();
             }
             return new TreePath(path);
-        } catch (IllegalArgumentException | IllegalStateException | ProcessCanceledException e) {
+        } catch (ProcessCanceledException e) {
+            conditionallyLog(e);
+            return null;
+        } catch (IllegalArgumentException | IllegalStateException e) {
             conditionallyLog(e);
             // workaround for TreePath "Path elements must be non-null"
             return null;

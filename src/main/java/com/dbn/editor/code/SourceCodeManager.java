@@ -4,7 +4,6 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.component.ProjectManagerListener;
-import com.dbn.common.dispose.Checks;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.editor.BasicTextEditor;
 import com.dbn.common.editor.document.OverrideReadonlyFragmentModificationHandler;
@@ -13,7 +12,6 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.navigation.NavigationInstructions;
-import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
@@ -77,6 +75,7 @@ import static com.dbn.common.component.ApplicationMonitor.checkAppExitRequested;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.navigation.NavigationInstruction.*;
+import static com.dbn.common.notification.NotificationGroup.SOURCE_CODE;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Messages.*;
@@ -226,9 +225,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                 sourceCodeFile.setModified(false);
                 if (notifyError) {
                     String objectDesc = object.getQualifiedNameWithType();
-                    sendErrorNotification(
-                            NotificationGroup.SOURCE_CODE,
-                            "Could not load sourcecode for {0} from database: {1}", objectDesc, e);
+                    sendErrorNotification(SOURCE_CODE, txt("ntf.sourceCode.error.CannotLoadSourceCode", objectDesc, e));
                 }
             } finally {
                 sourceCodeFile.set(LOADING, false);
@@ -254,7 +251,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             if (Read.call(sourceCodeFile, f -> !isValidObjectHeader(f))) return;
 
             DBSchemaObject object = sourceCodeFile.getObject();
-            ProgressMonitor.setProgressDetail("Checking for third party changes on " + object.getQualifiedNameWithType());
+            String objectQualifiedName = object.getQualifiedNameWithType();
+            ProgressMonitor.setProgressDetail(txt("prc.codeEditor.message.CheckingThirdPartyChanges", objectQualifiedName));
 
             boolean changedInDatabase = sourceCodeFile.isChangedInDatabase(true);
             if (changedInDatabase && sourceCodeFile.isMergeRequired()) {
@@ -262,7 +260,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                         OBJECT_CHANGE_MONITORING.isSupported(object) ?
                                 toLowerCase(DateFormatUtil.formatPrettyDateTime(sourceCodeFile.getDatabaseChangeTimestamp())) : "";
                 String message =
-                        "The " + object.getQualifiedNameWithType() +
+                        "The " + objectQualifiedName +
                                 " was changed in database by another user " + presentableChangeTime + "." +
                                 "\nYou must merge the changes before saving.";
 
@@ -272,7 +270,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                             if (option == 0) {
                                 Progress.prompt(project, object, false,
                                         "Loading source code",
-                                        "Loading database source code for " + object.getQualifiedNameWithType(),
+                                        "Loading database source code for " + objectQualifiedName,
                                         progress -> openCodeMergeDialog(sourceCodeFile, fileEditor));
                             } else {
                                 sourceCodeFile.set(SAVING, false);

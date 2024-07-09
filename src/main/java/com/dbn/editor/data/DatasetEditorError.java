@@ -1,5 +1,6 @@
 package com.dbn.editor.data;
 
+import com.dbn.common.ui.util.Listeners;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseObjectIdentifier;
 import com.dbn.database.interfaces.DatabaseMessageParserInterface;
@@ -13,8 +14,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.sql.SQLException;
-import java.util.HashSet;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -25,7 +24,7 @@ public class DatasetEditorError {
     private boolean dirty;
     private boolean notified;
 
-    private transient final Set<ChangeListener> changeListeners = new HashSet<>();
+    private transient final Listeners<ChangeListener> changeListeners = Listeners.create();
 
     public DatasetEditorError(ConnectionHandler connection, Exception exception) {
         this.message = exception.getMessage();
@@ -66,8 +65,6 @@ public class DatasetEditorError {
     public void markDirty() {
         dirty = true;
         ChangeEvent changeEvent = new ChangeEvent(this);
-        for (ChangeListener changeListener: changeListeners) {
-            changeListener.stateChanged(changeEvent);
-        }
+        changeListeners.notify(l -> l.stateChanged(changeEvent));
     }
 }

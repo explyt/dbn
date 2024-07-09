@@ -35,4 +35,12 @@ public final class Fonts {
         Map<Integer, Font> cache = STYLE_DERIVATIONS.computeIfAbsent(font, f -> new ConcurrentHashMap<>());
         return cache.computeIfAbsent(style, s -> font.deriveFont(s));
     }
+
+    public static Font smaller(Font font, float delta) {
+        return deriveFont(font, font.getSize() - delta);
+    }
+
+    public static Font bigger(Font font, float delta) {
+        return deriveFont(font, font.getSize() + delta);
+    }
 }

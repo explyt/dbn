@@ -12,7 +12,6 @@ import javax.swing.*;
 import java.io.IOException;
 
 public class DBConnectionVirtualFile extends DBVirtualFileBase {
-    private static final byte[] EMPTY_CONTENT = new byte[0];
     private final ConnectionRef connection;
 
     public DBConnectionVirtualFile(ConnectionHandler connection) {
@@ -26,16 +25,9 @@ public class DBConnectionVirtualFile extends DBVirtualFileBase {
         return connection.ensure();
     }
 
-    @Nullable
     @Override
-    public SchemaId getSchemaId() {
-        return null;
-    }
-
-    @Nullable
-    @Override
-    public DatabaseSession getSession() {
-        return null;
+    public boolean isDirectory() {
+        return true;
     }
 
     /*********************************************************
@@ -50,22 +42,6 @@ public class DBConnectionVirtualFile extends DBVirtualFileBase {
     @Override
     public Icon getIcon() {
         return getConnection().getIcon();
-    }
-
-    @Override
-    @NotNull
-    public byte[] contentsToByteArray() throws IOException {
-        return EMPTY_CONTENT;
-    }
-
-    @Override
-    public long getLength() {
-        return 0;
-    }
-
-    @Override
-    public void refresh(boolean b, boolean b1, Runnable runnable) {
-
     }
 
     @Override

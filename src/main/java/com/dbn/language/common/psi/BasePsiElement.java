@@ -53,6 +53,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.TextRange;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
+import com.intellij.psi.impl.source.tree.FileElement;
 import com.intellij.psi.search.LocalSearchScope;
 import com.intellij.psi.search.SearchScope;
 import lombok.Getter;
@@ -568,7 +569,7 @@ public abstract class BasePsiElement<T extends ElementType> extends ASTWrapperPs
     }
 
     public boolean isScopeBoundary() {
-        return elementType.isScopeDemarcation() || elementType.isScopeIsolation() || getParent() instanceof PsiFile;
+        return elementType.isScopeDemarcation() || elementType.isScopeIsolation() || getNode().getTreeParent() instanceof FileElement;
     }
 
     @Nullable

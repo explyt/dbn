@@ -4,6 +4,7 @@ import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.common.load.ProgressMonitor;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.export.DataExportException;
 import com.dbn.data.export.DataExportFormat;
@@ -13,7 +14,6 @@ import com.dbn.data.type.GenericDataType;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 
 import java.util.Date;
 
@@ -86,7 +86,7 @@ public class SQLDataExportProcessor extends DataExportProcessor{
                     } else {
                         if (genericDataType == GenericDataType.LITERAL) {
                             buffer.append("'");
-                            value = StringUtil.replace(value, "'", "''");
+                            value = Strings.replace(value, "'", "''");
                             buffer.append(value);
                             buffer.append("'");
                         } else if (genericDataType == GenericDataType.NUMERIC) {

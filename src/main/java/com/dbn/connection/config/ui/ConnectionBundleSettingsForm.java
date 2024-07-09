@@ -7,6 +7,7 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
@@ -50,12 +51,11 @@ import java.util.Map;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.intellij.openapi.util.text.StringUtil.isNotEmpty;
 
 @Slf4j
 public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<ConnectionBundleSettings> implements ListSelectionListener {
-    private static final String BLANK_PANEL_ID = "BLANK_PANEL";
 
     private JPanel mainPanel;
     private JPanel actionsPanel;
@@ -92,9 +92,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         if (!connections.isEmpty()) {
             selectConnection(connections.get(0).getConnectionId());
         }
-        JPanel emptyPanel = new JPanel();
-        connectionSetupPanel.setPreferredSize(new Dimension(500, -1));
-        connectionSetupPanel.add(emptyPanel, BLANK_PANEL_ID);
+        CardLayouts.addBlankCard(connectionSetupPanel, 500, -1);
 
         Disposer.register(this, connectionListModel);
         //DataProviders.register(mainPanel, this);
@@ -159,28 +157,27 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     }
 
     private void switchSettingsPanel(ConnectionSettings connectionSettings) {
-        CardLayout cardLayout = (CardLayout) connectionSetupPanel.getLayout();
         if (connectionSettings == null) {
-            cardLayout.show(connectionSetupPanel, BLANK_PANEL_ID);
-        } else {
-
-            ConnectionSettingsForm currentForm = cachedForms.get(currentPanelId);
-            String selectedTabName = currentForm == null ? null : currentForm.getSelectedTabName();
-
-            currentPanelId = connectionSettings.getConnectionId().id();
-            if (!cachedForms.containsKey(currentPanelId)) {
-                JComponent setupPanel = connectionSettings.createComponent();
-                this.connectionSetupPanel.add(setupPanel, currentPanelId);
-                cachedForms.put(currentPanelId, connectionSettings.getSettingsEditor());
-            }
-
-            ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
-            if (settingsEditor != null) {
-                settingsEditor.selectTab(selectedTabName);
-            }
-
-            cardLayout.show(connectionSetupPanel, currentPanelId);
+            CardLayouts.showBlankCard(connectionSetupPanel);
+            return;
         }
+
+        ConnectionSettingsForm currentForm = cachedForms.get(currentPanelId);
+        String selectedTabName = currentForm == null ? null : currentForm.getSelectedTabName();
+
+        currentPanelId = connectionSettings.getConnectionId().id();
+        if (!cachedForms.containsKey(currentPanelId)) {
+            JComponent setupPanel = connectionSettings.createComponent();
+            CardLayouts.addCard(connectionSetupPanel, setupPanel, currentPanelId);
+            cachedForms.put(currentPanelId, connectionSettings.getSettingsEditor());
+        }
+
+        ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
+        if (settingsEditor != null) {
+            settingsEditor.selectTab(selectedTabName);
+        }
+
+        CardLayouts.showCard(connectionSetupPanel, currentPanelId);
     }
 
 
@@ -257,7 +254,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         List<ConnectionSettings> configurations = connectionsList.getSelectedValuesList();
         Project project = getProject();
         try {
-            Element rootElement = new Element("connection-configurations");
+            Element rootElement = newElement("connection-configurations");
             for (ConnectionSettings configuration : configurations) {
                 Element configElement = newElement(rootElement, "config");
                 configuration.writeConfiguration(configElement);
@@ -269,12 +266,14 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
             CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
             copyPasteManager.setContents(new StringSelection(xmlString));
-            Messages.showInfoDialog(project, "Config Export", "Configuration for selected connections exported to clipboard.");
+            Messages.showInfoDialog(project,
+                    txt("msg.connection.title.ConfigExported"),
+                    txt("msg.connection.info.ConfigExported"));
         } catch (Exception e) {
             conditionallyLog(e);
             Messages.showErrorDialog(project,
-                    "Connection Export Failed",
-                    "Failed to export connection setup to clipboard.", e);
+                    txt("msg.connection.title.ExportFailed"),
+                    "msg.connection.error.ExportFailed", e);
         }
     }
 
@@ -314,16 +313,17 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
                 }
 
                 if (!configurationsFound) {
-                    Messages.showWarningDialog(getProject(),
-                            "Connection Import Failed",
-                            "The clipboard content is empty or malformed (not valid connection setup)");
+                    Messages.showWarningDialog(
+                            getProject(),
+                            txt("msg.connection.title.ImportFailed"),
+                            txt("msg.connection.warning.ImportFailedEmpty"));
                 }
 
             } catch (Exception e) {
                 conditionallyLog(e);
                 Messages.showErrorDialog(getProject(),
-                        "Connection Import Failed",
-                        "The clipboard content was not recognized as valid connection setup.", e);
+                        txt("msg.connection.title.ImportFailed"),
+                        txt("msg.connection.error.ImportFailedUnparseable"), e);
             }
         }
     }
@@ -402,10 +402,8 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.CONNECTION_BUNDLE_SETTINGS.is(dataId)) {
-            return ConnectionBundleSettingsForm.this;
-        }
-        return super.getData(dataId);
+        if (DataKeys.CONNECTION_BUNDLE_SETTINGS.is(dataId)) return this;
+        return null;
     }
 
     public int getSelectionSize() {

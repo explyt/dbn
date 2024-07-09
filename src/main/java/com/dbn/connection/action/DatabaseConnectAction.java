@@ -12,20 +12,25 @@ import org.jetbrains.annotations.Nullable;
 
 public class DatabaseConnectAction extends AbstractConnectionAction {
     DatabaseConnectAction(ConnectionHandler connection) {
-        super("Connect", "Connect to " + connection.getName(), null, connection);
+        super(connection);
     }
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
         connection.getInstructions().setAllowAutoConnect(true);
+        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
 
-        ConnectionAction.invoke("", true, connection,
-                (action) -> ConnectionManager.testConnection(connection, null, SessionId.MAIN, false, true));
+        ConnectionAction.invoke(null, true, connection,
+                (action) -> connectionManager.testConnection(connection, null, SessionId.MAIN, false, true));
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ConnectionHandler target) {
-        presentation.setEnabled(target != null && !target.getConnectionStatus().isConnected());
+        boolean enabled = target != null && !target.getConnectionStatus().isConnected();
+
+        presentation.setText(txt("app.connection.action.Connect"));
+        presentation.setDescription(target == null ? null : txt("app.connection.action.ConnectTo", target.getName()));
+        presentation.setEnabled(enabled);
     }
 
 }

@@ -3,7 +3,6 @@ package com.dbn.common.locale.options.ui;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Strings;
 import lombok.Getter;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -18,7 +17,7 @@ public class LocaleOption implements Presentable{
         Locale[] locales = Locale.getAvailableLocales();
         for (Locale locale : locales) {
             if (Strings.isNotEmptyOrSpaces(locale.getDisplayName()))
-            ALL.add(new LocaleOption(locale));
+                ALL.add(new LocaleOption(locale));
         }
         ALL.sort(Comparator.comparing(LocaleOption::getName));
     }

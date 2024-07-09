@@ -5,6 +5,7 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComponentAligner;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.data.editor.ui.*;
 import com.dbn.data.grid.options.DataGridSettings;
 import com.dbn.data.type.DBDataType;
@@ -121,7 +122,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
         }
 
         valueFieldPanel.add((Component) editorComponent, BorderLayout.CENTER);
-        editorComponent.getTextField().setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+        editorComponent.getTextField().setCursor(Cursors.textCursor());
         setCell(cell);
 
         Disposer.register(this, editorComponent);

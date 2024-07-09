@@ -22,6 +22,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.execution.statement.StatementExecutionQueue;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.DBVirtualObjectBundle;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.exception.Exceptions.unsupported;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 public class VirtualConnectionHandler extends StatefulDisposableBase implements ConnectionHandler {
@@ -424,7 +426,7 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
 
     @Override
     public String getDebuggerVersion() {
-        return "Unknown";
+        return txt("app.shared.label.Unknown");
     }
 
     @Override

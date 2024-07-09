@@ -5,6 +5,7 @@
  import com.dbn.common.thread.Dispatch;
  import com.dbn.common.thread.Progress;
  import com.dbn.common.ui.util.Borders;
+ import com.dbn.common.ui.util.Cursors;
  import com.dbn.common.ui.util.Mouse;
  import com.dbn.data.editor.ui.BasicDataEditorComponent;
  import com.dbn.data.editor.ui.DataEditorComponent;
@@ -237,13 +238,13 @@
                             if (foreignKeyColumn != null && !e.isConsumed()) {
                                 Dispatch.run(() -> {
                                     textField.setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
-                                    textField.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                                    textField.setCursor(Cursors.handCursor());
                                 });
                             }
                         });
 
                     } else {
-                        textField.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+                        textField.setCursor(Cursors.textCursor());
                         textField.setToolTipText(null);
                     }
                 }

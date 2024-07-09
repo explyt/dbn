@@ -16,12 +16,14 @@ import com.dbn.execution.method.ArgumentValueHolder;
 import com.dbn.execution.method.MethodExecutionContext;
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.execution.method.result.ui.MethodExecutionResultForm;
+import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBTypeAttribute;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
-import com.intellij.psi.PsiFile;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,6 +34,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Getter
+@Setter
 public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionResultForm> {
     private final WeakRef<MethodExecutionInput> executionInput;
     private final List<ArgumentValue> argumentValues = new ArrayList<>();
@@ -44,10 +48,6 @@ public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionRe
     public MethodExecutionResult(MethodExecutionInput executionInput, DBDebuggerType debuggerType) {
         this.executionInput = WeakRef.of(executionInput);
         this.debuggerType = debuggerType;
-    }
-
-    public int getExecutionDuration() {
-        return executionDuration;
     }
 
     public void calculateExecDuration() {
@@ -77,10 +77,6 @@ public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionRe
         argumentValues.add(argumentValue);
     }
 
-
-    public List<ArgumentValue> getArgumentValues() {
-        return argumentValues;
-    }
 
     public ArgumentValue getArgumentValue(DBObjectRef<DBArgument> argumentRef) {
         for (ArgumentValue argumentValue : argumentValues) {
@@ -142,7 +138,7 @@ public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionRe
     }
 
     @Override
-    public PsiFile createPreviewFile() {
+    public DBLanguagePsiFile createPreviewFile() {
         return null;
     }
 
@@ -164,20 +160,8 @@ public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionRe
         return false;
     }
 
-    public DBDebuggerType getDebuggerType() {
-        return debuggerType;
-    }
-
     public ResultSetDataModel getTableModel(DBArgument argument) {
         return cursorModels.get(argument.ref());
-    }
-
-    public String getLogOutput() {
-        return logOutput;
-    }
-
-    public void setLogOutput(String logOutput) {
-        this.logOutput = logOutput;
     }
 
     /********************************************************
@@ -186,9 +170,7 @@ public class MethodExecutionResult extends ExecutionResultBase<MethodExecutionRe
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.METHOD_EXECUTION_RESULT.is(dataId)) {
-            return MethodExecutionResult.this;
-        }
+        if (DataKeys.METHOD_EXECUTION_RESULT.is(dataId)) return this;
         return null;
     }
 }

@@ -1,12 +1,11 @@
 package com.dbn.connection;
 
-import com.dbn.common.icon.Icons;
 import com.dbn.common.constant.PseudoConstant;
 import com.dbn.common.constant.PseudoConstantConverter;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
 import com.dbn.object.DBSchema;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
@@ -32,7 +31,6 @@ public final class SchemaId extends PseudoConstant<SchemaId> implements Presenta
         return schema == null ? null : schema.getIdentifier();
     }
 
-    @Nullable
     @Override
     public Icon getIcon() {
         return Icons.DBO_SCHEMA;

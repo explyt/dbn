@@ -22,12 +22,6 @@ public class FileConnectionContextNotificationProvider extends EditorNotificatio
         ProjectEvents.subscribe(FileConnectionContextListener.TOPIC, mappingListener);
     }
 
-    @Deprecated
-    public FileConnectionContextNotificationProvider(@NotNull Project project) {
-        super(project);
-        ProjectEvents.subscribe(project, this, FileConnectionContextListener.TOPIC, mappingListener);
-    }
-
     @NotNull
     @Override
     public Key<FileConnectionContextNotificationPanel> getKey() {

@@ -4,8 +4,10 @@ package com.dbn.common.pool;
 import com.dbn.common.lookup.Visitor;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.Disposable;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -22,7 +24,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
  * @param <O> the type of object this pool is offering
  */
 @Slf4j
-public abstract class ObjectPoolBase<O, E extends Throwable> extends StatefulDisposableBase implements ObjectPool<O, E> {
+public abstract class ObjectPoolBase<O, E extends Throwable> extends StatefulDisposableBase implements ObjectPool<O, E>, NlsSupport {
     private final List<O> objects = new CopyOnWriteArrayList<>();
     private final BlockingQueue<O> available = new LinkedBlockingQueue<>();
     private final ObjectPoolCounters counters = new ObjectPoolCounters();
@@ -136,7 +138,10 @@ public abstract class ObjectPoolBase<O, E extends Throwable> extends StatefulDis
     protected O whenErrored(Throwable e) throws E { return null; }
     protected O whenNull() throws E { return null; }
 
+    @NonNls
     protected String identifier() { return "Object Pool"; }
+
+    @NonNls
     protected String identifier(O object) { return object == null ? "Object" : object.toString(); }
 
     public abstract int maxSize();

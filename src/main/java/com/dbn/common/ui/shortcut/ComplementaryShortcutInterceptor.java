@@ -5,6 +5,7 @@ import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -27,16 +28,9 @@ public abstract class ComplementaryShortcutInterceptor extends ShortcutIntercept
 
     @Override
     @Compatibility
-    public void afterActionPerformed(AnAction action, DataContext dataContext, AnActionEvent event) {
+    public void afterActionPerformed(@NotNull AnAction action, @NotNull DataContext dataContext, @NotNull AnActionEvent event) {
         attemptDelegation(action, event);
     }
-
-    @Override
-    @Compatibility
-    public void beforeActionPerformed(AnAction anAction, DataContext dataContext, AnActionEvent anActionEvent) {
-
-    }
-
 
     private void attemptDelegation(AnAction action, AnActionEvent event) {
         if (isNotValid(action)) return;

@@ -6,7 +6,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,7 +26,7 @@ public abstract class DBNTableGutterRendererBase implements DBNTableGutterRender
     public DBNTableGutterRendererBase() {
         textLabel.setText("");
         iconLabel.setText("");
-        textLabel.setFont(Fonts.getEditorFont());
+        textLabel.setFont(Fonts.smaller(Fonts.getEditorFont(), 2));
         textLabel.setForeground(Colors.getTableGutterForeground());
         mainPanel.setBackground(Colors.getTableGutterBackground());
         mainPanel.setPreferredSize(new Dimension(40, -1));

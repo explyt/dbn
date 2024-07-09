@@ -4,6 +4,7 @@ import com.dbn.code.common.style.DBLCodeStyleManager;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -15,11 +16,11 @@ import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.factory.ArgumentFactoryInput;
 import com.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 
 import java.sql.SQLException;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfaceImpl {
@@ -30,7 +31,7 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
 
     @Override
     public String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter) {
-        if (StringUtil.isEmpty(alternativeDelimiter)) {
+        if (isEmpty(alternativeDelimiter)) {
             alternativeDelimiter = getInterfaces().getCompatibilityInterface().getDefaultAlternativeStatementDelimiter();
         }
 
@@ -182,11 +183,11 @@ public class MySqlDataDefinitionInterface extends DatabaseDataDefinitionInterfac
                                 argument.isInput() ? keywordCaseOption.format("in") :
                                         argument.isOutput() ? keywordCaseOption.format("out") : "";
                 buffer.append(direction);
-                buffer.append(StringUtil.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
+                buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             }
 
             buffer.append(objectCaseOption.format(argument.getObjectName()));
-            buffer.append(StringUtil.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
+            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
 
             buffer.append(dataTypeCaseOption.format(argument.getDataType()));
             if (argument != method.getArguments().get(method.getArguments().size() -1)) {

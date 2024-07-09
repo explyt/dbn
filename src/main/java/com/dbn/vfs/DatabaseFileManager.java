@@ -41,6 +41,7 @@ import com.intellij.util.containers.ContainerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -204,7 +205,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newElement("state");
         Element filesElement = newElement(element, "open-files");
         for (DBObjectVirtualFile<?> openFile : openFiles) {
             DBObjectRef<?> objectRef = openFile.getObjectRef();
@@ -216,7 +217,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public void loadComponentState(@NotNull @NonNls Element element) {
         Element openFilesElement = element.getChild("open-files");
         if (openFilesElement == null || pendingOpenFiles == null) return;
 
@@ -250,13 +251,13 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
         }
     }
 
-    private static void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBSchemaObject>> objects, @NotNull ConnectionHandler connection) {
+    private void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBSchemaObject>> objects, @NotNull ConnectionHandler connection) {
         Project project = connection.getProject();
-        ConnectionAction.invoke("opening database editors", false, connection, action ->
+        ConnectionAction.invoke(txt("app.connection.activity.OpeningDatabaseEditors"), false, connection, action ->
                 ThreadMonitor.surround(project, ThreadProperty.WORKSPACE_RESTORE, () ->
                         Progress.background(project, connection, true,
-                                "Restoring database workspace",
-                                "Opening database editors for connection " + connection.getName(),
+                                txt("prc.workspace.title.RestoringWorkspace"),
+                                txt("prc.workspace.message.RestoringWorkspace", connection.getName()),
                                 progress -> reopenDatabaseEditors(objects, connection, progress))));
     }
 

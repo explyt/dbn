@@ -4,6 +4,7 @@ import com.dbn.common.event.ToggleListener;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
 import com.intellij.util.ui.UIUtil;
@@ -37,7 +38,7 @@ public class DBNCollapsiblePanel extends DBNFormBase {
         this.expanded = expanded;
         this.contentPanel.add(contentForm.getComponent(), BorderLayout.CENTER);
 
-        Cursor handCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+        Cursor handCursor = Cursors.handCursor();
         this.toggleLabel.setCursor(handCursor);
         this.toggleDetailLabel.setCursor(handCursor);
         updateVisibility();

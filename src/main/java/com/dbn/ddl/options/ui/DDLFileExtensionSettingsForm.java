@@ -2,7 +2,7 @@ package com.dbn.ddl.options.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.options.ui.ConfigurationEditorUtil;
+import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.common.util.Strings;
 import com.dbn.ddl.DDLFileManager;
 import com.dbn.ddl.DDLFileType;
@@ -84,7 +84,7 @@ public class DDLFileExtensionSettingsForm extends ConfigurationEditorForm<DDLFil
             String fieldName = entry.getKey();
             JTextField extensionTextField = entry.getValue();
 
-            String extensionsText = ConfigurationEditorUtil.validateStringValue(extensionTextField, fieldName, false);
+            String extensionsText = ConfigurationEditors.validateStringValue(extensionTextField, fieldName, false);
             List<String> extensions = Strings.tokenize(extensionsText, ",");
             for (String extension : extensions) {
                 if (allExtensions.contains(extension)) {

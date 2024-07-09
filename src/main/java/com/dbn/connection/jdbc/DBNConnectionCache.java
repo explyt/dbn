@@ -6,7 +6,7 @@ import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.pool.ObjectCacheBase;
 import com.dbn.common.thread.Background;
 import com.dbn.connection.*;
-import com.dbn.connection.*;
+import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ import java.sql.SQLRecoverableException;
 
 import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
 
-public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection, SQLException> {
+public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection, SQLException> implements NlsSupport {
     private final ConnectionRef connection;
 
     public DBNConnectionCache(ConnectionHandler connection) {
@@ -42,11 +42,11 @@ public class DBNConnectionCache extends ObjectCacheBase<SessionId, DBNConnection
         Project project = connection.getProject();
         try {
             DBNConnection conn = ConnectionUtil.connect(connection, sessionId);
+            String connectionName = connection.getConnectionName(conn);
             sendInfoNotification(
                     project,
                     NotificationGroup.SESSION,
-                    "Connected to database \"{0}\"",
-                    connection.getConnectionName(conn));
+                    txt("ntf.connection.info.ConnectedToDatabase", connectionName));
 
             return conn;
         } finally {

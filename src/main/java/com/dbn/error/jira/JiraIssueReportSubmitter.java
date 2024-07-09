@@ -1,15 +1,16 @@
 package com.dbn.error.jira;
 
 import com.dbn.common.util.Commons;
-import com.dbn.error.TicketResponse;
+import com.dbn.error.IssueReport;
 import com.dbn.error.IssueReportBuilder;
 import com.dbn.error.IssueReportSubmitter;
+import com.dbn.error.TicketResponse;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.jetbrains.annotations.NotNull;
 
@@ -35,8 +36,8 @@ public class JiraIssueReportSubmitter extends IssueReportSubmitter {
 
     @NotNull
     @Override
-    public TicketResponse submit(String summary, String description) throws Exception {
-        JiraTicketRequest ticketRequest = new JiraTicketRequest(summary, description);
+    public TicketResponse submit(IssueReport report) throws Exception {
+        JiraTicketRequest ticketRequest = new JiraTicketRequest(report);
         try {
             Gson gson = GSON_BUILDER.create();
             String requestString = gson.toJson(ticketRequest.getJsonObject());
@@ -52,15 +53,16 @@ public class JiraIssueReportSubmitter extends IssueReportSubmitter {
             httpPost.addHeader("Authorization", "Basic cGx1Z2luQGRhdGFiYXNlLW5hdmlnYXRvci5jb206QVRBVFQzeEZmR0YwUU85UnpaV0ZFQVUwMmVRY1Y3c2Z6b3J5MUZPMF8zUDZGTDlVNVBDSnZOV2ViV0czdDhFYl9qcFQ4MEFiZU9MMmV0YmV4OVItRU9fWUZYYWJxSTBvQm1FWU11c0hkWFhhZE9tbGZTU0NwNkNqaDB2cEFNWWk2MHZvZnJYVDU4XzJOREdDWVdSYVh3bkR6bklIcXRjd0xzOGZYLW5Gd1ZwX042ckxfT1VhZjdzPUE5QTE3NjIz");
             httpPost.addHeader("Content-Type", "application/json");
             httpPost.setEntity(params);
-            HttpClient httpClient = HTTP_CLIENT_BUILDER.build();
-            HttpResponse httpResponse = httpClient.execute(httpPost);
+            try (CloseableHttpClient httpClient = HTTP_CLIENT_BUILDER.build()) {
+                HttpResponse httpResponse = httpClient.execute(httpPost);
 
-            if (httpResponse == null) {
-                return new JiraTicketResponse(null, "Received empty response from server");
-            } else {
-                InputStream in = httpResponse.getEntity().getContent();
-                String responseString = Commons.readInputStream(in);
-                return new JiraTicketResponse(responseString, null);
+                if (httpResponse == null) {
+                    return new JiraTicketResponse(null, "Received empty response from server");
+                } else {
+                    InputStream in = httpResponse.getEntity().getContent();
+                    String responseString = Commons.readInputStream(in);
+                    return new JiraTicketResponse(responseString, null);
+                }
             }
         } catch (Exception e) {
             conditionallyLog(e);

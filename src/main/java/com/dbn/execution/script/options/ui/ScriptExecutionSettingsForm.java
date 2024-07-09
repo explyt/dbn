@@ -2,7 +2,7 @@ package com.dbn.execution.script.options.ui;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.options.ui.ConfigurationEditorUtil;
+import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.connection.DatabaseType;
 import com.dbn.execution.script.CmdLineInterfaceBundle;
 import com.dbn.execution.script.ScriptExecutionManager;
@@ -98,7 +98,7 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
     @Override
     public void applyFormChanges() throws ConfigurationException {
         ScriptExecutionSettings configuration = getConfiguration();
-        int executionTimeout = ConfigurationEditorUtil.validateIntegerValue(executionTimeoutTextField, "Execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
+        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, "Execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
         CmdLineInterfacesTableModel model = cmdLineInterfacesTable.getModel();
         model.validate();
         CmdLineInterfaceBundle executorBundle = model.getBundle();

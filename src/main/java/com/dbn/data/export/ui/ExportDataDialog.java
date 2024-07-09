@@ -46,7 +46,7 @@ public class ExportDataDialog extends DBNDialog<ExportDataForm> {
         DBObject sourceObject = DBObjectRef.get(this.sourceObject);
         ConnectionHandler connection = this.connection.ensure();
         DataExportManager exportManager = DataExportManager.getInstance(connection.getProject());
-        DataExportInstructions instructions = exportManager.getExportInstructions();
+        DataExportInstructions instructions = exportManager.getExportInstructions().clone();
         boolean hasSelection = table.getSelectedRowCount() > 1 || table.getSelectedColumnCount() > 1;
         instructions.setBaseName(table.getName());
         return new ExportDataForm(this, instructions, hasSelection, connection, sourceObject);

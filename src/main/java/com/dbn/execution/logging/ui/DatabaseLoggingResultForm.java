@@ -1,5 +1,6 @@
 package com.dbn.execution.logging.ui;
 
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
@@ -11,6 +12,7 @@ import com.intellij.ide.actions.PreviousOccurenceToolbarAction;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -61,5 +63,14 @@ public class DatabaseLoggingResultForm extends ExecutionResultFormBase<DatabaseL
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
+    }
+
+    /********************************************************
+     *                    Data Provider                     *
+     ********************************************************/
+    @Override
+    public @Nullable Object getData(@NotNull String dataId) {
+        if (DataKeys.DATABASE_LOG_OUTPUT.is(dataId)) return getExecutionResult();
+        return null;
     }
 }

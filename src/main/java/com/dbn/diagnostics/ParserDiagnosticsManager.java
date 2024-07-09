@@ -5,7 +5,6 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.file.util.FileSearchRequest;
 import com.dbn.common.file.util.VirtualFiles;
-import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.thread.Read;
@@ -44,6 +43,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.notification.NotificationGroup.DEVELOPER;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -129,10 +129,8 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
                     FileUtils.write(scrambledFile, scrambled, file.getCharset());
                 } catch (IOException e) {
                     conditionallyLog(e);
-                    NotificationSupport.sendWarningNotification(
-                            getProject(),
-                            NotificationGroup.DEVELOPER,
-                            "Failed to write file" + scrambledFile.getPath() + ". " + e.getMessage());
+                    NotificationSupport.sendWarningNotification(getProject(), DEVELOPER,
+                            txt("ntf.diagnostics.warning.FailedToWriteFile", scrambledFile.getPath(), e));
                 }
             }
         }
@@ -221,7 +219,7 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newElement("state");
         Element historyElement = newElement(element, "diagnostics-history");
         for (ParserDiagnosticsResult capturedResult : resultHistory) {
             if (!capturedResult.isDraft()) {

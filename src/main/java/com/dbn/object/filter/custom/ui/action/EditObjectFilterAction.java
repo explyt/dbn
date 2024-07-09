@@ -7,6 +7,7 @@ import com.dbn.object.filter.custom.ObjectFilter;
 import com.dbn.object.filter.custom.ui.ObjectFilterDetailsDialog;
 import com.dbn.object.filter.custom.ui.ObjectFilterExpressionForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import org.jetbrains.annotations.NotNull;
 
 public class EditObjectFilterAction extends BasicAction {
@@ -18,8 +19,9 @@ public class EditObjectFilterAction extends BasicAction {
 
     @Override
     public void update(AnActionEvent e) {
-        e.getPresentation().setIcon(Icons.ACTION_EDIT);
-        e.getPresentation().setText("Edit Filter");
+        Presentation presentation = e.getPresentation();
+        presentation.setIcon(Icons.ACTION_EDIT);
+        presentation.setText("Edit Filter");
     }
 
     @Override

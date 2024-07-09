@@ -4,6 +4,7 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.table.DBNTable;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.connection.DatabaseType;
 import com.dbn.execution.script.CmdLineInterface;
@@ -78,7 +79,7 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
     protected void processMouseMotionEvent(MouseEvent e) {
         Point point = e.getPoint();
         int columnIndex = columnAtPoint(point);
-        setCursor(columnIndex == 2 ? Cursor.getPredefinedCursor(Cursor.HAND_CURSOR) : Cursor.getDefaultCursor());
+        setCursor(columnIndex == 2 ? Cursors.handCursor() : Cursors.defaultCursor());
     }
 
 

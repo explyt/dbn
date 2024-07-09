@@ -1,7 +1,7 @@
 package com.dbn.ddl;
 
-import com.dbn.common.compatibility.LegacyEditorNotificationsProvider;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.editor.EditorNotificationProvider;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.util.Editors;
@@ -29,7 +29,7 @@ import static com.dbn.common.util.Editors.isDdlFileEditor;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
 
-public class DDLMappedNotificationProvider extends LegacyEditorNotificationsProvider<DDLMappedNotificationPanel> {
+public class DDLMappedNotificationProvider extends EditorNotificationProvider<DDLMappedNotificationPanel> {
     private static final Key<DDLMappedNotificationPanel> KEY = Key.create("DBNavigator.DDLMappedNotificationPanel");
 
     public DDLMappedNotificationProvider() {
@@ -37,16 +37,6 @@ public class DDLMappedNotificationProvider extends LegacyEditorNotificationsProv
         ProjectEvents.subscribe(DDLFileAttachmentManagerListener.TOPIC, ddlFileAttachmentManagerListener());
         ProjectEvents.subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener());
     }
-
-    @Deprecated
-    public DDLMappedNotificationProvider(@NotNull Project project) {
-        super(project);
-
-        ProjectEvents.subscribe(project, this, DDLFileSettingsChangeListener.TOPIC, ddlFileSettingsChangeListener());
-        ProjectEvents.subscribe(project, this, DDLFileAttachmentManagerListener.TOPIC, ddlFileAttachmentManagerListener());
-        ProjectEvents.subscribe(project, this, FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener());
-    }
-
 
     @NotNull
     private static DDLFileAttachmentManagerListener ddlFileAttachmentManagerListener() {
@@ -103,10 +93,7 @@ public class DDLMappedNotificationProvider extends LegacyEditorNotificationsProv
 
     @NotNull
     private static DDLFileSettingsChangeListener ddlFileSettingsChangeListener() {
-        return (Project project) -> {
-            EditorNotifications notifications = Editors.getNotifications(project);;
-            notifications.updateAllNotifications();
-        };
+        return (Project project) -> Editors.updateNotifications(project, null);
     }
 
     @NotNull

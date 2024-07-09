@@ -73,7 +73,7 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
             return SessionStatus.valueOf(statusName);
         } catch (Exception e) {
             conditionallyLog(e);
-            log.error("Invalid session status " + statusName, e);
+            log.error("Invalid session status {}", statusName, e);
             return SessionStatus.INACTIVE;
         }
     }
@@ -85,6 +85,6 @@ public class OracleCompatibilityInterface extends DatabaseCompatibilityInterface
 
     @Override
     public String getDatabaseLogName() {
-        return "DBMS Output";
+        return txt("app.logging.label.LogName_ORACLE");
     }
 }

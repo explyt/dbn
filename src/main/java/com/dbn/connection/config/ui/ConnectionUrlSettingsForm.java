@@ -14,11 +14,13 @@ import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
 import com.dbn.connection.config.file.ui.DatabaseFileSettingsForm;
+import com.dbn.connection.config.tns.TnsAdmin;
 import com.dbn.connection.config.tns.TnsNames;
 import com.dbn.connection.config.tns.TnsNamesParser;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
+import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.components.fields.ExpandableTextField;
 import org.jetbrains.annotations.NotNull;
 
@@ -65,17 +67,30 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         databaseFilesPanel.add(databaseFileSettingsForm.getComponent(), BorderLayout.CENTER);
         urlTypeComboBox.addActionListener(e -> updateFieldVisibility());
 
+        updateTnsAdminField();
+
+        FileChooserDescriptor tnsFolderChooserDesc = new FileChooserDescriptor(false, true, false, false, false, false);
         tnsFolderTextField.addBrowseFolderListener(
-                "Select Wallet Directory",
-                "Folder must contain tnsnames.ora",
-                null, new FileChooserDescriptor(false, true, true, true, false, false));
-        onTextChange(tnsFolderTextField, e -> handleTnsFolderChanged(tnsFolderTextField.getText()));
+                txt("cfg.connection.title.SelectWalletDirectory"),
+                txt("cfg.connection.text.ValidTnsNamesFolder"),
+                null, tnsFolderChooserDesc);
 
         onTextChange(hostTextField, e -> updateUrlField());
         onTextChange(portTextField, e -> updateUrlField());
         onTextChange(databaseTextField, e -> updateUrlField());
+        onTextChange(tnsFolderTextField, e -> updateTnsProfilesField());
         onTextChange(tnsFolderTextField, e -> updateUrlField());
         tnsProfileComboBox.addActionListener(e -> updateUrlField());
+
+        updateTnsProfilesField();
+    }
+
+    private void updateTnsAdminField() {
+        String location = TnsAdmin.location();
+        if (Strings.isEmptyOrSpaces(location)) return;
+
+        JBTextField textField = (JBTextField) tnsFolderTextField.getTextField();
+        textField.getEmptyText().setText(location);
     }
 
     @Override
@@ -136,7 +151,7 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
                 getPort(),
                 getDatabase(),
                 getMainFilePath() ,
-                getTnsFolder(),
+                getTnsAdmin(),
                 getTnsProfile());
         urlTextField.setText(url);
     }
@@ -145,9 +160,11 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
         return databaseFileSettingsForm.getFileBundle().getMainFilePath();
     }
 
-    private void handleTnsFolderChanged(@NotNull String text) {
+    private void updateTnsProfilesField() {
+        String tnsAdmin = getTnsAdmin();
+
         tnsProfileComboBox.setValues(Collections.emptyList());
-        File tnsFolder = new File(text);
+        File tnsFolder = new File(tnsAdmin);
         if (!tnsFolder.isDirectory()) return;
 
         File tnsFile = new File(tnsFolder, "tnsnames.ora");
@@ -155,6 +172,12 @@ public class ConnectionUrlSettingsForm extends DBNFormBase {
 
         List<String> tnsEntries = getTnsEntries(tnsFile);
         tnsProfileComboBox.setValues(Presentable.basic(tnsEntries));
+    }
+
+    private String getTnsAdmin() {
+        String tnsPath = tnsFolderTextField.getText();
+        if (Strings.isEmptyOrSpaces(tnsPath)) tnsPath = TnsAdmin.location();
+        return nvl(tnsPath, "");
     }
 
     private List<String> getTnsEntries(File tnsnamesOraFile) {

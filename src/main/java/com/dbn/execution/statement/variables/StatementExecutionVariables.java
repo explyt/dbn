@@ -1,9 +1,12 @@
 package com.dbn.execution.statement.variables;
 
+import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.common.file.FileMappings;
 import com.dbn.common.project.ProjectRef;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Strings;
+import com.dbn.connection.mapping.FileConnectionContext;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.val;
@@ -14,12 +17,13 @@ import java.util.*;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 
-public class StatementExecutionVariables implements PersistentStateElement {
+public class StatementExecutionVariables extends StatefulDisposableBase implements PersistentStateElement {
     private final ProjectRef project;
-    private final Map<String, Set<StatementExecutionVariable>> variables = new HashMap<>();
+    private final FileMappings<Set<StatementExecutionVariable>> variables;
 
     public StatementExecutionVariables(Project project) {
         this.project = ProjectRef.of(project);
+        variables = new FileMappings<>(project, this);
     }
 
     public Project getProject() {
@@ -29,7 +33,7 @@ public class StatementExecutionVariables implements PersistentStateElement {
     public Set<StatementExecutionVariable> getVariables(@Nullable VirtualFile virtualFile) {
         if (virtualFile != null) {
             String fileUrl = virtualFile.getUrl();
-            return variables.computeIfAbsent(fileUrl, u -> new HashSet<>());
+            return variables.computeIfAbsent(fileUrl, u -> new LinkedHashSet<>());
         }
         return Collections.emptySet();
     }
@@ -78,7 +82,7 @@ public class StatementExecutionVariables implements PersistentStateElement {
                 fileUrl = fileElement.getAttributeValue("path");
             }
 
-            Set<StatementExecutionVariable> fileVariables = new HashSet<>();
+            Set<StatementExecutionVariable> fileVariables = new LinkedHashSet<>();
             this.variables.put(fileUrl, fileVariables);
 
             for (Element child : fileElement.getChildren()) {
@@ -93,16 +97,18 @@ public class StatementExecutionVariables implements PersistentStateElement {
     public void writeState(Element element) {
         Element variablesElement = newElement(element, "execution-variables");
 
-        for (val entry : variables.entrySet()) {
-            String fileUrl = entry.getKey();
-            if (Files.isValidFileUrl(fileUrl, getProject())) {
-                Element fileElement = newElement(variablesElement, "file");
-                fileElement.setAttribute("file-url", fileUrl);
-                for (StatementExecutionVariable executionVariable : entry.getValue()) {
-                    Element variableElement = newElement(fileElement, "variable");
-                    executionVariable.writeState(variableElement);
-                }
+        for (String fileUrl : variables.fileUrls()) {
+            Element fileElement = newElement(variablesElement, "file");
+            fileElement.setAttribute("file-url", fileUrl);
+            Set<StatementExecutionVariable> fileVariables = variables.get(fileUrl);
+            for (StatementExecutionVariable executionVariable : fileVariables) {
+                Element variableElement = newElement(fileElement, "variable");
+                executionVariable.writeState(variableElement);
             }
         }
+    }
+
+    @Override
+    public void disposeInner() {
     }
 }

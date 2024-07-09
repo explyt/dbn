@@ -11,12 +11,15 @@ import org.jdom.CDATA;
 import org.jdom.Content;
 import org.jdom.Element;
 import org.jdom.Text;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
+@NonNls
 @UtilityClass
 public final class Settings {
 
@@ -236,9 +239,12 @@ public final class Settings {
         element.setAttribute(attributeName, value.name());
     }
 
-    public static Element newElement(Element parent, String childName) {
-        Element child = new Element(childName);
-        parent.addContent(child);
+    public static Element newElement(String name) {
+        return newElement(null, name);
+    }
+    public static Element newElement(@Nullable Element parent, String name) {
+        Element child = new Element(name);
+        if (parent != null) parent.addContent(child);
         return child;
     }
 }

@@ -32,16 +32,6 @@ public abstract class ExecutionResultFormBase<T extends ExecutionResult<?>> exte
 
     protected void rebuildForm(){}
 
-    @Nullable
-    @Override
-    public Object getData(@NotNull String dataId) {
-        Object data = super.getData(dataId);
-        if (data == null) {
-            data = getExecutionResult().getData(dataId);
-        }
-        return data;
-    }
-
     @Override
     public void disposeInner() {
         Disposer.dispose(executionResult);

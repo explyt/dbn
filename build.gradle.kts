@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.dbn"
-version = "3.4.3211.0"
+version = "3.4.4179.0"
 
 repositories {
     mavenCentral()
@@ -89,11 +89,18 @@ tasks {
         targetCompatibility = "11"
     }
 
+
     /* no kotlin code yet
     withType<KotlinCompile> {
       kotlinOptions.jvmTarget = "11"
     }
     */
+
+  patchPluginXml {
+    sinceBuild.set("201.6668.113")
+    untilBuild.set("242.*")
+  }
+
 
     withType<JavaCompile> {
         copy {

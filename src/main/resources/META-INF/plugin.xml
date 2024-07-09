@@ -1,7 +1,7 @@
-<idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator">
+<idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.4.3211.0</version>
+    <version>3.4.4179.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -9,7 +9,8 @@
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <vendor email="dancioca@bluewin.ch">Dan Cioca</vendor>
-    <idea-version since-build="200.0001" until-build="241.*"/>
+    <idea-version since-build="201.6668.113" until-build="242.*"/>
+    <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
             <b>Database development, scripting and navigation tool</b><br>
             This software solution enhances the capabilities of the IntelliJ IDEA development environment and its associated products by providing comprehensive features for database development and maintenance.
@@ -31,12 +32,33 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.4.4179</b>
+            <ul>
+                <li>Postgres SQL syntax - literal comparison operators
+                <li>Oracle TNS_ADMIN - support for environment variable
+                <li>New-UI tool window icons rework
+                <li>Support for latest IDE EAP versions
+                <li>Bug fixes
+            </ul>
+            <li><b>3.4.3713</b>
+            <ul>
+                <li>Object browser - new display mode (Connection selector)
+                <li>Object browser trees - sticky-path scroll headers
+                <li>Optimised database object lookup (Ctrl-Shift-D)
+                <li>New-UI adaptations and icons (WIP)
+                <li>Bug fixes
+            </ul>
+            <li><b>3.4.3407</b>
+            <ul>
+                <li>New UI adaptations and icons (WIP)
+                <li>Bug fixes
+            </ul>
             <li><b>3.4.3211</b>
             <ul>
                 <li>Prompted background-capable DB operations
                 <li>Ide startup optimisations (lazy component initialisation)
                 <li>Expression-based object filters
-                <li>New UI adaptations and icons (WIP)
+                <li>New-UI adaptations and icons (WIP)
                 <li>Bug fixes
             </ul>
             <li><b>3.4.2700</b>
@@ -325,6 +347,11 @@
     </project-components>
 
     <extensions defaultExtensionNs="com.intellij">
+<!--
+        <languageBundle locale="en"/>
+        <languageBundle locale="de"/>
+-->
+
         <applicationService serviceImplementation="com.dbn.plugin.PluginStatusManager"/>
         <applicationService serviceImplementation="com.dbn.plugin.PluginConflictManager"/>
         <applicationService serviceImplementation="com.dbn.common.file.FileTypeService"/>
@@ -386,6 +413,7 @@
     </extensions>
 
     <actions>
+
         <action class="com.dbn.execution.script.action.ExecuteScriptFileAction"
                 id="DBNavigator.Actions.Editor.ExecuteScript" text="Execute SQL Script"
                 icon="/img/action/ExecuteAsScript.png">
@@ -900,7 +928,7 @@
                   class="com.dbn.execution.statement.action.ExecuteStatementEditorAction$ShortcutInterceptor"/>
     </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
-        <notificationGroup id="DBNavigator.NotificationGroup" displayType="BALLOON" key="DBNavigator"/>
+        <notificationGroup id="DBNavigator.NotificationGroup" displayType="BALLOON" key="ntf.shared.title.DBNavigator"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->
@@ -1020,6 +1048,7 @@
         <liveTemplateContext implementation="com.dbn.language.psql.template.PSQLTemplateContextType" contextId="PSQL"/>
         <defaultLiveTemplates file="com/dbn/language/sql/template/default.xml"/>
         <defaultLiveTemplates file="com/dbn/language/psql/template/default.xml"/>
+
         <!--
                 <defaultLiveTemplatesProvider implementation="com.dbn.language.sql.template.SQLTemplateProvider"/>
                 <defaultLiveTemplatesProvider implementation="com.dbn.language.psql.template.PSQLTemplateProvider"/>
@@ -1064,50 +1093,62 @@
                                 id="DBNavigator.Project.DatasetEditorStatusBarWidgetFactory"/>
 
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExecuteScriptIntentionAction</className>
             <category>Database/Script execution</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExecuteStatementIntentionAction</className>
             <category>Database/Statement execution</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.DebugStatementIntentionAction</className>
             <category>Database/Statement execution</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ExplainPlanIntentionAction</className>
             <category>Database/Statement execution</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.JumpToExecutionResultIntentionAction</className>
             <category>Database/Statement execution</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-PSQL</language>
             <className>com.dbn.code.common.intention.RunMethodIntentionAction</className>
             <category>Database/Method execution</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-PSQL</language>
             <className>com.dbn.code.common.intention.DebugMethodIntentionAction</className>
             <category>Database/Method execution</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.DatabaseConnectIntentionAction</className>
             <category>Database/Connectivity</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.SelectSessionIntentionAction</className>
             <category>Database/Connectivity</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.SelectSchemaIntentionAction</className>
             <category>Database/Connectivity</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.SelectConnectionIntentionAction</className>
             <category>Database/Connectivity</category>
         </intentionAction>
         <intentionAction>
+            <language>DBN-SQL</language>
             <className>com.dbn.code.common.intention.ToggleDatabaseLoggingIntentionAction</className>
             <category>Database/Statement execution</category>
         </intentionAction>

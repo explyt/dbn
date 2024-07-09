@@ -23,7 +23,7 @@ public class DataEditorValueListPopupSettings extends BasicConfiguration<DataEdi
 
     @Override
     public String getDisplayName() {
-        return "Data editor filters settings";
+        return txt("cfg.dataEditor.title.ValueLists");
     }
 
     @Override

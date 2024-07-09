@@ -26,7 +26,7 @@ public class ConnectionSslSettings extends BasicProjectConfiguration<ConnectionS
 
     @Override
     public String getDisplayName() {
-        return "Connection SSL Settings";
+        return txt("cfg.connection.title.SslSettings");
     }
 
     @Override

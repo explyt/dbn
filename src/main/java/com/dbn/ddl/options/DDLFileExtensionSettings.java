@@ -2,9 +2,9 @@ package com.dbn.ddl.options;
 
 import com.dbn.common.options.BasicProjectConfiguration;
 import com.dbn.common.util.Strings;
-import com.dbn.ddl.options.ui.DDLFileExtensionSettingsForm;
 import com.dbn.ddl.DDLFileType;
 import com.dbn.ddl.DDLFileTypeId;
+import com.dbn.ddl.options.ui.DDLFileExtensionSettingsForm;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
 import lombok.Getter;
@@ -14,8 +14,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.dbn.editor.DBContentType.*;
 import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.editor.DBContentType.*;
 
 @Getter
 public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileSettings, DDLFileExtensionSettingsForm> {
@@ -39,7 +39,7 @@ public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileS
 
     @Override
     public String getDisplayName() {
-        return "DDL file extension settings";
+        return txt("cfg.ddlFiles.title.DdlFileExtensionSettings");
     }
 
     public DDLFileType getFileType(DDLFileTypeId fileTypeId) {

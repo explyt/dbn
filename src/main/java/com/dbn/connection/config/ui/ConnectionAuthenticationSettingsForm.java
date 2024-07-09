@@ -58,10 +58,6 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         passwordField.setText(showPassword ? cachedPassword : "");
     }
 
-    public JTextField getUserTextField() {
-        return userTextField;
-    }
-
     public String getUser() {
         return userTextField.getText();
     }

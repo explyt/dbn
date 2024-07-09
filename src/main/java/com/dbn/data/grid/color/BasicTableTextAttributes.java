@@ -7,11 +7,13 @@ import com.intellij.openapi.editor.colors.EditorColors;
 import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.ui.SimpleTextAttributes;
+import lombok.Getter;
 
 import java.awt.*;
 
 import static com.dbn.common.util.Commons.nvln;
 
+@Getter
 public class BasicTableTextAttributes implements DataGridTextAttributes {
     private final SimpleTextAttributes plainData;
     private final SimpleTextAttributes plainDataModified;
@@ -142,14 +144,6 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
         return atCaretRow ? modifiedDataAtCaretRow : modifiedData;
     }
 
-    public SimpleTextAttributes getDeletedData() {
-        return deletedData;
-    }
-
-    public SimpleTextAttributes getErrorData() {
-        return errorData;
-    }
-
     public SimpleTextAttributes getReadonlyData(boolean modified, boolean atCaretRow) {
         return
             modified && atCaretRow ? readonlyDataAtCaretRowModified :
@@ -182,20 +176,6 @@ public class BasicTableTextAttributes implements DataGridTextAttributes {
             atCaretRow ? auditDataAtCaretRow :
             modified ? auditDataModified : auditData;
     }
-
-    public SimpleTextAttributes getPrimaryKeyAtCaretRow() {
-        return primaryKeyAtCaretRow;
-    }
-
-    public SimpleTextAttributes getPrimaryKeyModified() {
-        return primaryKeyModified;
-    }
-
-    public SimpleTextAttributes getPrimaryKeyAtCaretRowModified() {
-        return primaryKeyAtCaretRowModified;
-    }
-
-//    }
 
     @Override
     public SimpleTextAttributes getSelection() {

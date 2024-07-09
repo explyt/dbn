@@ -1,6 +1,6 @@
 package com.dbn.common;
 
-import com.intellij.CommonBundle;
+import com.intellij.AbstractBundle;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;
 
@@ -13,6 +13,6 @@ public class SQLBundle {
   private  SQLBundle(){}
 
   public static String message(@PropertyKey(resourceBundle = "com.dbn.common.SQLBundle") String key, Object... params) {
-    return CommonBundle.message(ourBundle, key, params);
+    return AbstractBundle.message(ourBundle, key, params);
   }
 }

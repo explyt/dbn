@@ -34,8 +34,7 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
     
     private final @Getter(lazy = true) ObjectFilterSettings objectFilterSettings = new ObjectFilterSettings(this, getConnectionId());
     private final @Getter(lazy = true) ObjectTypeFilterSettings objectTypeFilterSettings = new ObjectTypeFilterSettings(this, getConnectionId());
-    //private final @Getter(lazy = true) ObjectNameFilterSettings objectNameFilterSettings = new ObjectNameFilterSettings(this, getConnectionId());;
-    
+
     private boolean hideEmptySchemas = false;
     private boolean hidePseudoColumns = false;
     private boolean hideAuditColumns = false;
@@ -74,6 +73,28 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
         }
     }
 
+    public void setHideEmptySchemas(boolean hideEmptySchemas) {
+        if (this.hideEmptySchemas == hideEmptySchemas) return;
+
+        this.hideEmptySchemas = hideEmptySchemas;
+        this.schemaFilter.reset();
+    }
+
+    public void setHidePseudoColumns(boolean hidePseudoColumns) {
+        if (this.hidePseudoColumns == hidePseudoColumns) return;
+
+        this.hidePseudoColumns = hidePseudoColumns;
+        this.columnFilter.reset();
+    }
+
+    public void setHideAuditColumns(boolean hideAuditColumns) {
+        if (this.hideAuditColumns == hideAuditColumns) return;
+
+        this.hideAuditColumns = hideAuditColumns;
+        this.columnFilter.reset();
+
+    }
+
     ConnectionFilterSettings(ConnectionSettings connectionSettings) {
         super(connectionSettings);
     }
@@ -84,7 +105,7 @@ public class ConnectionFilterSettings extends CompositeProjectConfiguration<Conn
 
     @Override
     public String getDisplayName() {
-        return "Connection Filter Settings";
+        return txt("cfg.connection.title.FilterSettings");
     }
 
     @Override

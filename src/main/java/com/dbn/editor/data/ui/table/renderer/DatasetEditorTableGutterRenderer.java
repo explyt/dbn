@@ -36,10 +36,10 @@ public class DatasetEditorTableGutterRenderer extends DBNTableGutterRendererBase
 
         boolean isCaretRow = table.getCellSelectionEnabled() && table.getSelectedRow() == index && table.getSelectedRowCount() == 1;
         Color background = isSelected ?
-                Colors.getTableSelectionBackground(cellHasFocus) :
+                table.getSelectionBackground() :
                 isCaretRow ?
                         Colors.getTableCaretRowColor() :
-                        Colors.getPanelBackground();
+                        table.getBackground();
         mainPanel.setBackground(background);
         iconLabel.setBackground(background);
         textLabel.setForeground(isSelected ?

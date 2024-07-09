@@ -1,7 +1,7 @@
 package com.dbn.diagnostics;
 
-import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.nls.NlsSupport;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -11,11 +11,12 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 import static com.dbn.common.notification.NotificationGroup.DIAGNOSTICS;
+import static com.dbn.common.notification.NotificationSupport.sendInfoNotification;
 import static com.dbn.common.options.setting.Settings.*;
 
 @Getter
 @Setter
-public class DeveloperMode implements PersistentStateElement {
+public class DeveloperMode implements PersistentStateElement, NlsSupport {
     private volatile boolean enabled;
     private volatile Timer timer;
     private volatile long timerStart;
@@ -54,21 +55,21 @@ public class DeveloperMode implements PersistentStateElement {
 
         if (enabled) {
             start();
-            NotificationSupport.sendInfoNotification(null, DIAGNOSTICS, "Developer Mode activated for " + timeout + " minutes");
+            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.warning.DeveloperModeActivatedFor", timeout));
         } else if (changed) {
-            NotificationSupport.sendInfoNotification(null, DIAGNOSTICS, "Developer Mode deactivated");
+            sendInfoNotification(null, DIAGNOSTICS, txt("ntf.diagnostics.warning.DeveloperModeActivated"));
         }
     }
 
     public String getRemainingTime() {
-        if (!enabled) return "1 second";
+        if (!enabled) return txt("app.shared.label.OneSecond");
 
         long lapsed = System.currentTimeMillis() - timerStart;
         long lapsedSeconds = TimeUnit.MILLISECONDS.toSeconds(lapsed);
         long remainingSeconds = Math.max(0, TimeUnit.MINUTES.toSeconds(timeout) - lapsedSeconds);
         return remainingSeconds < 60 ?
-                remainingSeconds + " seconds " :
-                TimeUnit.SECONDS.toMinutes(remainingSeconds) + " minutes ";
+                txt("app.shared.label.MoreSeconds", remainingSeconds) :
+                txt("app.shared.label.MoreMinutes", TimeUnit.SECONDS.toMinutes(remainingSeconds));
     }
 
 

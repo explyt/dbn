@@ -5,7 +5,9 @@ import com.dbn.common.ui.Presentable;
 import com.dbn.execution.compiler.CompileDependenciesOption;
 import com.dbn.execution.compiler.CompileType;
 import com.dbn.execution.compiler.options.CompilerSettings;
+import com.dbn.nls.NlsResources;
 import com.intellij.openapi.options.ConfigurationException;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
@@ -71,18 +73,12 @@ public class CompilerSettingsForm extends ConfigurationEditorForm<CompilerSettin
     }
 
     @Getter
+    @AllArgsConstructor
     private enum ShowControlOption implements Presentable {
-        ALWAYS("Always", true),
-        WHEN_INVALID("When object invalid", false);
+        ALWAYS(NlsResources.txt("cfg.compiler.const.ShowControlOption_ALWAYS"), true),
+        WHEN_INVALID(NlsResources.txt("cfg.compiler.const.ShowControlOption_WHEN_INVALID"), false);
 
         private final String name;
         private final Boolean value;
-
-        ShowControlOption(String name, boolean value) {
-            this.name = name;
-            this.value = value;
-        }
-
-
     }
 }

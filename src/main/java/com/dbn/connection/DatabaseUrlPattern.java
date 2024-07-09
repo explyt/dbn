@@ -11,10 +11,10 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.connection.DatabaseUrlPattern.Elements.*;
 import static com.dbn.connection.DatabaseUrlType.*;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.intellij.openapi.util.text.StringUtil.isEmpty;
 import static java.util.regex.Pattern.CASE_INSENSITIVE;
 import static java.util.regex.Pattern.compile;
 
@@ -107,7 +107,7 @@ public enum DatabaseUrlPattern {
                 databaseInfo.getPort(),
                 databaseInfo.getDatabase(),
                 databaseInfo.getMainFilePath(),
-                databaseInfo.getTnsFolder(),
+                databaseInfo.ensureTnsFolder(),
                 databaseInfo.getTnsProfile());
     }
 

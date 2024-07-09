@@ -8,6 +8,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.Consumer;
 import lombok.Data;
 
+import java.nio.charset.Charset;
+import java.util.Locale;
+
 import static com.dbn.common.util.Commons.nvl;
 
 @Data
@@ -68,5 +71,16 @@ public class IssueReport {
 
     public String getLastActionId() {
         return nvl(IdeaLogger.ourLastActionId, "NA");
+    }
+
+    public String getSystemLocale() {
+        Locale locale = Locale.getDefault();
+        return locale.toLanguageTag() + " (" +
+                locale.getDisplayLanguage(Locale.ENGLISH) + " - " +
+                locale.getDisplayCountry(Locale.ENGLISH) + ")";
+    }
+
+    public String getSystemCharset() {
+        return Charset.defaultCharset().name();
     }
 }

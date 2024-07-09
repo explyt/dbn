@@ -16,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 
-import static com.dbn.common.options.ui.ConfigurationEditorUtil.validateIntegerValue;
+import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 import static com.dbn.common.text.TextContent.plain;
 
 public class DiagnosticSettingsForm extends DBNFormBase {

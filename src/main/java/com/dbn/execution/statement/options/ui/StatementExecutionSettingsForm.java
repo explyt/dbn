@@ -1,7 +1,7 @@
 package com.dbn.execution.statement.options.ui;
 
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.options.ui.ConfigurationEditorUtil;
+import com.dbn.common.options.ui.ConfigurationEditors;
 import com.dbn.execution.statement.options.StatementExecutionSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
@@ -33,9 +33,9 @@ public class StatementExecutionSettingsForm extends ConfigurationEditorForm<Stat
     @Override
     public void applyFormChanges() throws ConfigurationException {
         StatementExecutionSettings configuration = getConfiguration();
-        configuration.setResultSetFetchBlockSize(ConfigurationEditorUtil.validateIntegerValue(fetchBlockSizeTextField, "Fetch block size", true, 1, 10000, null));
-        int executionTimeout = ConfigurationEditorUtil.validateIntegerValue(executionTimeoutTextField, "Execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
-        int debugExecutionTimeout = ConfigurationEditorUtil.validateIntegerValue(debugExecutionTimeoutTextField, "Debug execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
+        configuration.setResultSetFetchBlockSize(ConfigurationEditors.validateIntegerValue(fetchBlockSizeTextField, "Fetch block size", true, 1, 10000, null));
+        int executionTimeout = ConfigurationEditors.validateIntegerValue(executionTimeoutTextField, "Execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
+        int debugExecutionTimeout = ConfigurationEditors.validateIntegerValue(debugExecutionTimeoutTextField, "Debug execution timeout", true, 0, 6000, "\nUse value 0 for no timeout");
 
         configuration.setFocusResult(focusResultCheckBox.isSelected());
         configuration.setPromptExecution(promptExecutionCheckBox.isSelected());

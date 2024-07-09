@@ -83,19 +83,6 @@ public class DatabaseSessionManager extends ProjectComponentBase implements Pers
                 (listener) -> listener.sessionChanged(session));
     }
 
-    public void deleteSession(final DatabaseSession session, boolean confirm) {
-        if (confirm) {
-            Messages.showQuestionDialog(
-                    getProject(),
-                    "Delete Session",
-                    "Are you sure you want to delete the session \"" + session.getName() + "\" for connection\"" + session.getConnection().getName() + "\"" ,
-                    Messages.OPTIONS_YES_NO, 0,
-                    option -> when(option == 0, () -> deleteSession(session)));
-        } else {
-            deleteSession(session);
-        }
-    }
-
     public void deleteSession(@NotNull DatabaseSession session) {
         ConnectionHandler connection = session.getConnection();
         connection.getSessionBundle().deleteSession(session.getId());
@@ -110,7 +97,7 @@ public class DatabaseSessionManager extends ProjectComponentBase implements Pers
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newElement("state");
         ConnectionManager connectionManager = ConnectionManager.getInstance(getProject());
         List<ConnectionHandler> connections = connectionManager.getConnectionBundle().getAllConnections();
         for (ConnectionHandler connection : connections) {

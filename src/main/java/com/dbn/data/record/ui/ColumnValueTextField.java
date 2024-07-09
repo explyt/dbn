@@ -2,6 +2,7 @@ package com.dbn.data.record.ui;
 
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.data.record.DatasetRecord;
 import com.dbn.editor.data.DatasetEditorManager;
@@ -55,14 +56,14 @@ class ColumnValueTextField extends JTextField {
         DBColumn column = getColumn();
         if (column != null && column.isForeignKey()) {
             if (e.isControlDown() && e.getID() != MouseEvent.MOUSE_DRAGGED && record.getColumnValue(column) != null) {
-                setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                setCursor(Cursors.handCursor());
                 DBColumn foreignKeyColumn = column.getForeignKeyColumn();
                 if (foreignKeyColumn != null) {
                     setToolTipText("<html>Show referenced <b>" + foreignKeyColumn.getDataset().getQualifiedName() + "</b> record<html>");
                 }
             } else {
                 super.processMouseMotionEvent(e);
-                setCursor(Cursor.getDefaultCursor());
+                setCursor(Cursors.defaultCursor());
                 setToolTipText(null);
             }
         } else {

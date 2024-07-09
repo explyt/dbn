@@ -5,12 +5,12 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.util.Actions;
-import com.dbn.common.util.Editors;
 import com.dbn.language.sql.SQLFileType;
 import com.dbn.object.filter.custom.ObjectFilter;
 import com.dbn.object.filter.custom.ui.action.DeleteObjectFilterAction;
 import com.dbn.object.filter.custom.ui.action.EditObjectFilterAction;
 import com.dbn.object.filter.custom.ui.action.ToggleObjectFilterStatusAction;
+import com.dbn.object.filter.custom.ui.action.ViewObjectFilterAction;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ide.highlighter.HighlighterFactory;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -21,7 +21,6 @@ import com.intellij.openapi.editor.ex.FocusChangeListener;
 import com.intellij.openapi.editor.highlighter.EditorHighlighter;
 import com.intellij.openapi.fileTypes.PlainTextFileType;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
-import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
 import com.intellij.ui.EditorSettingsProvider;
 import com.intellij.ui.EditorTextField;
 import org.jetbrains.annotations.NotNull;
@@ -54,6 +53,7 @@ public class ObjectFilterExpressionForm extends DBNFormBase implements Component
 
         expressionTextField.setText(normalizeExpression(filter.getExpression()));
         expressionTextField.addSettingsProvider(createEditorSettingsProvider());
+        expressionTextField.setCaretPosition(0);
 
         actionsPanel.add(createActionToolbar(), BorderLayout.CENTER);
         updateEditorField();
@@ -63,8 +63,9 @@ public class ObjectFilterExpressionForm extends DBNFormBase implements Component
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,
                 "DBNavigator.ObjectFilter.Expression", true,
                 new ToggleObjectFilterStatusAction(this),
-                new DeleteObjectFilterAction(this),
-                new EditObjectFilterAction(this));
+                new ViewObjectFilterAction(this),
+                new EditObjectFilterAction(this),
+                new DeleteObjectFilterAction(this));
         return actionToolbar.getComponent();
     }
 

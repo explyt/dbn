@@ -13,7 +13,9 @@ public abstract class DBNColoredTreeCellRenderer extends ColoredTreeCellRenderer
         try {
             DBNTree dbnTree = (DBNTree) tree;
             customizeCellRenderer(dbnTree, value, selected, expanded, leaf, row, hasFocus);
-        } catch (ProcessCanceledException | IllegalStateException | AbstractMethodError e){
+        } catch (ProcessCanceledException e){
+            conditionallyLog(e);
+        } catch (IllegalStateException | AbstractMethodError e){
             conditionallyLog(e);
         }
     }

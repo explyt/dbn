@@ -1,35 +1,22 @@
 package com.dbn.data.record.navigation;
 
 import com.dbn.common.ui.Presentable;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.dbn.nls.NlsResources;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 import javax.swing.*;
 
+import static com.dbn.nls.NlsResources.txt;
+
+@Getter
+@AllArgsConstructor
 public enum RecordNavigationTarget implements Presentable{
-    VIEWER("Record Viewer", null),
-    EDITOR("Table Editor", null),
-    ASK("Ask", null),
-    @Deprecated
-    PROMPT("Ask", null);
+    VIEWER(txt("cfg.data.const.RecordNavigationTarget_VIEWER"), null),
+    EDITOR(txt("cfg.data.const.RecordNavigationTarget_EDITOR"), null),
+    ASK(txt("cfg.data.const.RecordNavigationTarget_ASK"), null),
+    PROMPT(txt("cfg.data.const.RecordNavigationTarget_PROMPT"), null);
 
-    private String name;
-    private Icon icon;
-
-    RecordNavigationTarget(String name, Icon icon) {
-        this.name = name;
-        this.icon = icon;
-    }
-
-    @NotNull
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Nullable
-    @Override
-    public Icon getIcon() {
-        return icon;
-    }
+    private final String name;
+    private final Icon icon;
 }

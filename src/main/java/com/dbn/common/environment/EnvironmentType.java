@@ -1,5 +1,6 @@
 package com.dbn.common.environment;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.options.PersistentConfiguration;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.util.LookAndFeel;
@@ -94,12 +95,12 @@ public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentCo
     @Nullable
     @Override
     public Icon getIcon() {
-        JBColor color = getColor();
+        Color color = getColor();
         return color == null ? null : new ColorIcon(12, color);
     }
 
     @Nullable
-    public JBColor getColor() {
+    public Color getColor() {
         if (color == null) {
             boolean darkMode = com.dbn.common.ui.util.LookAndFeel.isDarkMode();
             if (darkMode && darkColor != null) {
@@ -109,6 +110,10 @@ public class EnvironmentType implements Cloneable<EnvironmentType>, PersistentCo
                 Color darkColor = Commons.nvl(this.darkColor, DEFAULT_DARK_COLOR);
                 this.color = new JBColor(regularColor, darkColor);
             }
+        }
+
+        if (color == null) {
+            return Colors.lafDarker(Colors.getPanelBackground(), 3);
         }
 
         return color;

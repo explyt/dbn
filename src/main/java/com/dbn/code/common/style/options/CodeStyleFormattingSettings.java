@@ -29,7 +29,7 @@ public abstract class CodeStyleFormattingSettings extends BasicConfiguration<DBL
 
     @Override
     public String getDisplayName() {
-        return "Formatting Options";
+        return txt("cfg.codeStyle.title.FormattingOptions");
     }
 
     protected void addOption(CodeStyleFormattingOption option) {

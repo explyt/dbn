@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.applicationService;
-import static com.intellij.openapi.util.text.StringUtil.parseInt;
+import static com.dbn.common.util.Strings.parseInt;
 
 public class SshTunnelManager extends ApplicationComponentBase {
     private final Map<SshTunnelConfig, SshTunnelConnector> sshTunnelConnectors = new ConcurrentHashMap<>();

@@ -31,16 +31,24 @@
         <token type="character" index="23" id="CHR_TILDE"               value="~"/>
 
 
-        <token type="operator" index="0" id="OPR_EQUAL_EQUAL"   value="=="         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
-        <token type="operator" index="1" id="OPR_CONCATENATION" value="||"         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
-        <token type="operator" index="2" id="OPR_LESS_EQUAL"    value="&#60;="     formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
-        <token type="operator" index="3" id="OPR_GREATER_EQUAL" value="&#62;="     formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
-        <token type="operator" index="4" id="OPR_LESS_GREATER"  value="&#60;&#62;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
-        <token type="operator" index="5" id="OPR_NOT_EQUAL"     value="!="         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
-        <token type="operator" index="6" id="OPR_ASSIGNMENT"    value=":="         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
-        <token type="operator" index="7" id="OPR_EQUAL_GREATER" value="=&#62;"     formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
-        <token type="operator" index="8" id="OPR_RANGE_DOTS"    value=".."         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
-        <token type="operator" index="9" id="OPR_CAST_PREFIX"   value="::"         formatting-spacing-before="NO_SPACE" formatting-spacing-after="NO_SPACE"/>
+        <token type="operator" index="0"  id="OPR_EQUAL_EQUAL"   value="=="         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="1"  id="OPR_CONCATENATION" value="||"         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="2"  id="OPR_LESS_EQUAL"    value="&#60;="     formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="3"  id="OPR_GREATER_EQUAL" value="&#62;="     formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="4"  id="OPR_LESS_GREATER"  value="&#60;&#62;" formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="5"  id="OPR_NOT_EQUAL"     value="!="         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="6"  id="OPR_ASSIGNMENT"    value=":="         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="7"  id="OPR_EQUAL_GREATER" value="=&#62;"     formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="8"  id="OPR_RANGE_DOTS"    value=".."         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="9"  id="OPR_CAST_PREFIX"   value="::"         formatting-spacing-before="NO_SPACE" formatting-spacing-after="NO_SPACE"/>
+        <token type="operator" index="10" id="OPR_LIKE"          value="~~"         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="11" id="OPR_NOT_LIKE"      value="!~~"        formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="12" id="OPR_MATCH"         value="~"          formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="13" id="OPR_MATCH_CI"      value="~*"         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="14" id="OPR_NO_MATCH"      value="!~"         formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+        <token type="operator" index="15" id="OPR_NO_MATCH_CI"   value="!~*"        formatting-spacing-before="ONE_SPACE" formatting-spacing-after="ONE_SPACE"/>
+
+
 
 
 

@@ -43,7 +43,7 @@ public class DatabaseBrowserSettings
 
     @Override
     public String getDisplayName() {
-        return "Database Browser";
+        return txt("cfg.browser.title.DatabaseBrowser");
     }
 
     @Override

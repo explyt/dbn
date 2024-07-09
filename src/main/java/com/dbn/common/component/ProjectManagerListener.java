@@ -16,23 +16,15 @@ public interface ProjectManagerListener {
         return true;
     }
 
-    default void projectOpened() {}
-
     default void projectClosed() {}
 
     static void register(ProjectComponent projectComponent) {
         if (projectComponent instanceof ProjectManagerListener) {
-
             ProjectManagerListener listener = (ProjectManagerListener) projectComponent;
             VetoableProjectManagerListener projectManagerListener = new VetoableProjectManagerListener() {
                 @Override
                 public boolean canClose(@NotNull Project project) {
                     return !isSupported(project) || listener.canCloseProject();
-                }
-
-                @Override
-                public void projectOpened(@NotNull Project project) {
-                    if (isSupported(project)) listener.projectOpened();
                 }
 
                 @Override

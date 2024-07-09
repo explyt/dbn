@@ -23,7 +23,7 @@ public class DataEditorFilterSettings extends BasicConfiguration<DataEditorSetti
 
     @Override
     public String getDisplayName() {
-        return "Data editor filters settings";
+        return txt("cfg.dataEditor.title.FilterSettings");
     }
 
     @Override
@@ -48,12 +48,12 @@ public class DataEditorFilterSettings extends BasicConfiguration<DataEditorSetti
     @Override
     public void readConfiguration(Element element) {
         promptFilterDialog = Settings.getBoolean(element, "prompt-filter-dialog", promptFilterDialog);
-        defaultFilterType = DatasetFilterType.get(Settings.getString(element, "default-filter-type", defaultFilterType.name()));
+        defaultFilterType = Settings.getEnum(element, "default-filter-type", defaultFilterType);
     }
 
     @Override
     public void writeConfiguration(Element element) {
         Settings.setBoolean(element, "prompt-filter-dialog", promptFilterDialog);
-        Settings.setString(element, "default-filter-type", defaultFilterType.name());
+        Settings.setEnum(element, "default-filter-type", defaultFilterType);
     }
 }

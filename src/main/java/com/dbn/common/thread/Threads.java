@@ -2,12 +2,14 @@ package com.dbn.common.thread;
 
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.*;
 import java.util.concurrent.locks.LockSupport;
 
 @Slf4j
+@NonNls
 @UtilityClass
 public final class Threads {
     private static final ExecutorService DATABASE_INTERFACE_EXECUTOR = newThreadPool("DBN - Database Interface Thread", true,  5, 100);
@@ -24,7 +26,7 @@ public final class Threads {
     public static ThreadFactory createThreadFactory(String name, boolean daemon) {
         return runnable -> {
             PooledThread thread = new PooledThread(name, runnable);
-            log.info("Created thread \"" + thread.getName() + "\"");
+            log.info("Created thread \"{}\"", thread.getName());
             thread.setPriority(Thread.MIN_PRIORITY);
             thread.setDaemon(daemon);
             return thread;

@@ -61,11 +61,6 @@ public class DatasetBasicFilterCondition extends BasicConfiguration<DatasetBasic
         return getParent();
     }
 
-    @Override
-    public String getDisplayName() {
-        return null;
-    }
-
     public void appendConditionString(StringBuilder buffer, DBDataset dataset) {
         DatasetBasicFilterConditionForm editorForm = getSettingsEditor();
 

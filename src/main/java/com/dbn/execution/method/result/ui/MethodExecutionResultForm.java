@@ -1,10 +1,11 @@
 package com.dbn.execution.method.result.ui;
 
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
-import com.dbn.common.ui.tab.TabbedPane;
+import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -12,20 +13,20 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.SessionId;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
+import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.execution.logging.LogOutput;
 import com.dbn.execution.logging.LogOutputContext;
 import com.dbn.execution.logging.ui.DatabaseLoggingResultConsole;
 import com.dbn.execution.method.ArgumentValue;
-import com.dbn.execution.common.result.ui.ExecutionResultFormBase;
 import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.tabs.TabInfo;
 import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
@@ -45,7 +46,7 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
     private JPanel executionResultPanel;
     private JBScrollPane argumentValuesScrollPane;
 
-    private final TabbedPane outputTabs;
+    private final DBNTabbedPane<DBNForm> outputTabs;
 
 
     public MethodExecutionResultForm(@NotNull MethodExecutionResult executionResult) {
@@ -56,7 +57,7 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
         argumentValuesScrollPane.setViewportView(argumentValuesTree);
 
 
-        outputTabs = new TabbedPane(this);
+        outputTabs = new DBNTabbedPane<>(this);
         createActionsPanel();
         updateOutputTabs();
 
@@ -121,11 +122,7 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
         console.writeToConsole(context, LogOutput.createSysOutput(context, " - Method execution finished\n\n", false));
         Disposer.register(this, console);
 
-        TabInfo outputTabInfo = new TabInfo(console.getComponent());
-        outputTabInfo.setText(console.getTitle());
-        outputTabInfo.setIcon(Icons.EXEC_LOG_OUTPUT_CONSOLE);
-        outputTabInfo.setObject(console);
-        outputTabs.addTab(outputTabInfo);
+        outputTabs.addTab(console.getTitle(), Icons.EXEC_LOG_OUTPUT_CONSOLE, console.getComponent());
     }
 
     private void addOutputArgumentTabs(MethodExecutionResult executionResult) {
@@ -147,34 +144,28 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
 
     private void addOutputTab(DBArgument argument, DBNForm form) {
         boolean select = outputTabs.getTabCount() == 0;
+        outputTabs.addTab(argument.getName(), argument.getIcon(), form.getComponent(), form);
 
-        TabInfo tabInfo = new TabInfo(form.getComponent());
-        tabInfo.setText(argument.getName());
-        tabInfo.setIcon(argument.getIcon());
-        tabInfo.setObject(form);
-        outputTabs.addTab(tabInfo);
-
-        if (select) outputTabs.select(tabInfo, false);
+        if (select) outputTabs.setSelectedIndex(0);
     }
 
     void selectArgumentOutputTab(DBArgument argument) {
-        for (TabInfo tabInfo : outputTabs.getTabs()) {
-            Object object = tabInfo.getObject();
-            if (object instanceof MethodExecutionCursorResultForm) {
-                MethodExecutionCursorResultForm cursorResultForm = (MethodExecutionCursorResultForm) object;
+        for (int index = 0; index < outputTabs.getTabCount(); index++) {
+            DBNForm content = outputTabs.getContentAt(index);
+
+            if (content instanceof MethodExecutionCursorResultForm) {
+                MethodExecutionCursorResultForm cursorResultForm = (MethodExecutionCursorResultForm) content;
                 if (cursorResultForm.getArgument().equals(argument)) {
-                    outputTabs.select(tabInfo, true);
+                    outputTabs.setSelectedIndex(index);
                     break;
                 }
-            } else if (object instanceof MethodExecutionLargeValueResultForm) {
-                MethodExecutionLargeValueResultForm largeValueResultForm = (MethodExecutionLargeValueResultForm) object;
+            } else if (content instanceof MethodExecutionLargeValueResultForm) {
+                MethodExecutionLargeValueResultForm largeValueResultForm = (MethodExecutionLargeValueResultForm) content;
                 if (largeValueResultForm.getArgument().equals(argument)) {
-                    outputTabs.select(tabInfo, true);
+                    outputTabs.setSelectedIndex(index);
                     break;
                 }
             }
-
-
         }
     }
 
@@ -204,4 +195,12 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
         return mainPanel;
     }
 
+    /********************************************************
+     *                    Data Provider                     *
+     ********************************************************/
+    @Override
+    public @Nullable Object getData(@NotNull String dataId) {
+        if (DataKeys.METHOD_EXECUTION_RESULT.is(dataId)) return getExecutionResult();
+        return null;
+    }
 }

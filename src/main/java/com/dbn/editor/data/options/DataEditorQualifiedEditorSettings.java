@@ -8,6 +8,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -62,9 +63,10 @@ public class DataEditorQualifiedEditorSettings extends BasicConfiguration<DataEd
         super(parent);
     }
 
+    @Nls
     @Override
     public String getDisplayName() {
-        return "Data editor text content type settings";
+        return txt("cfg.dataEditor.title.ContentTypes");
     }
 
     @Override

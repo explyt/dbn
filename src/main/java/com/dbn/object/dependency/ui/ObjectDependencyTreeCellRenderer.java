@@ -42,7 +42,7 @@ public class ObjectDependencyTreeCellRenderer extends DBNColoredTreeCellRenderer
                     objectIcon == null ? dependencyTypeIcon : new CompositeIcon(dependencyTypeIcon, 1, objectIcon);
             setIcon(icon);
 
-            setBackground(selected ? UIUtil.getTreeSelectionBackground() : regularAttributes.getBgColor());
+            setBackground(selected ? UIUtil.getTreeSelectionBackground(true) : regularAttributes.getBgColor());
             //if (highlight) setBorder(new LineBorder(JBColor.red)); else setBorder(null);
             boolean appendSchema = true;
 

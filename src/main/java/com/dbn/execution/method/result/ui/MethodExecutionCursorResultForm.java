@@ -23,6 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.*;
 
 public class MethodExecutionCursorResultForm extends DBNFormBase implements SearchableDataComponent {
@@ -81,7 +82,7 @@ public class MethodExecutionCursorResultForm extends DBNFormBase implements Sear
 
         DataSearchComponent dataSearchComponent = getSearchComponent();
         dataSearchComponent.initializeFindModel();
-        JTextField searchField = dataSearchComponent.getSearchField();
+        JTextComponent searchField = dataSearchComponent.getSearchField();
         if (searchPanel.isVisible()) {
             searchField.selectAll();
         } else {

@@ -9,6 +9,7 @@ import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.table.DBNTableGutter;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -462,7 +463,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
     @Override
     protected void processMouseMotionEvent(MouseEvent e) {
         if (e.isControlDown() && e.getID() != MouseEvent.MOUSE_DRAGGED && isNavigableCellAtMousePosition()) {
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setCursor(Cursors.handCursor());
             DatasetEditorModelCell cell = (DatasetEditorModelCell) getCellAtMouseLocation();
             if (cell != null) {
                 DBColumn column = cell.getColumn();
@@ -473,7 +474,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
             }
         } else {
             super.processMouseMotionEvent(e);
-            setCursor(Cursor.getDefaultCursor());
+            setCursor(Cursors.defaultCursor());
             setToolTipText(null);
         }
     }

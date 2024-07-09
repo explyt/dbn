@@ -2,18 +2,19 @@ package com.dbn.execution.compiler;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.option.InteractiveOption;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.dbn.nls.NlsResources;
+import lombok.Getter;
 
 import javax.swing.*;
-import java.util.Arrays;
-import java.util.Objects;
 
+import static com.dbn.nls.NlsResources.txt;
+
+@Getter
 public enum CompileType implements InteractiveOption {
-    NORMAL("Normal", Icons.OBEJCT_COMPILE, true),
-    DEBUG("Debug", Icons.OBEJCT_COMPILE_DEBUG, true),
-    KEEP("Keep existing", null/*Icons.OBEJCT_COMPILE_KEEP*/, true),
-    ASK("Ask", null/*Icons.OBEJCT_COMPILE_ASK*/, false);
+    NORMAL(txt("cfg.compiler.const.CompileType_NORMAL"), Icons.OBJECT_COMPILE, true),
+    DEBUG(txt("cfg.compiler.const.CompileType_DEBUG"), Icons.OBJECT_COMPILE_DEBUG, true),
+    KEEP(txt("cfg.compiler.const.CompileType_KEEP"), null/*Icons.OBEJCT_COMPILE_KEEP*/, true),
+    ASK(txt("cfg.compiler.const.CompileType_ASK"), null/*Icons.OBEJCT_COMPILE_ASK*/, false);
 
     private final String name;
     private final Icon icon;
@@ -25,25 +26,6 @@ public enum CompileType implements InteractiveOption {
         this.persistable = persistable;
     }
 
-    @NotNull
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Nullable
-    @Override
-    public String getDescription() {
-        return null;
-    }
-
-
-    @Nullable
-    @Override
-    public Icon getIcon() {
-        return icon;
-    }
-
     @Override
     public boolean isCancel() {
         return false;
@@ -53,12 +35,4 @@ public enum CompileType implements InteractiveOption {
     public boolean isAsk() {
         return this == ASK;
     }
-
-
-    public static CompileType get(String name) {
-        return Arrays
-                .stream(CompileType.values())
-                .filter(compileType -> Objects.equals(compileType.name, name) || Objects.equals(compileType.name(), name))
-                .findFirst()
-                .orElse(null);
-    }}
+}

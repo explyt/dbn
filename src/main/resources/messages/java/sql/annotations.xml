@@ -1,0 +1,5 @@
+<root>
+    <item name='java.sql.ResultSet'>
+        <annotation name='org.jetbrains.annotations.NonNls'/>
+    </item>
+</root>

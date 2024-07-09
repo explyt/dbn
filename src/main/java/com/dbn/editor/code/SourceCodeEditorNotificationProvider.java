@@ -39,17 +39,6 @@ public class SourceCodeEditorNotificationProvider extends EditorNotificationProv
 
     }
 
-    @Deprecated
-    public SourceCodeEditorNotificationProvider(@NotNull Project project) {
-        super(project);
-        ProjectEvents.subscribe(project, this, SourceCodeManagerListener.TOPIC, sourceCodeManagerListener());
-        ProjectEvents.subscribe(project, this, SourceCodeDifManagerListener.TOPIC, sourceCodeDifManagerListener());
-        ProjectEvents.subscribe(project, this, EnvironmentManagerListener.TOPIC, environmentManagerListener());
-        ProjectEvents.subscribe(project, this, FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener());
-        ProjectEvents.subscribe(project, this, ScriptExecutionListener.TOPIC, scriptExecutionListener());
-    }
-
-
     @NotNull
     private ScriptExecutionListener scriptExecutionListener() {
         return (project, virtualFile) -> updateEditorNotification(project, null);

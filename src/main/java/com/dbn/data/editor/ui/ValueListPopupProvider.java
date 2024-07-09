@@ -11,7 +11,6 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Context;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.*;
-import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.keymap.KeymapUtil;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
@@ -65,30 +64,34 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
 
     @Override
     public void showPopup() {
-        if (!valuesProvider.isLoaded()) {
-            ModalityState modalityState = ModalityState.stateForComponent(getEditorComponent());
-            if (preparing) return;
-
-            preparing = true;
-            Dispatch.background(
-                    null, modalityState,
-                    () -> {
-                        getValues();
-                        getSecondaryValues();
-                        valuesProvider.setLoaded(true);
-                    },
-                    () -> {
-                        try {
-                            if (!isShowingPopup()) {
-                                doShowPopup();
-                            }
-                        } finally {
-                            preparing = false;
-                        }
-                    });
-        } else {
+        if (valuesProvider.isLoaded()) {
             doShowPopup();
+            return;
         }
+
+        if (preparing) return;
+
+        preparing = true;
+        Dispatch.async(
+                null,
+                getEditorComponent(),
+                () -> ensureValuesLoaded(),
+                v -> invokeShowPopup());
+    }
+
+    private void invokeShowPopup() {
+        try {
+            if (!isShowingPopup()) doShowPopup();
+        } finally {
+            preparing = false;
+        }
+    }
+
+    private Object ensureValuesLoaded() {
+        getValues();
+        getSecondaryValues();
+        valuesProvider.setLoaded(true);
+        return null;
     }
 
     private void doShowPopup() {
@@ -113,8 +116,8 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
                     actionGroup.add(new ValueSelectAction(value));
                 }
             }
-            if (secondaryValues.size() > 0) {
-                if (values.size() > 0) {
+            if (!secondaryValues.isEmpty()) {
+                if (!values.isEmpty()) {
                     actionGroup.add(Actions.SEPARATOR);
                 }
                 for (String secondaryValue : secondaryValues) {

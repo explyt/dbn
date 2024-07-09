@@ -1,6 +1,7 @@
 package com.dbn.common.ui.misc;
 
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
 
 import javax.swing.*;
 import javax.swing.border.Border;
@@ -14,7 +15,7 @@ public class DBNButton extends JLabel {
     public DBNButton(Icon image) {
         super(image);
         setBorder(Borders.buttonBorder());
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        setCursor(Cursors.handCursor());
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.dbn.execution.explain.result.ui;
 
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.tree.Trees;
 import com.dbn.common.ui.util.Borders;
@@ -11,6 +12,7 @@ import com.dbn.execution.explain.result.ExplainPlanResult;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
@@ -35,10 +37,6 @@ public class ExplainPlanResultForm extends ExecutionResultFormBase<ExplainPlanRe
         resultScrollPane.setViewportView(explainPlanTreeTable);
     }
 
-    public ExplainPlanTreeTable getExplainPlanTreeTable() {
-        return explainPlanTreeTable;
-    }
-
     public void show() {
         ExecutionResult<?> executionResult = getExecutionResult();
         Project project = executionResult.getProject();
@@ -58,5 +56,14 @@ public class ExplainPlanResultForm extends ExecutionResultFormBase<ExplainPlanRe
 
     public void expandAllNodes() {
         Trees.expandAll(explainPlanTreeTable.getTree());
+    }
+
+    /********************************************************
+     *                    Data Provider                     *
+     ********************************************************/
+    @Override
+    public @Nullable Object getData(@NotNull String dataId) {
+        if (DataKeys.EXPLAIN_PLAN_RESULT.is(dataId)) return getExecutionResult();
+        return null;
     }
 }

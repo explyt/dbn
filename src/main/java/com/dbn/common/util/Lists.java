@@ -10,12 +10,17 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import static com.dbn.common.util.Commons.nvl;
 import static java.lang.Math.max;
+import static java.util.Collections.emptyList;
 
 @UtilityClass
 public class Lists {
+
     public static <T> boolean isLast(@NotNull List<T> list, @NotNull T element) {
-        return !list.isEmpty() && list.indexOf(element) == list.size() - 1;
+        int size = list.size();
+        if (size == 0) return false;
+        return Objects.equals(element, list.get(size - 1));
     }
 
     public static <T> List<T> filtered(@NotNull List<T> list, Predicate<T> predicate) {
@@ -30,20 +35,20 @@ public class Lists {
 
     @NotNull
     public static <T> List<T> filter(@NotNull List<T> list, @Nullable Filter<T> filter) {
-        if (list.isEmpty() || filter == null || filter.acceptsAll(list)) {
-            return list;
-        } else {
-            List<T> result = null;
-            for (T element : list) {
-                if (filter.accepts(element)) {
-                    if (result == null) {
-                        result = new ArrayList<>();
-                    }
-                    result.add(element);
+        if (filter == null) return list;
+        if (list.isEmpty()) return list;
+        if (filter.acceptsAll(list)) return list;
+
+        List<T> result = null;
+        for (T element : list) {
+            if (filter.accepts(element)) {
+                if (result == null) {
+                    result = new ArrayList<>();
                 }
+                result.add(element);
             }
-            return Commons.nvl(result, Collections.emptyList());
         }
+        return nvl(result, emptyList());
     }
 
     @NotNull
@@ -58,7 +63,8 @@ public class Lists {
 
     @Nullable
     public static <T> T first(@Nullable Collection<T> list, Predicate<? super T> predicate) {
-        if (list == null || list.isEmpty()) return null;
+        if (list == null) return null;
+        if (list.isEmpty()) return null;
 
         for (T element : list) {
             if (predicate.test(element)) {
@@ -77,7 +83,8 @@ public class Lists {
     }
 
     public static <T> boolean allMatch(@Nullable Collection<T> list, Predicate<? super T> predicate) {
-        if (list == null || list.isEmpty()) return true;
+        if (list == null) return true;
+        if (list.isEmpty()) return true;
 
         for (T element : list) {
             if (!predicate.test(element)) {
@@ -88,7 +95,8 @@ public class Lists {
     }
 
     public static <T> int count(@Nullable Collection<T> list, Predicate<? super T> predicate) {
-        if (list == null || list.isEmpty()) return 0;
+        if (list == null) return 0;
+        if (list.isEmpty()) return 0;
 
         int count = 0;
         for (T element : list) {
@@ -100,7 +108,8 @@ public class Lists {
     }
 
     public static <T> void forEach(@Nullable Collection<T> list, Consumer<? super T> consumer) {
-        if (list == null || list.isEmpty()) return;
+        if (list == null) return;
+        if (list.isEmpty()) return;
 
         for (T element : list) {
             consumer.accept(element);
@@ -155,7 +164,7 @@ public class Lists {
     }
 
     public static boolean isInBounds(List<?> list, int index) {
-        return index > 0 && index < list.size();
+        return index >= 0 && index < list.size();
     }
 
     public static boolean isOutOfBounds(List<?> list, int index) {

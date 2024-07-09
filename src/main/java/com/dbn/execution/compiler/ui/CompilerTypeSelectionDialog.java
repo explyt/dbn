@@ -62,7 +62,7 @@ public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelection
 
     private class CompileNormalAction extends AbstractAction {
         private CompileNormalAction() {
-            super("Normal", Icons.OBEJCT_COMPILE);
+            super("Normal", Icons.OBJECT_COMPILE);
             //putValue(DEFAULT_ACTION, Boolean.TRUE);
         }
 
@@ -75,7 +75,7 @@ public class CompilerTypeSelectionDialog extends DBNDialog<CompilerTypeSelection
 
     private class CompileDebugAction extends AbstractAction {
         private CompileDebugAction() {
-            super("Debug", Icons.OBEJCT_COMPILE_DEBUG);
+            super("Debug", Icons.OBJECT_COMPILE_DEBUG);
         }
 
         @Override

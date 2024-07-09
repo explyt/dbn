@@ -5,8 +5,12 @@ import com.dbn.common.options.Configuration;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.util.Cloneable;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.DatabaseInterfacesBundle;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.config.ui.ConnectionSettingsForm;
+import com.dbn.database.interfaces.DatabaseInterfaces;
+import com.dbn.language.common.DBLanguage;
+import com.dbn.language.common.DBLanguageDialect;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -95,6 +99,12 @@ public class ConnectionSettings extends CompositeProjectConfiguration<Connection
 
     public void setSigned(boolean signed) {
         status.set(SIGNED, signed);
+    }
+
+    public DBLanguageDialect getLanguageDialect(DBLanguage<?> language) {
+        DatabaseType databaseType = getDatabaseSettings().getDatabaseType();
+        DatabaseInterfaces interfaces = DatabaseInterfacesBundle.get(databaseType);
+        return interfaces.getLanguageDialect(language);
     }
 
     @Override

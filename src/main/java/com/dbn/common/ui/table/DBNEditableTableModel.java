@@ -1,27 +1,26 @@
 package com.dbn.common.ui.table;
 
-import com.dbn.common.latent.Latent;
 import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.common.latent.Latent;
+import com.dbn.common.ui.util.Listeners;
 
 import javax.swing.*;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import java.util.HashSet;
-import java.util.Set;
 
 public abstract class DBNEditableTableModel extends StatefulDisposableBase implements DBNTableWithGutterModel {
-    private final Set<TableModelListener> tableModelListeners = new HashSet<>();
+    private final Listeners<TableModelListener> listeners = Listeners.create(this);
     private final Latent<DBNTableGutterModel<?>> listModel = Latent.basic(() -> new DBNTableGutterModel<>(DBNEditableTableModel.this));
 
     @Override
     public void addTableModelListener(TableModelListener listener) {
-        tableModelListeners.add(listener);
+        listeners.add(listener);
     }
 
     @Override
     public void removeTableModelListener(TableModelListener listener) {
-        tableModelListeners.remove(listener);
+        listeners.remove(listener);
     }
 
     @Override
@@ -35,9 +34,7 @@ public abstract class DBNEditableTableModel extends StatefulDisposableBase imple
 
     public void notifyListeners(int firstRowIndex, int lastRowIndex, int columnIndex) {
         TableModelEvent modelEvent = new TableModelEvent(this, firstRowIndex, lastRowIndex, columnIndex);
-        for (TableModelListener listener : tableModelListeners) {
-            listener.tableChanged(modelEvent);
-        }
+        listeners.notify(l -> l.tableChanged(modelEvent));
 
         if (listModel.loaded()) {
             ListDataEvent listDataEvent = new ListDataEvent(this, ListDataEvent.CONTENTS_CHANGED, firstRowIndex, lastRowIndex);

@@ -6,19 +6,18 @@ import com.dbn.common.routine.Consumer;
 import com.intellij.openapi.Disposable;
 import com.intellij.util.containers.ContainerUtil;
 
-import java.util.EventListener;
 import java.util.Set;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
-public class Listeners<T extends EventListener> {
+public class Listeners<T/* extends EventListener*/> {
     private Set<T> container = ContainerUtil.newConcurrentSet();
 
-    public static <T extends EventListener> Listeners<T> create() {
+    public static <T/* extends EventListener*/> Listeners<T> create() {
         return new Listeners<>();
     }
 
-    public static <T extends EventListener> Listeners<T> create(Disposable parentDisposable) {
+    public static <T/* extends EventListener*/> Listeners<T> create(Disposable parentDisposable) {
         Listeners<T> listeners = new Listeners<>();
         Disposer.register(parentDisposable, () -> listeners.container = Disposed.set());
         return listeners;

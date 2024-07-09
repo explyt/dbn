@@ -4,6 +4,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.listener.PopupCloseListener;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Mouse;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ide.plugins.IdeaPluginDescriptor;
@@ -30,7 +31,7 @@ public class AboutComponent extends DBNFormBase {
 
     public AboutComponent(Project project) {
         super(null, project);
-        Cursor handCursor = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
+        Cursor handCursor = Cursors.handCursor();
 
         logoLabel.setIcon(Icons.DATABASE_NAVIGATOR);
         logoLabel.setText("");

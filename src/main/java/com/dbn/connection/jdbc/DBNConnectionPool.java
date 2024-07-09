@@ -78,11 +78,11 @@ public class DBNConnectionPool extends ObjectPoolBase<DBNConnection, SQLExceptio
 
         if (size() == 0) {
             // Notify first pool connection
+            String connectionName = connection.getConnectionName(conn);
             sendInfoNotification(
                     connection.getProject(),
                     NotificationGroup.SESSION,
-                    "Connected to database \"{0}\"",
-                    connection.getConnectionName(conn));
+                    txt("ntf.connection.info.ConnectedToDatabase", connectionName));
         }
 
         return conn;

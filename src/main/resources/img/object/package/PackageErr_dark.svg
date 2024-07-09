@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg width="16" height="16" version="1.1" viewBox="0 0 16 16" xml:space="preserve" xmlns="http://www.w3.org/2000/svg"><g><path d="m1 3.2v9.8l7 2v-9.8z" fill="#e8cd7d"/><path d="m15 3.2-7 2v7.3c0-2.4853 2.0147-4.5 4.5-4.5 0.89014 4.225e-4 1.7602 0.26483 2.5 0.75977zm-7 9.3v2.5l0.6-0.2c-0.4-0.8-0.59473-1.2414-0.6-2.3z" fill="#97791b"/><path d="m1 3.2 7 2 7-2-7-2z" fill="#c89e23" stroke-width=".70711"/></g><g transform="translate(0,5.6313e-4)"><g transform="translate(0,-5.6313e-4)" fill-rule="evenodd">
+<svg width="16" height="16" version="1.1" viewBox="0 0 16 16"  xmlns="http://www.w3.org/2000/svg"><g><path d="m1 3.2v9.8l7 2v-9.8z" fill="#e8cd7d"/><path d="m15 3.2-7 2v7.3c0-2.4853 2.0147-4.5 4.5-4.5 0.89014 4.225e-4 1.7602 0.26483 2.5 0.75977zm-7 9.3v2.5l0.6-0.2c-0.4-0.8-0.59473-1.2414-0.6-2.3z" fill="#97791b"/><path d="m1 3.2 7 2 7-2-7-2z" fill="#c89e23" stroke-width=".70711"/></g><g transform="translate(0,5.6313e-4)"><g transform="translate(0,-5.6313e-4)" fill-rule="evenodd">
         <path d="m16 12.5c0 1.933-1.567 3.5-3.5 3.5s-3.5-1.567-3.5-3.5 1.567-3.5 3.5-3.5 3.5 1.567 3.5 3.5" fill="#e05555"/>
         <path d="m13 14v1h-1v-1zm0-4v3h-1v-3z" fill="#fff"/>
     </g></g></svg>

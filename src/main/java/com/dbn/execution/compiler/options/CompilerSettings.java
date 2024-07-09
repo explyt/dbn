@@ -26,7 +26,7 @@ public class CompilerSettings extends BasicConfiguration<OperationSettings, Comp
 
     @Override
     public String getDisplayName() {
-        return "Data editor general settings";
+        return txt("cfg.compiler.title.CompilerSettings");
     }
 
     @Override
@@ -50,15 +50,15 @@ public class CompilerSettings extends BasicConfiguration<OperationSettings, Comp
 
     @Override
     public void readConfiguration(Element element) {
-        compileType = CompileType.get(Settings.getString(element, "compile-type", compileType.name()));
-        compileDependenciesOption = CompileDependenciesOption.get(Settings.getString(element, "compile-dependencies", compileDependenciesOption.name()));
+        compileType = Settings.getEnum(element, "compile-type", compileType);
+        compileDependenciesOption = Settings.getEnum(element, "compile-dependencies", compileDependenciesOption);
         alwaysShowCompilerControls = Settings.getBoolean(element, "always-show-controls", alwaysShowCompilerControls);
     }
 
     @Override
     public void writeConfiguration(Element element) {
-        Settings.setString(element, "compile-type", compileType.name());
-        Settings.setString(element, "compile-dependencies", compileDependenciesOption.name());
+        Settings.setEnum(element, "compile-type", compileType);
+        Settings.setEnum(element, "compile-dependencies", compileDependenciesOption);
         Settings.setBoolean(element, "always-show-controls", alwaysShowCompilerControls);
     }
 }

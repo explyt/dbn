@@ -7,6 +7,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
+import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.common.ui.ExecutionOptionsForm;
@@ -30,9 +31,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class MethodExecutionInputForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -50,7 +49,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
 
     private final List<MethodExecutionInputArgumentForm> argumentForms = DisposableContainers.list(this);
     private final ExecutionOptionsForm executionOptionsForm;
-    private final Set<ChangeListener> changeListeners = new HashSet<>();
+    private final Listeners<ChangeListener> changeListeners = Listeners.create(this);
 
     @Getter @Setter
     private MethodExecutionInput executionInput;
@@ -69,8 +68,9 @@ public class MethodExecutionInputForm extends DBNFormBase {
             versionPanel.setVisible(true);
             debuggerTypeLabel.setText(debuggerType.name());
             debuggerVersionLabel.setText("...");
-            Dispatch.background(
+            Dispatch.async(
                     getProject(),
+                    debuggerVersionLabel,
                     () -> executionInput.getDebuggerVersion(),
                     v -> debuggerVersionLabel.setText(v));
         } else {
@@ -112,7 +112,9 @@ public class MethodExecutionInputForm extends DBNFormBase {
         loadingArgumentsIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
 
         //lazy load
-        Dispatch.background(getProject(),
+        Dispatch.async(
+                getProject(),
+                loadingArgumentsPanel,
                 () -> getMethodArguments(),
                 a -> initArgumentsPanel(a));
     }
@@ -214,9 +216,8 @@ public class MethodExecutionInputForm extends DBNFormBase {
     };
 
     private void notifyChangeListeners() {
-        for (ChangeListener changeListener : changeListeners) {
-            changeListener.stateChanged(new ChangeEvent(this));
-        }
+        ChangeEvent changeEvent = new ChangeEvent(this);
+        changeListeners.notify(l -> l.stateChanged(changeEvent));
     }
 
     @Deprecated

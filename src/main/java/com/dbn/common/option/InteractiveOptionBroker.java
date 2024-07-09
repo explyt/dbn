@@ -13,9 +13,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
-import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.List;
 
@@ -24,14 +24,20 @@ import java.util.List;
 @EqualsAndHashCode
 public class InteractiveOptionBroker<T extends InteractiveOption> implements DoNotAskOption, PersistentConfiguration{
     private final String configName;
-    private final String title;
-    private final String message;
+    private final @Nls String title;
+    private final @Nls String message;
     private final T defaultOption;
     private T selectedOption;
     private T lastUsedOption;
     private final List<T> options;
 
-    public InteractiveOptionBroker(String configName, String title, String message, @NotNull T defaultOption, T... options) {
+    @SafeVarargs
+    public InteractiveOptionBroker(
+            String configName,
+            @Nls String title,
+            @Nls String message,
+            @NotNull T defaultOption,
+            T... options) {
         this.configName = configName;
         this.title = title;
         this.message = message;
@@ -92,8 +98,8 @@ public class InteractiveOptionBroker<T extends InteractiveOption> implements DoN
                 }
 
                 int optionIndex = Messages.showDialog(
-                        MessageFormat.format(message, messageArgs),
-                        Titles.signed(title),
+                        txt(message, messageArgs),
+                        Titles.signed(txt(title)),
                         toStringOptions(options), lastUsedOptionIndex, Icons.DIALOG_QUESTION, this);
 
                 option = getOption(optionIndex);

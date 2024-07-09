@@ -2432,55 +2432,61 @@
             <token id="01462" type-id="OPR_LESS_GREATER" />
             <token id="01463" type-id="OPR_LESS_EQUAL" />
             <token id="01464" type-id="OPR_GREATER_EQUAL" />
+            <token id="01465" type-id="OPR_LIKE" />
+            <token id="01466" type-id="OPR_NOT_LIKE" />
+            <token id="01467" type-id="OPR_MATCH" />
+            <token id="01468" type-id="OPR_MATCH_CI" />
+            <token id="01469" type-id="OPR_NO_MATCH" />
+            <token id="01470" type-id="OPR_NO_MATCH_CI" />
         </one-of>
     </element-def>
 
     <!-- ========= MISCELLANEOUS ========= -->
     <element-def description="Integer" id="integer">
-        <one-of id="01465" optional="true">
-            <token id="01466" type-id="CHR_MINUS" />
-            <token id="01467" type-id="CHR_PLUS" />
+        <one-of id="01471" optional="true">
+            <token id="01472" type-id="CHR_MINUS" />
+            <token id="01473" type-id="CHR_PLUS" />
         </one-of>
-        <token id="01468" type-id="INTEGER" />
+        <token id="01474" type-id="INTEGER" />
     </element-def>
 
     <element-def description="Number" id="number">
-        <one-of id="01469" optional="true">
-            <token id="01470" type-id="CHR_MINUS" />
-            <token id="01471" type-id="CHR_PLUS" />
+        <one-of id="01475" optional="true">
+            <token id="01476" type-id="CHR_MINUS" />
+            <token id="01477" type-id="CHR_PLUS" />
         </one-of>
-        <one-of id="01472">
-            <token id="01473" type-id="NUMBER" />
-            <token id="01474" type-id="INTEGER" />
+        <one-of id="01478">
+            <token id="01479" type-id="NUMBER" />
+            <token id="01480" type-id="INTEGER" />
         </one-of>
     </element-def>
 
     <element-def description="Boolean" id="boolean">
-        <one-of id="01475">
-            <token id="01476" type-id="KW_TRUE" />
-            <token id="01477" type-id="KW_FALSE" />
-            <token id="01478" type-id="KW_ON" />
-            <token id="01479" type-id="KW_OFF" />
-            <token id="01480" type-id="INTEGER" />
+        <one-of id="01481">
+            <token id="01482" type-id="KW_TRUE" />
+            <token id="01483" type-id="KW_FALSE" />
+            <token id="01484" type-id="KW_ON" />
+            <token id="01485" type-id="KW_OFF" />
+            <token id="01486" type-id="INTEGER" />
         </one-of>
     </element-def>
 
     <!-- CUSTOM -->
     <element-def description="IF EXISTS clause" id="if_exists_clause">
-        <token id="01481" type-id="KW_IF" />
-        <token id="01482" type-id="KW_EXISTS" />
+        <token id="01487" type-id="KW_IF" />
+        <token id="01488" type-id="KW_EXISTS" />
     </element-def>
     <element-def description="IF NOT EXISTS clause" id="if_not_exists_clause">
-        <token id="01483" type-id="KW_IF" />
-        <token id="01484" type-id="KW_NOT" />
-        <token id="01485" type-id="KW_EXISTS" />
+        <token id="01489" type-id="KW_IF" />
+        <token id="01490" type-id="KW_NOT" />
+        <token id="01491" type-id="KW_EXISTS" />
     </element-def>
 
     <element-def description="Unknown identifier" id="custom_undefined">
-        <token id="01486" type-id="IDENTIFIER" />
+        <token id="01492" type-id="IDENTIFIER" />
     </element-def>
 
     <element-def description="Statement end" formatting-spacing-before="NO_SPACE" id="end" truncate-on-execution="true">
-        <token id="01487" type-id="CHR_SEMICOLON" />
+        <token id="01493" type-id="CHR_SEMICOLON" />
     </element-def>
 </element-defs>

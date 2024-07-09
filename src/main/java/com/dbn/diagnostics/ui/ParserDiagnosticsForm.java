@@ -149,10 +149,8 @@ public class ParserDiagnosticsForm extends DBNFormBase {
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
-        if (DataKeys.PARSER_DIAGNOSTICS_FORM.is(dataId)) {
-            return this;
-        }
-        return super.getData(dataId);
+        if (DataKeys.PARSER_DIAGNOSTICS_FORM.is(dataId)) return this;
+        return null;
     }
 
     @NotNull

@@ -7,9 +7,11 @@ import com.dbn.connection.DatabaseUrlPattern;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.file.DatabaseFile;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.connection.config.tns.TnsAdmin;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,6 +20,7 @@ import java.util.List;
 
 import static com.dbn.connection.DatabaseUrlType.*;
 
+@NonNls
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -64,6 +67,10 @@ public class DatabaseInfo implements Cloneable<DatabaseInfo> {
                 Strings.isEmpty(tnsFolder) &&
                 Strings.isEmpty(tnsProfile) &&
                 Strings.isEmpty(getFirstFilePath());
+    }
+
+    public String ensureTnsFolder() {
+        return Strings.isEmptyOrSpaces(tnsFolder) ? TnsAdmin.location() : tnsFolder;
     }
 
     public void reset() {

@@ -5,9 +5,9 @@ import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.consumer.ListCollector;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.*;
@@ -60,6 +60,7 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.notification.NotificationGroup.EXECUTION;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
 @State(
@@ -82,6 +83,7 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
         executionVariables = new StatementExecutionVariables(project);
         executionVariableTypes = new StatementExecutionVariableTypes();
 
+        Disposer.register(this, executionVariables);
         ProjectEvents.subscribe(project, this, PsiDocumentTransactionListener.TOPIC, psiDocumentTransactionListener());
     }
 
@@ -274,9 +276,7 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
                 conn = connection.getConnection(executionInput.getTargetSessionId(), schema);
             } catch (SQLException e) {
                 Diagnostics.conditionallyLog(e);
-                sendErrorNotification(
-                        NotificationGroup.EXECUTION,
-                        "Error executing {0}. Failed to ensure connectivity: {1}", statementName, e);
+                sendErrorNotification(EXECUTION,  txt("ntf.execution.error.ExecutionConnectivityError", statementName, e));
 
                 StatementExecutionContext context = executionProcessor.getExecutionContext();
                 context.reset();
@@ -289,9 +289,7 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
             Diagnostics.conditionallyLog(e);
         } catch (SQLException e) {
             Diagnostics.conditionallyLog(e);
-            sendErrorNotification(
-                    NotificationGroup.EXECUTION,
-                    "Error executing {0}: {1}", statementName, e);
+            sendErrorNotification(EXECUTION, txt("ntf.execution.error.ExecutionError", statementName, e));
         } finally {
             Documents.refreshEditorAnnotations(executionProcessor.getPsiFile());
         }

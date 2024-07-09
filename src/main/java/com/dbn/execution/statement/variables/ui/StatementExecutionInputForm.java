@@ -30,7 +30,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -74,8 +73,9 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
             debuggerTypeLabel.setText(debuggerType.name());
             debuggerVersionLabel.setText("...");
 
-            Dispatch.background(
+            Dispatch.async(
                     getProject(),
+                    debuggerVersionLabel,
                     () -> executionInput.getDebuggerVersion(),
                     v -> debuggerVersionLabel.setText(v));
         } else {
@@ -85,7 +85,7 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
         DBLanguagePsiFile psiFile = executionProcessor.getPsiFile();
         String headerTitle = executionProcessor.getName();
         Icon headerIcon = executionProcessor.getIcon();
-        JBColor headerBackground = psiFile == null ?
+        Color headerBackground = psiFile == null ?
                 EnvironmentType.DEFAULT.getColor() :
                 psiFile.getEnvironmentType().getColor();
 

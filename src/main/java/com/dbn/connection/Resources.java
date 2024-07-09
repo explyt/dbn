@@ -6,9 +6,12 @@ import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.util.UUIDs;
 import com.dbn.common.util.Unsafe;
 import com.dbn.connection.jdbc.*;
-import com.dbn.connection.jdbc.*;
+import com.dbn.nls.NlsResources;
+import com.dbn.nls.NlsSupport;
+import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,6 +23,8 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import static com.dbn.common.notification.NotificationGroup.CONNECTION;
+import static com.dbn.common.notification.NotificationGroup.TRANSACTION;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.connection.jdbc.ResourceStatus.*;
 import static com.dbn.database.DatabaseFeature.READONLY_CONNECTIVITY;
@@ -28,7 +33,7 @@ import static com.dbn.diagnostics.Diagnostics.isDatabaseResourceDebug;
 
 @Slf4j
 @UtilityClass
-public final class Resources {
+public final class Resources implements NlsSupport {
 
     public static boolean isClosed(ResultSet resultSet) throws SQLException {
         try {
@@ -126,11 +131,7 @@ public final class Resources {
             markClosed(connection);
         } catch (SQLException e) {
             conditionallyLog(e);
-            sentWarningNotification(
-                    NotificationGroup.TRANSACTION,
-                    "Failed to commit",
-                    connection,
-                    e);
+            sentWarningNotification(TRANSACTION, "ntf.connection.warning.FailedToCommit", connection, e);
             throw e;
         }
     }
@@ -154,11 +155,7 @@ public final class Resources {
             markClosed(connection);
         } catch (SQLException e) {
             conditionallyLog(e);
-            sentWarningNotification(
-                    NotificationGroup.TRANSACTION,
-                    "Failed to rollback",
-                    connection,
-                    e);
+            sentWarningNotification(TRANSACTION, "ntf.connection.warning.FailedToRollback", connection, e);
             throw e;
         }
     }
@@ -183,11 +180,7 @@ public final class Resources {
             markClosed(connection);
         } catch (SQLException e) {
             conditionallyLog(e);
-            sentWarningNotification(
-                    NotificationGroup.TRANSACTION,
-                    "Failed to rollback savepoint for",
-                    connection,
-                    e);
+            sentWarningNotification(TRANSACTION, "ntf.connection.warning.FailedToRollbackSavepoint", connection, e);
             throw e;
         }
     }
@@ -210,11 +203,7 @@ public final class Resources {
             markClosed(connection);
         } catch (SQLException e) {
             conditionallyLog(e);
-            sentWarningNotification(
-                    NotificationGroup.TRANSACTION,
-                    "Failed to create savepoint for",
-                    connection,
-                    e);
+            sentWarningNotification(TRANSACTION, "ntf.connection.warning.FailedToCreateSavepoint", connection, e);
         }
         return null;
     }
@@ -235,11 +224,7 @@ public final class Resources {
             markClosed(connection);
         } catch (SQLException e) {
             conditionallyLog(e);
-            sentWarningNotification(
-                    NotificationGroup.TRANSACTION,
-                    "Failed to release savepoint for",
-                    connection,
-                    e);
+            sentWarningNotification(TRANSACTION, "ntf.connection.warning.FailedToReleaseSavepoint", connection, e);
         }
     }
 
@@ -259,11 +244,7 @@ public final class Resources {
             markClosed(connection);
         } catch (SQLException e) {
             conditionallyLog(e);
-            sentWarningNotification(
-                    NotificationGroup.CONNECTION,
-                    "Failed to initialize readonly status for",
-                    connection,
-                    e);
+            sentWarningNotification(CONNECTION, "ntf.connection.warning.FailedToChangeReadonlyStatus", connection, e);
         }
     }
 
@@ -283,26 +264,24 @@ public final class Resources {
             markClosed(connection);
         } catch (Exception e) {
             conditionallyLog(e);
-            sentWarningNotification(
-                    NotificationGroup.CONNECTION,
-                    "Failed to change auto-commit status for",
-                    connection,
-                    e);
+            sentWarningNotification(CONNECTION,"ntf.connection.warning.FailedToChangeAutoCommit", connection, e);
         }
     }
 
-    private static void sentWarningNotification(NotificationGroup title, String message, DBNConnection connection, Exception e) {
+    private static void sentWarningNotification(NotificationGroup title, String messageKey, DBNConnection connection, Exception e) {
         String error = nvl(e.getMessage(), e.getClass().getName());
         if (connection.shouldNotify(error)) {
-            String name = connection.getName();
+
+            Project project = connection.getProject();
+            String connectionName = connection.getName();
             SessionId sessionId = connection.getSessionId();
             String errorMessage = e.getMessage();
-            String notificationMessage = message + " connection \"" + name + " (" + sessionId + ")\": " + errorMessage;
+            String message = NlsResources.txt(messageKey, connectionName, sessionId, errorMessage);
 
             NotificationSupport.sendWarningNotification(
-                    connection.getProject(),
+                    project,
                     title,
-                    notificationMessage);
+                    message);
         }
     }
 
@@ -310,9 +289,9 @@ public final class Resources {
             @NotNull DBNResource<?> resource,
             @NotNull ResourceStatus transientStatus,
             @NotNull ThrowableRunnable<E> action,
-            @NotNull Supplier<String> startMessage,
-            @NotNull Supplier<String> successMessage,
-            @NotNull Supplier<String> errorMessage) throws E{
+            @NotNull @NonNls Supplier<String> startMessage,
+            @NotNull @NonNls Supplier<String> successMessage,
+            @NotNull @NonNls Supplier<String> errorMessage) throws E{
 
         if (resource.is(transientStatus)) return;
 
@@ -326,9 +305,9 @@ public final class Resources {
 
     private static <E extends Throwable> void invokeResourceAction(
             @NotNull ThrowableRunnable<E> action,
-            @NotNull Supplier<String> startMessage,
-            @NotNull Supplier<String> successMessage,
-            @NotNull Supplier<String> errorMessage) throws E{
+            @NotNull @NonNls Supplier<String> startMessage,
+            @NotNull @NonNls Supplier<String> successMessage,
+            @NotNull @NonNls Supplier<String> errorMessage) throws E{
 
         long start = System.currentTimeMillis();
         if (isDatabaseResourceDebug()) log.info("{}...", startMessage.get());

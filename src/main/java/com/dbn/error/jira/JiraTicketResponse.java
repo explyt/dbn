@@ -35,6 +35,8 @@ class JiraTicketResponse implements TicketResponse {
 
     @Override
     public String getErrorMessage() {
+        // TODO introspect response for
+        //JsonElement errors = response.get("errors");
         return errorMessage;
     }
 }

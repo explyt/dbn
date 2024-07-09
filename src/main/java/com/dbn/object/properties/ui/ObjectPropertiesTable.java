@@ -6,6 +6,7 @@ import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.DBNTableModel;
 import com.dbn.common.ui.util.Borderless;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Keyboard.Key;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.object.properties.PresentableProperty;
@@ -67,10 +68,10 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
     @Override
     protected void processMouseMotionEvent(MouseEvent e) {
         if (e.isControlDown() && e.getID() != MouseEvent.MOUSE_DRAGGED && isNavigableCellAtMousePosition()) {
-            setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+            setCursor(Cursors.handCursor());
         } else {
             super.processMouseMotionEvent(e);
-            setCursor(Cursor.getDefaultCursor());
+            setCursor(Cursors.defaultCursor());
         }
     }
 

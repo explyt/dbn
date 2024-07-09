@@ -8,6 +8,7 @@ import com.dbn.database.JdbcProperty;
 import com.dbn.editor.session.SessionStatus;
 import com.dbn.language.common.QuoteDefinition;
 import com.dbn.language.common.QuotePair;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
@@ -38,6 +39,7 @@ public interface DatabaseCompatibilityInterface extends DatabaseInterface {
 
     SessionStatus getSessionStatus(String statusName);
 
+    @NonNls
     String getExplainPlanStatementPrefix();
 
     @Nullable DatabaseAttachmentHandler getDatabaseAttachmentHandler();

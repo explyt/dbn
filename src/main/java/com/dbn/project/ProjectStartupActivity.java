@@ -1,7 +1,6 @@
 package com.dbn.project;
 
 import com.dbn.common.compatibility.Compatibility;
-import com.dbn.common.compatibility.Workaround;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.debugger.ExecutionConfigManager;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
@@ -13,7 +12,7 @@ import com.intellij.openapi.startup.StartupActivity;
 import org.jetbrains.annotations.NotNull;
 
 @Compatibility
-public class ProjectStartupActivity implements StartupActivity {
+public class ProjectStartupActivity implements StartupActivity/*, ProjectActivity*/ {
     //@Override
     public void runActivity(@NotNull Project project) {
         // make sure dbn connections are loaded
@@ -44,4 +43,11 @@ public class ProjectStartupActivity implements StartupActivity {
         DatabaseFileManager fileManager = DatabaseFileManager.getInstance(project);
         fileManager.reopenDatabaseEditors();
     }
+
+/*
+    @Override
+    public @Nullable Object execute(@NotNull Project project, @NotNull Continuation<? super Unit> continuation) {
+        return null;
+    }
+*/
 }

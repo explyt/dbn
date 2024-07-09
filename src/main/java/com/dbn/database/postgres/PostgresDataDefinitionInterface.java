@@ -3,6 +3,7 @@ package com.dbn.database.postgres;
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
 import com.dbn.code.psql.style.PSQLCodeStyle;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
 import com.dbn.database.common.DatabaseDataDefinitionInterfaceImpl;
@@ -11,7 +12,6 @@ import com.dbn.editor.DBContentType;
 import com.dbn.object.factory.ArgumentFactoryInput;
 import com.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.text.StringUtil;
 
 import java.sql.SQLException;
 
@@ -113,11 +113,11 @@ public class PostgresDataDefinitionInterface extends DatabaseDataDefinitionInter
                                 argument.isInput() ? keywordCaseOption.format("in") :
                                         argument.isOutput() ? keywordCaseOption.format("out") : "";
                 buffer.append(direction);
-                buffer.append(StringUtil.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
+                buffer.append(Strings.repeatSymbol(' ', maxArgDirectionLength - direction.length() + 1));
             }
 
             buffer.append(objectCaseOption.format(argument.getObjectName()));
-            buffer.append(StringUtil.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
+            buffer.append(Strings.repeatSymbol(' ', maxArgNameLength - argument.getObjectName().length() + 1));
 
             buffer.append(dataTypeCaseOption.format(argument.getDataType()));
             if (argument != method.getArguments().get(method.getArguments().size() -1)) {

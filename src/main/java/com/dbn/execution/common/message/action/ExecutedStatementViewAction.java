@@ -3,7 +3,7 @@ package com.dbn.execution.common.message.action;
 import com.dbn.common.icon.Icons;
 import com.dbn.execution.common.message.ui.tree.MessagesTree;
 import com.dbn.execution.common.message.ui.tree.node.StatementExecutionMessageNode;
-import com.dbn.execution.common.ui.StatementViewerPopup;
+import com.dbn.execution.common.ui.ExecutionStatementViewerPopup;
 import com.dbn.execution.statement.result.StatementExecutionResult;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -31,7 +31,7 @@ public class ExecutedStatementViewAction extends AbstractExecutionMessagesAction
                 (StatementExecutionMessageNode) messagesTree.getSelectionPath().getLastPathComponent();
 
         StatementExecutionResult executionResult = execMessageNode.getMessage().getExecutionResult();
-        StatementViewerPopup statementViewer = new StatementViewerPopup(executionResult);
+        ExecutionStatementViewerPopup statementViewer = new ExecutionStatementViewerPopup(executionResult);
         statementViewer.show((Component) e.getInputEvent().getSource());
     }
 

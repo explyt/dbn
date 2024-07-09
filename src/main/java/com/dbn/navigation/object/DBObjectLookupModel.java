@@ -1,11 +1,15 @@
 package com.dbn.navigation.object;
 
-import com.dbn.common.consumer.SetCollector;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.project.ProjectRef;
+import com.dbn.common.sign.Signed;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionLoadListener;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.navigation.options.ObjectsLookupSettings;
 import com.dbn.object.DBSchema;
@@ -20,12 +24,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.util.Comparator;
-import java.util.Objects;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
-public class DBObjectLookupModel extends StatefulDisposableBase implements ChooseByNameModel {
+public class DBObjectLookupModel extends StatefulDisposableBase implements ChooseByNameModel, Signed {
     private static final Object[] EMPTY_ARRAY = new Object[0];
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
 
@@ -33,13 +35,22 @@ public class DBObjectLookupModel extends StatefulDisposableBase implements Choos
     private final ConnectionRef selectedConnection;
     private final DBObjectRef<DBSchema> selectedSchema;
     private final ObjectsLookupSettings settings;
-    private final @Getter SetCollector<DBObject> data = SetCollector.concurrent();
+    private final DBObjectLookupData data = new DBObjectLookupData();
+
+    @Getter
+    private int signature;
 
     public DBObjectLookupModel(@NotNull Project project, @Nullable ConnectionHandler selectedConnection, DBSchema selectedSchema) {
         this.project = ProjectRef.of(project);
         this.selectedConnection = ConnectionRef.of(selectedConnection);
         this.selectedSchema = DBObjectRef.of(selectedSchema);
-        settings = ProjectSettings.get(project).getNavigationSettings().getObjectsLookupSettings();
+        this.settings = ProjectSettings.get(project).getNavigationSettings().getObjectsLookupSettings();
+
+        ConnectionId connectionId = getSelectedConnectionId();
+        ProjectEvents.subscribe(project, this,
+                ConnectionLoadListener.TOPIC,
+                ConnectionLoadListener.create(connectionId, () -> signature++));
+        Disposer.register(this, data);
     }
 
     @Override
@@ -53,6 +64,10 @@ public class DBObjectLookupModel extends StatefulDisposableBase implements Choos
 
     protected ConnectionHandler getSelectedConnection() {
         return selectedConnection.get();
+    }
+
+    protected ConnectionId getSelectedConnectionId() {
+        return selectedConnection == null ? null : selectedConnection.getConnectionId();
     }
 
     @Nullable
@@ -115,16 +130,18 @@ public class DBObjectLookupModel extends StatefulDisposableBase implements Choos
             }
             checkCancelled();
 
-            DBObjectLookupScanner scanner = new DBObjectLookupScanner(this, forceLoad);
-            scanner.scan();
+            if (data.getSignature() != signature) {
+                data.setSignature(signature);
+                DBObjectLookupScanner.scan(this, forceLoad);
+            }
 
-            return data.elements().
-                    stream().
-                    sorted(Comparator.comparing(DBObject::getQualifiedName)).
-                    map(object -> object.getName()).
-                    distinct().
-                    toArray(String[]::new);
+            return data.names();
         });
+    }
+
+
+    public void accept(DBObject object) {
+        data.accept(object);
     }
 
     @NotNull
@@ -135,11 +152,7 @@ public class DBObjectLookupModel extends StatefulDisposableBase implements Choos
     @Override
     @NotNull
     public Object[] getElementsByName(@NotNull String name, boolean checkBoxState, @NotNull String pattern) {
-        return guarded(EMPTY_ARRAY, data, d -> d.elements().
-                stream().
-                filter(object -> Objects.equals(object.getName(), name)).
-                sorted(Comparator.comparing(DBObject::getQualifiedName)).
-                toArray());
+        return guarded(EMPTY_ARRAY, data, d -> d.elements(name));
     }
 
     protected boolean isListLookupEnabled(DBObjectType objectType) {

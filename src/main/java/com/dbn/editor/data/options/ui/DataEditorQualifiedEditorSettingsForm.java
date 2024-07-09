@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-import static com.dbn.common.options.ui.ConfigurationEditorUtil.validateIntegerValue;
+import static com.dbn.common.options.ui.ConfigurationEditors.validateIntegerValue;
 
 public class DataEditorQualifiedEditorSettingsForm extends ConfigurationEditorForm<DataEditorQualifiedEditorSettings> {
     private JPanel mainPanel;

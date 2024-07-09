@@ -7,7 +7,6 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.file.FileTypeService;
-import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.thread.Background;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -31,6 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.notification.NotificationGroup.DDL;
 
 @State(
     name = DDLFileManager.COMPONENT_NAME,
@@ -136,11 +136,7 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
                 }
 
                 if (restoredAssociations.length() > 0) {
-                    sendInfoNotification(
-                            NotificationGroup.DDL,
-                            "Following file associations have been restored: \"" + restoredAssociations + "\". " +
-                                    "They are registered as DDL file types in project \"" + getProject().getName() + "\".\n" +
-                                    "Please remove them from project DDL configuration first (Project Settings > DB Navigator > DDL File Settings).");
+                    sendInfoNotification(DDL, txt("ntf.ddlFiles.info.FileAssociationsRestored",restoredAssociations, getProject().getName()));
                 }
             }
 

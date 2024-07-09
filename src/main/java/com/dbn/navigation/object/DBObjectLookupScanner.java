@@ -15,6 +15,7 @@ import com.dbn.object.type.DBObjectType;
 
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 class DBObjectLookupScanner extends StatefulDisposableBase implements DBObjectListVisitor {
     private final DBObjectLookupModel model;
@@ -22,9 +23,14 @@ class DBObjectLookupScanner extends StatefulDisposableBase implements DBObjectLi
     private final AsyncTaskExecutor asyncScanner = new AsyncTaskExecutor(
             Threads.objectLookupExecutor(), 3, TimeUnit.SECONDS);
 
-    DBObjectLookupScanner(DBObjectLookupModel model, boolean forceLoad) {
+    private DBObjectLookupScanner(DBObjectLookupModel model, boolean forceLoad) {
         this.model = model;
         this.forceLoad = forceLoad;
+    }
+
+    public static void scan(DBObjectLookupModel model, boolean forceLoad) {
+        DBObjectLookupScanner scanner = new DBObjectLookupScanner(model, forceLoad);
+        scanner.scan();
     }
 
     @Override
@@ -54,9 +60,8 @@ class DBObjectLookupScanner extends StatefulDisposableBase implements DBObjectLi
         boolean lookupEnabled = model.isObjectLookupEnabled(objectType);
         for (DBObject object : objectList.getObjects()) {
             checkDisposed();
-
             if (lookupEnabled) {
-                model.getData().accept(object);
+                model.accept(object);
             }
 
             object.visitChildObjects(this, true);

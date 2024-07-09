@@ -1,22 +1,21 @@
 package com.dbn.object.dependency.ui;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.latent.Latent;
+import com.dbn.common.ui.SpeedSearchBase;
 import com.dbn.common.util.Commons;
 import com.dbn.object.common.DBObject;
 import com.intellij.openapi.Disposable;
-import com.intellij.ui.SpeedSearchBase;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
 import javax.swing.event.TreeModelEvent;
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreePath;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ObjectDependencyTreeSpeedSearch extends SpeedSearchBase<JTree> implements Disposable, TreeModelListener {
+public class ObjectDependencyTreeSpeedSearch extends SpeedSearchBase<ObjectDependencyTree> implements Disposable, TreeModelListener {
+
     private final Latent<Object[]> elements = Latent.basic(() -> loadElements());
 
     public ObjectDependencyTreeSpeedSearch(ObjectDependencyTree tree) {
@@ -44,21 +43,9 @@ public class ObjectDependencyTreeSpeedSearch extends SpeedSearchBase<JTree> impl
         return (ObjectDependencyTreeNode) selectionPath.getLastPathComponent();
     }
 
-    @NotNull
     @Override
-    @Compatibility
-    protected Object[] getAllElements() {
+    protected Object[] getElements() {
         return elements.get();
-    }
-
-    @Override
-    protected int getElementCount() {
-        return elements.get().length;
-    }
-
-    //@Override
-    protected Object getElementAt(int viewIndex) {
-        return elements.get()[viewIndex];
     }
 
     @NotNull
@@ -78,11 +65,6 @@ public class ObjectDependencyTreeSpeedSearch extends SpeedSearchBase<JTree> impl
             }
 
         }
-    }
-
-    @Override
-    public ObjectDependencyTree getComponent() {
-        return (ObjectDependencyTree) super.getComponent();
     }
 
     @Override

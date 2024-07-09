@@ -8,7 +8,6 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.load.ProgressMonitor;
-import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.tree.TreeEventType;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.Priority.LOW;
+import static com.dbn.common.notification.NotificationGroup.BROWSER;
 import static com.dbn.database.DatabaseFeature.OBJECT_INVALIDATION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -81,9 +81,7 @@ public class ObjectStatusManager extends ProjectComponentBase implements Persist
                         conn -> refreshObjectStatus(conn, schemas));
             } catch (SQLException e) {
                 conditionallyLog(e);
-                sendErrorNotification(
-                        NotificationGroup.BROWSER,
-                        "Error refreshing object status: {0}", e);
+                sendErrorNotification(BROWSER, txt("ntf.browser.error.FailedToRefreshObjectStatus", e));
             }
         });
     }

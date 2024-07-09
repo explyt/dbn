@@ -4,6 +4,8 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.thread.ThreadMonitor;
+import com.dbn.common.thread.ThreadProperty;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -222,7 +224,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                         if (topFrame instanceof JavaStackFrame) {
                             Location location = getLocation(topFrame);
                             VirtualFile virtualFile = getVirtualFile(location);
-                            DBDebugUtil.openEditor(virtualFile);
+                            ThreadMonitor.surround(project, ThreadProperty.DEBUGGER_NAVIGATION, () -> DBDebugUtil.openEditor(virtualFile));
                         }
                     }
                 }
