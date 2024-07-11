@@ -45,7 +45,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
         return schemas;
       } catch (DatabaseOperationException | SQLException e) {
-        DatabaseServiceImpl.LOGGER.error("cannot fetch schemas", e);
+        DatabaseServiceImpl.LOGGER.warn("cannot fetch schemas", e);
         throw new CompletionException("Cannot get schemas", e);
       }
     });
@@ -74,7 +74,7 @@ public class DatabaseServiceImpl implements DatabaseService {
         }
         return objectListItemsList;
       } catch (DatabaseOperationException | SQLException e) {
-        DatabaseServiceImpl.LOGGER.error("error while fetching schema object list", e);
+        DatabaseServiceImpl.LOGGER.warn("error while fetching schema object list", e);
         throw new CompletionException("Cannot list object list items", e);
       }
     });

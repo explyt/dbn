@@ -188,7 +188,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
       });
 
     }).exceptionally(e -> {
-      LOG.error("Failed to fetch profiles", e);
+      LOG.warn("Failed to fetch profiles", e);
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getCause().getMessage()));
       stopActivityNotifier();
       return null;
@@ -382,7 +382,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
           LOG.debug("Query processed successfully.");
         })
         .exceptionally(e -> {
-          LOG.error("Error processing query", e);
+          LOG.warn("Error processing query", e);
           ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
           return null;
         })
@@ -504,7 +504,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
         });
       }
     }).exceptionally(e -> {
-      LOG.error("Failed to fetch profiles", e);
+      LOG.warn("Failed to fetch profiles", e);
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getCause().getMessage()));
       stopActivityNotifier();
       return null;

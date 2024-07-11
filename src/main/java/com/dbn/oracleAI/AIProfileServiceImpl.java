@@ -63,7 +63,7 @@ public class AIProfileServiceImpl implements AIProfileService {
           LOGGER.debug("fetched profiles:" + profileList);
           return profileList;
       } catch (ProfileManagementException | SQLException e) {
-        LOGGER.error("error getting profiles", e);
+        LOGGER.warn("error getting profiles", e);
         throw new CompletionException("Cannot get profiles", e);
       }
     });
@@ -77,7 +77,7 @@ public class AIProfileServiceImpl implements AIProfileService {
         DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
         connectionRef.get().getOracleAIInterface().dropProfile(connection, profileName);
       } catch (SQLException | ProfileManagementException e) {
-        LOGGER.error("error deleting profile "+ profileName, e);
+        LOGGER.warn("error deleting profile "+ profileName, e);
         throw new CompletionException("Cannot delete profile", e);
       }
     });
@@ -91,7 +91,7 @@ public class AIProfileServiceImpl implements AIProfileService {
             DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
             connectionRef.get().getOracleAIInterface().createProfile(connection, profile);
           } catch (SQLException | ProfileManagementException e) {
-            LOGGER.error("error creating profile", e);
+            LOGGER.warn("error creating profile", e);
             throw new CompletionException("Cannot create profile", e);
           }
         }
@@ -105,7 +105,7 @@ public class AIProfileServiceImpl implements AIProfileService {
             DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
             connectionRef.get().getOracleAIInterface().setProfileAttributes(connection, updatedProfile);
           } catch (SQLException | ProfileManagementException e) {
-            LOGGER.error("error updating profiles", e);
+            LOGGER.warn("error updating profiles", e);
             throw new CompletionException("Cannot update profile", e);
           }
         }

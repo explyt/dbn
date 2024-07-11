@@ -127,7 +127,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
           callback.accept(true);
         });
       }).exceptionally(e -> {
-        LOGGER.error("cannot commit profile edition wizard", e);
+        LOGGER.warn("cannot commit profile edition wizard", e);
         SwingUtilities.invokeLater(() -> Messages.showErrorDialog(project, e.getMessage(),e.getCause().getMessage()));
         return null;
       });

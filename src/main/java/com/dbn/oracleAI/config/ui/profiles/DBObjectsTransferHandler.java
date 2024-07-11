@@ -51,7 +51,7 @@ public class DBObjectsTransferHandler extends TransferHandler {
             model.addItems(l.stream().map(i->new ProfileDBObjectItem(i.getOwner(),i.getName())).collect(Collectors.toList()));
         } catch (Exception e) {
             // never happen
-            LOGGER.error(e);
+            LOGGER.warn(e);
             throw new RuntimeException(e);
         }return true;
     }
