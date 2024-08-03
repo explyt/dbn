@@ -193,7 +193,7 @@ public class DatasetEditorModel
 
                 } catch (Throwable e) {
                     conditionallyLog(e);
-                    log.warn("Failed to create SCROLL_INSENSITIVE statement: " + e.getMessage());
+                    log.warn("Failed to create SCROLL_INSENSITIVE statement: {}", e.getMessage());
                 }
             }
 
@@ -204,7 +204,7 @@ public class DatasetEditorModel
                             ResultSet.CONCUR_READ_ONLY);
                 } catch (Throwable e) {
                     conditionallyLog(e);
-                    log.warn("Failed to create FORWARD_ONLY statement: " + e.getMessage());
+                    log.warn("Failed to create FORWARD_ONLY statement: {}", e.getMessage());
                 }
             }
 

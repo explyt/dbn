@@ -82,7 +82,7 @@ public class DatasetEditorModelCell
             resultSetAdapter.scroll(row.getResultSetRowIndex());
         } catch (Exception e) {
             conditionallyLog(e);
-            Messages.showErrorDialog(project, "Could not update cell value for " + columnInfo.getName() + ".", e);
+            Messages.showErrorDialog(project, txt("msg.dataEditor.error.FailedToUpdateCell",  columnInfo.getName()), e);
             return;
         }
 

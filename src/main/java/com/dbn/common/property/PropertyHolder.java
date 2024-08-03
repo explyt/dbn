@@ -1,6 +1,8 @@
 package com.dbn.common.property;
 
-public interface PropertyHolder<T extends Property> {
+import com.dbn.nls.NlsSupport;
+
+public interface PropertyHolder<T extends Property> extends NlsSupport {
     boolean set(T property, boolean value);
 
     boolean is(T property);

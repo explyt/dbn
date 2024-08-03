@@ -1,6 +1,7 @@
 package com.dbn.database.sqlite.adapter;
 
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Strings;
 import com.dbn.database.common.util.ResultSetReader;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -146,6 +147,8 @@ public class SqliteRawMetaData {
                     }
                     type = typeTokens[0];
                 }
+                // sqlite allows typeless column definitions
+                if (Strings.isEmpty(type)) type = "TEXT";
 
                 notnull = resultSet.getInt("notnull");
                 pk = resultSet.getInt("pk");

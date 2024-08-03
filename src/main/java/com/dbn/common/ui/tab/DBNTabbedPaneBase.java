@@ -17,10 +17,12 @@ import java.util.List;
 @Setter
 public class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements StatefulDisposable {
     private boolean disposed;
-    private final List<T> contents = new ArrayList<>();
+    private final List<DBNTabInfo<T>> tabInfos = new ArrayList<>();
 
     public DBNTabbedPaneBase(Disposable parent) {
-        super(TOP, JTabbedPane.WRAP_TAB_LAYOUT);
+        //super(TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+        setUI(new DBNTabbedPaneUI());
+
         //setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
         Disposer.register(parent, this);
     }
@@ -33,49 +35,49 @@ public class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implem
     @Override
     public void addTab(String title, Icon icon, Component component, String tip) {
         super.addTab(title, icon, component, tip);
-        contents.add(null);
+        addTabInfo(title, icon, tip, null);
     }
 
     @Override
     public void addTab(String title, Icon icon, Component component) {
         super.addTab(title, icon, component);
-        contents.add(null);
+        addTabInfo(title, icon, null, null);
     }
 
     @Override
     public void addTab(String title, Component component) {
         super.addTab(title, component);
-        contents.add(null);
+        addTabInfo(title, null, null, null);
     }
 
-    public void addTab(String title, Icon icon, Component component, T content, String tip) {
+    public void addTab(String title, Icon icon, Component component, String tip, T content) {
         addTab(title, icon, component, tip);
-        contents.add(content);
+        addTabInfo(title, icon, tip, content);
     }
 
     public void addTab(String title, Icon icon, Component component, T content) {
         super.addTab(title, icon, component);
-        contents.add(content);
+        addTabInfo(title, icon, null, content);
     }
 
     public void addTab(String title, Component component, T content) {
         super.addTab(title, component);
-        contents.add(content);
+        addTabInfo(title, null, null, content);
     }
 
-    public T getSelectedContent() {
-        return getContentAt(getSelectedIndex());
+    private boolean addTabInfo(String title, Icon icon, String tip, T content) {
+        return tabInfos.add(new DBNTabInfo<>(title, tip, icon, content));
     }
 
-    public T getContentAt(int index) {
-        return contents.get(index);
+    public final DBNTabInfo<T> getTabInfo(int index) {
+        return tabInfos.get(index);
     }
 
     @Override
     public void removeTabAt(int index) {
         super.removeTabAt(index);
-        T content = contents.remove(index);
-        Disposer.dispose(content);
+        DBNTabInfo<T> tabInfo = tabInfos.remove(index);
+        Disposer.dispose(tabInfo);
     }
 
     public void removeAllTabs() {
@@ -86,6 +88,6 @@ public class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implem
     }
 
     public void disposeInner() {
-        Disposer.dispose(contents);
+        Disposer.dispose(tabInfos);
     }
 }

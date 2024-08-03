@@ -1,7 +1,6 @@
 package com.dbn.common.ui.tab;
 
 import com.dbn.common.ui.util.Listeners;
-import com.intellij.ide.ui.laf.darcula.ui.DarculaTabbedPaneUI;
 import com.intellij.openapi.Disposable;
 
 import javax.swing.*;
@@ -20,45 +19,23 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
             int selectedIndex = source.getSelectedIndex();
             listeners.notify(l -> l.selectionChanged(selectedIndex));
         });
-        if (false)
-        setUI(new DarculaTabbedPaneUI() {
-            @Override
-            protected void paintText(Graphics g, int tabPlacement, Font font, FontMetrics metrics, int tabIndex, String title, Rectangle textRect, boolean isSelected) {
-                super.paintText(g, tabPlacement, font, metrics, tabIndex, title, textRect, isSelected);
-            }
-
-            @Override
-            protected void paintTabBackground(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-                super.paintTabBackground(g, tabPlacement, tabIndex, x, y, w, h, isSelected);
-            }
-
-
-
-            @Override
-            protected void paintTabArea(Graphics g, int tabPlacement, int selectedIndex) {
-                super.paintTabArea(g, tabPlacement, selectedIndex);
-            }
-
-            @Override
-            protected void paintTab(Graphics g, int tabPlacement, Rectangle[] rects, int tabIndex, Rectangle iconRect, Rectangle textRect) {
-                super.paintTab(g, tabPlacement, rects, tabIndex, iconRect, textRect);
-
-/*
-                int selectedIndex = tabPane.getSelectedIndex();
-                boolean isSelected = selectedIndex == tabIndex;
-                String title = tabPane.getTitleAt(tabIndex);
-
-                Font font = tabPane.getFont();
-                FontMetrics metrics = tabPane.getFontMetrics(font);
-                paintText(g, tabPlacement, font, metrics, tabIndex, title, textRect, isSelected);
-*/
-            }
-
-
-        });
     }
 
+    public T getSelectedContent() {
+        return getContentAt(getSelectedIndex());
+    }
 
+    public T getContentAt(int index) {
+        return getTabInfo(index).getContent();
+    }
+
+    public Color getTabColor(int index) {
+        return getTabInfo(index).getColor();
+    }
+
+    public void setTabColor(int index, Color color) {
+        getTabInfo(index).setColor(color);
+    }
 
     public void addTabsListener(TabsListener listener) {
         listeners.add(listener);
@@ -94,4 +71,5 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
             }
         }
     }
+
 }
