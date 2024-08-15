@@ -464,7 +464,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
         });
       }).exceptionally(e -> {
         Messages.showErrorDialog(project, "Cannot fetch objects",
-            "Cannot fetching database object list: " + e.getCause().getMessage());
+            "Cannot fetch database object list: " + e.getCause().getMessage());
         return null;
       });
     } else {

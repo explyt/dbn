@@ -103,7 +103,7 @@
     </statement-execution-processor>
     <statement-execution-processor id="list-materialized-views" timeout="120">
         <statement>
-            SELECT owner, myview_name
+            SELECT owner, mview_name
             FROM sys.all_mviews
             WHERE owner = '{0}'
         </statement>
