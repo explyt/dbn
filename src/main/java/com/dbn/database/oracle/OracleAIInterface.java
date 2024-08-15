@@ -2,13 +2,7 @@ package com.dbn.database.oracle;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
-import com.dbn.database.common.oracleAI.OracleCredentialsDetailedInfo;
-import com.dbn.database.common.oracleAI.OracleProfilesAttributesInfo;
-import com.dbn.database.common.oracleAI.OracleQueryOutput;
-import com.dbn.database.common.oracleAI.OracleTablesList;
-import com.dbn.database.common.oracleAI.OracleViewsList;
-import com.dbn.database.common.oracleAI.SchemasInfo;
-import com.dbn.database.common.oracleAI.TableAndViewListInfo;
+import com.dbn.database.common.oracleAI.*;
 import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseOracleAIInterface;
 import com.dbn.oracleAI.config.Credential;
@@ -20,16 +14,14 @@ import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.DatabaseObjectType;
-import com.intellij.openapi.diagnostic.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class OracleAIInterface extends DatabaseInterfaceBase implements DatabaseOracleAIInterface {
-
-  private static final Logger LOGGER = Logger.getInstance(OracleAIInterface.class.getPackageName());
-
 
   public OracleAIInterface(DatabaseInterfaces provider) {
     super("oracle_ai_interface.xml", provider);
@@ -89,9 +81,9 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
 
   @Override
   public void setProfileAttributes(DBNConnection connection, Profile profile) throws ProfileManagementException {
-    if (LOGGER.isDebugEnabled()) {
-      LOGGER.debug("setProfileAttributes for " + profile);
-      LOGGER.debug("   attribute map " + profile.toAttributeMap());
+    if (log.isDebugEnabled()) {
+      log.debug("setProfileAttributes for " + profile);
+      log.debug("   attribute map " + profile.toAttributeMap());
     }
     try {
       executeCall(connection, null, "update-profile", profile.toAttributeMap());

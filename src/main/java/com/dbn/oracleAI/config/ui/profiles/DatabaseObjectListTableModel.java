@@ -3,23 +3,19 @@ package com.dbn.oracleAI.config.ui.profiles;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
 import com.dbn.oracleAI.types.DatabaseObjectType;
-import com.intellij.openapi.diagnostic.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Database object table model.
  * A model that manipulate list of <code>DBObjectItem</code>
  */
+@Slf4j
 public class DatabaseObjectListTableModel extends AbstractTableModel {
 
-    private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
     static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
     private static final int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
@@ -104,7 +100,7 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
      * @param databaseObjectType the type of object to be hidden
      */
     public void hideItemByType(DatabaseObjectType databaseObjectType) {
-        LOGGER.debug("DatabaseObjectListTableModel.hideItemByType: " + databaseObjectType);
+        log.debug("DatabaseObjectListTableModel.hideItemByType: " + databaseObjectType);
         List<DBObjectItem> matches = new ArrayList<>();
         allItems.stream().filter(item -> item.getType().equals(databaseObjectType)).allMatch(
                 match -> matches.add(match)
@@ -112,7 +108,7 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
         if (matches.size() > 0) {
             parkedItems.addAll(matches);
             allItems.removeAll(matches);
-            LOGGER.debug("DatabaseObjectListTableModel.hideItemByNames: triggering fireTableDataChanged");
+            log.debug("DatabaseObjectListTableModel.hideItemByNames: triggering fireTableDataChanged");
             fireTableDataChanged();
         }
     }
@@ -123,7 +119,7 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
      * @param databaseObjectType the type of object to be hidden
      */
     public void unhideItemByType(DatabaseObjectType databaseObjectType) {
-        LOGGER.debug("DatabaseObjectListTableModel.unhideItemByType: " + databaseObjectType);
+        log.debug("DatabaseObjectListTableModel.unhideItemByType: " + databaseObjectType);
         List<DBObjectItem> matches = new ArrayList<>();
         parkedItems.stream().filter(item -> item.getType().equals(databaseObjectType)).allMatch(
                 match -> matches.add(match)
@@ -131,7 +127,7 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
         if (matches.size() > 0) {
             parkedItems.removeAll(matches);
             allItems.addAll(matches);
-            LOGGER.debug("DatabaseObjectListTableModel.unhideItemByType: triggering fireTableDataChanged");
+            log.debug("DatabaseObjectListTableModel.unhideItemByType: triggering fireTableDataChanged");
             fireTableDataChanged();
         }
     }
@@ -148,8 +144,8 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
         assert itemNames != null:"cannot be null";
         if (itemNames.size() == 0)
             return;
-        if (LOGGER.isDebugEnabled())
-            LOGGER.debug("DatabaseObjectListTableModel.hideItemByNames: " + itemNames);
+        if (log.isDebugEnabled())
+            log.debug("DatabaseObjectListTableModel.hideItemByNames: " + itemNames);
         List<DBObjectItem> matches = new ArrayList<>();
         allItems.stream().filter(item -> itemNames.contains(item.getName())).allMatch(
                 match -> matches.add(match)
@@ -158,7 +154,7 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
         if (matches.size() > 0) {
             parkedItems.addAll(matches);
             allItems.removeAll(matches);
-            LOGGER.debug("DatabaseObjectListTableModel.hideItemByNames: triggering fireTableDataChanged");
+            log.debug("DatabaseObjectListTableModel.hideItemByNames: triggering fireTableDataChanged");
             fireTableDataChanged();
         }
     }

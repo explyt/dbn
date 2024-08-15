@@ -6,7 +6,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.google.gson.Gson;
-import com.intellij.openapi.diagnostic.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileWriter;
 import java.sql.SQLException;
@@ -15,12 +15,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 
-
+@Slf4j
 public class AIProfileServiceImpl implements AIProfileService {
   private final ConnectionRef connectionRef;
-
-  private static final Logger LOGGER = Logger.getInstance(AIProfileServiceImpl.class.getPackageName());
-
 
   AIProfileServiceImpl(ConnectionRef connectionRef) {
     assert connectionRef.get() != null : "No connection";
@@ -35,8 +32,8 @@ public class AIProfileServiceImpl implements AIProfileService {
               writer.close();
           } catch (Exception e) {
               // ignore this
-              if (LOGGER.isTraceEnabled())
-                  LOGGER.trace("cannot dump profile " +e.getMessage());
+              if (log.isTraceEnabled())
+                  log.trace("cannot dump profile " +e.getMessage());
           }
       }
   }
@@ -51,7 +48,7 @@ public class AIProfileServiceImpl implements AIProfileService {
   public CompletableFuture<List<Profile>> list()  {
     return CompletableFuture.supplyAsync(() -> {
       try {
-        LOGGER.debug("getting profiles");
+        log.debug("getting profiles");
         DBNConnection dbnConnection =
             connectionRef.get().getConnection(SessionId.ORACLE_AI);
         List<Profile> profileList = connectionRef.get().getOracleAIInterface()
@@ -59,11 +56,11 @@ public class AIProfileServiceImpl implements AIProfileService {
 
         dumpThem(profileList, System.getProperty("fake.services.profiles.dump") );
 
-        if (LOGGER.isDebugEnabled())
-          LOGGER.debug("fetched profiles:" + profileList);
+        if (log.isDebugEnabled())
+          log.debug("fetched profiles:" + profileList);
           return profileList;
       } catch (ProfileManagementException | SQLException e) {
-        LOGGER.warn("error getting profiles", e);
+        log.warn("error getting profiles", e);
         throw new CompletionException("Cannot get profiles", e);
       }
     });
@@ -77,7 +74,7 @@ public class AIProfileServiceImpl implements AIProfileService {
         DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
         connectionRef.get().getOracleAIInterface().dropProfile(connection, profileName);
       } catch (SQLException | ProfileManagementException e) {
-        LOGGER.warn("error deleting profile "+ profileName, e);
+        log.warn("error deleting profile "+ profileName, e);
         throw new CompletionException("Cannot delete profile", e);
       }
     });
@@ -91,7 +88,7 @@ public class AIProfileServiceImpl implements AIProfileService {
             DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
             connectionRef.get().getOracleAIInterface().createProfile(connection, profile);
           } catch (SQLException | ProfileManagementException e) {
-            LOGGER.warn("error creating profile", e);
+            log.warn("error creating profile", e);
             throw new CompletionException("Cannot create profile", e);
           }
         }
@@ -105,7 +102,7 @@ public class AIProfileServiceImpl implements AIProfileService {
             DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
             connectionRef.get().getOracleAIInterface().setProfileAttributes(connection, updatedProfile);
           } catch (SQLException | ProfileManagementException e) {
-            LOGGER.warn("error updating profiles", e);
+            log.warn("error updating profiles", e);
             throw new CompletionException("Cannot update profile", e);
           }
         }

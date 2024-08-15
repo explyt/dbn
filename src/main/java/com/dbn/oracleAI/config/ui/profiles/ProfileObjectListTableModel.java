@@ -1,7 +1,7 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
-import com.intellij.openapi.diagnostic.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
@@ -13,9 +13,9 @@ import java.util.ResourceBundle;
  * profile object table model.
  * A model that manipulate list of <code>ProfileDBObjectItem</code>
  */
+@Slf4j
 public class ProfileObjectListTableModel extends AbstractTableModel {
 
-    private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
     static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
     private List<ProfileDBObjectItem> data;
@@ -82,11 +82,11 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
      * @param items the list of objects to be added
      */
     public void addItems(List<ProfileDBObjectItem> items) {
-        if (LOGGER.isDebugEnabled())
-            LOGGER.debug("ProfileObjectListTableModel.addItems: " + items);
+        if (log.isDebugEnabled())
+            log.debug("ProfileObjectListTableModel.addItems: " + items);
         int curRow = data.size();
         data.addAll(items);
-        LOGGER.debug(
+        log.debug(
                 "ProfileObjectListTableModel.addItems triggered  fireTableRowsInserted on (" +
                         curRow + "/" + curRow + items.size() + ")");
         fireTableRowsInserted(curRow, curRow + items.size());
@@ -97,11 +97,11 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
      * @param item the  object to be removed
      */
     public void removeItem(ProfileDBObjectItem item) {
-        LOGGER.debug("ProfileObjectListTableModel.removeItem: " + item);
+        log.debug("ProfileObjectListTableModel.removeItem: " + item);
         int index = data.indexOf(item);
         if (index >= 0) {
             data.remove(index);
-            LOGGER.debug(
+            log.debug(
                     "ProfileObjectListTableModel.removeItem triggered  fireTableRowsDeleted on (" +
                             index + "/" + index + ")");
             fireTableRowsDeleted(index, index);
@@ -115,8 +115,8 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
     public void updateItems(List<ProfileDBObjectItem> items) {
         data.clear();
         data.addAll(items);
-        if (LOGGER.isDebugEnabled())
-            LOGGER.debug("ProfileObjectListTableModel.updateItems: " + items);
+        if (log.isDebugEnabled())
+            log.debug("ProfileObjectListTableModel.updateItems: " + items);
         fireTableDataChanged();
     }
 

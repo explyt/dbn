@@ -4,7 +4,7 @@ import com.dbn.oracleAI.config.DBObjectItem;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.intellij.openapi.diagnostic.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -26,10 +26,8 @@ import java.util.concurrent.CompletableFuture;
  *  fake.services.schema.dump
  *  fake.services.dbitems.dump
  */
+@Slf4j
 public class FakeDatabaseService implements DatabaseService {
-
-    private static final Logger LOGGER = Logger.getInstance(DatabaseServiceImpl.class.getPackageName());
-
 
     Type SCHEMA_TYPE = new TypeToken<List<String>>() {
     }.getType();
@@ -85,10 +83,10 @@ public class FakeDatabaseService implements DatabaseService {
                         break;
                     }
                     if (markerReached) {
-                        LOGGER.debug("new schema :" + schemaName);
+                        log.debug("new schema :" + schemaName);
                         String jl = fr.readLine();
                         List<DBObjectItem> l = g.fromJson(jl, DBOJB_TYPE);
-                        LOGGER.debug("new obj :" + l);
+                        log.debug("new obj :" + l);
                         this.objs.put(schemaName.toString(), l);
                         schemaName.delete(0, schemaName.length());
                     }

@@ -5,11 +5,11 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileUpdate;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionWizardModel;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.wizard.WizardDialog;
 import com.intellij.util.ui.JBDimension;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,9 +31,8 @@ import java.util.stream.Collectors;
 /**
  * AI profile edition wizard class
  */
+@Slf4j
 public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> {
-
-  private static final Logger LOGGER = Logger.getInstance(ProfileEditionWizard.class.getPackageName());
 
   private final Profile initialProfile;
   private final Profile editedProfile;
@@ -74,7 +73,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   @Override
   protected void doOKAction() {
-    LOGGER.debug("entering doOKAction");
+    log.debug("entering doOKAction");
     if (editedProfile.getProfileName().isEmpty()) {
       Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.profile_name.validation.empty"));
     } else if (!this.isUpdate &&
@@ -85,7 +84,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     } else if (editedProfile.getObjectList().isEmpty()) {
       Messages.showErrorDialog(project, messages.getString("profile.mgmt.object_list_step.validation"));
     } else if (initialProfile.equals(editedProfile)) {
-      LOGGER.debug("profile has not changed, skipping the update");
+      log.debug("profile has not changed, skipping the update");
       Messages.showErrorDialog(project, messages.getString("profile.mgmt.update.validation"));
     } else {
       commitWizardView();
@@ -119,7 +118,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
 
   private void commitWizardView() {
-    LOGGER.debug("entering commitWizardView. isUpdate? " + isUpdate);
+    log.debug("entering commitWizardView. isUpdate? " + isUpdate);
     if (isUpdate) {
       profileSvc.update(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
@@ -127,7 +126,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
           callback.accept(true);
         });
       }).exceptionally(e -> {
-        LOGGER.warn("cannot commit profile edition wizard", e);
+        log.warn("cannot commit profile edition wizard", e);
         SwingUtilities.invokeLater(() -> Messages.showErrorDialog(project, e.getMessage(),e.getCause().getMessage()));
         return null;
       });

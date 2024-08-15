@@ -2,24 +2,12 @@ package com.dbn.oracleAI.config;
 
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.JsonSerializationContext;
-import com.google.gson.JsonSerializer;
+import com.google.gson.*;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import com.intellij.openapi.diagnostic.Logger;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -32,7 +20,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
+/**
+ * AI profile POJO class
+ */
+@Slf4j
 @Getter
 @Setter
 @Builder
@@ -40,12 +31,7 @@ import java.util.List;
 @NoArgsConstructor
 @ToString
 @EqualsAndHashCode(exclude = {"isEnabled", "comments"}) // Exclude as per your needs
-/**
- * AI profile POJO class
- */
 public class Profile implements AttributeInput {
-
-  private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
 
   private final String PROFILE_NAME_ATTR_NAME = "name";
   private final String PROFILE_OWNER_ATTR_NAME = "owner";

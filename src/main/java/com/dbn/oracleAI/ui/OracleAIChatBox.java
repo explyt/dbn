@@ -11,46 +11,22 @@ import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.utils.RollingJPanelWrapper;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.InputMap;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.KeyStroke;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -60,10 +36,8 @@ import static java.awt.event.InputEvent.BUTTON1_MASK;
 /**
  * Holder class for profile Combox box
  */
+@Slf4j
 public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
-
-
-  private static final Logger LOG = Logger.getInstance(OracleAIChatBox.class.getPackageName());
 
   private static OracleAIChatBox instance;
   private ConnectionId currentConnectionId;
@@ -169,7 +143,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   private void updateProfileComboBox() {
     startActivityNotifier(messages.getString("companion.chat.fetching_profiles"));
     updateProfiles().thenAccept(finalFetchedProfiles -> {
-      LOG.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
+      log.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
       ApplicationManager.getApplication().invokeLater(() -> {
         profileListModel.removeAllElements();
         finalFetchedProfiles.forEach((pn, p) -> {
@@ -188,7 +162,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
       });
 
     }).exceptionally(e -> {
-      LOG.warn("Failed to fetch profiles", e);
+      log.warn("Failed to fetch profiles", e);
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getCause().getMessage()));
       stopActivityNotifier();
       return null;
@@ -203,11 +177,11 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   private void initializeUI() {
     disableWindow("companion.chat.no_console.tooltip");
     configureChatHeaderPanel();
-    LOG.info("Header of chat window displayed");
+    log.info("Header of chat window displayed");
     configureConversationPanel();
-    LOG.info("Center of chat window displayed");
+    log.info("Center of chat window displayed");
     configurePromptArea();
-    LOG.info("Bottom of chat window displayed");
+    log.info("Bottom of chat window displayed");
   }
 
   /**
@@ -330,10 +304,10 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
                                         // forbid to submit
                                         if (promptTextArea.getText().isEmpty() ||
                                             ((IdleJtextArea) promptTextArea).isIdle()) {
-                                          LOG.debug("focusLost disabling submit");
+                                          log.debug("focusLost disabling submit");
                                           promptButton.setEnabled(false);
                                         } else {
-                                          LOG.debug("focusLost enabling submit");
+                                          log.debug("focusLost enabling submit");
                                           promptButton.setEnabled(true);
                                         }
                                       }
@@ -365,7 +339,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   }
 
   private void processQuery(String question, ActionAIType actionType) {
-    LOG.debug("Starting processQuery with actionType: " + actionType);
+    log.debug("Starting processQuery with actionType: " + actionType);
     Objects.requireNonNull(promptTextArea.getText(),
         "cannot be here without question been selected");
 
@@ -379,10 +353,10 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
         .thenAccept((output) -> {
           ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
           appendMessageToChat(List.of(outPutChatMessage));
-          LOG.debug("Query processed successfully.");
+          log.debug("Query processed successfully.");
         })
         .exceptionally(e -> {
-          LOG.warn("Error processing query", e);
+          log.warn("Error processing query", e);
           ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
           return null;
         })
@@ -437,7 +411,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
    * @param state the state that should be applied
    */
   public void restoreState(OracleAIChatBoxState state) {
-    LOG.debug("Restore State");
+    log.debug("Restore State");
     assert state != null : "cannot be null";
     this.updateProfiles(state.getProfiles());
     if (state.getSelectedProfile() != null) profileComboBox.setSelectedItem(state.getSelectedProfile());
@@ -473,12 +447,12 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
    * basically called only once ny switchConnection()
    */
   public void initState(@Nullable OracleAIChatBoxState newState, ConnectionId connectionId) {
-    LOG.debug("Initialize new state");
+    log.debug("Initialize new state");
     if (newState != null) restoreState(newState);
     startActivityNotifier(messages.getString("companion.chat.fetching_profiles"));
     updateProfiles().thenAccept(finalFetchedProfiles -> {
       if (connectionId == currentConnectionId) {
-        LOG.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
+        log.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
         ApplicationManager.getApplication().invokeLater(() -> {
           profileListModel.removeAllElements();
 //          currManager.getProfileService().updateCachedProfiles(new ArrayList<>(finalFetchedProfiles.values()));
@@ -504,7 +478,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
         });
       }
     }).exceptionally(e -> {
-      LOG.warn("Failed to fetch profiles", e);
+      log.warn("Failed to fetch profiles", e);
       ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getCause().getMessage()));
       stopActivityNotifier();
       return null;

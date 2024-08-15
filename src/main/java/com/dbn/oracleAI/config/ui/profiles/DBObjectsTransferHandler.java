@@ -2,11 +2,9 @@ package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
-import com.intellij.openapi.diagnostic.Logger;
+import lombok.extern.slf4j.Slf4j;
 
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.TransferHandler;
+import javax.swing.*;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,28 +14,27 @@ import java.util.stream.Collectors;
  * Transfer handler for Database object and profile database object.
  * This handler is used durin drag and drop between tables
  */
+
+@Slf4j
 public class DBObjectsTransferHandler extends TransferHandler {
-
-    private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
-
 
     @Override
     public boolean canImport(TransferHandler.TransferSupport info) {
-        LOGGER.trace("DatabaseObjectsTransferHandler.canImport: drop action: " + info.getDropAction());
+        log.trace("DatabaseObjectsTransferHandler.canImport: drop action: " + info.getDropAction());
         // Check for String flavor
         if (!info.isDataFlavorSupported(DatabaseObjectsTransferable.DatabaseObjectFlavor) ||!info.isDrop()) {
-            LOGGER.trace("DatabaseObjectsTransferHandler.canImport: -> false");
+            log.trace("DatabaseObjectsTransferHandler.canImport: -> false");
             return false;
         }
 
-        LOGGER.trace("DatabaseObjectsTransferHandler.canImport: -> true");
+        log.trace("DatabaseObjectsTransferHandler.canImport: -> true");
         info.setShowDropLocation(true);
         return true;
     }
 
     @Override
     public boolean importData(TransferHandler.TransferSupport info) {
-        LOGGER.trace("DatabaseObjectsTransferHandler.importData");
+        log.trace("DatabaseObjectsTransferHandler.importData");
         if (!canImport(info)) {
             return false;
         }
@@ -51,15 +48,15 @@ public class DBObjectsTransferHandler extends TransferHandler {
             model.addItems(l.stream().map(i->new ProfileDBObjectItem(i.getOwner(),i.getName())).collect(Collectors.toList()));
         } catch (Exception e) {
             // never happen
-            LOGGER.warn(e);
+            log.warn("Failed to transfer data", e);
             throw new RuntimeException(e);
         }return true;
     }
 
     @Override
     protected void exportDone(JComponent source, Transferable data, int action) {
-        if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("DatabaseObjectsTransferHandler.exportDone: action == "+action+ ", data == " + data);
+        if (log.isTraceEnabled()) {
+            log.trace("DatabaseObjectsTransferHandler.exportDone: action == "+action+ ", data == " + data);
         }
         if (action == TransferHandler.MOVE) {
             // hide selected hitems
@@ -79,7 +76,7 @@ public class DBObjectsTransferHandler extends TransferHandler {
 
     @Override
     public int getSourceActions(JComponent c) {
-        LOGGER.trace("DatabaseObjectsTransferHandler.getSourceActions -> " +  MOVE);
+        log.trace("DatabaseObjectsTransferHandler.getSourceActions -> " +  MOVE);
         return MOVE;
     }
 
@@ -87,7 +84,7 @@ public class DBObjectsTransferHandler extends TransferHandler {
     @org.jetbrains.annotations.Nullable
     @Override
     protected Transferable createTransferable(JComponent c) {
-        LOGGER.trace("DatabaseObjectsTransferHandler.createTransferable: " + c);
+        log.trace("DatabaseObjectsTransferHandler.createTransferable: " + c);
         JTable table = (JTable) c;
         int[] rows = table.getSelectedRows();
         DatabaseObjectListTableModel model = (DatabaseObjectListTableModel) table.getModel();
@@ -96,8 +93,8 @@ public class DBObjectsTransferHandler extends TransferHandler {
             transfered.add(model.getItemAt(rows[i]));
         }
         DatabaseObjectsTransferable transferable = new DatabaseObjectsTransferable(transfered);
-        if (LOGGER.isTraceEnabled())
-            LOGGER.trace("DatabaseObjectsTransferHandler.createTransferable new transferable: " + transferable);
+        if (log.isTraceEnabled())
+            log.trace("DatabaseObjectsTransferHandler.createTransferable new transferable: " + transferable);
         return transferable;
     }
 

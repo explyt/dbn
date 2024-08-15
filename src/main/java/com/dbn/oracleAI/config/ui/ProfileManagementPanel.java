@@ -10,24 +10,13 @@ import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.intellij.openapi.application.ApplicationManager;
-import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListSelectionModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
@@ -46,7 +35,6 @@ public class ProfileManagementPanel extends JPanel {
 
   static private final ResourceBundle messages =
       ResourceBundle.getBundle("Messages", Locale.getDefault());
-  private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI.config");
 
   private Map<String, Profile> profileMap;
   private Profile currProfile;

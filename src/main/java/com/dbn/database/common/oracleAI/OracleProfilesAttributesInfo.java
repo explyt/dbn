@@ -6,28 +6,23 @@ import com.dbn.oracleAI.config.ProfileDBObjectItem;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import com.google.gson.JsonParseException;
-import com.intellij.openapi.diagnostic.Logger;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
-@Getter
 /**
  * Class to fetch profile attributes from profile tables and views
  * @see OracleAIInterface.listProfiles()
  */
+@Slf4j
+@Getter
 public class OracleProfilesAttributesInfo implements CallableStatementOutput {
-
-  private static final Logger LOGGER = Logger.getInstance("com.dbn.oracleAI");
 
   private List<Profile> profileList = new ArrayList<>();
 
@@ -84,7 +79,7 @@ public class OracleProfilesAttributesInfo implements CallableStatementOutput {
             try {
               currProfile.setModel(ProviderModel.getByName(attribute));
             } catch (IllegalArgumentException e) {
-              LOGGER.error("malformed model name  [" + attribute + "], dropping profile");
+              log.error("malformed model name  [" + attribute + "], dropping profile");
               faultyProfilesNames.add(profileName);
             }
           }
@@ -94,7 +89,7 @@ public class OracleProfilesAttributesInfo implements CallableStatementOutput {
         throw new SQLException(e);
       } catch (JsonParseException ee) {
         // this is surely because of DB tables sending us bad values.
-        LOGGER.error("malformed profile [" + profileName + "], dropping it");
+        log.error("malformed profile [" + profileName + "], dropping it");
         faultyProfilesNames.add(profileName);
       }
     }

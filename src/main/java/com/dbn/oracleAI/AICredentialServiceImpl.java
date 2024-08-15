@@ -6,7 +6,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.google.gson.Gson;
-import com.intellij.openapi.diagnostic.Logger;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileWriter;
 import java.sql.SQLException;
@@ -18,10 +18,10 @@ import java.util.concurrent.CompletionException;
  * Service class responsible for managing AI credentials.
  * Provides functionality to asynchronously list detailed information about credentials stored in the database.
  */
+@Slf4j
 public class AICredentialServiceImpl implements AICredentialService {
 
   private final ConnectionRef connectionRef;
-  private static final Logger LOGGER = Logger.getInstance(AICredentialServiceImpl.class.getPackageName());
 
   /**
    * Constructs a new AICredentialService with a specified connection handler.
@@ -74,8 +74,8 @@ public class AICredentialServiceImpl implements AICredentialService {
             writer.close();
           } catch (Exception e) {
             // ignore this
-            if (AICredentialServiceImpl.LOGGER.isTraceEnabled())
-              AICredentialServiceImpl.LOGGER.trace("cannot dump profile " + e.getMessage());
+            if (log.isTraceEnabled())
+              log.trace("cannot dump profile " + e.getMessage());
           }
         }
         // Fetch and return detailed list of credentials
