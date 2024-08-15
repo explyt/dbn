@@ -48,22 +48,25 @@ public class DatabaseSessionBundle extends StatefulDisposableBase implements Dis
         mainSession = new DatabaseSession(SessionId.MAIN, "Main", ConnectionType.MAIN, connection);
         sessions.add(mainSession);
 
-        if (!connection.isVirtual()) {
-            if (DatabaseFeature.DEBUGGING.isSupported(connection)) {
-                debugSession = new DatabaseSession(SessionId.DEBUG, "Debug", ConnectionType.DEBUG, connection);
-                debuggerSession = new DatabaseSession(SessionId.DEBUGGER, "Debugger", ConnectionType.DEBUGGER, connection);
-                sessions.add(debugSession);
-                sessions.add(debuggerSession);
-            }
+        if (connection.isVirtual()) return;
 
-            poolSession = new DatabaseSession(SessionId.POOL, "Pool", ConnectionType.POOL, connection);
-            sessions.add(poolSession);
-            rebuildIndex();
+        if (DatabaseFeature.DEBUGGING.isSupported(connection)) {
+            debugSession = new DatabaseSession(SessionId.DEBUG, "Debug", ConnectionType.DEBUG, connection);
+            debuggerSession = new DatabaseSession(SessionId.DEBUGGER, "Debugger", ConnectionType.DEBUGGER, connection);
+            sessions.add(debugSession);
+            sessions.add(debuggerSession);
         }
 
-        if (connection.getDatabaseType()== DatabaseType.ORACLE){
+
+        if (DatabaseFeature.AI_ASSISTANT.isSupported(connection)){
             oracleAISession = new DatabaseSession(SessionId.ORACLE_AI, "OracleAI", ConnectionType.ORACLE_AI, connection);
+            sessions.add(oracleAISession);
         }
+
+        poolSession = new DatabaseSession(SessionId.POOL, "Pool", ConnectionType.POOL, connection);
+        sessions.add(poolSession);
+
+        rebuildIndex();
     }
 
     private void rebuildIndex() {
