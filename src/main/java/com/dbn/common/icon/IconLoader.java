@@ -35,15 +35,25 @@ class IconLoader {
         };
     }
 
+    static Icon init(@NonNls String path) {
+        path = adjustPath(path, true, UserInterface.isNewUI());
+        return findIcon(path);
+    }
+
+    private static String adjustPath(@NonNls String path, boolean extension, boolean location) {
+        if (extension) path = path.replace(".png", ".svg");
+        if (location) path = path.replace("/img/", "/img/expui/");
+        return path;
+    }
+
     private static Icon findNewIcon(String path) {
         if (!UserInterface.isNewUI()) return null;
-
-        String svgPath = path.replace("/img/", "/img/expui/").replace(".png", ".svg");
-        return find(svgPath);
+        path = adjustPath(path, true, true);
+        return find(path);
     }
 
     private static @Nullable Icon findSvgIcon(String path) {
-        String svgPath = path.replace(".png", ".svg");
+        String svgPath = adjustPath(path, true, false);
         return find(svgPath);
     }
 
