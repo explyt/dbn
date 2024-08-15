@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Profile edition Object list step for edition wizard
  *
@@ -40,18 +42,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizardModel> {
 
-  static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
-
 
   private static final int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
   private static final int TABLES_COLUMN_HEADERS_OWNER_IDX = 1;
 
   private static final String[] PROFILE_OBJ_TABLES_COLUMN_HEADERS = {
-      messages.getString("profile.mgmt.obj_table.header.name"),
-      messages.getString("profile.mgmt.obj_table.header.owner")
+      txt("profile.mgmt.obj_table.header.name"),
+      txt("profile.mgmt.obj_table.header.owner")
   };
   private static final String[] DB_OBJ_TABLES_COLUMN_HEADERS = {
-      messages.getString("profile.mgmt.obj_table.header.name")
+      txt("profile.mgmt.obj_table.header.name")
   };
 
   private JPanel profileEditionObjectListMainPane;
@@ -77,8 +77,8 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   Map<String, DatabaseObjectListTableModel> databaseObjectListTableModelCache = new HashMap<>();
 
   public ProfileEditionObjectListStep(Project project, Profile profile, boolean isUpdate) {
-    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.title"),
-        ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.object_list_step.explaination"),
+    super(txt("profile.mgmt.object_list_step.title"),
+        txt("profile.mgmt.object_list_step.explaination"),
         Icons.DB_GENERIC);
     this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
@@ -349,7 +349,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
               }
             } catch (IllegalStateException e) {
               if (schemaInPrefetch.contains(currentItem.getOwner().toLowerCase())) {
-                setToolTipText(messages.getString("profile.mgmt.object.information.loading"));
+                setToolTipText(txt("profile.mgmt.object.information.loading"));
                 setFont(getFont().deriveFont(Font.ITALIC));
               } else {
                 setToolTipText(e.getMessage());
@@ -406,7 +406,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
       // surely a schema we do not know.
       // that's possible as profile ae populated by name.
       // object list as no guaranty to exist
-      throw new IllegalStateException(messages.getString("profile.mgmt.obj_list.unknown_schema"));
+      throw new IllegalStateException(txt("profile.mgmt.obj_list.unknown_schema"));
     }
 
     Optional<DBObjectItem> oitem = model.findFirst(item);
@@ -415,7 +415,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
       oitem = model.parkedItems.stream().filter(item::isEquivalentTo).findFirst();
     }
     if (oitem.isEmpty()) {
-      throw new IllegalStateException(messages.getString("profile.mgmt.obj_list.unknown_obj"));
+      throw new IllegalStateException(txt("profile.mgmt.obj_list.unknown_obj"));
     }
     // at this point, no way to no have something
     return oitem.get().getType();

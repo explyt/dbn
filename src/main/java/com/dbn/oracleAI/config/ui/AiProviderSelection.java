@@ -8,12 +8,10 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import java.util.Locale;
-import java.util.ResourceBundle;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * This class is for a window that lists the available ai provider keys,
@@ -21,8 +19,6 @@ import java.util.ResourceBundle;
  */
 public class AiProviderSelection extends DialogWrapper {
 
-  static private final ResourceBundle messages =
-      ResourceBundle.getBundle("Messages", Locale.getDefault());
   private JPanel panel1;
   private JTable table1;
   private AIProviderCredentialBundle aiProviderTypes;
@@ -33,7 +29,7 @@ public class AiProviderSelection extends DialogWrapper {
     super(project, false);
     this.callback = callback;
     initializeProvidersList(project);
-    setTitle(messages.getString("ai.settings.credential.template.window.title"));
+    setTitle(txt("ai.settings.credential.template.window.title"));
     init();
     pack();
   }

@@ -1,16 +1,12 @@
 package com.dbn.oracleAI.config.ui;
 
-import javax.swing.BorderFactory;
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
-import javax.swing.JTable;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.Border;
-import java.awt.Color;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Locale;
-import java.util.ResourceBundle;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Input verifier for an AI profile object list
@@ -21,7 +17,6 @@ public class SelectedObjectItemsVerifier extends InputVerifier implements
 
   private static final Border ERROR_BORDER = BorderFactory.createLineBorder(Color.RED, 1);
   private static final Border DEFAULT_BORDER = UIManager.getBorder("TextField.border");
-  private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
 
   @Override
@@ -42,7 +37,7 @@ public class SelectedObjectItemsVerifier extends InputVerifier implements
     boolean isValid = profileTable.getRowCount() > 0;
     if (!isValid) {
       profileTable.setBorder(ERROR_BORDER);
-      profileTable.setToolTipText(messages.getString("profile.mgmt.object_list_step.validation"));
+      profileTable.setToolTipText(txt("profile.mgmt.object_list_step.validation"));
     } else {
       profileTable.setBorder(DEFAULT_BORDER);
       profileTable.setToolTipText(null);

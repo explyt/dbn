@@ -25,12 +25,15 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.dbn.nls.NlsResources.txt;
 import static java.awt.event.InputEvent.BUTTON1_MASK;
 
 /**
@@ -62,14 +65,11 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
 
   public static DatabaseOracleAIManager currManager;
 
-  static private final ResourceBundle messages =
-      ResourceBundle.getBundle("Messages", Locale.getDefault());
-
   /**
    * special profile combobox item that lead to create a new profile
    */
   static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
-      new AIProfileItem(messages.getString("companion.profile.combobox.add"), false);
+      new AIProfileItem(txt("companion.profile.combobox.add"), false);
 
 
   private OracleAIChatBox() {
@@ -80,7 +80,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   }
 
   private void createUIComponents() {
-    promptTextArea = new IdleJtextArea(messages.getString("companion.chat.prompt.tooltip"));
+    promptTextArea = new IdleJtextArea(txt("companion.chat.prompt.tooltip"));
     activityProgress = new ActivityNotifier();
 
   }
@@ -141,7 +141,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   }
 
   private void updateProfileComboBox() {
-    startActivityNotifier(messages.getString("companion.chat.fetching_profiles"));
+    startActivityNotifier(txt("companion.chat.fetching_profiles"));
     updateProfiles().thenAccept(finalFetchedProfiles -> {
       log.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
       ApplicationManager.getApplication().invokeLater(() -> {
@@ -188,7 +188,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
    * Initializes the list of profiles available, models available, and the checkbox for explain sql
    */
   private void configureChatHeaderPanel() {
-    explainSQLCheckbox.setText(messages.getString("companion.explainSql.action"));
+    explainSQLCheckbox.setText(txt("companion.explainSql.action"));
 
     profileComboBox.setModel(profileListModel);
 
@@ -267,7 +267,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     promptButton.setIcon(Icons.ACTION_EXECUTE);
     // TODO : fine better than this one...
     promptButton.setDisabledIcon(Icons.CONNECTION_DISABLED);
-    promptButton.setToolTipText(messages.getString("companion.chat.prompt.execute.tooltip"));
+    promptButton.setToolTipText(txt("companion.chat.prompt.execute.tooltip"));
     promptButton.setBorder(BorderFactory.createEmptyBorder());
     promptButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
@@ -318,7 +318,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
 
 
   private void submitText() {
-    startActivityNotifier(messages.getString("companion.chat.submitting"));
+    startActivityNotifier(txt("companion.chat.submitting"));
     ApplicationManager.getApplication()
         .executeOnPooledThread(
             () -> {
@@ -449,7 +449,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   public void initState(@Nullable OracleAIChatBoxState newState, ConnectionId connectionId) {
     log.debug("Initialize new state");
     if (newState != null) restoreState(newState);
-    startActivityNotifier(messages.getString("companion.chat.fetching_profiles"));
+    startActivityNotifier(txt("companion.chat.fetching_profiles"));
     updateProfiles().thenAccept(finalFetchedProfiles -> {
       if (connectionId == currentConnectionId) {
         log.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
@@ -494,11 +494,11 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     companionConversationScrollPan.setEnabled(true);
     aiModelComboBox.setToolTipText("companion.chat.model.tooltip");
     explainSQLCheckbox.setToolTipText(
-        messages.getString("companion.explainsql.tooltip"));
+        txt("companion.explainsql.tooltip"));
     promptTextArea.setToolTipText("");
-    profileComboBox.setToolTipText(messages.getString("companion.chat.profile.tooltip"));
+    profileComboBox.setToolTipText(txt("companion.chat.profile.tooltip"));
     companionConversationScrollPan.setToolTipText("");
-    promptButton.setToolTipText(messages.getString("companion.chat.prompt.button.tooltip"));
+    promptButton.setToolTipText(txt("companion.chat.prompt.button.tooltip"));
   }
 
   private void disableWindow(String message) {
@@ -508,16 +508,16 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     aiModelComboBox.setEnabled(false);
     companionConversationScrollPan.setEnabled(false);
     explainSQLCheckbox.setToolTipText(
-        messages.getString(message));
-    aiModelComboBox.setToolTipText(messages.getString(message));
+        txt(message));
+    aiModelComboBox.setToolTipText(txt(message));
     promptTextArea.setToolTipText(
-        messages.getString(message));
+        txt(message));
     promptButton.setToolTipText(
-        messages.getString(message));
-    companionConversationScrollPan.setToolTipText(messages.getString(message));
+        txt(message));
+    companionConversationScrollPan.setToolTipText(txt(message));
     if (message.equals("companion.chat.no_console.tooltip") || message.equals("companion.chat.wrong_database_type.tooltip")) {
       profileComboBox.setEnabled(false);
-      profileComboBox.setToolTipText(messages.getString(message));
+      profileComboBox.setToolTipText(txt(message));
     }
   }
 

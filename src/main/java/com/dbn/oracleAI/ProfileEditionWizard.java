@@ -13,20 +13,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.MatteBorder;
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Container;
+import java.awt.*;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * AI profile edition wizard class
@@ -43,7 +38,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private final Project project;
   private final ManagedObjectServiceProxy<Profile> profileSvc;
   private final Consumer<Boolean> callback;
-  private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   /**
    * Creates a new wizard
@@ -59,14 +53,14 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
    */
   public ProfileEditionWizard(@NotNull Project project, Profile profile, List<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStep) {
     super(false, new ProfileEditionWizardModel(
-            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profiles.settings.window.title"), project, profile, existingProfileNames, isUpdate,firstStep));
+            txt("profiles.settings.window.title"), project, profile, existingProfileNames, isUpdate,firstStep));
     profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
     this.project = project;
     this.initialProfile = new Profile(profile);
     this.editedProfile = profile;
     this.isUpdate = isUpdate;
     this.callback = callback;
-    finishButton.setText(messages.getString(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
+    finishButton.setText(txt(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
 
   }
 
@@ -75,17 +69,17 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   protected void doOKAction() {
     log.debug("entering doOKAction");
     if (editedProfile.getProfileName().isEmpty()) {
-      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.profile_name.validation.empty"));
+      Messages.showErrorDialog(project, txt("profile.mgmt.general_step.profile_name.validation.empty"));
     } else if (!this.isUpdate &&
             existingProfileNames.contains(editedProfile.getProfileName().trim().toUpperCase())) {
-      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.profile_name.validation.exists"));
+      Messages.showErrorDialog(project, txt("profile.mgmt.general_step.profile_name.validation.exists"));
     } else if (editedProfile.getCredentialName().isEmpty()) {
-      Messages.showErrorDialog(project, messages.getString("profile.mgmt.general_step.credential_name.validation"));
+      Messages.showErrorDialog(project, txt("profile.mgmt.general_step.credential_name.validation"));
     } else if (editedProfile.getObjectList().isEmpty()) {
-      Messages.showErrorDialog(project, messages.getString("profile.mgmt.object_list_step.validation"));
+      Messages.showErrorDialog(project, txt("profile.mgmt.object_list_step.validation"));
     } else if (initialProfile.equals(editedProfile)) {
       log.debug("profile has not changed, skipping the update");
-      Messages.showErrorDialog(project, messages.getString("profile.mgmt.update.validation"));
+      Messages.showErrorDialog(project, txt("profile.mgmt.update.validation"));
     } else {
       commitWizardView();
       super.doOKAction();

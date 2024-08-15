@@ -9,15 +9,11 @@ import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSlider;
+import javax.swing.*;
 import java.util.Hashtable;
-import java.util.Locale;
 import java.util.Objects;
-import java.util.ResourceBundle;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Profile edition provider step for edition wizard
@@ -40,8 +36,8 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
 
 
   public ProfileEditionProviderStep(Project project, @Nullable Profile profile, boolean isUpdate) {
-    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.provider_step.title"),
-            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.provider_step.explaination"),
+    super(txt("profile.mgmt.provider_step.title"),
+            txt("profile.mgmt.provider_step.explaination"),
             AllIcons.General.Settings);
     this.profile = profile;
     configureTemperatureSlider();

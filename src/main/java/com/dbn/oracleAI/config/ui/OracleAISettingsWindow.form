@@ -30,7 +30,7 @@
             <properties>
               <horizontalAlignment value="0"/>
               <horizontalTextPosition value="0"/>
-              <text resource-bundle="Messages" key="profiles.mgnt.buttons.close.text"/>
+              <text resource-bundle="messages/DBNResources" key="profiles.mgnt.buttons.close.text"/>
             </properties>
           </component>
           <component id="848a1" class="javax.swing.JSeparator">

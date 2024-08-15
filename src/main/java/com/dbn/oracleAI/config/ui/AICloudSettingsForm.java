@@ -11,22 +11,12 @@ import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.MatteBorder;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Desktop;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.event.MouseAdapter;
@@ -34,8 +24,8 @@ import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Locale;
-import java.util.ResourceBundle;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class AICloudSettingsForm extends DialogWrapper {
 
@@ -56,7 +46,6 @@ public class AICloudSettingsForm extends DialogWrapper {
   private final String username;
   private final DatabaseServiceImpl manager;
   private final ConnectionHandler connectionHandler;
-  ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   // Pass Project object to constructor
   public AICloudSettingsForm(ConnectionHandler connectionHandler) {
@@ -92,24 +81,24 @@ public class AICloudSettingsForm extends DialogWrapper {
     linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
     linkLabel.setForeground(JBColor.BLUE);
 
-    grantTextField.setText(String.format(messages.getString("permissions3.message"), username));
+    grantTextField.setText(txt("permissions3.message", username));
 
-    grantTextArea.setText(String.format(messages.getString("permissions4.message"), username, username));
+    grantTextArea.setText(txt("permissions4.message", username));
 
-    networkAllow.setText(messages.getString("permissions5.message"));
+    networkAllow.setText(txt("permissions5.message"));
 
-    aclTextArea.setText(String.format(messages.getString("permissions6.message"), ProviderConfiguration.getAccessPoint((ProviderType) providerComboBox.getSelectedItem()), username));
+    aclTextArea.setText(txt("permissions6.message", ProviderConfiguration.getAccessPoint((ProviderType) providerComboBox.getSelectedItem()), username));
 
     providerComboBox.addActionListener(e -> {
-      aclTextArea.setText(String.format(messages.getString("permissions6.message"), ProviderConfiguration.getAccessPoint((ProviderType) providerComboBox.getSelectedItem()), username));
+      aclTextArea.setText(txt("permissions6.message", ProviderConfiguration.getAccessPoint((ProviderType) providerComboBox.getSelectedItem()), username));
     });
 
     copyPrivilegeButton.addActionListener(e -> copyTextToClipboard(grantTextArea.getText()));
     copyACLButton.addActionListener(e -> copyTextToClipboard(aclTextArea.getText()));
 
 
-    applyPrivilegeButton.setToolTipText(messages.getString("privilege.apply.disabled"));
-    applyACLButton.setToolTipText(messages.getString("privilege.apply.disabled"));
+    applyPrivilegeButton.setToolTipText(txt("privilege.apply.disabled"));
+    applyACLButton.setToolTipText(txt("privilege.apply.disabled"));
 
     applyPrivilegeButton.addActionListener(e -> grantPrivileges(username));
     applyACLButton.addActionListener(e -> grantACLRights(aclTextArea.getText()));
@@ -134,7 +123,7 @@ public class AICloudSettingsForm extends DialogWrapper {
 
   @Override
   protected Action @NotNull [] createActions() {
-    super.setCancelButtonText(messages.getString("profiles.mgnt.buttons.close.text"));
+    super.setCancelButtonText(txt("profiles.mgnt.buttons.close.text"));
 
     return new Action[]{super.getCancelAction()};
   }
@@ -149,12 +138,12 @@ public class AICloudSettingsForm extends DialogWrapper {
     manager.grantACLRights(command)
         .thenAccept(a -> {
           SwingUtilities.invokeLater(() -> {
-            Messages.showInfoDialog(connectionHandler.getProject(), messages.getString("privileges.granted.title"), messages.getString("privileges.granted.message"));
+            Messages.showInfoDialog(connectionHandler.getProject(), txt("privileges.granted.title"), txt("privileges.granted.message"));
           });
         })
         .exceptionally(e -> {
           SwingUtilities.invokeLater(() -> {
-            Messages.showErrorDialog(connectionHandler.getProject(), messages.getString("privileges.not_granted.title"), messages.getString("privileges.not_granted.message") + e.getMessage());
+            Messages.showErrorDialog(connectionHandler.getProject(), txt("privileges.not_granted.title"), txt("privileges.not_granted.message") + e.getMessage());
           });
           return null;
         });
@@ -166,12 +155,12 @@ public class AICloudSettingsForm extends DialogWrapper {
     manager.grantPrivilege(username)
         .thenAccept(a -> {
           SwingUtilities.invokeLater(() -> {
-            Messages.showInfoDialog(connectionHandler.getProject(), messages.getString("privileges.granted.title"), messages.getString("privileges.granted.message"));
+            Messages.showInfoDialog(connectionHandler.getProject(), txt("privileges.granted.title"), txt("privileges.granted.message"));
           });
         })
         .exceptionally(e -> {
           SwingUtilities.invokeLater(() -> {
-            Messages.showErrorDialog(connectionHandler.getProject(), messages.getString("privileges.not_granted.title"), messages.getString("privileges.not_granted.message") + e.getMessage());
+            Messages.showErrorDialog(connectionHandler.getProject(), txt("privileges.not_granted.title"), txt("privileges.not_granted.message") + e.getMessage());
           });
           return null;
         });
@@ -184,8 +173,8 @@ public class AICloudSettingsForm extends DialogWrapper {
             applyACLButton.setEnabled(true);
             applyPrivilegeButton.setEnabled(true);
 
-            applyPrivilegeButton.setToolTipText(messages.getString("privilege.apply.enabled"));
-            applyACLButton.setToolTipText(messages.getString("privilege.apply.enabled"));
+            applyPrivilegeButton.setToolTipText(txt("privilege.apply.enabled"));
+            applyACLButton.setToolTipText(txt("privilege.apply.enabled"));
           });
         });
   }

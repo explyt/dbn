@@ -11,18 +11,13 @@ import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.InputVerifier;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.ItemEvent;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Profile edition general step for edition wizard.
@@ -41,11 +36,10 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private final List<String> existingProfileNames;
 
   private final boolean isUpdate;
-  private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   public ProfileEditionGeneralStep(Project project, Profile profile, List<String> existingProfileNames, boolean isUpdate) {
-    super(ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.general_step.title"),
-            ResourceBundle.getBundle("Messages", Locale.getDefault()).getString("profile.mgmt.general_step.explaination"),
+    super(txt("profile.mgmt.general_step.title"),
+            txt("profile.mgmt.general_step.explaination"),
             AllIcons.General.Settings);
     this.project = project;
     this.profile = profile;

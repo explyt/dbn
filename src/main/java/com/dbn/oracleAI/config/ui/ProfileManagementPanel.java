@@ -20,21 +20,17 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Profile management bindings
  */
 public class ProfileManagementPanel extends JPanel {
-
-  static private final ResourceBundle messages =
-      ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   private Map<String, Profile> profileMap;
   private Profile currProfile;
@@ -160,17 +156,17 @@ public class ProfileManagementPanel extends JPanel {
     editProfileButton.setIcon(Icons.ACTION_EDIT);
     deleteProfileButton.setIcon(Icons.ACTION_DELETE);
     makeDefaultProfileButton.setIcon(Icons.COMMON_CHECK);
-    addProfileButton.setToolTipText(messages.getString("ai.settings.profile.adding.tooltip"));
+    addProfileButton.setToolTipText(txt("ai.settings.profile.adding.tooltip"));
     ProfileComboBoxRenderer profileComboBoxRenderer = new ProfileComboBoxRenderer();
     profileComboBox.setRenderer(profileComboBoxRenderer);
     deleteProfileButton.addActionListener(event -> {
-      Messages.showQuestionDialog(currProject, messages.getString(
-              "ai.settings.profile.deletion.title"), messages.getString(
+      Messages.showQuestionDialog(currProject, txt(
+              "ai.settings.profile.deletion.title"), txt(
               "ai.settings.profile.deletion.message.prefix")
               + " " + currProfile.getProfileName(),
           Messages.options(
-              messages.getString("ai.messages.yes"),
-              messages.getString("ai.messages.no")), 1,
+              txt("ai.messages.yes"),
+              txt("ai.messages.no")), 1,
           option -> when(option == 0,
               () -> {
                 removeProfile(
@@ -238,15 +234,15 @@ public class ProfileManagementPanel extends JPanel {
       updateWindow();
     }).exceptionally(throwable -> {
       Messages.showErrorDialog(currProject,
-          messages.getString("profiles.mgnt.attr.deletion.failed.title"),
-          messages.getString("profiles.mgnt.attr.deletion.failed.msg"));
+          txt("profiles.mgnt.attr.deletion.failed.title"),
+          txt("profiles.mgnt.attr.deletion.failed.msg"));
 
       return null;
     });
   }
 
   private void initializeEmptyWindow() {
-    profileComboBox.setToolTipText(messages.getString("ai.messages.noitems"));
+    profileComboBox.setToolTipText(txt("ai.messages.noitems"));
     profileComboBox.setEnabled(false);
     credentialField.setEnabled(false);
     providerField.setEnabled(false);
@@ -278,7 +274,7 @@ public class ProfileManagementPanel extends JPanel {
    */
   private String fixAttributesPresentation(String value) {
     if (value != null) return value;
-    return messages.getString("ai.messages.unknown");
+    return txt("ai.messages.unknown");
   }
 
   /**
@@ -293,9 +289,9 @@ public class ProfileManagementPanel extends JPanel {
       modelField.setText(currProfile.getModel() == null ? currProfile.getProvider().getDefaultModel().name() : currProfile.getModel().name());
     } else {
       initializeEmptyWindow();
-      credentialField.setText(messages.getString("ai.messages.unknown"));
-      providerField.setText(messages.getString("ai.messages.unknown"));
-      modelField.setText(messages.getString("ai.messages.unknown"));
+      credentialField.setText(txt("ai.messages.unknown"));
+      providerField.setText(txt("ai.messages.unknown"));
+      modelField.setText(txt("ai.messages.unknown"));
       objListTable.setModel(new DefaultTableModel());
     }
   }
@@ -356,8 +352,8 @@ public class ProfileManagementPanel extends JPanel {
 
   private void populateTable(Profile profile) {
     String[] columnNames = {
-        messages.getString("profile.mgmt.obj_table.header.name"),
-        messages.getString("profile.mgmt.obj_table.header.owner")};
+        txt("profile.mgmt.obj_table.header.name"),
+        txt("profile.mgmt.obj_table.header.owner")};
     Object[][] data = profile.getObjectList().stream()
         .map(obj -> new Object[]{obj.getName(), obj.getOwner()})
         .toArray(Object[][]::new);

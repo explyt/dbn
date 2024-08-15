@@ -1,15 +1,11 @@
 package com.dbn.oracleAI.config.ui;
 
-import javax.swing.BorderFactory;
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.Border;
-import java.awt.Color;
+import java.awt.*;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * InputVerifier class for AI profile name
@@ -19,7 +15,6 @@ public class ProfileNameVerifier extends InputVerifier {
   private static final Border DEFAULT_BORDER = UIManager.getBorder("TextField.border");
   private final List<String> profileNames;
   private final boolean isUpdate;
-  private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   public ProfileNameVerifier(List<String> profileNames, boolean isUpdate) {
     this.profileNames = profileNames;
@@ -33,10 +28,10 @@ public class ProfileNameVerifier extends InputVerifier {
     boolean exists = profileNames.contains(textField.getText().trim().toUpperCase());
     if (isEmpty) {
       textField.setBorder(ERROR_BORDER);
-      textField.setToolTipText(messages.getString("profile.mgmt.general_step.profile_name.validation.empty"));
+      textField.setToolTipText(txt("profile.mgmt.general_step.profile_name.validation.empty"));
     } else if (exists && !isUpdate) {
       textField.setBorder(ERROR_BORDER);
-      textField.setToolTipText(messages.getString("profile.mgmt.general_step.profile_name.validation.exists"));
+      textField.setToolTipText(txt("profile.mgmt.general_step.profile_name.validation.exists"));
     } else {
       textField.setBorder(DEFAULT_BORDER);
       textField.setToolTipText(null);

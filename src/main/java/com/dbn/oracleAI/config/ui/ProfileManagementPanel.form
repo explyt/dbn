@@ -21,7 +21,7 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="1" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="Messages" key="profiles.mgnt.label"/>
+              <text resource-bundle="messages/DBNResources" key="profiles.mgnt.label"/>
             </properties>
           </component>
           <component id="2faf4" class="javax.swing.JButton" binding="addProfileButton">
@@ -60,7 +60,7 @@
                   <horizontalTextPosition value="2"/>
                   <label value=""/>
                   <text value=""/>
-                  <toolTipText resource-bundle="Messages" key="profiles.mgnt.edit.button.tooltip"/>
+                  <toolTipText resource-bundle="messages/DBNResources" key="profiles.mgnt.edit.button.tooltip"/>
                 </properties>
               </component>
               <component id="c9603" class="javax.swing.JButton" binding="deleteProfileButton">
@@ -69,7 +69,7 @@
                 </constraints>
                 <properties>
                   <text value=""/>
-                  <toolTipText resource-bundle="Messages" key="profiles.mgnt.delete.button.tooltip"/>
+                  <toolTipText resource-bundle="messages/DBNResources" key="profiles.mgnt.delete.button.tooltip"/>
                 </properties>
               </component>
               <component id="c4876" class="javax.swing.JButton" binding="makeDefaultProfileButton">
@@ -80,7 +80,7 @@
                   <hideActionText value="true"/>
                   <horizontalTextPosition value="0"/>
                   <text value=""/>
-                  <toolTipText resource-bundle="Messages" key="profiles.mgnt.mkdefault.button.tooltip"/>
+                  <toolTipText resource-bundle="messages/DBNResources" key="profiles.mgnt.mkdefault.button.tooltip"/>
                 </properties>
               </component>
               <vspacer id="a8ce9">
@@ -105,7 +105,7 @@
                   <component id="55c38" class="javax.swing.JLabel">
                     <constraints border-constraint="West"/>
                     <properties>
-                      <text resource-bundle="Messages" key="profiles.mgnt.attr.name.label"/>
+                      <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.name.label"/>
                     </properties>
                   </component>
                   <component id="801e" class="javax.swing.JComboBox" binding="profileComboBox">
@@ -138,7 +138,7 @@
                       <forms defaultalign-horz="false"/>
                     </constraints>
                     <properties>
-                      <text resource-bundle="Messages" key="profiles.mgnt.attr.model.label"/>
+                      <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.model.label"/>
                     </properties>
                   </component>
                   <component id="ecda1" class="javax.swing.JLabel" binding="modelField">
@@ -148,7 +148,7 @@
                     </constraints>
                     <properties>
                       <font style="1"/>
-                      <text resource-bundle="Messages" key="ai.messages.unknown"/>
+                      <text resource-bundle="messages/DBNResources" key="ai.messages.unknown"/>
                     </properties>
                   </component>
                   <component id="2618d" class="javax.swing.JLabel">
@@ -157,7 +157,7 @@
                       <forms defaultalign-horz="false"/>
                     </constraints>
                     <properties>
-                      <text resource-bundle="Messages" key="profiles.mgnt.attr.provider.label"/>
+                      <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.provider.label"/>
                     </properties>
                   </component>
                   <component id="d5ec3" class="javax.swing.JLabel" binding="providerField">
@@ -167,7 +167,7 @@
                     </constraints>
                     <properties>
                       <font style="1"/>
-                      <text resource-bundle="Messages" key="ai.messages.unknown"/>
+                      <text resource-bundle="messages/DBNResources" key="ai.messages.unknown"/>
                     </properties>
                   </component>
                   <component id="18f44" class="javax.swing.JLabel">
@@ -176,7 +176,7 @@
                       <forms defaultalign-horz="false"/>
                     </constraints>
                     <properties>
-                      <text resource-bundle="Messages" key="profiles.mgnt.attr.cred.label"/>
+                      <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.cred.label"/>
                     </properties>
                   </component>
                   <component id="3d672" class="javax.swing.JLabel" binding="credentialField">
@@ -188,7 +188,7 @@
                     </constraints>
                     <properties>
                       <font style="1"/>
-                      <text resource-bundle="Messages" key="ai.messages.unknown"/>
+                      <text resource-bundle="messages/DBNResources" key="ai.messages.unknown"/>
                     </properties>
                   </component>
                 </children>
@@ -230,7 +230,7 @@
                 <properties>
                   <horizontalAlignment value="2"/>
                   <labelFor value="73d66"/>
-                  <text resource-bundle="Messages" key="profiles.mgnt.attr.associated"/>
+                  <text resource-bundle="messages/DBNResources" key="profiles.mgnt.attr.associated"/>
                 </properties>
               </component>
               <component id="cf414" class="javax.swing.JButton" binding="goToAssociatedObjects">

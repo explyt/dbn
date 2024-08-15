@@ -6,8 +6,12 @@ import com.dbn.oracleAI.types.DatabaseObjectType;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Database object table model.
@@ -15,8 +19,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 public class DatabaseObjectListTableModel extends AbstractTableModel {
-
-    static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
     private static final int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
 
@@ -28,7 +30,7 @@ public class DatabaseObjectListTableModel extends AbstractTableModel {
     List<DBObjectItem> parkedItems;
 
     private static final String[] columnNames = {
-            messages.getString("profile.mgmt.obj_table.header.name")
+            txt("profile.mgmt.obj_table.header.name")
     };
 
     /**

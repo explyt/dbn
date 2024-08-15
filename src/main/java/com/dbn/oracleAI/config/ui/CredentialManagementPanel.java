@@ -14,25 +14,15 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.uiDesigner.core.GridConstraints;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
-import javax.swing.DefaultListCellRenderer;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import java.awt.Component;
-import java.awt.Font;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * A panel for managing AI credentials within the application, offering functionalities
@@ -44,8 +34,6 @@ import java.util.stream.Collectors;
  * leveraging the {@link ConnectionHandler} to fetch and manage credentials for a given project connection.
  */
 public class CredentialManagementPanel extends JPanel {
-
-  static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   private final ActivityNotifier activityNotifier;
 
@@ -142,24 +130,24 @@ public class CredentialManagementPanel extends JPanel {
     });
     // Initializes deleteButton with its action listener for deleting selected credentials
     deleteButton.addActionListener(e -> {
-      StringBuilder detailedMessage = new StringBuilder(messages.getString("ai.settings.credential.deletion.message.prefix"));
+      StringBuilder detailedMessage = new StringBuilder(txt("ai.settings.credential.deletion.message.prefix"));
       detailedMessage.append(' ');
       detailedMessage.append(credentialList.getSelectedValue().getCredentialName());
       List<String> uses = credentialNameToProfileNameMap.get(credentialList.getSelectedValue());
       if (uses.size() > 0) {
         detailedMessage.append('\n');
-        detailedMessage.append(messages.getString("ai.settings.credential.deletion.message.warning"));
+        detailedMessage.append(txt("ai.settings.credential.deletion.message.warning"));
         uses.forEach(c -> {
           detailedMessage.append(c);
           detailedMessage.append(", ");
         });
       }
       Messages.showQuestionDialog(this.curProject,
-          messages.getString("ai.settings.credential.deletion.title"),
+          txt("ai.settings.credential.deletion.title"),
           detailedMessage.toString(),
           Messages.options(
-              messages.getString("ai.messages.yes"),
-              messages.getString("ai.messages.no")), 1,
+              txt("ai.messages.yes"),
+              txt("ai.messages.no")), 1,
           option -> {
             if (option == 0) {
               removeCredential(credentialList.getSelectedValue().getCredentialName());
@@ -175,12 +163,12 @@ public class CredentialManagementPanel extends JPanel {
         panelTemplate(selectedCredential);
         String[] used = credentialNameToProfileNameMap.get(selectedCredential).toArray(new String[]{});
         if (used.length > 0) {
-          profilesLabelTitle.setText(messages.getString("credential.mgnt.used"));
+          profilesLabelTitle.setText(txt("credential.mgnt.used"));
           usedByList.setListData(used);
           usedByScrollPane.setVisible(true);
         } else {
           usedByList.setListData(new String[]{});
-          profilesLabelTitle.setText(messages.getString("credential.mgnt.notused"));
+          profilesLabelTitle.setText(txt("credential.mgnt.notused"));
           usedByScrollPane.setVisible(false);
         }
         editButton.setEnabled(true);
@@ -201,7 +189,7 @@ public class CredentialManagementPanel extends JPanel {
         if (!credential.isEnabled()) {
           setFont(getFont().deriveFont(Font.ITALIC));
           //setForeground(Color.DARK_GRAY);
-          setToolTipText(messages.getString("ai.settings.credentials.info.is_disable_tooltip"));
+          setToolTipText(txt("ai.settings.credentials.info.is_disable_tooltip"));
         }
         if (credentialNameToProfileNameMap.get(credential) != null &&
             credentialNameToProfileNameMap.get(credential).size() > 0) {
@@ -279,19 +267,19 @@ public class CredentialManagementPanel extends JPanel {
 
 
     com.jgoodies.forms.layout.CellConstraints cc = new com.jgoodies.forms.layout.CellConstraints();
-    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.credential_name")), cc.xy(1, 1));
+    displayInfo.add(new JLabel(txt("ai.settings.credentials.info.credential_name")), cc.xy(1, 1));
     JTextField jt1 = new JTextField(credential.getCredentialName());
     jt1.setEditable(false);
     displayInfo.add(jt1,
         cc.xy(3, 1, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
-    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.username")), cc.xy(1, 3));
+    displayInfo.add(new JLabel(txt("ai.settings.credentials.info.username")), cc.xy(1, 3));
     JTextField jt2 = new JTextField(credential.getUsername(), 10);
     jt2.setEditable(false);
     displayInfo.add(jt2,
         cc.xy(3, 3, com.jgoodies.forms.layout.CellConstraints.FILL, com.jgoodies.forms.layout.CellConstraints.DEFAULT));
 
-    displayInfo.add(new JLabel(messages.getString("ai.settings.credentials.info.comment")), cc.xy(1, 5));
+    displayInfo.add(new JLabel(txt("ai.settings.credentials.info.comment")), cc.xy(1, 5));
     JTextField jt3 = new JTextField(credential.getComments(), 10);
     jt3.setEditable(false);
     displayInfo.add(jt3,
@@ -309,7 +297,7 @@ public class CredentialManagementPanel extends JPanel {
         if (cred.isEnabled()) {
           return "";
         } else {
-          return messages.getString("ai.settings.credential.not_enabled");
+          return txt("ai.settings.credential.not_enabled");
         }
       }
 

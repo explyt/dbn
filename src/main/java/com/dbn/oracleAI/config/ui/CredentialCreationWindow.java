@@ -16,20 +16,12 @@ import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Action;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-import java.awt.CardLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * A dialog window for creating new AI credentials.
@@ -37,7 +29,6 @@ import java.util.ResourceBundle;
  * It interacts with {@link AICredentialServiceImpl} to create credentials in the system.
  */
 public class CredentialCreationWindow extends DialogWrapper {
-  static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
   private final AICredentialService credentialSvc;
   private JPanel contentPane;
@@ -82,7 +73,7 @@ public class CredentialCreationWindow extends DialogWrapper {
     this.credential = credential;
     this.creationCallback = creationCallback;
     init();
-    setTitle(messages.getString("ai.settings.credentials.creation.title"));
+    setTitle(txt("ai.settings.credentials.creation.title"));
     initializeUI();
     pack();
   }
@@ -104,7 +95,7 @@ public class CredentialCreationWindow extends DialogWrapper {
    * Initializes the user interface components and event listeners for the dialog.
    */
   private void initializeUI() {
-    saveInfoCheckBox.setText(messages.getString("ai.settings.credentials.info.save"));
+    saveInfoCheckBox.setText(txt("ai.settings.credentials.info.save"));
     if (credential != null) {
       hydrateFields();
     } else {
@@ -234,7 +225,7 @@ public class CredentialCreationWindow extends DialogWrapper {
 
   @Override
   protected Action @NotNull [] createActions() {
-    super.setOKButtonText(messages.getString(credential != null ? "ai.messages.button.update" : "ai.messages.button.create"));
+    super.setOKButtonText(txt(credential != null ? "ai.messages.button.update" : "ai.messages.button.create"));
 
     return super.createActions();
   }
@@ -245,11 +236,11 @@ public class CredentialCreationWindow extends DialogWrapper {
   @Override
   protected ValidationInfo doValidate() {
     if (credentialNameField.getText().isEmpty()) {
-      return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_1"),
+      return new ValidationInfo(txt("ai.settings.credentials.info.credential_name.validation_error_1"),
           credentialNameField);
     }
     if (this.existingCredentialNames.contains(credentialNameField.getText().toUpperCase()) && credential == null) {
-      return new ValidationInfo(messages.getString("ai.settings.credentials.info.credential_name.validation_error_2"),
+      return new ValidationInfo(txt("ai.settings.credentials.info.credential_name.validation_error_2"),
           credentialNameField);
     }
     if (credentialNameField.isEnabled()) {
@@ -275,40 +266,40 @@ public class CredentialCreationWindow extends DialogWrapper {
 
   private ValidationInfo doOCICredentialValidate() {
     if (OCICredentialUserOcidField.getText().isEmpty()) {
-      return new ValidationInfo(messages.getString("ai.settings.credentials.oci.info.user_ocid.validation_error_1"), OCICredentialUserOcidField);
+      return new ValidationInfo(txt("ai.settings.credentials.oci.info.user_ocid.validation_error_1"), OCICredentialUserOcidField);
     }
     if (!OCICredentialUserOcidField.getText().startsWith("ocid1.user.oc1.")) {
       return new ValidationInfo(
-          messages.getString("ai.settings.credentials.oci.info.user_ocid.validation_error_2"),
+          txt("ai.settings.credentials.oci.info.user_ocid.validation_error_2"),
           OCICredentialUserOcidField);
     }
     if (OCICredentialUserTenancyOcidField.getText().isEmpty()) {
       return new ValidationInfo(
-          messages.getString("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_1"),
+          txt("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_1"),
           OCICredentialUserTenancyOcidField);
     }
     if (!OCICredentialUserTenancyOcidField.getText().startsWith("ocid1.tenancy.oc1.")) {
       return new ValidationInfo(
-          messages.getString("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_2"),
+          txt("ai.settings.credentials.oci.info.tenancy_ocid.validation_error_2"),
           OCICredentialUserTenancyOcidField);
     }
     if (OCICredentialFingerprintField.getText().isEmpty()) {
-      return new ValidationInfo(messages.getString("ai.settings.credentials.oci.info.fingerprint.validation_error_1"),
+      return new ValidationInfo(txt("ai.settings.credentials.oci.info.fingerprint.validation_error_1"),
           OCICredentialFingerprintField);
     }
     if (OCICredentialPrivateKeyField.getText().isEmpty()) {
-      return new ValidationInfo(messages.getString("ai.settings.credentials.oci.info.private_key.validation_error_1"), OCICredentialPrivateKeyField);
+      return new ValidationInfo(txt("ai.settings.credentials.oci.info.private_key.validation_error_1"), OCICredentialPrivateKeyField);
     }
     return null;
   }
 
   private ValidationInfo doPasswordCredentialValidate() {
     if (passwordCredentialUsernameField.getText().isEmpty()) {
-      return new ValidationInfo(messages.getString("ai.settings.credentials.info.username.validation_error_1"),
+      return new ValidationInfo(txt("ai.settings.credentials.info.username.validation_error_1"),
           passwordCredentialUsernameField);
     }
     if (passwordCredentialPasswordField.getText().isEmpty()) {
-      return new ValidationInfo(messages.getString("ai.settings.credentials.info.password.validation_error_1")
+      return new ValidationInfo(txt("ai.settings.credentials.info.password.validation_error_1")
           , passwordCredentialPasswordField);
     }
     return null;

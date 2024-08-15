@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+
+import static com.dbn.nls.NlsResources.txt;
 
 /**
  * profile object table model.
@@ -16,7 +16,6 @@ import java.util.ResourceBundle;
 @Slf4j
 public class ProfileObjectListTableModel extends AbstractTableModel {
 
-    static private final ResourceBundle messages = ResourceBundle.getBundle("Messages", Locale.getDefault());
 
     private List<ProfileDBObjectItem> data;
 
@@ -24,8 +23,8 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
     public static final int OWNER_COLUMN_IDX = 1;
 
     private static final String[] columnNames = {
-            messages.getString("profile.mgmt.obj_table.header.name"),
-            messages.getString("profile.mgmt.obj_table.header.owner")
+            txt("profile.mgmt.obj_table.header.name"),
+            txt("profile.mgmt.obj_table.header.owner")
     };
 
     /**
