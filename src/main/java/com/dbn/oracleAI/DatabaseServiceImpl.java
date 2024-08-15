@@ -1,7 +1,6 @@
 package com.dbn.oracleAI;
 
-import com.dbn.connection.ConnectionRef;
-import com.dbn.connection.SessionId;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
@@ -19,16 +18,19 @@ import java.util.concurrent.CompletionException;
  * Service to handle DB objects and operations
  */
 @Slf4j
-public class DatabaseServiceImpl implements DatabaseService {
+public class DatabaseServiceImpl extends AIAssistantComponent implements DatabaseService {
 
-  private final ConnectionRef connectionRef;
+
+  DatabaseServiceImpl(ConnectionHandler connection) {
+    super(connection);
+  }
 
   public CompletableFuture<List<String>> getSchemaNames() {
     return CompletableFuture.supplyAsync(() -> {
       try {
         log.debug("fetching schemas");
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        List<String> schemas = connectionRef.get().getOracleAIInterface().listSchemas(connection);
+        DBNConnection connection = getAssistantConnection();
+        List<String> schemas = getAssistantInterface().listSchemas(connection);
         if (log.isDebugEnabled())
           log.debug("fetched schemas: " + schemas);
         if (System.getProperty("fake.services.schemas.dump") != null) {
@@ -54,8 +56,8 @@ public class DatabaseServiceImpl implements DatabaseService {
     return CompletableFuture.supplyAsync(() -> {
       try {
         log.debug("fetching objects for schema " + schema);
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        List<DBObjectItem> objectListItemsList = connectionRef.get().getOracleAIInterface().listObjectListItems(connection, schema);
+        DBNConnection connection = getAssistantConnection();
+        List<DBObjectItem> objectListItemsList = getAssistantInterface().listObjectListItems(connection, schema);
         log.debug("getObjectItemsForSchema: "+objectListItemsList.size() + " objects returned ");
         if (System.getProperty("fake.services.dbitems.dump") != null) {
           try {
@@ -82,8 +84,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   public CompletableFuture<Void> grantACLRights(String command) {
     return CompletableFuture.supplyAsync(() -> {
       try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        connectionRef.get().getOracleAIInterface().grantACLRights(connection, command);
+        DBNConnection connection = getAssistantConnection();
+        getAssistantInterface().grantACLRights(connection, command);
       } catch (SQLException e) {
         throw new CompletionException(e);
       }
@@ -94,8 +96,8 @@ public class DatabaseServiceImpl implements DatabaseService {
   public CompletableFuture<Void> grantPrivilege(String username) {
     return CompletableFuture.supplyAsync(() -> {
       try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        connectionRef.get().getOracleAIInterface().grantPrivilege(connection, username);
+        DBNConnection connection = getAssistantConnection();
+        getAssistantInterface().grantPrivilege(connection, username);
       } catch (SQLException e) {
         throw new CompletionException(e);
       }
@@ -106,20 +108,12 @@ public class DatabaseServiceImpl implements DatabaseService {
   public CompletableFuture<Void> isUserAdmin() {
     return CompletableFuture.supplyAsync(() -> {
       try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        connectionRef.get().getOracleAIInterface().checkAdmin(connection);
+        DBNConnection connection = getAssistantConnection();
+        getAssistantInterface().checkAdmin(connection);
       } catch (SQLException e) {
         throw new CompletionException(e);
       }
       return null;
     });
   }
-
-  DatabaseServiceImpl(ConnectionRef connectionRef) {
-    assert connectionRef.get() != null : "No connection";
-    this.connectionRef = connectionRef;
-  }
-
-
-
 }

@@ -3,6 +3,7 @@ package com.dbn.oracleAI;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
@@ -41,10 +42,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @State(name = DatabaseOracleAIManager.COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 @Slf4j
-public class DatabaseOracleAIManager extends ProjectComponentBase
-    implements PersistentState {
-  public static final String COMPONENT_NAME =
-      "DBNavigator.Project.OracleAIManager";
+public class DatabaseOracleAIManager extends ProjectComponentBase implements PersistentState {
+  public static final String COMPONENT_NAME = "DBNavigator.Project.OracleAIManager";
   public static final String TOOL_WINDOW_ID = "Oracle Companion";
   public ConnectionId currConnection;
   private static OracleAIChatBox oracleAIChatBox;
@@ -115,10 +114,10 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
 //      return "```\nselect something;\n```\n\nTHIS IS a response " + new Random().nextInt();
       try {
         String output;
-        DBNConnection mainConnection =
-            Objects.requireNonNull(ConnectionHandler.get(currConnection)).getConnection(SessionId.ORACLE_AI);
-        output = Objects.requireNonNull(ConnectionHandler.get(currConnection)).getOracleAIInterface()
-            .executeQuery(mainConnection, action, profile,
+        ConnectionHandler connection = getCurrentConnection();
+        DBNConnection conn = connection.getConnection(SessionId.ORACLE_AI);
+        output = connection.getOracleAIInterface()
+            .executeQuery(conn, action, profile,
                 text, model)
             .getQueryOutput();
         return output;
@@ -127,7 +126,6 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
       }
     });
   }
-
 
   public void openSettings() {
     AnAction action = new OracleAISettingsOpenAction(ConnectionHandler.get(currConnection));
@@ -171,11 +169,12 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
     });
   }
 
-  private Map<ConnectionId, ManagedObjectServiceProxy<Profile>> profileManagerMap = new HashMap<>();
+  private final Map<ConnectionId, ManagedObjectServiceProxy<Profile>> profileManagerMap = new ConcurrentHashMap<>();
 
-  private Map<ConnectionId, AICredentialService> credentialManagerMap = new HashMap<>();
+  private final Map<ConnectionId, AICredentialService> credentialManagerMap = new ConcurrentHashMap<>();
 
-  private Map<ConnectionId, DatabaseService> databaseManagerMap = new HashMap<>();
+  private final Map<ConnectionId, DatabaseService> databaseManagerMap = new ConcurrentHashMap<>();
+
 
   /**
    * Gets a profile manager for the current connection.
@@ -184,53 +183,32 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
    *
    * @return a manager.
    */
-  public synchronized ManagedObjectServiceProxy<Profile> getProfileService() {
-    //TODO : later find better than using "synchronized"
-
-    ManagedObjectServiceProxy<Profile> svc = profileManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
-    if (svc != null) {
-      return svc;
-    }
-
-    if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
-      svc = new ManagedObjectServiceProxy<Profile>(new FakeAIProfileService());
-    } else {
-      svc = new ManagedObjectServiceProxy<Profile>(new AIProfileServiceImpl(ConnectionHandler.get(currConnection).ref()));
-    }
-    profileManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
-    return svc;
+  public ManagedObjectServiceProxy<Profile> getProfileService() {
+    return profileManagerMap.computeIfAbsent(
+            getCurrentConnectionId(),
+            id -> new ManagedObjectServiceProxy<>(isMockEnv() ?
+                    new FakeAIProfileService() :
+                    new AIProfileServiceImpl(ConnectionHandler.ensure(id))));
   }
 
-  public synchronized AICredentialService getCredentialService() {
-    //TODO : later find better than using "synchronized"
-    AICredentialService svc = credentialManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
-    if (svc != null) {
-      return svc;
-    }
-
-    if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
-      svc = new FakeAICredentialService();
-    } else {
-      svc = new AICredentialServiceImpl(ConnectionHandler.get(currConnection).ref());
-    }
-    credentialManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
-    return svc;
+  public AICredentialService getCredentialService() {
+    return credentialManagerMap.computeIfAbsent(
+            getCurrentConnectionId(),
+            id -> isMockEnv() ?
+                    new FakeAICredentialService() :
+                    new AICredentialServiceImpl(ConnectionHandler.ensure(id)));
   }
 
-  public synchronized DatabaseService getDatabaseService() {
-    //TODO : later find better than using "synchronized"
-    DatabaseService svc = databaseManagerMap.get(ConnectionHandler.get(currConnection).getConnectionId());
-    if (svc != null) {
-      return svc;
-    }
-    if (Boolean.parseBoolean(System.getProperty("fake.services"))) {
-      svc = new FakeDatabaseService();
-    } else {
-      svc = new DatabaseServiceImpl(ConnectionHandler.get(currConnection).ref());
-    }
-    databaseManagerMap.put(ConnectionHandler.get(currConnection).getConnectionId(), svc);
-    return svc;
+  public DatabaseService getDatabaseService() {
+    return databaseManagerMap.computeIfAbsent(
+            getCurrentConnectionId(),
+            id -> isMockEnv() ?
+                    new FakeDatabaseService() :
+                    new DatabaseServiceImpl(ConnectionHandler.ensure(id)));
+  }
 
+  private static boolean isMockEnv() {
+    return Boolean.parseBoolean(System.getProperty("fake.services"));
   }
 
   public AIProfileItem getDefaultProfile() {
@@ -239,5 +217,14 @@ public class DatabaseOracleAIManager extends ProjectComponentBase
 
   public void updateDefaultProfile(AIProfileItem profile) {
     defaultProfileMap.put(currConnection, profile);
+  }
+
+
+  private @NotNull ConnectionHandler getCurrentConnection() {
+    return ConnectionHandler.ensure(currConnection);
+  }
+
+  private @NotNull ConnectionId getCurrentConnectionId() {
+    return Failsafe.nn(currConnection);
   }
 }

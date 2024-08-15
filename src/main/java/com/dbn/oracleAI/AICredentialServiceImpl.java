@@ -1,7 +1,6 @@
 package com.dbn.oracleAI;
 
-import com.dbn.connection.ConnectionRef;
-import com.dbn.connection.SessionId;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
@@ -19,28 +18,23 @@ import java.util.concurrent.CompletionException;
  * Provides functionality to asynchronously list detailed information about credentials stored in the database.
  */
 @Slf4j
-public class AICredentialServiceImpl implements AICredentialService {
-
-  private final ConnectionRef connectionRef;
+public class AICredentialServiceImpl extends AIAssistantComponent implements AICredentialService {
 
   /**
    * Constructs a new AICredentialService with a specified connection handler.
    *
-   * @param connectionRef The connection reference for the connection handler responsible for managing database connections
-   *                      and interactions.
-   * @throws CredentialManagementException
+   * @param connection The {@link ConnectionHandler} responsible for managing database connections and interactions.
    */
-  public AICredentialServiceImpl(ConnectionRef connectionRef) {
-    assert connectionRef != null : "No connection";
-    this.connectionRef = connectionRef;
+  public AICredentialServiceImpl(ConnectionHandler connection) {
+    super(connection);
   }
 
   @Override
   public CompletableFuture<Void> createCredential(Credential credential) {
     return CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        connectionRef.get().getOracleAIInterface().createCredential(connection, credential);
+        DBNConnection connection = getAssistantConnection();
+        getAssistantInterface().createCredential(connection, credential);
       } catch (CredentialManagementException | SQLException e) {
         throw new CompletionException("Cannot create credential", e);
       }
@@ -51,8 +45,8 @@ public class AICredentialServiceImpl implements AICredentialService {
   public CompletableFuture<Void> updateCredential(Credential editedCredential) {
     return CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        connectionRef.get().getOracleAIInterface().setCredentialAttribute(connection, editedCredential);
+        DBNConnection connection = getAssistantConnection();
+        getAssistantInterface().setCredentialAttribute(connection, editedCredential);
       } catch (CredentialManagementException | SQLException e) {
         throw new CompletionException("Cannot update credential", e);
       }
@@ -64,9 +58,9 @@ public class AICredentialServiceImpl implements AICredentialService {
     return CompletableFuture.supplyAsync(() -> {
       try {
         // Obtain a connection for Oracle AI session
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
+        DBNConnection connection = getAssistantConnection();
 
-        List<Credential> credentialList = connectionRef.get().getOracleAIInterface().listCredentials(connection);
+        List<Credential> credentialList = getAssistantInterface().listCredentials(connection);
         if (System.getProperty("fake.services.credentials.dump") != null) {
           try {
             FileWriter writer = new FileWriter(System.getProperty("fake.services.credentials.dump"));
@@ -93,8 +87,8 @@ public class AICredentialServiceImpl implements AICredentialService {
     }
     return CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        connectionRef.get().getOracleAIInterface().dropCredential(connection, credentialName);
+        DBNConnection connection = getAssistantConnection();
+        getAssistantInterface().dropCredential(connection, credentialName);
       } catch (SQLException | CredentialManagementException e) {
         throw new CompletionException("Cannot delete credential", e);
       }
@@ -108,12 +102,11 @@ public class AICredentialServiceImpl implements AICredentialService {
     }
     CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        connectionRef.get().getOracleAIInterface().updateCredentialStatus(connection, credentialName, isEnabled);
+        DBNConnection connection = getAssistantConnection();
+        getAssistantInterface().updateCredentialStatus(connection, credentialName, isEnabled);
       } catch (SQLException | CredentialManagementException e) {
         throw new CompletionException("Cannot update credential status", e);
       }
     });
   }
-
 }

@@ -1,7 +1,6 @@
 package com.dbn.oracleAI;
 
-import com.dbn.connection.ConnectionRef;
-import com.dbn.connection.SessionId;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
@@ -16,12 +15,10 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 
 @Slf4j
-public class AIProfileServiceImpl implements AIProfileService {
-  private final ConnectionRef connectionRef;
+public class AIProfileServiceImpl extends AIAssistantComponent implements AIProfileService {
 
-  AIProfileServiceImpl(ConnectionRef connectionRef) {
-    assert connectionRef.get() != null : "No connection";
-    this.connectionRef = connectionRef;
+  AIProfileServiceImpl(ConnectionHandler connection) {
+      super(connection);
   }
 
   private void dumpThem(List<Profile> profileList, String path) {
@@ -49,10 +46,8 @@ public class AIProfileServiceImpl implements AIProfileService {
     return CompletableFuture.supplyAsync(() -> {
       try {
         log.debug("getting profiles");
-        DBNConnection dbnConnection =
-            connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        List<Profile> profileList = connectionRef.get().getOracleAIInterface()
-            .listProfiles(dbnConnection);
+        DBNConnection connection = getAssistantConnection();
+        List<Profile> profileList = getAssistantInterface().listProfiles(connection);
 
         dumpThem(profileList, System.getProperty("fake.services.profiles.dump") );
 
@@ -71,8 +66,8 @@ public class AIProfileServiceImpl implements AIProfileService {
   public CompletableFuture<Void> delete(String profileName) {
     return CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-        connectionRef.get().getOracleAIInterface().dropProfile(connection, profileName);
+        DBNConnection connection = getAssistantConnection();
+        getAssistantInterface().dropProfile(connection, profileName);
       } catch (SQLException | ProfileManagementException e) {
         log.warn("error deleting profile "+ profileName, e);
         throw new CompletionException("Cannot delete profile", e);
@@ -85,8 +80,8 @@ public class AIProfileServiceImpl implements AIProfileService {
   public CompletionStage<Void> create(Profile profile) {
     return CompletableFuture.runAsync(() -> {
           try {
-            DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-            connectionRef.get().getOracleAIInterface().createProfile(connection, profile);
+            DBNConnection connection = getAssistantConnection();
+            getAssistantInterface().createProfile(connection, profile);
           } catch (SQLException | ProfileManagementException e) {
             log.warn("error creating profile", e);
             throw new CompletionException("Cannot create profile", e);
@@ -99,8 +94,8 @@ public class AIProfileServiceImpl implements AIProfileService {
   public CompletionStage<Void> update(Profile updatedProfile) {
     return CompletableFuture.runAsync(() -> {
           try {
-            DBNConnection connection = connectionRef.get().getConnection(SessionId.ORACLE_AI);
-            connectionRef.get().getOracleAIInterface().setProfileAttributes(connection, updatedProfile);
+            DBNConnection connection = getAssistantConnection();
+            getAssistantInterface().setProfileAttributes(connection, updatedProfile);
           } catch (SQLException | ProfileManagementException e) {
             log.warn("error updating profiles", e);
             throw new CompletionException("Cannot update profile", e);
@@ -108,5 +103,4 @@ public class AIProfileServiceImpl implements AIProfileService {
         }
     );
   }
-
 }
