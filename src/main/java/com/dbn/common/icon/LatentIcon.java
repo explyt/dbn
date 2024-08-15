@@ -31,7 +31,7 @@ abstract class LatentIcon implements ScalableIcon {
     protected abstract Icon load();
 
     @Delegate
-    private Icon delegate() {
-        return delegate.get();
+    private ScalableIcon delegate() {
+        return (ScalableIcon) delegate.get();
     }
 }

@@ -1,8 +1,6 @@
 package com.dbn.browser;
 
 import com.dbn.browser.ui.BrowserToolWindowForm;
-import com.dbn.common.icon.IconBundle;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.window.DBNToolWindowFactory;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -25,14 +23,5 @@ public class DatabaseBrowserToolWindowFactory extends DBNToolWindowFactory {
         toolWindow.setTitle("DB Browser");
         toolWindow.setStripeTitle("DB Browser");
         contentManager.addContent(content);
-    }
-
-    @Override
-    protected IconBundle createIconBundle() {
-        return new IconBundle(
-                Icons.WINDOW_DATABASE_BROWSER,
-                Icons.WINDOW_DATABASE_BROWSER_S,
-                Icons.WINDOW_DATABASE_BROWSER_L,
-                Icons.WINDOW_DATABASE_BROWSER_LS);
     }
 }

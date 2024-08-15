@@ -39,7 +39,7 @@ public class ObjectDependencyTreeCellRenderer extends DBNColoredTreeCellRenderer
             ObjectDependencyTreeModel model = node.getModel();
             Icon dependencyTypeIcon = model.getDependencyType().getSoftIcon();
             Icon icon = node.getParent() == null ? objectIcon :
-                    objectIcon == null ? dependencyTypeIcon : new CompositeIcon(dependencyTypeIcon, 1, objectIcon);
+                    objectIcon == null ? dependencyTypeIcon : new CompositeIcon(dependencyTypeIcon, objectIcon, 1);
             setIcon(icon);
 
             setBackground(selected ? UIUtil.getTreeSelectionBackground(true) : regularAttributes.getBgColor());
