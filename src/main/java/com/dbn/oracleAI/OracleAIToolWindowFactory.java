@@ -11,6 +11,7 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.icon.Icons.WINDOW_DATABASE_COMPANION;
 import static com.dbn.nls.NlsResources.txt;
 
 public class OracleAIToolWindowFactory implements ToolWindowFactory, DumbAware {
@@ -22,6 +23,7 @@ public class OracleAIToolWindowFactory implements ToolWindowFactory, DumbAware {
     toolWindow.setStripeTitle(txt("companion.window.title"));
     toolWindow.setToHideOnEmptyContent(true);
     toolWindow.setAutoHide(false);
+    toolWindow.setIcon(WINDOW_DATABASE_COMPANION.get());
     DatabaseOracleAIManager manager = project.getService(DatabaseOracleAIManager.class);
     ProjectEvents.subscribe(project, manager, ConsoleChangeListener.TOPIC, connectionId -> {
       ConnectionHandler connectionHandler = ConnectionHandler.get(connectionId);

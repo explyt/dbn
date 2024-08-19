@@ -387,6 +387,7 @@
         <projectService serviceImplementation="com.dbn.data.export.DataExportManager"/>
         <projectService serviceImplementation="com.dbn.debugger.DatabaseDebuggerManager"/>
         <projectService serviceImplementation="com.dbn.debugger.ExecutionConfigManager"/>
+        <projectService serviceImplementation="com.dbn.oracleAI.DatabaseOracleAIManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
@@ -419,6 +420,17 @@
             <!--<add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="before"/>-->
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
+        <group id="DBNavigator.Actions.TextEditor.OracleCompanion.Group" text="Select AI" popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="after"
+                          relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
+            <action id="DBNavigator.Actions.TextEditor.OracleCompanion" class="com.dbn.oracleAI.ShowSqlAction"
+                    text="Show Sql">
+            </action>
+            <action id="DBNavigator.Actions.TextEditor.OracleCompanion.ShowSqlExplanation"
+                    class="com.dbn.oracleAI.ShowSqlExplanationAction"
+                    text="Show Sql/Explanation">
+            </action>
+        </group>
         <group id="DBNavigator.ActionGroup.ProjectViewContext">
             <group id="DBNavigator.ActionGroup.ProjectViewPopup" text="DB Navigator" popup="true" keep-content="true">
                 <action id="DBNavigator.Actions.File.ExecuteScript" class="com.dbn.execution.script.action.ExecuteScriptFileAction" text="Execute SQL Script" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
@@ -735,7 +747,7 @@
         <toolWindow id="DB Browser" anchor="left" factoryClass="com.dbn.browser.DatabaseBrowserToolWindowFactory"/>
         <toolWindow id="DB Diagnostics" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
-        <toolWindow id="Oracle Companion" anchor="right" factoryClass="com.dbn.oracleAI.OracleAIToolWindowFactory"  icon="com.dbn.common.icon.Icons.WINDOW_DATABASE_COMPANION"/>
+        <toolWindow id="Oracle Companion" anchor="right" factoryClass="com.dbn.oracleAI.OracleAIToolWindowFactory"/>
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>
