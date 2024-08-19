@@ -99,7 +99,7 @@ public class ConnectionHandlerStatusHolder extends PropertyHolderBase.IntStore<C
     };
 
     private final IncrementalStatusAdapter<ConnectionHandlerStatusHolder, ConnectionHandlerStatus> loading =
-            new IncrementalStatusAdapter<ConnectionHandlerStatusHolder, ConnectionHandlerStatus>(this, ConnectionHandlerStatus.LOADING) {
+            new IncrementalStatusAdapter<>(this, ConnectionHandlerStatus.LOADING) {
                 @Override
                 protected boolean setInner(ConnectionHandlerStatus status, boolean value) {
                     return ConnectionHandlerStatusHolder.super.set(status, value);

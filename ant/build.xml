@@ -33,7 +33,6 @@
         <include name="**/?*.dtd"/>
         <include name="**/?*.tld"/>
         <include name="**/?*.txt"/>
-        <include name="**/?*.jar"/>
     </patternset>
     <patternset id="svg.resources">
         <include name="**/?*.svg"/>
@@ -41,7 +40,8 @@
 
     <dirname property="root.dir" file="${ant.file}/.."/>
     <property name="source.dir" value="${root.dir}/src"/>
-    <property name="help.dir" value="${source.dir}/main/resources/help"/>
+    <property name="resource.dir" value="${root.dir}/src/main/resources"/>
+    <property name="help.dir" value="${resource.dir}/help"/>
     <property name="compiler.output.dir" value="${root.dir}/classes"/>
     <property name="distribution.dir" value="${root.dir}/dist"/>
     <property name="help.jar" value="${distribution.dir}/Help.jar"/>
@@ -157,6 +157,9 @@
                 <include name="dbn.jar"/>
             </zipfileset>
             <zipfileset dir="${root.dir}/lib" prefix="DBNavigator/lib">
+                <include name="**/*.jar"/>
+            </zipfileset>
+            <zipfileset dir="${resource.dir}/lib" prefix="DBNavigator/lib">
                 <include name="**/*.jar"/>
             </zipfileset>
 

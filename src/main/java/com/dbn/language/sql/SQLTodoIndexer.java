@@ -16,16 +16,14 @@
 package com.dbn.language.sql;
 
 import com.intellij.psi.impl.cache.impl.todo.PlainTextTodoIndexer;
-import com.intellij.psi.impl.cache.impl.todo.TodoIndexEntry;
-import com.intellij.util.indexing.FileContent;
-import org.jetbrains.annotations.NotNull;
 
-import java.util.Map;
-
+// TODO cleanup - does not seem to be used
 public class SQLTodoIndexer extends PlainTextTodoIndexer {
+/*
     @NotNull
     @Override
     public Map<TodoIndexEntry, Integer> map(@NotNull FileContent inputData) {
         return super.map(inputData);
     }
+*/
 }

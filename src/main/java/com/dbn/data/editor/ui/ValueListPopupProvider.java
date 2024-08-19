@@ -100,7 +100,7 @@ public class ValueListPopupProvider implements TextFieldPopupProvider{
         List<String> secondaryValues = getSecondaryValues();
         if (false && values.size() < 20)  {
             String[] valuesArray = values.toArray(new String[0]);
-            BaseListPopupStep<String> listPopupStep = new BaseListPopupStep<String>(null, valuesArray){
+            BaseListPopupStep<String> listPopupStep = new BaseListPopupStep<>(null, valuesArray) {
                 @Override
                 public PopupStep onChosen(String selectedValue, boolean finalChoice) {
                     editorComponent.setText(selectedValue);

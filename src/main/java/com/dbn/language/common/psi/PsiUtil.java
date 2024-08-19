@@ -235,8 +235,9 @@ public class PsiUtil {
     }
 
     private static Iterator<PsiElement> getChildrenIterator(@NotNull PsiElement element) {
-        return new Iterator<PsiElement>() {
+        return new Iterator<>() {
             private PsiElement current = element.getFirstChild();
+
             @Override
             public boolean hasNext() {
                 return current != null;

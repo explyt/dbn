@@ -47,10 +47,5 @@ public class DatasetEditorModelHeader extends ResultSetDataModelHeader<DatasetEd
         return -1;
     }
 
-    private static final Comparator<DBColumn> COLUMN_POSITION_COMPARATOR = new Comparator<DBColumn>() {
-        @Override
-        public int compare(DBColumn column1, DBColumn column2) {
-            return column1.getPosition()-column2.getPosition();
-        }
-    };
+    private static final Comparator<DBColumn> COLUMN_POSITION_COMPARATOR = (column1, column2) -> column1.getPosition() - column2.getPosition();
 }

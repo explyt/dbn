@@ -40,21 +40,13 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
         setDefaultRenderer(Object.class, new CmdLineInterfacesTableCellRenderer());
         adjustRowHeight(3);
 
-        columnModel.getColumn(0).setMaxWidth(100);
+        columnModel.getColumn(0).setMaxWidth(120);
         columnModel.getColumn(1).setMaxWidth(220);
-        columnModel.getColumn(0).setPreferredWidth(100);
+        columnModel.getColumn(0).setPreferredWidth(120);
         columnModel.getColumn(1).setPreferredWidth(220);
 
         putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         addMouseListener(mouseListener);
-    }
-
-    public void setExecutorBundle(CmdLineInterfaceBundle executorBundle) {
-        super.setModel(new CmdLineInterfacesTableModel(executorBundle));
-        columnModel.getColumn(0).setMaxWidth(120);
-        columnModel.getColumn(1).setMaxWidth(120);
-        columnModel.getColumn(0).setPreferredWidth(120);
-        columnModel.getColumn(1).setPreferredWidth(120);
     }
 
     private final MouseListener mouseListener = Mouse.listener().onClick(e -> {

@@ -1,8 +1,6 @@
 package com.dbn.common.pool;
 
 import com.dbn.common.dispose.StatefulDisposableBase;
-import com.dbn.common.pool.ObjectPool;
-import com.dbn.common.pool.ObjectPoolBase;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,7 +20,7 @@ public class ObjectPoolBaseTest {
     private final AtomicInteger rejectCounter = new AtomicInteger();
     private final AtomicInteger dropCounter = new AtomicInteger();
 
-    private final ObjectPool<TestObject, Exception> objectPool = new ObjectPoolBase<TestObject, Exception>(null) {
+    private final ObjectPool<TestObject, Exception> objectPool = new ObjectPoolBase<>(null) {
         @Override
         protected TestObject create() {
             TestObject object = new TestObject(counter.incrementAndGet());

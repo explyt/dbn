@@ -7,19 +7,17 @@ import com.dbn.connection.DatabaseType;
 import com.dbn.execution.script.CmdLineInterface;
 import com.dbn.execution.script.CmdLineInterfaceBundle;
 import com.intellij.openapi.options.ConfigurationException;
+import lombok.Getter;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Getter
 public class CmdLineInterfacesTableModel extends DBNEditableTableModel {
     private CmdLineInterfaceBundle bundle;
 
     public CmdLineInterfacesTableModel(CmdLineInterfaceBundle bundle) {
         this.bundle = bundle.clone();
-    }
-
-    public CmdLineInterfaceBundle getBundle() {
-        return bundle;
     }
 
     public void setBundle(CmdLineInterfaceBundle bundle) {

@@ -1,7 +1,7 @@
 package com.dbn.common.consumer;
 
-import com.dbn.common.util.Commons;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.util.Commons;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +17,7 @@ public class ListCollector<T> implements Consumer<T> {
     }
 
     public static <T> ListCollector<T> unique() {
-        return new ListCollector<T>() {
+        return new ListCollector<>() {
             @Override
             public void accept(T element) {
                 if (!elements().contains(element)) {

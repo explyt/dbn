@@ -1,9 +1,9 @@
 package com.dbn.common.load;
 
-import com.dbn.common.util.CollectionUtil;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.dispose.StatefulDisposableBase;
+import com.dbn.common.util.CollectionUtil;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.progress.ProcessCanceledException;
 
@@ -54,7 +54,7 @@ public abstract class LoadInProgressRegistry<T extends StatefulDisposable> exten
     protected abstract void notify(T node);
 
     public static <T extends StatefulDisposable> LoadInProgressRegistry<T> create(StatefulDisposable parentDisposable, Notifier<T> notifier) {
-        return new LoadInProgressRegistry<T>(parentDisposable) {
+        return new LoadInProgressRegistry<>(parentDisposable) {
             @Override
             protected void notify(T node) {
                 notifier.notify(node);

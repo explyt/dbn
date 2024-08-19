@@ -1,18 +1,18 @@
 package com.dbn.common.content.loader;
 
 import com.dbn.common.Priority;
-import com.dbn.common.exception.ElementSkippedException;
-import com.dbn.common.exception.Exceptions;
-import com.dbn.common.load.ProgressMonitor;
-import com.dbn.common.util.TimeUtil;
-import com.dbn.common.util.UUIDs;
-import com.dbn.common.util.Unsafe;
 import com.dbn.common.content.DynamicContent;
 import com.dbn.common.content.DynamicContentElement;
 import com.dbn.common.content.DynamicContentProperty;
 import com.dbn.common.content.DynamicContentType;
+import com.dbn.common.exception.ElementSkippedException;
+import com.dbn.common.exception.Exceptions;
+import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.thread.ThreadInfo;
 import com.dbn.common.thread.ThreadProperty;
+import com.dbn.common.util.TimeUtil;
+import com.dbn.common.util.UUIDs;
+import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
@@ -39,7 +39,6 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
-import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.connection.Resources.markClosed;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.Diagnostics.isDatabaseAccessDebug;
@@ -72,7 +71,7 @@ public abstract class DynamicContentResultSetLoader<E extends DynamicContentElem
             boolean master,
             ResultSetFactory resultSetFactory,
             ElementFactory<E, M> elementFactory) {
-        return new DynamicContentResultSetLoader<E, M>(identifier, parentContentType, contentType, register, master) {
+        return new DynamicContentResultSetLoader<>(identifier, parentContentType, contentType, register, master) {
             @Override
             public ResultSet createResultSet(DynamicContent dynamicContent, DBNConnection connection) throws SQLException {
                 return resultSetFactory.create(dynamicContent, connection, dynamicContent.getMetadataInterface());

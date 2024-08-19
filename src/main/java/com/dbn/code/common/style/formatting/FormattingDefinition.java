@@ -1,9 +1,6 @@
 package com.dbn.code.common.style.formatting;
 
 import com.dbn.common.util.Commons;
-import com.intellij.formatting.Indent;
-import com.intellij.formatting.Spacing;
-import com.intellij.formatting.Wrap;
 import org.jdom.Element;
 
 public class FormattingDefinition {
@@ -52,10 +49,6 @@ public class FormattingDefinition {
     
     public FormattingAttributes getAttributes() {
         if (attributes == null) {
-            Wrap wrap = this.wrap == null ? null : this.wrap.getValue();
-            Indent indent = this.indent == null ? null : this.indent.getValue();
-            Spacing spacingBefore = this.spacingBefore == null ? null : this.spacingBefore.getValue();
-            Spacing spacingAfter = this.spacingAfter == null ? null : this.spacingAfter.getValue();
             attributes = new FormattingAttributes(wrap, indent, spacingBefore, spacingAfter);
         }
         return attributes;

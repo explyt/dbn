@@ -42,7 +42,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
     private PresentableFactory<T> valueFactory;
     private Loader<List<T>> valueLoader;
 
-    private final PropertyHolder<ValueSelectorOption> options = new PropertyHolderBase.IntStore<ValueSelectorOption>() {
+    private final PropertyHolder<ValueSelectorOption> options = new PropertyHolderBase.IntStore<>() {
         @Override
         protected ValueSelectorOption[] properties() {
             return ValueSelectorOption.VALUES;
@@ -71,7 +71,7 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
         }
         setBackground(background);
 
-        setRenderer(new ColoredListCellRenderer<T>() {
+        setRenderer(new ColoredListCellRenderer<>() {
             @Override
             protected void customizeCellRenderer(@NotNull JList<? extends T> list, T value, int index, boolean selected, boolean hasFocus) {
                 if (value != null) {

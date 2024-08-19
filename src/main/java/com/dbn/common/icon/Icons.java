@@ -1,5 +1,6 @@
 package com.dbn.common.icon;
 
+import com.dbn.common.latent.Latent;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.ScalableIcon;
 import com.intellij.ui.RowIcon;
@@ -14,6 +15,13 @@ import static com.dbn.common.icon.IconLoader.load;
 @SuppressWarnings("unused")
 @Slf4j
 public class Icons {
+
+    // lazy initialised tool window icons (proxied com.dbn.common.icon.LatentIcon is not supporting all tool-window icon variants)
+    public static final Latent<Icon> WINDOW_DATABASE_BROWSER     = Latent.basic(()-> init("/img/window/DatabaseBrowser.svg"));
+    public static final Latent<Icon> WINDOW_EXECUTION_CONSOLE    = Latent.basic(()-> init("/img/window/ExecutionConsole.svg"));
+    public static final Latent<Icon> WINDOW_DATABASE_DIAGNOSTICS = Latent.basic(()-> init("/img/window/DatabaseDiagnostics.svg"));
+    public static final Latent<Icon> WINDOW_DATABASE_COMPANION   = Latent.basic(()-> init("/img/window/DatabaseCompanion.svg"));
+
 
     public static final Icon DBN_SPLASH = load("/img/DBN.png");
     public static final Icon DONATE = load("/img/Donate.png");
@@ -83,11 +91,6 @@ public class Icons {
 
     public static final Icon DATABASE_NAVIGATOR = load("/img/project/DatabaseNavigator.svg");
     public static final Icon DATABASE_MODULE = load("/img/project/DatabaseModule.png");
-
-    public static final Icon WINDOW_DATABASE_BROWSER = init("/img/window/DatabaseBrowser.svg");
-    public static final Icon WINDOW_EXECUTION_CONSOLE = init("/img/window/ExecutionConsole.svg");
-    public static final Icon WINDOW_DATABASE_DIAGNOSTICS = init("/img/window/DatabaseDiagnostics.svg");
-    public static final Icon WINDOW_DATABASE_COMPANION = init("/img/window/DatabaseCompanion.svg");
 
     public static final Icon SQL_CONSOLE = load("/img/tools/SQLConsole.svg");
     public static final Icon SESSION_BROWSER = load("/img/tools/SessionBrowser.svg");

@@ -144,7 +144,7 @@ public class Lists {
     public static <T> Iterable<T> reversed(List<T> list) {
         return () -> {
             ListIterator<T> i = list.listIterator(list.size());
-            return new Iterator<T>() {
+            return new Iterator<>() {
                 @Override
                 public boolean hasNext() {
                     return i.hasPrevious();

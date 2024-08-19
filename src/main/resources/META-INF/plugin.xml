@@ -1,7 +1,7 @@
 <idea-plugin url="https://plugins.jetbrains.com/plugin/1800-database-navigator" require-restart="true">
     <name>Database Navigator</name>
     <id>DBN</id>
-    <version>3.4.4179.0</version>
+    <version>3.4.4425.0</version>
     <category>Database</category>
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
@@ -32,6 +32,13 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.4.4425</b>
+            <ul>
+                <li>Script execution engine - support for Oracle TNS_ADMIN / cloud connections
+                <li>New-UI tool window icons rework
+                <li>NLS support - work in progress
+                <li>Bug fixes
+            </ul>
             <li><b>3.4.4179</b>
             <ul>
                 <li>Postgres SQL syntax - literal comparison operators
@@ -380,7 +387,6 @@
         <projectService serviceImplementation="com.dbn.data.export.DataExportManager"/>
         <projectService serviceImplementation="com.dbn.debugger.DatabaseDebuggerManager"/>
         <projectService serviceImplementation="com.dbn.debugger.ExecutionConfigManager"/>
-        <projectService serviceImplementation="com.dbn.oracleAI.DatabaseOracleAIManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
@@ -413,17 +419,6 @@
             <!--<add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="before"/>-->
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
-        <group id="DBNavigator.Actions.TextEditor.OracleCompanion.Group" text="Select AI" popup="true">
-            <add-to-group group-id="EditorPopupMenu" anchor="after"
-                          relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
-            <action id="DBNavigator.Actions.TextEditor.OracleCompanion" class="com.dbn.oracleAI.ShowSqlAction"
-                    text="Show Sql">
-            </action>
-            <action id="DBNavigator.Actions.TextEditor.OracleCompanion.ShowSqlExplanation"
-                    class="com.dbn.oracleAI.ShowSqlExplanationAction"
-                    text="Show Sql/Explanation">
-            </action>
-        </group>
         <group id="DBNavigator.ActionGroup.ProjectViewContext">
             <group id="DBNavigator.ActionGroup.ProjectViewPopup" text="DB Navigator" popup="true" keep-content="true">
                 <action id="DBNavigator.Actions.File.ExecuteScript" class="com.dbn.execution.script.action.ExecuteScriptFileAction" text="Execute SQL Script" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
@@ -737,11 +732,10 @@
 
         <projectConfigurable provider="com.dbn.options.ProjectSettingsProvider" groupId="tools" dynamic="true" id="DBNavigator.Settings" displayName="Database Navigator"/>
 
-        <toolWindow id="DB Browser" icon="com.dbn.common.icon.Icons.WINDOW_DATABASE_BROWSER" anchor="left" factoryClass="com.dbn.browser.DatabaseBrowserToolWindowFactory"/>
-        <toolWindow id="DB Diagnostics" icon="com.dbn.common.icon.Icons.WINDOW_DATABASE_DIAGNOSTICS" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
-        <toolWindow id="DB Execution Console" icon="com.dbn.common.icon.Icons.WINDOW_EXECUTION_CONSOLE" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
+        <toolWindow id="DB Browser" anchor="left" factoryClass="com.dbn.browser.DatabaseBrowserToolWindowFactory"/>
+        <toolWindow id="DB Diagnostics" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
+        <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
         <toolWindow id="Oracle Companion" anchor="right" factoryClass="com.dbn.oracleAI.OracleAIToolWindowFactory"  icon="com.dbn.common.icon.Icons.WINDOW_DATABASE_COMPANION"/>
-
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>

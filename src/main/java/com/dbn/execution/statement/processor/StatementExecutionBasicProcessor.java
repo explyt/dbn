@@ -427,7 +427,7 @@ public class StatementExecutionBasicProcessor extends StatefulDisposableBase imp
         statement.setQueryTimeout(timeout);
         assertNotCancelled();
 
-        databaseCall = new CancellableDatabaseCall<StatementExecutionResult>(connection, conn, timeout, TimeUnit.SECONDS) {
+        databaseCall = new CancellableDatabaseCall<>(connection, conn, timeout, TimeUnit.SECONDS) {
             @Override
             public StatementExecutionResult execute() throws Exception {
                 try {

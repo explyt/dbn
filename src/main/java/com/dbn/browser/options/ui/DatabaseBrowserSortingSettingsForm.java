@@ -91,7 +91,7 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                 }
             });
 
-            ComboBoxTableRenderer<SortingType> editor = new ComboBoxTableRenderer<SortingType>(SortingType.values()) {};
+            ComboBoxTableRenderer<SortingType> editor = new ComboBoxTableRenderer<>(SortingType.values());
             editor.setBorder(Borders.TEXT_FIELD_INSETS);
             setDefaultEditor(SortingType.class, editor);
 

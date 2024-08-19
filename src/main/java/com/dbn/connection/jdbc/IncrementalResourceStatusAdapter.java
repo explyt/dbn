@@ -13,7 +13,7 @@ public abstract class IncrementalResourceStatusAdapter<T extends Resource> exten
     }
 
     public static <T extends Resource> IncrementalResourceStatusAdapter<T> create(T resource, ResourceStatus status, Setter setter){
-        return new IncrementalResourceStatusAdapter<T>(resource, status) {
+        return new IncrementalResourceStatusAdapter<>(resource, status) {
             @Override
             protected boolean setInner(ResourceStatus status, boolean value) {
                 return setter.set(status, value);

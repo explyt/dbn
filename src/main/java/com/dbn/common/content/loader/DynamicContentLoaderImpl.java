@@ -1,10 +1,10 @@
 package com.dbn.common.content.loader;
 
-import com.dbn.common.routine.ParametricRunnable;
-import com.dbn.common.util.Commons;
 import com.dbn.common.content.DynamicContent;
 import com.dbn.common.content.DynamicContentElement;
 import com.dbn.common.content.DynamicContentType;
+import com.dbn.common.routine.ParametricRunnable;
+import com.dbn.common.util.Commons;
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -39,7 +39,7 @@ public abstract class DynamicContentLoaderImpl<
             @NotNull DynamicContentType contentType,
             boolean register,
             ParametricRunnable<DynamicContent<T>, SQLException> loader) {
-        return new DynamicContentLoaderImpl<T, M>(identifier, parentContentType, contentType, register) {
+        return new DynamicContentLoaderImpl<>(identifier, parentContentType, contentType, register) {
             @Override
             public void loadContent(DynamicContent<T> content) throws SQLException {
                 loader.run(content);

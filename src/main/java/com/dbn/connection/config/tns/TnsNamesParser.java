@@ -22,7 +22,7 @@ public class TnsNamesParser {
             withDescription("Select a valid Oracle tnsnames.ora file").
             withFileFilter(virtualFile -> Objects.equals(virtualFile.getExtension(), "ora"));
 
-    private static final FileContentCache<TnsNames> cache = new FileContentCache<TnsNames>() {
+    private static final FileContentCache<TnsNames> cache = new FileContentCache<>() {
         @Override
         protected TnsNames load(File file) {
             return parse(file);

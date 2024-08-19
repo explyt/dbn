@@ -16,7 +16,7 @@ public class SetCollector<T> implements Consumer<T> {
     }
 
     public static <T> SetCollector<T> concurrent() {
-        return new SetCollector<T>() {
+        return new SetCollector<>() {
             @Override
             protected Set<T> createSet() {
                 return Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -25,7 +25,7 @@ public class SetCollector<T> implements Consumer<T> {
     }
 
     public static <T> SetCollector<T> linked() {
-        return new SetCollector<T>() {
+        return new SetCollector<>() {
             @Override
             protected Set<T> createSet() {
                 return new LinkedHashSet<>();
@@ -34,7 +34,7 @@ public class SetCollector<T> implements Consumer<T> {
     }
 
     public static <T> SetCollector<T> sorted(Comparator<T> comparator) {
-        return new SetCollector<T>() {
+        return new SetCollector<>() {
             @Override
             protected Set<T> createSet() {
                 return new TreeSet<>(comparator);

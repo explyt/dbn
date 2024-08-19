@@ -4,7 +4,9 @@ import com.dbn.common.util.Commons;
 import com.intellij.formatting.Indent;
 import com.intellij.formatting.Spacing;
 import com.intellij.formatting.Wrap;
+import lombok.Getter;
 
+@Getter
 public class FormattingAttributes {
     public static final FormattingAttributes NO_ATTRIBUTES = new FormattingAttributes(null, null, null, null);
 
@@ -25,12 +27,12 @@ public class FormattingAttributes {
 
 
 
-    private Wrap wrap;
-    private Indent indent;
-    private Spacing spacingBefore;
-    private Spacing spacingAfter;
+    private WrapDefinition wrap;
+    private IndentDefinition indent;
+    private SpacingDefinition spacingBefore;
+    private SpacingDefinition spacingAfter;
 
-    public FormattingAttributes(Wrap wrap, Indent indent, Spacing spacingBefore, Spacing spacingAfter) {
+    public FormattingAttributes(WrapDefinition wrap, IndentDefinition indent, SpacingDefinition spacingBefore, SpacingDefinition spacingAfter) {
         this.wrap = wrap;
         this.indent = indent;
         this.spacingBefore = spacingBefore;
@@ -73,19 +75,19 @@ public class FormattingAttributes {
     }
 
     public Wrap getWrap() {
-        return wrap;
+        return wrap == null ? null : wrap.getValue();
     }
 
     public Indent getIndent() {
-        return indent;
+        return indent == null ? null : indent.getValue();
     }
 
     public Spacing getSpacingBefore() {
-        return spacingBefore;
+        return spacingBefore == null ? null : spacingBefore.getValue();
     }
 
     public Spacing getSpacingAfter() {
-        return spacingAfter;
+        return spacingAfter == null ? null : spacingAfter.getValue();
     }
 
     public boolean isEmpty() {

@@ -2,11 +2,11 @@ package com.dbn.language.common.psi;
 
 import com.dbn.code.common.style.formatting.FormattingAttributes;
 import com.dbn.code.common.style.formatting.FormattingProviderPsiElement;
-import com.dbn.code.common.style.presets.CodeStylePreset;
+import com.dbn.code.common.style.formatting.IndentDefinition;
+import com.dbn.code.common.style.formatting.SpacingDefinition;
 import com.dbn.common.icon.Icons;
 import com.dbn.language.common.element.ChameleonElementType;
 import com.intellij.extapi.psi.ASTDelegatePsiElement;
-import com.intellij.formatting.Indent;
 import com.intellij.lang.ASTNode;
 import com.intellij.psi.PsiElement;
 import org.jetbrains.annotations.NotNull;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChameleonPsiElement extends ASTDelegatePsiElement implements ExecutableBundlePsiElement, FormattingProviderPsiElement {
-    public static final FormattingAttributes FORMATTING_ATTRIBUTES = new FormattingAttributes(null, Indent.getAbsoluteNoneIndent(), CodeStylePreset.SPACING_MIN_ONE_LINE, null);
+    public static final FormattingAttributes FORMATTING_ATTRIBUTES = new FormattingAttributes(null, IndentDefinition.ABSOLUTE_NONE, SpacingDefinition.MIN_ONE_LINE, null);
 
     public final ASTNode node;
     public final ChameleonElementType elementType;

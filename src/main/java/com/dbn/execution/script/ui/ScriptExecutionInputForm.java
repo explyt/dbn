@@ -74,7 +74,7 @@ public class ScriptExecutionInputForm extends DBNFormBase {
         schemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
 
         cmdLineExecutableComboBox.set(ValueSelectorOption.HIDE_ICON, true);
-        cmdLineExecutableComboBox.setValueFactory(new PresentableFactory<CmdLineInterface>("New Cmd-Line Interface...") {
+        cmdLineExecutableComboBox.setValueFactory(new PresentableFactory<>("New Cmd-Line Interface...") {
             @Override
             public void create(Consumer<CmdLineInterface> consumer) {
                 ConnectionHandler connection = connectionComboBox.getSelectedValue();

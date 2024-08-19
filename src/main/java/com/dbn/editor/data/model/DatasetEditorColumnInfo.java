@@ -30,7 +30,7 @@ public class DatasetEditorColumnInfo extends ResultSetColumnInfo  {
 
     private transient final DBObjectRef<DBColumn> column;
     private transient Latent<List<String>> possibleValues = Latent.basic(() -> loadPossibleValues());
-    private transient final RefreshableValue<Boolean> auditColumn = new RefreshableValue<Boolean>(2000) {
+    private transient final RefreshableValue<Boolean> auditColumn = new RefreshableValue<>(2000) {
         @Override
         protected Boolean load() {
             DBColumn column = getColumn();

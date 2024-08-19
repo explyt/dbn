@@ -91,7 +91,7 @@ public class ArgumentValue {
     }
 
     public static <T> ArgumentValueHolder<T> createBasicValueHolder(T value) {
-        ArgumentValueHolder<T> valueStore = new ArgumentValueHolder<T>() {
+        ArgumentValueHolder<T> valueStore = new ArgumentValueHolder<>() {
             private T value;
 
             @Override

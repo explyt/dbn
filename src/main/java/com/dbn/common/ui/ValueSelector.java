@@ -34,7 +34,7 @@ import java.util.List;
 
 public abstract class ValueSelector<T extends Presentable> extends JPanel{
     private final Listeners<ValueSelectorListener<T>> listeners = Listeners.create();
-    private final PropertyHolder<ValueSelectorOption> options = new PropertyHolderBase.IntStore<ValueSelectorOption>() {
+    private final PropertyHolder<ValueSelectorOption> options = new PropertyHolderBase.IntStore<>() {
         @Override
         protected ValueSelectorOption[] properties() {
             return ValueSelectorOption.VALUES;

@@ -48,6 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.security.SecureRandom;
@@ -157,7 +158,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
         executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(outputContext, " - Initializing script execution", input.isClearOutput()));
 
         try {
-            new CancellableDatabaseCall<Object>(connection, null, timeout, TimeUnit.SECONDS) {
+            new CancellableDatabaseCall<>(connection, null, timeout, TimeUnit.SECONDS) {
                 @Override
                 public Object execute() throws Exception {
                     SchemaId schemaId = input.getSchemaId();
@@ -356,7 +357,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 FileUtil.createIfDoesntExist(tempFile);
             }
         }
-        PosixFileAttributeView view = Files.getFileAttributeView(tempFile.toPath(), PosixFileAttributeView.class);
+
+        Path filePath = tempFile.toPath();
+        PosixFileAttributeView view = Files.getFileAttributeView(filePath, PosixFileAttributeView.class);
         if (view != null) {
             Set<PosixFilePermission> permissions = new HashSet<>();
             permissions.add(PosixFilePermission.OWNER_READ);
@@ -367,6 +370,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
             permissions.add(PosixFilePermission.GROUP_READ);
             permissions.add(PosixFilePermission.GROUP_EXECUTE);
             view.setPermissions(permissions);
+        } else {
+            tempFile.setReadable(true, false);
+            tempFile.setExecutable(true, false);
         }
 
         return tempFile;

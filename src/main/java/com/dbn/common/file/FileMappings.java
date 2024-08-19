@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.file.util.VirtualFiles.*;
@@ -83,7 +82,7 @@ public class FileMappings<T> implements Disposable {
     private void handleEvent(T target, VFileEvent event) {
         if (eventHandlers.isEmpty()) return;
 
-        FileMappingEvent<T> mappingEvent = new FileMappingEvent<T>(target, event);
+        FileMappingEvent<T> mappingEvent = new FileMappingEvent<>(target, event);
         for (ParametricRunnable<FileMappingEvent<T>, Throwable> handler : eventHandlers) {
             handler.run(mappingEvent);
         }

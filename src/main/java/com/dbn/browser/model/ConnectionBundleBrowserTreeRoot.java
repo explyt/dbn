@@ -105,7 +105,7 @@ public final class ConnectionBundleBrowserTreeRoot extends StatefulDisposableBas
 
     @Override
     public Icon getIcon(int flags) {
-        return Icons.WINDOW_DATABASE_BROWSER;
+        return Icons.CONNECTIONS;
     }
 
     @Override

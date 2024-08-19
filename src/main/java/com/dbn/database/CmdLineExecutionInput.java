@@ -21,6 +21,10 @@ public class CmdLineExecutionInput {
 
     }
 
+    public void addEnvironmentVariable(String key, String value) {
+        environmentVars.put(key, value);
+    }
+
     public String getTextContent() {
         return content.toString();
     }

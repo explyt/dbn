@@ -93,7 +93,7 @@ public class DatasetEditorModel
         ConnectionHandler connection = getConnection();
         DBNConnection conn = connection.getMainConnection();
 
-        loaderCall = new CancellableDatabaseCall<Object>(connection, conn, timeout, TimeUnit.SECONDS) {
+        loaderCall = new CancellableDatabaseCall<>(connection, conn, timeout, TimeUnit.SECONDS) {
             @Override
             public Object execute() throws Exception {
                 DBNResultSet newResultSet = loadResultSet(useCurrentFilter, statementRef);

@@ -2,8 +2,8 @@ package com.dbn.database.sqlite;
 
 import com.dbn.common.latent.Latent;
 import com.dbn.data.type.GenericDataType;
-import com.dbn.database.common.util.DataTypeParseAdapter;
 import com.dbn.database.common.DatabaseNativeDataTypes;
+import com.dbn.database.common.util.DataTypeParseAdapter;
 
 import java.math.BigInteger;
 import java.sql.*;
@@ -76,7 +76,7 @@ class SqliteNativeDataTypes extends DatabaseNativeDataTypes {
         createLargeValueDefinition("BLOB", Blob.class, Types.BLOB, GenericDataType.BLOB);
         createLargeValueDefinition("CLOB", Clob.class, Types.CLOB, GenericDataType.CLOB);
 
-        createDateTimeDefinition("DATE", Date.class, Types.DATE, new DataTypeParseAdapter<Date>() {
+        createDateTimeDefinition("DATE", Date.class, Types.DATE, new DataTypeParseAdapter<>() {
 
             @Override
             public String toString(Date object) {
@@ -88,7 +88,7 @@ class SqliteNativeDataTypes extends DatabaseNativeDataTypes {
                 return string == null ? null : new Date(parseDateTime(string, getDateFormats(), "DATE"));
             }
         });
-        createDateTimeDefinition("DATETIME", Timestamp.class, Types.TIMESTAMP, new DataTypeParseAdapter<Timestamp>() {
+        createDateTimeDefinition("DATETIME", Timestamp.class, Types.TIMESTAMP, new DataTypeParseAdapter<>() {
             @Override
             public String toString(Timestamp object) {
                 return object == null ? null : getTimestampFormats().get(0).format(object);

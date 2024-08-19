@@ -9,6 +9,8 @@ import com.intellij.ui.content.ContentFactory;
 import com.intellij.ui.content.ContentManager;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.icon.Icons.WINDOW_DATABASE_BROWSER;
+
 public class DatabaseBrowserToolWindowFactory extends DBNToolWindowFactory {
 
     @Override
@@ -22,6 +24,7 @@ public class DatabaseBrowserToolWindowFactory extends DBNToolWindowFactory {
 
         toolWindow.setTitle("DB Browser");
         toolWindow.setStripeTitle("DB Browser");
+        toolWindow.setIcon(WINDOW_DATABASE_BROWSER.get());
         contentManager.addContent(content);
     }
 }

@@ -88,9 +88,10 @@ public final class StatelessFilteredList<T> extends FilteredListBase<T> {
     public Iterator<T> iterator(){
         final Filter<T> filter = getFilter();
         if (filter != null) {
-            return new Iterator<T>() {
+            return new Iterator<>() {
                 private final Iterator<T> iterator = base.iterator();
                 private T next = findNext();
+
                 private T findNext() {
                     while (iterator.hasNext()) {
                         next = iterator.next();
@@ -100,15 +101,19 @@ public final class StatelessFilteredList<T> extends FilteredListBase<T> {
                 }
 
                 @Override
-                public boolean hasNext() { return next != null;}
+                public boolean hasNext() {
+                    return next != null;
+                }
+
                 @Override
                 public T next() {
                     T result = next;
                     next = findNext();
                     return result;
                 }
+
                 @Override
-                public void remove(){
+                public void remove() {
                     throw new UnsupportedOperationException("Iterator remove not implemented in filtrable actions");
                 }
             };
