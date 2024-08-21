@@ -1,10 +1,10 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
@@ -30,12 +30,12 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
   private JSlider temperatureSlider;
   private Profile profile;
 
-  private final int MIN_TEMPERATURE = 0;
-  private final int MAX_TEMPERATURE = 10;
-  private final int DEFAULT_TEMPERATURE = 5;
+  private static final int MIN_TEMPERATURE = 0;
+  private static final int MAX_TEMPERATURE = 10;
+  private static final int DEFAULT_TEMPERATURE = 5;
 
 
-  public ProfileEditionProviderStep(Project project, @Nullable Profile profile, boolean isUpdate) {
+  public ProfileEditionProviderStep(ConnectionHandler connection, @Nullable Profile profile, boolean isUpdate) {
     super(txt("profile.mgmt.provider_step.title"),
             txt("profile.mgmt.provider_step.explaination"),
             AllIcons.General.Settings);

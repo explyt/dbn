@@ -1,8 +1,13 @@
 package com.dbn.oracleAI.ui;
 
+import com.dbn.common.action.DataKeys;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.nls.NlsResources;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Profile;
@@ -12,8 +17,11 @@ import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.utils.RollingJPanelWrapper;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -33,17 +41,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.dbn.nls.NlsResources.txt;
 import static java.awt.event.InputEvent.BUTTON1_MASK;
 
 /**
  * Holder class for profile Combox box
  */
 @Slf4j
-public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
-
-  private static OracleAIChatBox instance;
-  private ConnectionId currentConnectionId;
+public class OracleAIChatBox extends DBNFormBase implements PropertyChangeListener {
   private JComboBox<AIProfileItem> profileComboBox;
   private ProfileComboBoxModel profileListModel = new ProfileComboBoxModel();
   private JPanel chatBoxMainPanel;
@@ -62,21 +66,24 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   private JTextArea promptTextArea;
   private JPanel buttonPanel;
   private JButton clearAllMessages;
+  private ConnectionRef connection;
 
-  public static DatabaseOracleAIManager currManager;
+  @Getter
+  @Setter
+  private OracleAIChatBoxState state;
 
   /**
    * special profile combobox item that lead to create a new profile
    */
   static final AIProfileItem ADD_PROFILE_COMBO_ITEM =
-      new AIProfileItem(txt("companion.profile.combobox.add"), false);
+      new AIProfileItem(NlsResources.txt("companion.profile.combobox.add"), false);
 
 
-  private OracleAIChatBox() {
+  public OracleAIChatBox(ConnectionHandler connection) {
+    super(connection, connection.getProject());
+    this.connection = connection.ref();
     profileListModel = new ProfileComboBoxModel();
     initializeUI();
-    this.setLayout(new BorderLayout(1, 1));
-    this.add(chatBoxMainPanel, BorderLayout.CENTER);
   }
 
   private void createUIComponents() {
@@ -124,15 +131,6 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     }
   }
 
-
-  public static OracleAIChatBox getInstance(Project project) {
-    currManager = project.getService(DatabaseOracleAIManager.class);
-    if (instance == null) {
-      instance = new OracleAIChatBox();
-    }
-    return instance;
-  }
-
   @Override
   public void propertyChange(PropertyChangeEvent evt) {
     if ("com.dbn.oracleAI.AIProfileServiceImpl".equals(evt.getPropertyName())) {
@@ -163,15 +161,10 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
 
     }).exceptionally(e -> {
       log.warn("Failed to fetch profiles", e);
-      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getCause().getMessage()));
+      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(getProject(), e.getCause().getMessage()));
       stopActivityNotifier();
       return null;
     });
-  }
-
-  public void setCurrentConnectionId(ConnectionId connectionId) {
-    this.currentConnectionId = connectionId;
-    if (currentConnectionId == null) disableWindow("companion.chat.wrong_database_type.tooltip");
   }
 
   private void initializeUI() {
@@ -210,7 +203,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
         if (e.getModifiers() == BUTTON1_MASK) {
           profileComboBox.hidePopup();
           profileComboBox.setSelectedIndex(0);
-          currManager.openSettings();
+          getManager().openSettings(connection.getId());
         }
       } else {
         updateModelsComboBox(currProfileItem);
@@ -273,9 +266,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
 
     companionConversationPanelBottom.setBackground(promptTextArea.getBackground());
     buttonPanel.setBackground(promptTextArea.getBackground());
-    promptButton.addActionListener(e -> {
-      submitText();
-    });
+    promptButton.addActionListener(e -> submitText());
 
     InputMap inputMap = promptTextArea.getInputMap(JComponent.WHEN_FOCUSED);
     ActionMap actionMap = promptTextArea.getActionMap();
@@ -348,7 +339,8 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
     // TODO : do we want to append the message even in case of error
     ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
     appendMessageToChat(List.of(inputChatMessage));
-    currManager.queryOracleAI(question, actionType, item.getLabel(),
+    DatabaseOracleAIManager manager = getManager();
+    manager.queryOracleAI(getConnectionId(), question, actionType, item.getLabel(),
             ((ProviderModel) aiModelComboBox.getSelectedItem()).getApiName())
         .thenAccept((output) -> {
           ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
@@ -357,7 +349,7 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
         })
         .exceptionally(e -> {
           log.warn("Error processing query", e);
-          ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getMessage()));
+          ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(manager.getProject(), e.getMessage()));
           return null;
         })
         .thenRun(() -> {
@@ -372,7 +364,8 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
    * list of available profiles for the current connection
    */
   public CompletableFuture<Map<String, Profile>> updateProfiles() {
-    return currManager.getProfileService().list().thenApply(pl -> pl.stream()
+    DatabaseOracleAIManager manager = getManager();
+    return manager.getProfileService(getConnectionId()).list().thenApply(pl -> pl.stream()
         .collect(Collectors.toMap(Profile::getProfileName,
             Function.identity(),
             (existing, replacement) -> existing)));
@@ -391,13 +384,10 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
   /**
    * Backup current elements state for later re-use
    * when we're going to enter here again with a new connection
-   *
-   * @return the state for this current companion
    */
-  public OracleAIChatBoxState captureState(String currConnection) {
+  public void captureState() {
     AIProfileItem selectedProfile = (AIProfileItem) profileListModel.getSelectedItem();
-    return OracleAIChatBoxState.builder()
-        .currConnection(currConnection)
+    state = OracleAIChatBoxState.builder()
         .aiAnswers(conversationPanelWrapper.getMessages())
         .profiles(new ArrayList<>(profileListModel.getAllProfiles()))
         .currentQuestionText(promptTextArea.getText())
@@ -446,40 +436,40 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
    * Restores the element state from scratch.
    * basically called only once ny switchConnection()
    */
-  public void initState(@Nullable OracleAIChatBoxState newState, ConnectionId connectionId) {
+  public void initState(@Nullable OracleAIChatBoxState newState) {
     log.debug("Initialize new state");
     if (newState != null) restoreState(newState);
     startActivityNotifier(txt("companion.chat.fetching_profiles"));
+    DatabaseOracleAIManager manager = getManager();
     updateProfiles().thenAccept(finalFetchedProfiles -> {
-      if (connectionId == currentConnectionId) {
-        log.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
-        ApplicationManager.getApplication().invokeLater(() -> {
-          profileListModel.removeAllElements();
+      log.debug(finalFetchedProfiles.size() + " Profiles fetched successfully");
+      ApplicationManager.getApplication().invokeLater(() -> {
+        profileListModel.removeAllElements();
 //          currManager.getProfileService().updateCachedProfiles(new ArrayList<>(finalFetchedProfiles.values()));
-          finalFetchedProfiles.forEach((pn, p) -> {
-            profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled()));
-          });
-
-          profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
-          if (newState != null && profileListModel.getAllProfiles().contains(newState.getSelectedProfile()))
-            profileListModel.setSelectedItem(newState.getSelectedProfile());
-
-          if (profileListModel.getUsableProfiles().isEmpty()) {
-            disableWindow("companion.chat.no_profile_yet.tooltip");
-          } else {
-            enableWindow();
-          }
-          AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
-          if (currManager.getDefaultProfile() == null) {
-            currManager.updateDefaultProfile(currProfileItem);
-          }
-          if (currProfileItem != null && currProfileItem.getProvider() != null) updateModelsComboBox(currProfileItem);
-          stopActivityNotifier();
+        finalFetchedProfiles.forEach((pn, p) -> {
+          profileListModel.addElement(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled()));
         });
-      }
+
+        profileListModel.addElement(ADD_PROFILE_COMBO_ITEM);
+        if (newState != null && profileListModel.getAllProfiles().contains(newState.getSelectedProfile()))
+          profileListModel.setSelectedItem(newState.getSelectedProfile());
+
+        if (profileListModel.getUsableProfiles().isEmpty()) {
+          disableWindow("companion.chat.no_profile_yet.tooltip");
+        } else {
+          enableWindow();
+        }
+        AIProfileItem currProfileItem = (AIProfileItem) profileComboBox.getSelectedItem();
+        ConnectionId connectionId = getConnectionId();
+        if (manager.getDefaultProfile(connectionId) == null) {
+          manager.updateDefaultProfile(connectionId, currProfileItem);
+        }
+        if (currProfileItem != null && currProfileItem.getProvider() != null) updateModelsComboBox(currProfileItem);
+        stopActivityNotifier();
+      });
     }).exceptionally(e -> {
       log.warn("Failed to fetch profiles", e);
-      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currManager.getProject(), e.getCause().getMessage()));
+      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(manager.getProject(), e.getCause().getMessage()));
       stopActivityNotifier();
       return null;
     });
@@ -552,5 +542,24 @@ public class OracleAIChatBox extends JPanel implements PropertyChangeListener {
 
   }
 
+  private ConnectionId getConnectionId() {
+    return connection.getConnectionId();
+  }
 
+  @Override
+  protected JComponent getMainComponent() {
+    return chatBoxMainPanel;
+  }
+
+  private DatabaseOracleAIManager getManager() {
+    Project project = ensureProject();
+    return DatabaseOracleAIManager.getInstance(project);
+  }
+
+  @Nullable
+  @Override
+  public Object getData(@NotNull String dataId) {
+    if (DataKeys.COMPANION_CHAT_BOX.is(dataId)) return this;
+    return null;
+  }
 }

@@ -2,8 +2,7 @@ package com.dbn.oracleAI.config.ui;
 
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.oracleAI.DatabaseOracleAIManager;
-import com.dbn.oracleAI.DatabaseServiceImpl;
+import com.dbn.oracleAI.DatabaseService;
 import com.dbn.oracleAI.config.ProviderConfiguration;
 import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.openapi.ui.DialogWrapper;
@@ -44,14 +43,14 @@ public class AICloudSettingsForm extends DialogWrapper {
   private final String SELECT_AI_DOCS = "https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/sql-generation-ai-autonomous.html";
 
   private final String username;
-  private final DatabaseServiceImpl manager;
+  private final DatabaseService databaseSvc;
   private final ConnectionHandler connectionHandler;
 
   // Pass Project object to constructor
   public AICloudSettingsForm(ConnectionHandler connectionHandler) {
     super(true);
-    this.manager = (DatabaseServiceImpl) connectionHandler.getProject().getService(DatabaseOracleAIManager.class).getDatabaseService();
-    ;
+    this.databaseSvc = DatabaseService.getInstance(connectionHandler);
+
     this.connectionHandler = connectionHandler;
     this.username = connectionHandler.getUserName();
     initializeWindow();
@@ -135,7 +134,7 @@ public class AICloudSettingsForm extends DialogWrapper {
   }
 
   private void grantACLRights(String command) {
-    manager.grantACLRights(command)
+    databaseSvc.grantACLRights(command)
         .thenAccept(a -> {
           SwingUtilities.invokeLater(() -> {
             Messages.showInfoDialog(connectionHandler.getProject(), txt("privileges.granted.title"), txt("privileges.granted.message"));
@@ -152,7 +151,7 @@ public class AICloudSettingsForm extends DialogWrapper {
   }
 
   private void grantPrivileges(String username) {
-    manager.grantPrivilege(username)
+    databaseSvc.grantPrivilege(username)
         .thenAccept(a -> {
           SwingUtilities.invokeLater(() -> {
             Messages.showInfoDialog(connectionHandler.getProject(), txt("privileges.granted.title"), txt("privileges.granted.message"));
@@ -167,7 +166,7 @@ public class AICloudSettingsForm extends DialogWrapper {
   }
 
   private void isUserAdmin() {
-    manager.isUserAdmin()
+    databaseSvc.isUserAdmin()
         .thenAccept(a -> {
           SwingUtilities.invokeLater(() -> {
             applyACLButton.setEnabled(true);

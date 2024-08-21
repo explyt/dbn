@@ -1,6 +1,7 @@
 package com.dbn.oracleAI;
 
 import com.dbn.common.util.Messages;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileUpdate;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
@@ -44,18 +45,18 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
    * A profile instance is passed form one step to another.
    * In case of update the profile is pre-populated.
    *
-   * @param project                           the current project
+   * @param connection                        the connection against which the profile is edited
    * @param profile                           the profile to be edited or created.
    * @param existingProfileNames              list of existing profile names. used to forbid naming collision
    * @param isUpdate                          denote if current wizard is for an update
    * @param callback                          callback to be called when wizard window closes
-   * @param profileEditionObjectListStepClass
+   * @param firstStep
    */
-  public ProfileEditionWizard(@NotNull Project project, Profile profile, List<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStep) {
+  public ProfileEditionWizard(@NotNull ConnectionHandler connection, Profile profile, List<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStep) {
     super(false, new ProfileEditionWizardModel(
-            txt("profiles.settings.window.title"), project, profile, existingProfileNames, isUpdate,firstStep));
-    profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
-    this.project = project;
+            connection, txt("profiles.settings.window.title"), profile, existingProfileNames, isUpdate,firstStep));
+    profileSvc = ManagedObjectServiceProxy.getInstance(connection);
+    this.project = connection.getProject();
     this.initialProfile = new Profile(profile);
     this.editedProfile = profile;
     this.isUpdate = isUpdate;
@@ -139,13 +140,13 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   /**
    * Show the profile creation/edition wizard
-   * @param project the current project
+   * @param connection the connection against which the profile is edited
    * @param profile the current profile to be edited (null if creating a new one)
    * @param profileMap the existing profiles
    * @param callback to be called once done
    * @param firstStepClass if not null, the step to move to directly
    */
-  public static void showWizard(@NotNull Project project, @Nullable Profile profile, Map<String, Profile> profileMap, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStepClass) {
+  public static void showWizard(@NotNull ConnectionHandler connection, @Nullable Profile profile, Map<String, Profile> profileMap, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStepClass) {
     existingProfileNames = profileMap.values().stream().map(Profile::getProfileName).collect(Collectors.toList());
     SwingUtilities.invokeLater(() -> {
       Profile initialProfile = null;
@@ -158,7 +159,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         isUpdate = false;
       }
       ProfileUpdate toBeUpdatedProfile = new ProfileUpdate(initialProfile);
-      ProfileEditionWizard wizard = new ProfileEditionWizard(project, toBeUpdatedProfile, existingProfileNames, isUpdate, callback, firstStepClass);
+      ProfileEditionWizard wizard = new ProfileEditionWizard(connection, toBeUpdatedProfile, existingProfileNames, isUpdate, callback, firstStepClass);
       wizard.show();
 
     });

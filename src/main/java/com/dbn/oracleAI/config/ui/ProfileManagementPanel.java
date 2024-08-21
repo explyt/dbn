@@ -3,6 +3,8 @@ package com.dbn.oracleAI.config.ui;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.ManagedObjectServiceProxy;
@@ -11,6 +13,7 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
@@ -54,18 +57,18 @@ public class ProfileManagementPanel extends JPanel {
   private JPanel objListTableHeader;
   private JButton goToAssociatedObjects;
 
+  private final ConnectionRef connection;
+  private final DatabaseOracleAIManager manager;
+  private final ManagedObjectServiceProxy<Profile> profileSvc;
+
 
   private JPanel windowActionPanel;
-  private final ManagedObjectServiceProxy<Profile> profileSvc;
-  private Project currProject;
-  private final DatabaseOracleAIManager manager;
 
   public ProfileManagementPanel(ConnectionHandler connection) {
-    this.currProject = connection.getProject();
+    this.connection = connection.ref();
 
-    this.manager = currProject.getService(DatabaseOracleAIManager.class);
-
-    this.profileSvc = currProject.getService(DatabaseOracleAIManager.class).getProfileService();
+    this.manager = DatabaseOracleAIManager.getInstance(connection.getProject());
+    this.profileSvc = ManagedObjectServiceProxy.getInstance(connection);
     // make sure we use box that stretch
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
@@ -87,7 +90,7 @@ public class ProfileManagementPanel extends JPanel {
     ApplicationManager.getApplication().invokeLater(() -> addProfileButton.requestFocusInWindow());
 
     goToAssociatedObjects.addActionListener(event -> {
-      ProfileEditionWizard.showWizard(currProject, currProfile, profileMap, isCommit -> {
+      ProfileEditionWizard.showWizard(getConnection(), currProfile, profileMap, isCommit -> {
         if (isCommit) updateProfileNames();
       }, ProfileEditionObjectListStep.class);
     });
@@ -130,7 +133,7 @@ public class ProfileManagementPanel extends JPanel {
             this.initializeUIComponents();
           });
     }).exceptionally(e -> {
-      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(currProject, e.getCause().getMessage()));
+      ApplicationManager.getApplication().invokeLater(() -> Messages.showErrorDialog(getProject(), e.getCause().getMessage()));
       return null;
     });
   }
@@ -159,8 +162,10 @@ public class ProfileManagementPanel extends JPanel {
     addProfileButton.setToolTipText(txt("ai.settings.profile.adding.tooltip"));
     ProfileComboBoxRenderer profileComboBoxRenderer = new ProfileComboBoxRenderer();
     profileComboBox.setRenderer(profileComboBoxRenderer);
+    Project project = getProject();
+
     deleteProfileButton.addActionListener(event -> {
-      Messages.showQuestionDialog(currProject, txt(
+      Messages.showQuestionDialog(project, txt(
               "ai.settings.profile.deletion.title"), txt(
               "ai.settings.profile.deletion.message.prefix")
               + " " + currProfile.getProfileName(),
@@ -174,18 +179,19 @@ public class ProfileManagementPanel extends JPanel {
               }));
     });
     editProfileButton.addActionListener(event -> {
-      ProfileEditionWizard.showWizard(currProject, currProfile, profileMap, isCommit -> {
+      ProfileEditionWizard.showWizard(getConnection(), currProfile, profileMap, isCommit -> {
         if (isCommit) updateProfileNames();
       }, null);
     });
     addProfileButton.addActionListener(event -> {
-      ProfileEditionWizard.showWizard(currProject, null, profileMap, isCommit -> {
+      ProfileEditionWizard.showWizard(getConnection(), null, profileMap, isCommit -> {
         if (isCommit) updateProfileNames();
       }, null);
     });
 
     makeDefaultProfileButton.addActionListener(event -> {
-      manager.updateDefaultProfile(new AIProfileItem(currProfile.getProfileName(), currProfile.getProvider(), currProfile.getModel(), currProfile.isEnabled()));
+      AIProfileItem profile = new AIProfileItem(currProfile.getProfileName(), currProfile.getProvider(), currProfile.getModel(), currProfile.isEnabled());
+      manager.updateDefaultProfile(getConnectionId(), profile);
     });
   }
 
@@ -206,7 +212,7 @@ public class ProfileManagementPanel extends JPanel {
         AIProfileItem item = (AIProfileItem) value;
         setEnabled(item.isEnabled());
 
-        if (item.equals(manager.getDefaultProfile())) {
+        if (item.equals(manager.getDefaultProfile(getConnectionId()))) {
           setText(item.getLabel() + " (default)");
         } else {
           setText(item.getLabel());
@@ -233,7 +239,7 @@ public class ProfileManagementPanel extends JPanel {
       updateProfileNames();
       updateWindow();
     }).exceptionally(throwable -> {
-      Messages.showErrorDialog(currProject,
+      Messages.showErrorDialog(getProject(),
           txt("profiles.mgnt.attr.deletion.failed.title"),
           txt("profiles.mgnt.attr.deletion.failed.msg"));
 
@@ -309,8 +315,9 @@ public class ProfileManagementPanel extends JPanel {
     if (currProfile != null) {
       profileComboBox.setSelectedItem(currProfile.getProfileName());
     }
-    if (manager.getDefaultProfile() == null)
-      manager.updateDefaultProfile((AIProfileItem) profileComboBox.getSelectedItem());
+    ConnectionId connectionId = getConnectionId();
+    if (manager.getDefaultProfile(connectionId) == null)
+      manager.updateDefaultProfile(connectionId, (AIProfileItem) profileComboBox.getSelectedItem());
   }
 
   private ActionListener profileComboBoxAction = new ActionListener() {
@@ -372,5 +379,19 @@ public class ProfileManagementPanel extends JPanel {
     public void setSelectionInterval(int index0, int index1) {
       super.setSelectionInterval(-1, -1);
     }
+  }
+
+
+  private Project getProject() {
+    return getConnection().getProject();
+  }
+
+  @NotNull
+  private ConnectionHandler getConnection() {
+    return connection.ensure();
+  }
+
+  private @NotNull ConnectionId getConnectionId() {
+    return getConnection().getConnectionId();
   }
 }

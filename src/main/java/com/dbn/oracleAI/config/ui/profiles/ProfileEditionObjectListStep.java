@@ -2,9 +2,8 @@ package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
-import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.DatabaseService;
-import com.dbn.oracleAI.ManagedObjectServiceProxy;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
@@ -63,7 +62,6 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   private JComboBox schemaComboBox;
   private JCheckBox withViewsButton;
   private JProgressBar activityProgress;
-  private final ManagedObjectServiceProxy<Profile> profileSvc;
   private final DatabaseService databaseSvc;
   private final Project project;
   private final Profile profile;
@@ -76,15 +74,16 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
   TableRowSorter<DatabaseObjectListTableModel> databaseObjectsTableSorter = new TableRowSorter<>();
   Map<String, DatabaseObjectListTableModel> databaseObjectListTableModelCache = new HashMap<>();
 
-  public ProfileEditionObjectListStep(Project project, Profile profile, boolean isUpdate) {
+  public ProfileEditionObjectListStep(ConnectionHandler connection, Profile profile, boolean isUpdate) {
     super(txt("profile.mgmt.object_list_step.title"),
         txt("profile.mgmt.object_list_step.explaination"),
         Icons.DB_GENERIC);
-    this.profileSvc = project.getService(DatabaseOracleAIManager.class).getProfileService();
-    this.project = project;
+
+    this.project = connection.getProject();
+    this.databaseSvc = DatabaseService.getInstance(connection);
+
     this.profile = profile;
     this.isUpdate = isUpdate;
-    this.databaseSvc = project.getService(DatabaseOracleAIManager.class).getDatabaseService();
 
     if (this.profile != null)
       prefetchObjectForProfile(this.profile);

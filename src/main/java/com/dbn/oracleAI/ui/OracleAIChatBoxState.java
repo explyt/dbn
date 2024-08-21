@@ -31,7 +31,6 @@ public class OracleAIChatBoxState {
   private String currentQuestionText;
   private List<String> questionHistory;
   private List<ChatMessage> aiAnswers;
-  private String currConnection;
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
@@ -42,7 +41,6 @@ public class OracleAIChatBoxState {
    */
   public Element toElement() {
     Element stateElement = new Element("OracleAIChatBoxState");
-    stateElement.addContent(new Element("currConnection").setText(currConnection));
     stateElement.addContent(new Element("selectedProfile").addContent(selectedProfile != null ? createProfileElement(selectedProfile) : null));
     stateElement.addContent(new Element("currentQuestionText").setText(currentQuestionText));
 
@@ -81,7 +79,6 @@ public class OracleAIChatBoxState {
    * @return OracleAIChatBoxState reconstructed from the XML.
    */
   public static OracleAIChatBoxState fromElement(Element stateElement) {
-    String currConnection = stateElement.getChildText("currConnection");
 
     // Retrieve the selectedProfile element and handle possible null
     Element selectedProfileElement = stateElement.getChild("selectedProfile");
@@ -103,7 +100,6 @@ public class OracleAIChatBoxState {
         .collect(Collectors.toList());
 
     return OracleAIChatBoxState.builder()
-        .currConnection(currConnection)
         .selectedProfile(selectedProfileLabel)
         .currentQuestionText(currentQuestionText)
         .profiles(profiles)

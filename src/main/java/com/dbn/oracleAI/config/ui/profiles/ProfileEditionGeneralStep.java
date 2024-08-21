@@ -1,12 +1,11 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.AICredentialService;
-import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.ProfileNameVerifier;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
@@ -30,22 +29,21 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private JComboBox<String> credentialComboBox;
   private JTextField descriptionTextField;
   private final AICredentialService credentialSvc;
-  private final Project project;
 
   private final Profile profile;
   private final List<String> existingProfileNames;
 
   private final boolean isUpdate;
 
-  public ProfileEditionGeneralStep(Project project, Profile profile, List<String> existingProfileNames, boolean isUpdate) {
+  public ProfileEditionGeneralStep(ConnectionHandler connection, Profile profile, List<String> existingProfileNames, boolean isUpdate) {
     super(txt("profile.mgmt.general_step.title"),
             txt("profile.mgmt.general_step.explaination"),
             AllIcons.General.Settings);
-    this.project = project;
     this.profile = profile;
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
-    this.credentialSvc = project.getService(DatabaseOracleAIManager.class).getCredentialService();
+
+    this.credentialSvc = AICredentialService.getInstance(connection);
 
     initializeUI();
     addValidationListener();

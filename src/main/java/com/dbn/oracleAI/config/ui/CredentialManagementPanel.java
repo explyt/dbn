@@ -3,9 +3,7 @@ package com.dbn.oracleAI.config.ui;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AICredentialService;
-import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.ManagedObjectServiceProxy;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.Profile;
@@ -50,7 +48,6 @@ public class CredentialManagementPanel extends JPanel {
   private JProgressBar progressBar1;
   private final AICredentialService credentialSvc;
   private final ManagedObjectServiceProxy<Profile> profileSvc;
-  private final ConnectionRef connection;
   private final Project curProject;
 
   /**
@@ -70,11 +67,11 @@ public class CredentialManagementPanel extends JPanel {
     if (connection == null || connection.ref().get() == null) {
       throw new IllegalArgumentException("connection cannot be null");
     }
-    this.credentialSvc = connection.getProject().getService(DatabaseOracleAIManager.class).getCredentialService();
-    this.profileSvc = connection.getProject().getService(DatabaseOracleAIManager.class).getProfileService();
+    Project project = connection.getProject();
+    this.credentialSvc = AICredentialService.getInstance(connection);
+    this.profileSvc = ManagedObjectServiceProxy.getInstance(connection);
 
-    this.connection = connection.ref();
-    this.curProject = connection.getProject();
+    this.curProject = project;
 
     GridConstraints constraints = new GridConstraints();
     constraints.setRow(0);

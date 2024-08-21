@@ -1,5 +1,6 @@
 package com.dbn.oracleAI;
 
+import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -18,10 +19,10 @@ public class ShowSqlOnEditor {
     this.manager = project.getService(DatabaseOracleAIManager.class);
   }
 
-  public void processQuery(String comment, Document document, boolean withExplanation) {
+  public void processQuery(ConnectionId connectionId, String comment, Document document, boolean withExplanation) {
     String prompt = comment.substring(3, comment.length() - 1);
-    AIProfileItem currProfile = manager.getDefaultProfile();
-    manager.queryOracleAI(prompt, withExplanation ? ActionAIType.EXPLAINSQL : ActionAIType.SHOWSQL, currProfile.getLabel(), currProfile.getModel().getApiName())
+    AIProfileItem currProfile = manager.getDefaultProfile(connectionId);
+    manager.queryOracleAI(connectionId, prompt, withExplanation ? ActionAIType.EXPLAINSQL : ActionAIType.SHOWSQL, currProfile.getLabel(), currProfile.getModel().getApiName())
         .thenAccept(answer -> appendLine(document, processText(answer, withExplanation), comment))
         .exceptionally((e) -> {
           com.dbn.common.util.Messages.showErrorDialog(project, e.getMessage());

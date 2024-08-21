@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 /**
  * Mockup database service.
@@ -96,5 +97,20 @@ public class FakeDatabaseService implements DatabaseService {
             }
         }
         return CompletableFuture.completedFuture(this.objs.get(schema));
+    }
+
+    @Override
+    public CompletionStage<Void> grantACLRights(String command) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<Void> grantPrivilege(String username) {
+        return null;
+    }
+
+    @Override
+    public CompletionStage<Void> isUserAdmin() {
+        return null;
     }
 }

@@ -1,7 +1,7 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.config.Profile;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardModel;
 import com.intellij.ui.wizard.WizardStep;
 
@@ -14,12 +14,12 @@ import java.util.Optional;
 public class ProfileEditionWizardModel extends WizardModel {
   // need to keep our own list as WizardModel do not expose it.
   List<WizardStep> mysteps = null;
-  public ProfileEditionWizardModel(String title, Project project, Profile profile, List<String> profileNames, boolean isUpdate, Class<ProfileEditionObjectListStep> firstStep) {
+  public ProfileEditionWizardModel(ConnectionHandler connection, String title, Profile profile, List<String> profileNames, boolean isUpdate, Class<ProfileEditionObjectListStep> firstStep) {
     super(title);
     mysteps = List.of(
-            new ProfileEditionGeneralStep(project, profile, profileNames, isUpdate),
-            new ProfileEditionProviderStep(project, profile, isUpdate),
-            new ProfileEditionObjectListStep(project, profile, isUpdate));
+            new ProfileEditionGeneralStep(connection, profile, profileNames, isUpdate),
+            new ProfileEditionProviderStep(connection, profile, isUpdate),
+            new ProfileEditionObjectListStep(connection, profile, isUpdate));
     mysteps.forEach(s->add(s));
     if (firstStep != null) {
       moveToStep(firstStep);

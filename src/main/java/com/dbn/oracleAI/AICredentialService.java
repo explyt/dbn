@@ -1,8 +1,11 @@
 package com.dbn.oracleAI;
 
 
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
+import com.intellij.openapi.project.Project;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -44,4 +47,11 @@ public interface AICredentialService {
    * Asynchronously updates the status (enabled/disabled) of the credential from the database.
    */
   void updateStatus(String credentialName, Boolean isEnabled);
+
+  static AICredentialService getInstance(ConnectionHandler connection) {
+    Project project = connection.getProject();
+    ConnectionId connectionId = connection.getConnectionId();
+    DatabaseOracleAIManager manager = DatabaseOracleAIManager.getInstance(project);
+    return manager.getCredentialService(connectionId);
+  }
 }

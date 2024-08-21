@@ -1,6 +1,10 @@
 package com.dbn.oracleAI;
 
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.config.AttributeInput;
+import com.dbn.oracleAI.config.Profile;
+import com.intellij.openapi.project.Project;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
@@ -36,6 +40,13 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> implements Mana
    */
   public void invalidate() {
 
+  }
+
+  public static ManagedObjectServiceProxy<Profile> getInstance(ConnectionHandler connection) {
+    Project project = connection.getProject();
+    ConnectionId connectionId = connection.getConnectionId();
+    DatabaseOracleAIManager manager = DatabaseOracleAIManager.getInstance(project);
+    return manager.getProfileService(connectionId);
   }
 
   @Override
