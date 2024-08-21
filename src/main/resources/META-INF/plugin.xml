@@ -473,6 +473,10 @@
             <group id="DBNavigator.Actions.EditorOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Script Editor - Local Settings" icon="AllIcons.General.Gear" />
             <action id="DBNavigator.Actions.EditorSettings" class="com.dbn.language.editor.action.EditorSettingsOpenAction" text="Script Editor - Settings"/>
         </group>
+        <group id="DBNavigator.ActionGroup.CompanionChatBox" text="Companion Chat-Box Controls">
+            <action class="com.dbn.oracleAI.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Companion.SelectProfile"/>
+        </group>
+
         <group id="DBNavigator.Actions.MainMenu" text="_DB Navigator" popup="true">
             <action class="com.dbn.menu.action.DatabaseBrowserOpenAction" text="Database Browser" id="DBNavigator.Actions.MainMenu.DatabaseBrowser"/>
             <separator/>
