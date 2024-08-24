@@ -9,13 +9,19 @@ import static com.dbn.common.icon.Icons.WINDOW_EXECUTION_CONSOLE;
 
 public class ExecutionConsoleToolWindowFactory extends DBNToolWindowFactory {
     @Override
-    public void createContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+    protected void initialize(@NotNull ToolWindow toolWindow) {
         toolWindow.setTitle("DB Execution Console");
         toolWindow.setStripeTitle("DB Execution Console");
         toolWindow.setIcon(WINDOW_EXECUTION_CONSOLE.get());
+
         toolWindow.setToHideOnEmptyContent(true);
         toolWindow.setAutoHide(false);
         toolWindow.setAvailable(false, null);
+    }
+
+    @Override
+    public void createContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+        // no content by default - will be created on demand
     }
 
     @Override

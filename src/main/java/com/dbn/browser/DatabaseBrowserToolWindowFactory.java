@@ -14,6 +14,13 @@ import static com.dbn.common.icon.Icons.WINDOW_DATABASE_BROWSER;
 public class DatabaseBrowserToolWindowFactory extends DBNToolWindowFactory {
 
     @Override
+    protected void initialize(@NotNull ToolWindow toolWindow) {
+        toolWindow.setTitle("DB Browser");
+        toolWindow.setStripeTitle("DB Browser");
+        toolWindow.setIcon(WINDOW_DATABASE_BROWSER.get());
+    }
+
+    @Override
     public void createContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
         BrowserToolWindowForm toolWindowForm = browserManager.getToolWindowForm();
@@ -22,9 +29,6 @@ public class DatabaseBrowserToolWindowFactory extends DBNToolWindowFactory {
         ContentFactory contentFactory = contentManager.getFactory();
         Content content = contentFactory.createContent(toolWindowForm.getComponent(), null, true);
 
-        toolWindow.setTitle("DB Browser");
-        toolWindow.setStripeTitle("DB Browser");
-        toolWindow.setIcon(WINDOW_DATABASE_BROWSER.get());
         contentManager.addContent(content);
     }
 }

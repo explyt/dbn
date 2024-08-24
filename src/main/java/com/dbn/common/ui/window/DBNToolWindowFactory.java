@@ -12,10 +12,19 @@ public abstract class DBNToolWindowFactory implements ToolWindowFactory, DumbAwa
     @Override
     public final void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         createContent(project, toolWindow);
-        //addSettingsListener(project, toolWindow);
-        //toolWindow.setIcon(resolveIcon());
     }
 
+    @Override
+    public final void init(@NotNull ToolWindow toolWindow) {
+        ToolWindowFactory.super.init(toolWindow);
+        initialize(toolWindow);
+    }
+
+    /**
+     * Initializer for icon, title and availability
+     * @param toolWindow the {@link ToolWindow} the initialization should be performed against
+     */
+    protected abstract void initialize(@NotNull ToolWindow toolWindow);
 
     protected abstract void createContent(@NotNull Project project, @NotNull ToolWindow toolWindow);
 }
