@@ -25,10 +25,12 @@ import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.AncestorEvent;
+import javax.swing.event.AncestorListener;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 
 import static com.dbn.common.Reflection.invokeMethod;
@@ -71,12 +73,22 @@ public class UserInterface {
     }
 
     public static void whenShown(JComponent component, Runnable runnable) {
-        component.addAncestorListener(new AncestorListenerAdapter() {
+        // one time invocation of the runnable when component is shown
+        AtomicReference<AncestorListener> listenerRef = new AtomicReference<>();
+        AncestorListener listener = new AncestorListenerAdapter() {
             @Override
             public void ancestorAdded(AncestorEvent event) {
-                runnable.run();
+                try {
+                    runnable.run();
+                } finally {
+                    AncestorListener listener = listenerRef.get();
+                    component.removeAncestorListener(listener);
+                }
+
             }
-        });
+        };
+        listenerRef.set(listener);
+        component.addAncestorListener(listener);
     }
 
 

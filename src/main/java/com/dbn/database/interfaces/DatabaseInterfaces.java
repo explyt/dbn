@@ -31,7 +31,7 @@ public interface DatabaseInterfaces {
         return null;
     }
 
-    default DatabaseOracleAIInterface getOracleAIInterface() {
+    default DatabaseAssistantInterface getAssistantInterface() {
         return null;
     }
     void reset();

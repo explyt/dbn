@@ -1,10 +1,25 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.database.oracle;
 
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.common.oracleAI.*;
+import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.database.interfaces.DatabaseOracleAIInterface;
+import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
@@ -12,7 +27,6 @@ import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
-import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.DatabaseObjectType;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,10 +34,16 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Oracle specialized database interface responsible for interactions related to AI-Assistance
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ */
 @Slf4j
-public class OracleAIInterface extends DatabaseInterfaceBase implements DatabaseOracleAIInterface {
+public class OracleAssistantInterface extends DatabaseInterfaceBase implements DatabaseAssistantInterface {
 
-  public OracleAIInterface(DatabaseInterfaces provider) {
+  public OracleAssistantInterface(DatabaseInterfaces provider) {
     super("oracle_ai_interface.xml", provider);
   }
 
@@ -93,7 +113,7 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
   }
 
   @Override
-  public OracleQueryOutput executeQuery(DBNConnection connection, ActionAIType action, String profile, String text, String model) throws QueryExecutionException {
+  public OracleQueryOutput executeQuery(DBNConnection connection, String action, String profile, String text, String model) throws QueryExecutionException {
     try {
       return executeCall(connection, new OracleQueryOutput(), "ai-query", profile, action, text.replace("'", "''"), "{\"model\":\"" + model + "\"}");
     } catch (SQLException e) {
@@ -201,6 +221,9 @@ public class OracleAIInterface extends DatabaseInterfaceBase implements Database
     }
   }
 
-
+  @Override
+  public boolean isAssistantFeatureSupported(DBNConnection connection) throws SQLException {
+    return BooleanResultSetConsumer.INSTANCE.consume(() -> executeQuery(connection, "is-feature-supported"));
+  }
 }
 

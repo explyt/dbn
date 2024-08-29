@@ -336,12 +336,13 @@ public class OracleAIChatBox extends DBNFormBase implements PropertyChangeListen
 
     AIProfileItem item = (AIProfileItem) profileComboBox.getSelectedItem();
 
-    // TODO : do we want to append the message even in case of error
-    ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER);
-    appendMessageToChat(List.of(inputChatMessage));
+    ChatMessageContext context = new ChatMessageContext(profile.getName(), model.name(), actionType);
+    ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER, context);
+    inputChatMessage.setProgress(true);
+    appendMessageToChat(inputChatMessage);
+
     DatabaseOracleAIManager manager = getManager();
-    manager.queryOracleAI(getConnectionId(), question, actionType, item.getLabel(),
-            ((ProviderModel) aiModelComboBox.getSelectedItem()).getApiName())
+    manager.queryOracleAI(getConnectionId(), question, actionType.getId(), profile.getName(), model.getApiName())
         .thenAccept((output) -> {
           ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI);
           appendMessageToChat(List.of(outPutChatMessage));
@@ -511,22 +512,22 @@ public class OracleAIChatBox extends DBNFormBase implements PropertyChangeListen
     }
   }
 
-  private void updateModelsComboBox(AIProfileItem currProfileItem) {
-    aiModelComboBox.removeAllItems();
-    if (currProfileItem.getProvider() != null) {
-      for (ProviderModel model : currProfileItem.getProvider().getModels()) {
-        aiModelComboBox.addItem(model);
-      }
-    }
-    if (currProfileItem.getModel() != null) {
-      aiModelComboBox.setSelectedItem(currProfileItem.getModel());
-    } else {
-      if (currProfileItem.getProvider() != null) {
-        // select the default
-        aiModelComboBox.setSelectedItem(currProfileItem.getProvider().getDefaultModel());
-      } else {
-        aiModelComboBox.setSelectedItem(aiModelComboBox.getItemAt(0));
-      }
+  private void showErrorHeader(Throwable cause) {
+    // TODO show error bar (similar to editor error headers)
+  }
+
+  private void applyProfiles(Map<String, Profile> profiles) {
+    ChatBoxState state = getState();
+    List<AIProfileItem> profileItems = new ArrayList<>();
+    profiles.forEach((pn, p) -> profileItems.add(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled())));
+    state.setProfiles(profileItems);
+
+    ConnectionId connectionId = getConnectionId();
+    DatabaseOracleAIManager manager = getManager();
+    AIProfileItem defaultProfile = manager.getDefaultProfile(connectionId);
+    AIProfileItem selectedProfile = state.getSelectedProfile();
+    if (defaultProfile == null && selectedProfile != null) {
+      manager.updateDefaultProfile(connectionId, selectedProfile);
     }
   }
 

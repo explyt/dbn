@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI;
 
 import com.dbn.DatabaseNavigator;
@@ -7,17 +21,10 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.DatabaseFeature;
-import com.dbn.oracleAI.config.OracleAISettingsOpenAction;
-import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
-import com.dbn.oracleAI.types.ActionAIType;
+import com.dbn.oracleAI.config.ui.OracleAISettingsWindow;
+import com.dbn.oracleAI.ui.ChatBoxState;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
-import com.dbn.oracleAI.ui.OracleAIChatBoxState;
-import com.intellij.openapi.actionSystem.ActionPlaces;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.PlatformDataKeys;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -40,21 +47,29 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.CardLayouts.*;
 
-@State(name = DatabaseOracleAIManager.COMPONENT_NAME, storages = @Storage(DatabaseNavigator.STORAGE_FILE))
+/**
+ * Main database AI-Assistance management component
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ */
 @Slf4j
+@State(
+    name = DatabaseOracleAIManager.COMPONENT_NAME,
+    storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabaseOracleAIManager extends ProjectComponentBase implements PersistentState {
-  public static final String COMPONENT_NAME = "DBNavigator.Project.OracleAIManager";
+  public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseAssistantManager";
   public static final String TOOL_WINDOW_ID = "Oracle Companion";
 
+  private final Map<ConnectionId, ChatBoxState> chatStates = new ConcurrentHashMap<>();
   private final Map<ConnectionId, OracleAIChatBox> chatBoxes = new ConcurrentHashMap<>();
   private final Map<ConnectionId, AIProfileItem> defaultProfileMap = new HashMap<>();
 
   private DatabaseOracleAIManager(Project project) {
     super(project, COMPONENT_NAME);
-    //ApplicationManager.getApplication().invokeLater(this::initOracleAIWindow);
   }
 
   public static DatabaseOracleAIManager getInstance(@NotNull Project project) {
@@ -72,33 +87,27 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
     ConnectionId selectedConnectionId = isBlankCard(id) ? null : ConnectionId.get(id);
 
     if (Objects.equals(selectedConnectionId, connectionId)) return;
-    captureState(selectedConnectionId);
-
     initToolWindow(connectionId);
   }
 
-  public void captureState(ConnectionId connectionId) {
-    OracleAIChatBox chatBox = getChatBox(connectionId);
-    if (chatBox != null) chatBox.captureState();
-  }
-
   @Nullable
-  private OracleAIChatBox getChatBox(ConnectionId connectionId) {
+  private OracleAIChatBox getChatBox(@Nullable ConnectionId connectionId) {
     if (connectionId == null) return null;
 
     ConnectionHandler connection = ConnectionHandler.get(connectionId);
     if (connection == null) return null;
-
-    if (!DatabaseFeature.AI_ASSISTANT.isSupported(connection)) return null;
+    // TODO clarify - present assistant for unsupported databases?
+    //if (!AI_ASSISTANT.isSupported(connection)) return null;
 
     return chatBoxes.computeIfAbsent(connectionId, id -> {
       OracleAIChatBox chatBox = new OracleAIChatBox(connection);
-      chatBox.initState(null);
-      chatBox.enableWindow();
-
       addCard(getToolWindowPanel(), chatBox, connectionId);
       return chatBox;
     });
+  }
+
+  public ChatBoxState getChatBoxState(ConnectionId connectionId, boolean ensure) {
+    return chatStates.compute(connectionId, (c, s) -> s == null && ensure ? new ChatBoxState(c) : s);
   }
 
   public ToolWindow getToolWindow() {
@@ -124,14 +133,14 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
     }
   }
 
-  public CompletableFuture<String> queryOracleAI(ConnectionId connectionId, String text, ActionAIType action,
+  public CompletableFuture<String> queryOracleAI(ConnectionId connectionId, String text, String action,
                                                  String profile, String model) {
     return CompletableFuture.supplyAsync(() -> {
 //      return "```\nselect something;\n```\n\nTHIS IS a response " + new Random().nextInt();
       try {
         ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
         DBNConnection conn = connection.getConnection(SessionId.ORACLE_AI);
-        return connection.getOracleAIInterface()
+        return connection.getAssistantInterface()
                 .executeQuery(conn, action, profile, text, model)
                 .getQueryOutput();
       } catch (QueryExecutionException | SQLException e) {
@@ -140,18 +149,9 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
     });
   }
 
-  public void openSettings(ConnectionId connectionId) {
-    AnAction action = new OracleAISettingsOpenAction(ConnectionHandler.get(connectionId));
-    AnActionEvent event =
-        AnActionEvent.createFromDataContext(ActionPlaces.UNKNOWN, null,
-            dataId -> {
-              if (PlatformDataKeys.PROJECT.is(
-                  dataId)) {
-                return getProject();
-              }
-              return null;
-            });
-    action.actionPerformed(event);
+  public void openSettings(ConnectionHandler connection) {
+    OracleAISettingsWindow settingsWindow = new OracleAISettingsWindow(connection);
+    settingsWindow.display();
   }
 
   /*********************************************
@@ -160,28 +160,30 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
 
   @Override
   public Element getComponentState() {
-    Element allChatBoxStatesElement = new Element("OracleAIChatBoxStates");
-    chatBoxes.forEach((connectionId, chatBox) -> {
-      Element chatBoxStateElement = chatBox.getState().toElement();
-      chatBoxStateElement.setAttribute("connectionId", connectionId.toString());
-      allChatBoxStatesElement.addContent(chatBoxStateElement);
-    });
-    return allChatBoxStatesElement;
+    Element element = newElement("state");
+    Element statesElement = newElement(element, "chat-box-states");
+    for (ConnectionId connectionId : chatStates.keySet()) {
+      ChatBoxState state = chatStates.get(connectionId);
+      Element stateElement = newElement(statesElement, "chat-box-state");
+      state.writeState(stateElement);
+    }
+    return element;
   }
 
   @Override
   public void loadComponentState(@NotNull Element element) {
-    List<Element> chatBoxStateElements = element.getChildren();
-    chatBoxStateElements.forEach(chatBoxStateElement -> {
-      ConnectionId connectionId = connectionIdAttribute(chatBoxStateElement, "connectionId");
-
-      OracleAIChatBoxState chatBoxState = OracleAIChatBoxState.fromElement(chatBoxStateElement);
-      OracleAIChatBox chatBoxForm = getChatBox(connectionId);
-      chatBoxForm.setState(chatBoxState);
-    });
+    Element statesElement = element.getChild("chat-box-states");
+    if (statesElement != null) {
+      List<Element> stateElements = statesElement.getChildren();
+      for (Element stateElement : stateElements) {
+        ChatBoxState state = new ChatBoxState();
+        state.readState(stateElement);
+        chatStates.put(state.getConnectionId(), state);
+      }
+    }
   }
 
-  private final Map<ConnectionId, ManagedObjectServiceProxy<Profile>> profileManagerMap = new ConcurrentHashMap<>();
+  private final Map<ConnectionId, AIProfileService> profileManagerMap = new ConcurrentHashMap<>();
 
   private final Map<ConnectionId, AICredentialService> credentialManagerMap = new ConcurrentHashMap<>();
 
@@ -195,12 +197,12 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
    *
    * @return a manager.
    */
-  public ManagedObjectServiceProxy<Profile> getProfileService(ConnectionId connectionId) {
+  public AIProfileService getProfileService(ConnectionId connectionId) {
     return profileManagerMap.computeIfAbsent(
             connectionId,
-            id -> new ManagedObjectServiceProxy<>(isMockEnv() ?
+            id -> new AIProfileService.CachedProxy((isMockEnv() ?
                     new FakeAIProfileService() :
-                    new AIProfileServiceImpl(ConnectionHandler.ensure(id))));
+                    new AIProfileServiceImpl(ConnectionHandler.ensure(id)))));
   }
 
   public AICredentialService getCredentialService(ConnectionId connectionId) {

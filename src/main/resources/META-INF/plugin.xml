@@ -751,7 +751,7 @@
         <toolWindow id="DB Browser" anchor="left" factoryClass="com.dbn.browser.DatabaseBrowserToolWindowFactory"/>
         <toolWindow id="DB Diagnostics" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
-        <toolWindow id="Oracle Companion" anchor="right" factoryClass="com.dbn.oracleAI.OracleAIToolWindowFactory"/>
+        <toolWindow id="Oracle Companion" anchor="right" factoryClass="com.dbn.oracleAI.DatabaseAssistantToolWindowFactory"/>
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>

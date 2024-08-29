@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
@@ -11,7 +25,6 @@ import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
-import com.dbn.oracleAI.types.ActionAIType;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -20,8 +33,10 @@ import java.util.List;
  * Defines the interface for managing Oracle AI profiles and credentials in a database.
  * This includes creating, updating, and deleting credentials and profiles,
  * executing AI-related queries, and listing database tables, views, credentials, and profiles.
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  */
-public interface DatabaseOracleAIInterface extends DatabaseInterface {
+public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   /**
    * Creates a new credential for accessing external services or databases.
@@ -86,7 +101,7 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    * @return The result of the AI query execution.
    * @throws QueryExecutionException If there is an error in executing the AI query.
    */
-  OracleQueryOutput executeQuery(DBNConnection connection, ActionAIType action, String profile, String text, String model) throws QueryExecutionException;
+  OracleQueryOutput executeQuery(DBNConnection connection, String action, String profile, String text, String model) throws QueryExecutionException;
 
   /**
    * Lists all tables available in the current database schema.
@@ -177,5 +192,12 @@ public interface DatabaseOracleAIInterface extends DatabaseInterface {
    */
   void grantACLRights(DBNConnection connection, String command) throws SQLException;
 
-
+  /**
+   * Verifies if the database AI-Assistant backend is available
+   *
+   * @param connection The database connection to use for interaction
+   * @return true if the assistant feature is supported, false otherwise
+   * @throws SQLException if the interaction with the database was unsuccessful
+   */
+  boolean isAssistantFeatureSupported(DBNConnection connection) throws SQLException;
 }

@@ -110,6 +110,13 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
     /*******************************************************************
      *                    Connection mappings                          *
      *******************************************************************/
+
+    @Nullable
+    public ConnectionId getConnectionId(@NotNull VirtualFile virtualFile) {
+        ConnectionHandler connection = getConnection(virtualFile);
+        return connection == null ? null : connection.getConnectionId();
+    }
+
     @Nullable
     public ConnectionHandler getConnection(@NotNull VirtualFile virtualFile) {
         return registry.getDatabaseConnection(virtualFile);
