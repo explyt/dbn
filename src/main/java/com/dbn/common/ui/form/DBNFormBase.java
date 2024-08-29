@@ -3,12 +3,14 @@ package com.dbn.common.ui.form;
 import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.environment.options.EnvironmentSettings;
+import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ide.DataManager;
+import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
@@ -18,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Set;
 
 public abstract class DBNFormBase
@@ -50,8 +51,12 @@ public abstract class DBNFormBase
         UserInterface.updateScrollPaneBorders(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
-
+        ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
         //GuiUtils.replaceJSplitPaneWithIDEASplitter(mainComponent);
+    }
+
+    protected void lookAndFeelChanged() {
+
     }
 
     protected abstract JComponent getMainComponent();

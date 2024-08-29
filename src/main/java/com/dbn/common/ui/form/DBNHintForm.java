@@ -2,13 +2,13 @@ package com.dbn.common.ui.form;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.text.MimeType;
 import com.dbn.common.text.TextContent;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.ui.util.LookAndFeel;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.common.message.MessageType;
-import com.dbn.common.thread.Dispatch;
 import com.intellij.ui.HyperlinkLabel;
 import com.intellij.ui.RoundedLineBorder;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -28,6 +28,7 @@ public class DBNHintForm extends DBNFormBase {
     private HyperlinkLabel actionLink;
 
     private final boolean boxed;
+    private boolean highlighted;
 
     public DBNHintForm(DBNForm parent, @Nullable TextContent hintContent, MessageType messageType, boolean boxed) {
         this(parent, hintContent, messageType, boxed, null, null);
@@ -40,12 +41,9 @@ public class DBNHintForm extends DBNFormBase {
         setMessageType(messageType);
         setHintContent(hintContent);
 
-        Color background = getBackground();
 
-        hintTextPane.setBackground(background);
         hintTextPane.setFont(Fonts.getLabelFont());
-        contentPanel.setBackground(background);
-        contentPanel.setForeground(boxed ? Colors.lafBrighter(Colors.getLabelForeground(), 1) : Colors.HINT_COLOR);
+        updateComponentColors();
         if (boxed) {
             mainPanel.setBorder(new RoundedLineBorder(Colors.getOutlineColor(), 2));
             //mainPanel.setBorder(new RoundedLineBorder(UIManager.getColor("TextField.borderColor"), 3));
@@ -62,8 +60,20 @@ public class DBNHintForm extends DBNFormBase {
         } else {
             actionLink.setVisible(false);
         }
+    }
 
+    private void updateComponentColors() {
+        Color background = getBackground();
+        Color foreground = getForeground();
+        hintTextPane.setBackground(background);
+        contentPanel.setBackground(background);
+        contentPanel.setForeground(foreground);
+        contentPanel.setForeground(foreground);
+    }
 
+    @Override
+    protected void lookAndFeelChanged() {
+        updateComponentColors();
     }
 
     @SneakyThrows
@@ -86,6 +96,7 @@ public class DBNHintForm extends DBNFormBase {
 
     @NotNull
     private Color getBackground() {
+        if (highlighted) return Colors.getTextFieldBackground();
         if (boxed) {
             return LookAndFeel.isDarkMode() ?
                     Colors.lafDarker(Colors.getPanelBackground(), 1) :
@@ -95,10 +106,13 @@ public class DBNHintForm extends DBNFormBase {
         return Colors.getPanelBackground();
     }
 
+    private Color getForeground() {
+        return boxed ? Colors.lafBrighter(Colors.getLabelForeground(), 1) : Colors.HINT_COLOR;
+    }
+
     public void setHighlighted(boolean highlighted) {
-        Color background = highlighted ? Colors.getTextFieldBackground() : getBackground();
-        contentPanel.setBackground(background);
-        hintTextPane.setBackground(background);
+        this.highlighted = highlighted;
+        updateComponentColors();
     }
 
     @NotNull
