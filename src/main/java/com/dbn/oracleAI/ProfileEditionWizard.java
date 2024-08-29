@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI;
 
 import com.dbn.common.util.Messages;
@@ -26,6 +40,9 @@ import static com.dbn.nls.NlsResources.txt;
 
 /**
  * AI profile edition wizard class
+ *
+ * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  */
 @Slf4j
 public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> {
@@ -37,7 +54,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private JButton finishButton;
 
   private final Project project;
-  private final ManagedObjectServiceProxy<Profile> profileSvc;
+  private final AIProfileService profileSvc;
   private final Consumer<Boolean> callback;
 
   /**
@@ -55,7 +72,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   public ProfileEditionWizard(@NotNull ConnectionHandler connection, Profile profile, List<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStep) {
     super(false, new ProfileEditionWizardModel(
             connection, txt("profiles.settings.window.title"), profile, existingProfileNames, isUpdate,firstStep));
-    profileSvc = ManagedObjectServiceProxy.getInstance(connection);
+    this.profileSvc = AIProfileService.getInstance(connection);
     this.project = connection.getProject();
     this.initialProfile = new Profile(profile);
     this.editedProfile = profile;

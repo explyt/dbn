@@ -14,8 +14,10 @@
 
 package com.dbn.oracleAI;
 
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
+import com.intellij.openapi.project.Project;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

@@ -1,12 +1,25 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI.config.ui;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.AICredentialService;
-import com.dbn.oracleAI.ManagedObjectServiceProxy;
+import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.ui.ActivityNotifier;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
@@ -30,6 +43,9 @@ import static com.dbn.nls.NlsResources.txt;
  * <p>
  * The panel dynamically populates with credential information retrieved from the AI credential service,
  * leveraging the {@link ConnectionHandler} to fetch and manage credentials for a given project connection.
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
  */
 public class CredentialManagementPanel extends JPanel {
 
@@ -47,7 +63,7 @@ public class CredentialManagementPanel extends JPanel {
   private JScrollPane usedByScrollPane;
   private JProgressBar progressBar1;
   private final AICredentialService credentialSvc;
-  private final ManagedObjectServiceProxy<Profile> profileSvc;
+  private final AIProfileService profileSvc;
   private final Project curProject;
 
   /**
@@ -69,7 +85,7 @@ public class CredentialManagementPanel extends JPanel {
     }
     Project project = connection.getProject();
     this.credentialSvc = AICredentialService.getInstance(connection);
-    this.profileSvc = ManagedObjectServiceProxy.getInstance(connection);
+    this.profileSvc = AIProfileService.getInstance(connection);
 
     this.curProject = project;
 

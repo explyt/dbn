@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI.config.ui;
 
 import com.dbn.common.icon.Icons;
@@ -6,8 +20,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AIProfileItem;
+import com.dbn.oracleAI.AIProfileService;
 import com.dbn.oracleAI.DatabaseOracleAIManager;
-import com.dbn.oracleAI.ManagedObjectServiceProxy;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
@@ -32,6 +46,9 @@ import static com.dbn.nls.NlsResources.txt;
 
 /**
  * Profile management bindings
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
  */
 public class ProfileManagementPanel extends JPanel {
 
@@ -59,7 +76,7 @@ public class ProfileManagementPanel extends JPanel {
 
   private final ConnectionRef connection;
   private final DatabaseOracleAIManager manager;
-  private final ManagedObjectServiceProxy<Profile> profileSvc;
+  private final AIProfileService profileSvc;
 
 
   private JPanel windowActionPanel;
@@ -68,7 +85,7 @@ public class ProfileManagementPanel extends JPanel {
     this.connection = connection.ref();
 
     this.manager = DatabaseOracleAIManager.getInstance(connection.getProject());
-    this.profileSvc = ManagedObjectServiceProxy.getInstance(connection);
+    this.profileSvc = AIProfileService.getInstance(connection);
     // make sure we use box that stretch
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
