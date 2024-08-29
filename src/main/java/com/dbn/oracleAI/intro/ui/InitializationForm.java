@@ -27,8 +27,8 @@ import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.diagnostics.Diagnostics;
-import com.dbn.oracleAI.ui.OracleAIChatBox;
-import com.dbn.oracleAI.ui.OracleAIChatBoxState;
+import com.dbn.oracleAI.ui.ChatBoxForm;
+import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
@@ -73,8 +73,8 @@ public class InitializationForm extends DBNFormBase {
     }
 
     private Availability getCurrentAvailability() {
-        OracleAIChatBox chatBox = getChatBox();
-        OracleAIChatBoxState chatBoxState = chatBox.getState();
+        ChatBoxForm chatBox = getChatBox();
+        ChatBoxState chatBoxState = chatBox.getState();
         return chatBoxState.getAvailability();
     }
 
@@ -116,15 +116,15 @@ public class InitializationForm extends DBNFormBase {
 
 
     /**
-     * Verifies the availability of the AI Assistant if not already known and captured in the {@link OracleAIChatBoxState}
+     * Verifies the availability of the AI Assistant if not already known and captured in the {@link ChatBoxState}
      * @return an {@link AvailabilityInfo} object
      */
     private AvailabilityInfo doCheckAvailability() {
         Availability availability = getCurrentAvailability();
         String availabilityMessage = null;
 
-        OracleAIChatBox chatBox = getChatBox();
-        OracleAIChatBoxState chatBoxState = chatBox.getState();
+        ChatBoxForm chatBox = getChatBox();
+        ChatBoxState chatBoxState = chatBox.getState();
 
         if (availability == Availability.UNCERTAIN) {
             ConnectionHandler connection = chatBox.getConnection();
@@ -158,7 +158,7 @@ public class InitializationForm extends DBNFormBase {
                 conn -> connection.getAssistantInterface().isAssistantFeatureSupported(conn));
     }
 
-    private OracleAIChatBox getChatBox() {
+    private ChatBoxForm getChatBox() {
         return getIntroductionForm().getChatBox();
     }
 

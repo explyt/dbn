@@ -18,7 +18,7 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.util.Actions;
 import com.dbn.oracleAI.AIProfileItem;
-import com.dbn.oracleAI.ui.OracleAIChatBox;
+import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -37,7 +37,7 @@ public class ProfileSelectAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return;
 
         chatBox.selectProfile(profile);

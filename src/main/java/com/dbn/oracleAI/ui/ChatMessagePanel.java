@@ -20,6 +20,7 @@ import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.model.ChatMessageContext;
 import com.dbn.oracleAI.model.ChatMessageSection;
 import com.dbn.oracleAI.types.AuthorType;
@@ -39,8 +40,9 @@ import static com.dbn.common.util.Commons.nvl;
  * It visually differentiates messages from the user and AI and provides functionality to copy text to the clipboard.
  *
  * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class JIMSendTextPane extends JPanel {
+public class ChatMessagePanel extends JPanel {
 
   private final ConnectionRef connection;
   private final ChatMessage message;
@@ -50,7 +52,7 @@ public class JIMSendTextPane extends JPanel {
   /**
    * Constructor that sets up the text pane and copy button.
    */
-  public JIMSendTextPane(ConnectionHandler connection, ChatMessage message) {
+  public ChatMessagePanel(ConnectionHandler connection, ChatMessage message) {
     this.connection = ConnectionRef.of(connection);
     this.message = message;
     setLayout(new BorderLayout());

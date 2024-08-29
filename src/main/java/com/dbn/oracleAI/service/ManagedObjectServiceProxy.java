@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI;
+package com.dbn.oracleAI.service;
 
 import com.dbn.oracleAI.config.AttributeInput;
 
@@ -28,7 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * Proxy on remote service.
  * The purpose of this proxy si to cache information.
  * As for now there is no auto-invalidation (time based etc...)
- * This proxy fetch remotly a soon as a destruptive operation has been
+ * This proxy fetch remotely a soon as a destruptive operation has been
  * performed
  *
  * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)

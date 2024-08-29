@@ -47,10 +47,10 @@ import java.awt.*;
  */
 public class ChatBoxInputField extends JPanel {
     private final EditorEx editor;
-    private final WeakRef<OracleAIChatBox> chatBox;
+    private final WeakRef<ChatBoxForm> chatBox;
 
 
-    public ChatBoxInputField(OracleAIChatBox chatBox) {
+    public ChatBoxInputField(ChatBoxForm chatBox) {
         super(new BorderLayout());
         this.chatBox = WeakRef.of(chatBox);
         this.editor = createEditor();
@@ -66,7 +66,7 @@ public class ChatBoxInputField extends JPanel {
         return editor.getDocument().getText();
     }
 
-    private OracleAIChatBox getChatBox() {
+    private ChatBoxForm getChatBox() {
         return chatBox.ensure();
     }
 
@@ -131,7 +131,7 @@ public class ChatBoxInputField extends JPanel {
 
             CharSequence newFragment = event.getNewFragment();
             if (!newFragment.isEmpty() && newFragment.charAt(0) == '\n') {
-                OracleAIChatBox chatBox = getChatBox();
+                ChatBoxForm chatBox = getChatBox();
                 if (chatBox.getState().promptingEnabled()) {
                     chatBox.submitPrompt();
                 } else {

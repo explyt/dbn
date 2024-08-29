@@ -28,11 +28,11 @@ import com.intellij.openapi.project.Project;
  */
 public class ShowSqlOnEditor {
   private final Project project;
-  private final DatabaseOracleAIManager manager;
+  private final DatabaseAssistantManager manager;
 
   public ShowSqlOnEditor(Project project) {
     this.project = project;
-    this.manager = project.getService(DatabaseOracleAIManager.class);
+    this.manager = project.getService(DatabaseAssistantManager.class);
   }
 
   public void processQuery(ConnectionId connectionId, String comment, Document document, boolean withExplanation) {

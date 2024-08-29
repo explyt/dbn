@@ -17,7 +17,7 @@ package com.dbn.oracleAI.action;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.oracleAI.types.ActionAIType;
-import com.dbn.oracleAI.ui.OracleAIChatBox;
+import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
@@ -66,7 +66,7 @@ public class TypeSelectAction extends ToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox != null) return chatBox.getState().getSelectedAction() == type;
         return false;
     }
@@ -74,7 +74,7 @@ public class TypeSelectAction extends ToggleAction {
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
         if(!state) return;
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return;
 
         chatBox.selectAction(type);
@@ -84,7 +84,7 @@ public class TypeSelectAction extends ToggleAction {
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
 
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
         e.getPresentation().setEnabled(enabled);
     }

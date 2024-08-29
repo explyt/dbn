@@ -12,28 +12,23 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI.types;
+package com.dbn.oracleAI.service;
 
-import lombok.Getter;
+import com.dbn.oracleAI.config.AttributeInput;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 /**
- * Enumeration for database object types relevant for the AI profile context
- *
+ * Skeleton for a CRUD service
  * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @param <E>
  */
-@Getter
-public enum DatabaseObjectType {
-  TABLE("TABLE_NAME"),
-  VIEW("VIEW_NAME"),
-  MATERIALIZED_VIEW("MATERIALIZED_VIEW_NAME");
-
-  // That column's name of remote DB views
-  private final String columnName;
-
-  DatabaseObjectType(String columnName) {
-    this.columnName = columnName;
-  }
+public interface ManagedObjectService<E extends AttributeInput> {
+    CompletableFuture<List<E>> list();
+    CompletableFuture<E>       get(String uuid);
+    CompletableFuture<Void>    delete(String uuid);
+    CompletionStage<Void>      create(E newItem);
+    CompletionStage<Void>      update(E updatedItem);
 }
-
-
-

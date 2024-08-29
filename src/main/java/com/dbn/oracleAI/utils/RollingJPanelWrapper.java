@@ -17,8 +17,8 @@ package com.dbn.oracleAI.utils;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.oracleAI.ui.ChatMessage;
-import com.dbn.oracleAI.ui.JIMSendTextPane;
+import com.dbn.oracleAI.model.ChatMessage;
+import com.dbn.oracleAI.ui.ChatMessagePanel;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
 
@@ -46,6 +46,8 @@ public class RollingJPanelWrapper {
    *
    * @param maxCapacity max capacity
    * @param panel       the panel to display the chat message
+   *
+   * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
    */
   public RollingJPanelWrapper(ConnectionHandler connection, int maxCapacity, JPanel panel) {
     this.connection = ConnectionRef.of(connection);
@@ -73,7 +75,7 @@ public class RollingJPanelWrapper {
     Component[] messagePanels = messageContainer.getComponents();
     if (messagePanels.length == 0) return;
 
-    JIMSendTextPane messagePanel = (JIMSendTextPane) messagePanels[messagePanels.length -1];
+    ChatMessagePanel messagePanel = (ChatMessagePanel) messagePanels[messagePanels.length -1];
     messagePanel.clearProgressPanel();
   }
 
@@ -89,7 +91,7 @@ public class RollingJPanelWrapper {
 
     for (ChatMessage message : chatMessages) {
       this.items.add(message);
-      JPanel messagePane = new JIMSendTextPane(getConnection(), message);
+      JPanel messagePane = new ChatMessagePanel(getConnection(), message);
       //this.messageContainer.add(messagePane, author.isOneOf(AuthorType.AI, AuthorType.ERROR) ? "growx, wrap, w ::90%" : "wrap, al right, w ::90%");
       this.messageContainer.add(messagePane, "growx, wrap, w ::93%"); // TODO try to occupy the entire width (100% breaks the wrapping for some reason)
     }

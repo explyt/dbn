@@ -18,8 +18,8 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.common.util.Actions;
 import com.dbn.oracleAI.AIProfileItem;
-import com.dbn.oracleAI.ui.OracleAIChatBox;
-import com.dbn.oracleAI.ui.OracleAIChatBoxState;
+import com.dbn.oracleAI.ui.ChatBoxForm;
+import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -42,10 +42,10 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
     protected DefaultActionGroup createPopupActionGroup(JComponent component, DataContext dataContext) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
 
-        OracleAIChatBox chatBox = dataContext.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = dataContext.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return actionGroup;
 
-        OracleAIChatBoxState state = chatBox.getState();
+        ChatBoxState state = chatBox.getState();
         List<AIProfileItem> profiles = state.getProfiles();
         profiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
         actionGroup.addSeparator();
@@ -56,7 +56,7 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
 
         Presentation presentation = e.getPresentation();
@@ -66,7 +66,7 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
     }
 
     private String getText(@NotNull AnActionEvent e) {
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return "Profile";
 
         String text = getSelectedProfileName(e);
@@ -79,10 +79,10 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
     }
 
     private static String getSelectedProfileName(@NotNull AnActionEvent e) {
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return null;
 
-        OracleAIChatBoxState state = chatBox.getState();
+        ChatBoxState state = chatBox.getState();
         AIProfileItem profile = state.getSelectedProfile();
         if (profile == null) return null;
 

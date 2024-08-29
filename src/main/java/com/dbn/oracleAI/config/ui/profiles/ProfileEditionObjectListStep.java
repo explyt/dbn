@@ -1,14 +1,28 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.oracleAI.DatabaseService;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
 import com.dbn.oracleAI.config.ui.SelectedObjectItemsVerifier;
+import com.dbn.oracleAI.service.DatabaseService;
 import com.dbn.oracleAI.types.DatabaseObjectType;
 import com.dbn.oracleAI.ui.ActivityNotifier;
 import com.intellij.openapi.project.Project;

@@ -1,14 +1,28 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI.config.ui;
 
 import com.dbn.common.util.Messages;
-import com.dbn.oracleAI.AICredentialService;
-import com.dbn.oracleAI.AICredentialServiceImpl;
 import com.dbn.oracleAI.config.AIProviders.AIProviderCredential;
 import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialGeneralSettings;
 import com.dbn.oracleAI.config.AIProviders.AIProvidersSettings;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.OciCredential;
 import com.dbn.oracleAI.config.PasswordCredential;
+import com.dbn.oracleAI.service.AICredentialService;
+import com.dbn.oracleAI.service.AICredentialServiceImpl;
 import com.dbn.oracleAI.types.CredentialType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;

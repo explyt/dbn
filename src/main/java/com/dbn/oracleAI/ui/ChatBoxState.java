@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI.ui;
 
 import com.dbn.common.Availability;
@@ -5,6 +19,7 @@ import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.AIProfileItem;
+import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.ChatBoxStatus;
 import lombok.Getter;
@@ -26,11 +41,15 @@ import static com.dbn.common.util.Lists.*;
  * This class represents the state of the OracleAIChatBox.
  * It encapsulates the current profiles, selected profile,
  * a history of questions, the AI answers, and the current connection.
+ *
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
  */
 @Setter
 @Getter
 @NoArgsConstructor
-public class OracleAIChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> implements PersistentStateElement {
+public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> implements PersistentStateElement {
 
   private ConnectionId connectionId;
   private List<AIProfileItem> profiles = new ArrayList<>();
@@ -42,7 +61,7 @@ public class OracleAIChatBoxState extends PropertyHolderBase.IntStore<ChatBoxSta
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
-  public OracleAIChatBoxState(ConnectionId connectionId) {
+  public ChatBoxState(ConnectionId connectionId) {
     this.connectionId = connectionId;
   }
 

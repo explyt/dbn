@@ -19,8 +19,8 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Commons;
-import com.dbn.oracleAI.ui.OracleAIChatBox;
-import com.dbn.oracleAI.ui.OracleAIChatBoxState;
+import com.dbn.oracleAI.ui.ChatBoxForm;
+import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ui.HyperlinkLabel;
 import lombok.SneakyThrows;
@@ -46,7 +46,7 @@ public class IntroductionForm extends DBNFormBase {
     private JPanel introPanel;
 
     @SneakyThrows
-    public IntroductionForm(@NotNull OracleAIChatBox parent) {
+    public IntroductionForm(@NotNull ChatBoxForm parent) {
         super(parent);
         createInitForm();
         createIntroForm();
@@ -54,7 +54,7 @@ public class IntroductionForm extends DBNFormBase {
     }
 
     private Availability getAvailability() {
-        OracleAIChatBoxState chatBoxState = getChatBox().getState();
+        ChatBoxState chatBoxState = getChatBox().getState();
         return chatBoxState.getAvailability();
     }
 
@@ -103,7 +103,7 @@ public class IntroductionForm extends DBNFormBase {
         continueButton.addActionListener(e -> getChatBox().acknowledgeIntro());
     }
 
-    OracleAIChatBox getChatBox() {
+    ChatBoxForm getChatBox() {
         return getParentComponent();
     }
 

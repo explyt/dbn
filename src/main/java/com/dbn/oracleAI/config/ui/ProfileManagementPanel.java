@@ -20,11 +20,11 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AIProfileItem;
-import com.dbn.oracleAI.AIProfileService;
-import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
+import com.dbn.oracleAI.service.AIProfileService;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -75,7 +75,7 @@ public class ProfileManagementPanel extends JPanel {
   private JButton goToAssociatedObjects;
 
   private final ConnectionRef connection;
-  private final DatabaseOracleAIManager manager;
+  private final DatabaseAssistantManager manager;
   private final AIProfileService profileSvc;
 
 
@@ -84,7 +84,7 @@ public class ProfileManagementPanel extends JPanel {
   public ProfileManagementPanel(ConnectionHandler connection) {
     this.connection = connection.ref();
 
-    this.manager = DatabaseOracleAIManager.getInstance(connection.getProject());
+    this.manager = DatabaseAssistantManager.getInstance(connection.getProject());
     this.profileSvc = AIProfileService.getInstance(connection);
     // make sure we use box that stretch
     this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));

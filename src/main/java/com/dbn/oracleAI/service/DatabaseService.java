@@ -1,7 +1,22 @@
-package com.dbn.oracleAI;
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
+package com.dbn.oracleAI.service;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.intellij.openapi.project.Project;
 
@@ -11,6 +26,8 @@ import java.util.concurrent.CompletionStage;
 
 /**
  * Database information service
+ *
+ * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
  */
 public interface DatabaseService {
     /**
@@ -32,7 +49,7 @@ public interface DatabaseService {
     static DatabaseService getInstance(ConnectionHandler connection) {
         Project project = connection.getProject();
         ConnectionId connectionId = connection.getConnectionId();
-        DatabaseOracleAIManager manager = DatabaseOracleAIManager.getInstance(project);
+        DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
         return manager.getDatabaseService(connectionId);
     }
 

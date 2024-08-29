@@ -23,9 +23,10 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.AIProfileItem;
-import com.dbn.oracleAI.DatabaseOracleAIManager;
+import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.intro.ui.IntroductionForm;
+import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.model.ChatMessageContext;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
@@ -58,7 +59,7 @@ import static com.dbn.oracleAI.types.ChatBoxStatus.*;
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
 @Slf4j
-public class OracleAIChatBox extends DBNFormBase {
+public class ChatBoxForm extends DBNFormBase {
   private JPanel mainPanel;
   private JPanel chatPanel;
   private RollingJPanelWrapper conversationPanelWrapper;
@@ -75,7 +76,7 @@ public class OracleAIChatBox extends DBNFormBase {
   private final ConnectionRef connection;
   private ChatBoxInputField inputField;
 
-  public OracleAIChatBox(ConnectionHandler connection) {
+  public ChatBoxForm(ConnectionHandler connection) {
     super(connection, connection.getProject());
     this.connection = connection.ref();
 
@@ -146,7 +147,7 @@ public class OracleAIChatBox extends DBNFormBase {
     return connection.ensure();
   }
 
-  public OracleAIChatBoxState getState() {
+  public ChatBoxState getState() {
     return getManager().getChatBoxState(getConnectionId(), true);
   }
 
@@ -182,7 +183,7 @@ public class OracleAIChatBox extends DBNFormBase {
    */
   private void configureConversationPanel() {
     chatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    conversationPanelWrapper = new RollingJPanelWrapper(getConnection(), OracleAIChatBoxState.MAX_CHAR_MESSAGE_COUNT, chatPanel);
+    conversationPanelWrapper = new RollingJPanelWrapper(getConnection(), ChatBoxState.MAX_CHAR_MESSAGE_COUNT, chatPanel);
   }
 
   public void submitPrompt() {
@@ -195,7 +196,7 @@ public class OracleAIChatBox extends DBNFormBase {
   }
 
   private void processQuery(String question, ActionAIType actionType) {
-    OracleAIChatBoxState state = getState();
+    ChatBoxState state = getState();
     state.set(QUERYING, true);
     inputField.setReadonly(true);
 
@@ -207,7 +208,7 @@ public class OracleAIChatBox extends DBNFormBase {
     inputChatMessage.setProgress(true);
     appendMessageToChat(inputChatMessage);
 
-    DatabaseOracleAIManager manager = getManager();
+    DatabaseAssistantManager manager = getManager();
     manager.queryOracleAI(getConnectionId(), question, actionType.getId(), profile.getName(), model.getApiName())
         .thenAccept((output) -> {
           state.set(QUERYING, false);
@@ -235,7 +236,7 @@ public class OracleAIChatBox extends DBNFormBase {
    * list of available profiles for the current connection
    */
   public CompletableFuture<Map<String, Profile>> updateProfiles() {
-    DatabaseOracleAIManager manager = getManager();
+    DatabaseAssistantManager manager = getManager();
     return manager.getProfileService(getConnectionId()).list().thenApply(pl -> pl.stream()
         .collect(Collectors.toMap(Profile::getProfileName,
             Function.identity(),
@@ -267,14 +268,14 @@ public class OracleAIChatBox extends DBNFormBase {
 
   private void beforeProfileLoad() {
     initializingIconPanel.setVisible(true);
-    OracleAIChatBoxState state = getState();
+    ChatBoxState state = getState();
     state.set(INITIALIZING, true);
     state.set(UNAVAILABLE, false);
   }
 
   private void afterProfileLoad(@Nullable Throwable e) {
     initializingIconPanel.setVisible(false);
-    OracleAIChatBoxState chatBoxState = getState();
+    ChatBoxState chatBoxState = getState();
     chatBoxState.set(INITIALIZING, false);
     if (e != null) {
       chatBoxState.set(UNAVAILABLE, true);
@@ -290,13 +291,13 @@ public class OracleAIChatBox extends DBNFormBase {
   }
 
   private void applyProfiles(Map<String, Profile> profiles) {
-    OracleAIChatBoxState state = getState();
+    ChatBoxState state = getState();
     List<AIProfileItem> profileItems = new ArrayList<>();
     profiles.forEach((pn, p) -> profileItems.add(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled())));
     state.setProfiles(profileItems);
 
     ConnectionId connectionId = getConnectionId();
-    DatabaseOracleAIManager manager = getManager();
+    DatabaseAssistantManager manager = getManager();
     AIProfileItem defaultProfile = manager.getDefaultProfile(connectionId);
     AIProfileItem selectedProfile = state.getSelectedProfile();
     if (defaultProfile == null && selectedProfile != null) {
@@ -326,9 +327,9 @@ public class OracleAIChatBox extends DBNFormBase {
     return mainPanel;
   }
 
-  private DatabaseOracleAIManager getManager() {
+  private DatabaseAssistantManager getManager() {
     Project project = ensureProject();
-    return DatabaseOracleAIManager.getInstance(project);
+    return DatabaseAssistantManager.getInstance(project);
   }
 
   @Nullable

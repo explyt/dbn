@@ -12,12 +12,10 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI.ui;
+package com.dbn.oracleAI.model;
 
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.UUIDs;
-import com.dbn.oracleAI.model.ChatMessageContext;
-import com.dbn.oracleAI.model.ChatMessageSection;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
 import lombok.Getter;

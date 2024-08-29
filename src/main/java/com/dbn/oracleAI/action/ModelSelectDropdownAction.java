@@ -20,8 +20,8 @@ import com.dbn.common.util.Actions;
 import com.dbn.common.util.Lists;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.types.ProviderModel;
-import com.dbn.oracleAI.ui.OracleAIChatBox;
-import com.dbn.oracleAI.ui.OracleAIChatBoxState;
+import com.dbn.oracleAI.ui.ChatBoxForm;
+import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -51,10 +51,10 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
     }
 
     private List<ProviderModel> getProviderModels(DataContext dataContext) {
-        OracleAIChatBox chatBox = dataContext.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = dataContext.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return Collections.emptyList();
 
-        OracleAIChatBoxState state = chatBox.getState();
+        ChatBoxState state = chatBox.getState();
 
         AIProfileItem profile = state.getSelectedProfile();
         if (profile == null) return Collections.emptyList();
@@ -64,7 +64,7 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
 
         Presentation presentation = e.getPresentation();
@@ -74,7 +74,7 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
     }
 
     private String getText(@NotNull AnActionEvent e) {
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return "Model";
 
         String text = getSelectedModelName(e);
@@ -87,10 +87,10 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
     }
 
     private static String getSelectedModelName(@NotNull AnActionEvent e) {
-        OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return null;
 
-        OracleAIChatBoxState state = chatBox.getState();
+        ChatBoxState state = chatBox.getState();
         AIProfileItem profile = state.getSelectedProfile();
         if (profile == null) return null;
 

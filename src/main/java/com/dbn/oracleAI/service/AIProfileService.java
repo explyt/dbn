@@ -12,10 +12,11 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI;
+package com.dbn.oracleAI.service;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.config.Profile;
 import com.intellij.openapi.project.Project;
 
@@ -29,7 +30,7 @@ import java.util.concurrent.CompletionStage;
  *
  * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
  */
-public interface AIProfileService extends ManagedObjectService <Profile> {
+public interface AIProfileService extends ManagedObjectService<Profile> {
 
 
     CompletableFuture<Profile>  get(String uuid);
@@ -71,7 +72,7 @@ public interface AIProfileService extends ManagedObjectService <Profile> {
     static AIProfileService getInstance(ConnectionHandler connection) {
         Project project = connection.getProject();
         ConnectionId connectionId = connection.getConnectionId();
-        DatabaseOracleAIManager manager = DatabaseOracleAIManager.getInstance(project);
+        DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
         return manager.getProfileService(connectionId);
     }
 }

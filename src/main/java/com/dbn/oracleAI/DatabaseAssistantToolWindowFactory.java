@@ -35,7 +35,7 @@ import javax.swing.*;
 
 import static com.dbn.common.icon.Icons.WINDOW_DATABASE_COMPANION;
 import static com.dbn.nls.NlsResources.txt;
-import static com.dbn.oracleAI.DatabaseOracleAIManager.TOOL_WINDOW_ID;
+import static com.dbn.oracleAI.DatabaseAssistantManager.TOOL_WINDOW_ID;
 
 /**
  * Tool window factory for the Database AI-Assistant chat box
@@ -59,7 +59,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
     createContentPanel(toolWindow);
 
 
-    DatabaseOracleAIManager manager = DatabaseOracleAIManager.getInstance(project);
+    DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
     ProjectEvents.subscribe(project, manager,
             ConsoleChangeListener.TOPIC,
             connectionId -> manager.switchToConnection(connectionId));
@@ -93,7 +93,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
         ConnectionId connectionId = contextManager.getConnectionId(file);
 
-        DatabaseOracleAIManager assistantManager = DatabaseOracleAIManager.getInstance(project);
+        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
         assistantManager.switchToConnection(connectionId);
       }
     };

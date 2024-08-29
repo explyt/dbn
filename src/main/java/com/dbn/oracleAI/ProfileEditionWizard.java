@@ -20,6 +20,7 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileUpdate;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionWizardModel;
+import com.dbn.oracleAI.service.AIProfileService;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.wizard.WizardDialog;
