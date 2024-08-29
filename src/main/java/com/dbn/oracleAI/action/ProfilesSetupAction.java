@@ -16,8 +16,7 @@ package com.dbn.oracleAI.action;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
-import com.dbn.common.util.Actions;
-import com.dbn.oracleAI.AIProfileItem;
+import com.dbn.oracleAI.DatabaseOracleAIManager;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -25,28 +24,23 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Action for selecting one individual AI-assistant profile
+ * Action for opening the AI-assistant profile setup dialog
  *
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class ProfileSelectAction extends ProjectAction {
-    private final AIProfileItem profile;
-    ProfileSelectAction(AIProfileItem profile) {
-        this.profile = profile;
-    }
-
+public class ProfilesSetupAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return;
 
-        chatBox.selectProfile(profile);
+        DatabaseOracleAIManager manager = DatabaseOracleAIManager.getInstance(project);
+        manager.openSettings(chatBox.getConnection());
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(Actions.adjustActionName(profile.getName()));
-        presentation.setEnabled(profile.isEnabled());
+        presentation.setText("Edit Profiles...");
     }
 }

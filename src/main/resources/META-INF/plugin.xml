@@ -473,8 +473,23 @@
             <group id="DBNavigator.Actions.EditorOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Script Editor - Local Settings" icon="AllIcons.General.Gear" />
             <action id="DBNavigator.Actions.EditorSettings" class="com.dbn.language.editor.action.EditorSettingsOpenAction" text="Script Editor - Settings"/>
         </group>
-        <group id="DBNavigator.ActionGroup.CompanionChatBox" text="Companion Chat-Box Controls">
+        <group id="DBNavigator.ActionGroup.CompanionChatBoxProfiles" text="Companion Chat-Box Profiles">
             <action class="com.dbn.oracleAI.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Companion.SelectProfile"/>
+            <action class="com.dbn.oracleAI.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Companion.SelectModel"/>
+            <action class="com.dbn.oracleAI.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Companion.ReloadProfiles" icon="AllIcons.Actions.Refresh"/>
+            <separator/>
+            <action class="com.dbn.oracleAI.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Companion.ClearConversation" icon="AllIcons.Actions.GC"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.CompanionChatBoxTypes" text="Companion Chat-Box Types">
+            <action class="com.dbn.oracleAI.action.TypeSelectAction$ShowSQL" text="Show SQL" id="DBNavigator.Actions.Companion.TypeShow"/>
+            <action class="com.dbn.oracleAI.action.TypeSelectAction$ExplainSQL" id="DBNavigator.Actions.Companion.TypeExplain"/>
+            <action class="com.dbn.oracleAI.action.TypeSelectAction$Narrate" id="DBNavigator.Actions.Companion.TypeNarrate"/>
+            <action class="com.dbn.oracleAI.action.TypeSelectAction$Chat" id="DBNavigator.Actions.Companion.TypeChat"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.CompanionChatBoxPrompt" text="Companion Chat-Box Prompt">
+            <action class="com.dbn.oracleAI.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Companion.SubmitPrompt" icon="AllIcons.Actions.Execute">
+                <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
+            </action>
         </group>
 
         <group id="DBNavigator.Actions.MainMenu" text="_DB Navigator" popup="true">
@@ -730,7 +745,7 @@
         <listener topic="com.intellij.openapi.actionSystem.ex.AnActionListener" class="com.dbn.execution.statement.action.ExecuteStatementEditorAction$ShortcutInterceptor"/>
     </projectListeners>
     <extensions defaultExtensionNs="com.intellij">
-        <notificationGroup id="DBNavigator.NotificationGroup" displayType="BALLOON" key="ntf.shared.title.DBNavigator"/>
+        <notificationGroup id="DBNavigator.NotificationGroup" displayType="NONE" key="ntf.shared.title.DBNavigator"/>
         <postStartupActivity implementation="com.dbn.project.ProjectStartupActivity"/>
         <!--<postStartupActivity implementation="com.dbn.project.ProjectComponentsInitializer" order="last"/>-->
         <!--<applicationInitializedListener implementation="com.dbn.init.DatabaseNavigatorInitializer"/>-->

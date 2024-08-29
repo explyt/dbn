@@ -136,7 +136,7 @@ public class Lists {
     }
 
     @Nullable
-    public static <T> T firstElement(List<T> list) {
+    public static <T> T firstElement(@Nullable List<T> list) {
         return list == null || list.isEmpty() ? null : list.get(0);
     }
 

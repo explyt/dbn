@@ -4,6 +4,7 @@ import com.dbn.common.action.BackgroundUpdatedAction;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.util.Context;
+import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.util.ui.JBUI;
@@ -12,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import java.awt.*;
 
-public abstract class DBNComboBoxAction extends ComboBoxAction implements BackgroundUpdatedAction {
+public abstract class DBNComboBoxAction extends ComboBoxAction implements BackgroundUpdatedAction, NlsSupport {
     @NotNull
     @Override
     public JComponent createCustomComponent(@NotNull Presentation presentation) {

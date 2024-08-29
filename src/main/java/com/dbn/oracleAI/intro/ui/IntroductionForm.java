@@ -19,8 +19,8 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Commons;
-import com.dbn.oracleAI.ui.ChatBoxState;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
+import com.dbn.oracleAI.ui.OracleAIChatBoxState;
 import com.intellij.ide.BrowserUtil;
 import com.intellij.ui.HyperlinkLabel;
 import lombok.SneakyThrows;
@@ -54,7 +54,7 @@ public class IntroductionForm extends DBNFormBase {
     }
 
     private Availability getAvailability() {
-        ChatBoxState chatBoxState = getChatBox().getState();
+        OracleAIChatBoxState chatBoxState = getChatBox().getState();
         return chatBoxState.getAvailability();
     }
 

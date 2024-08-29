@@ -1,43 +1,57 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI;
 
+import com.dbn.common.state.PersistentStateElement;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.jdom.Element;
+
+import static com.dbn.common.options.setting.Settings.*;
 
 
 /**
- * Holder class for profile combox box
+ * Holder class for profile select items
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  */
-@Getter
-@Setter
-@EqualsAndHashCode
-public final class AIProfileItem {
+@Data
+@NoArgsConstructor
+public final class AIProfileItem implements PersistentStateElement {
+  /**
+   * the label of this combo item
+   */
+  private String name;
+  private ProviderType provider;
+  private ProviderModel model;
+  private boolean enabled = true;
+  private boolean selected = false;
+
   /**
    * Creates a new combo item
    *
-   * @param label the label to be displayed in the combo
+   * @param name the label to be displayed in the combo
    */
-  public AIProfileItem(String label, ProviderType provider, ProviderModel model, boolean isEnabled) {
-    this.label = label;
+  public AIProfileItem(String name, ProviderType provider, ProviderModel model, boolean enabled) {
+    this.name = name;
     this.provider = provider;
     this.model = model;
-    this.isEnabled = isEnabled;
-    this.effective = true;
+    this.enabled = enabled;
   }
-
-  /**
-   * Creates a new combo item
-   *
-   * @param label     the label
-   * @param effective is this effective or placeholder item ?
-   */
-  public AIProfileItem(String label, boolean effective) {
-    this.label = label;
-    this.effective = effective;
-  }
-
 
   /**
    * Used to UI fw
@@ -46,25 +60,24 @@ public final class AIProfileItem {
    */
   @Override
   public String toString() {
-    return label;
+    return name;
   }
 
-  /**
-   * the label of this combo item
-   */
-  private String label;
-  private ProviderType provider;
-  private ProviderModel model;
-  private boolean isEnabled = true;
+  @Override
+  public void readState(Element element) {
+    name = stringAttribute(element, "name");
+    provider = enumAttribute(element, "provider", ProviderType.class);
+    model = enumAttribute(element, "model", ProviderModel.class);
+    enabled = booleanAttribute(element, "enabled", enabled);
+    selected = booleanAttribute(element, "selected", selected);
+  }
 
-  /**
-   * Checks that this is effective/usable profile
-   * basic example is that the 'New profile...' is not
-   */
-  private boolean effective;
-
+  @Override
+  public void writeState(Element element) {
+    setStringAttribute(element, "name", name);
+    setEnumAttribute(element, "provider", provider);
+    setEnumAttribute(element, "model", model);
+    setBooleanAttribute(element, "enabled", enabled);
+    setBooleanAttribute(element, "selected", selected);
+  }
 }
-
-/**
- * Dedicated class for NL2SQL profile model.
- */

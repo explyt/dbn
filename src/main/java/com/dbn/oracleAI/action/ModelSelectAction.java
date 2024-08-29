@@ -17,7 +17,7 @@ package com.dbn.oracleAI.action;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.util.Actions;
-import com.dbn.oracleAI.AIProfileItem;
+import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -25,14 +25,15 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Action for selecting one individual AI-assistant profile
+ * Action for selecting one individual AI-assistant model
  *
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class ProfileSelectAction extends ProjectAction {
-    private final AIProfileItem profile;
-    ProfileSelectAction(AIProfileItem profile) {
-        this.profile = profile;
+public class ModelSelectAction extends ProjectAction {
+    private final ProviderModel model;
+
+    ModelSelectAction(ProviderModel model) {
+        this.model = model;
     }
 
     @Override
@@ -40,13 +41,12 @@ public class ProfileSelectAction extends ProjectAction {
         OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return;
 
-        chatBox.selectProfile(profile);
+        chatBox.selectModel(model);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(Actions.adjustActionName(profile.getName()));
-        presentation.setEnabled(profile.isEnabled());
+        presentation.setText(Actions.adjustActionName(model.name()));
     }
 }

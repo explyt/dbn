@@ -1,119 +1,132 @@
 package com.dbn.oracleAI.ui;
 
+import com.dbn.common.Availability;
+import com.dbn.common.property.PropertyHolderBase;
+import com.dbn.common.state.PersistentStateElement;
+import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.AIProfileItem;
-import com.dbn.oracleAI.types.AuthorType;
-import com.dbn.oracleAI.types.ProviderModel;
-import com.dbn.oracleAI.types.ProviderType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.dbn.oracleAI.types.ActionAIType;
+import com.dbn.oracleAI.types.ChatBoxStatus;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
+
+import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.util.Commons.nvln;
+import static com.dbn.common.util.Lists.*;
 
 /**
+ * ChatBox state holder class
  * This class represents the state of the OracleAIChatBox.
- * It encapsulates the current profiles, selected profile, the current question text,
+ * It encapsulates the current profiles, selected profile,
  * a history of questions, the AI answers, and the current connection.
  */
-@Builder
 @Setter
 @Getter
-@AllArgsConstructor
-/**
- * Chatbox state holder class
- */
-public class OracleAIChatBoxState {
-  private List<AIProfileItem> profiles;
-  private AIProfileItem selectedProfile;
-  private String currentQuestionText;
-  private List<String> questionHistory;
-  private List<ChatMessage> aiAnswers;
+@NoArgsConstructor
+public class OracleAIChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> implements PersistentStateElement {
+
+  private ConnectionId connectionId;
+  private List<AIProfileItem> profiles = new ArrayList<>();
+  private List<ChatMessage> messages = new ArrayList<>();
+  private ActionAIType selectedAction = ActionAIType.SHOW_SQL;
+  private boolean acknowledged = false;
+  private Availability availability = Availability.UNCERTAIN;
+
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
-  /**
-   * Converts the state of the OracleAIChatBox into an XML Element.
-   *
-   * @return Element representing the state of the OracleAIChatBox.
-   */
-  public Element toElement() {
-    Element stateElement = new Element("OracleAIChatBoxState");
-    stateElement.addContent(new Element("selectedProfile").addContent(selectedProfile != null ? createProfileElement(selectedProfile) : null));
-    stateElement.addContent(new Element("currentQuestionText").setText(currentQuestionText));
-
-    Element profilesElement = new Element("profiles");
-    profiles.forEach(profile -> {
-      profilesElement.addContent(createProfileElement(profile));
-    });
-    stateElement.addContent(profilesElement);
-
-
-    Element messagesElement = new Element("chatMessages");
-    aiAnswers.forEach(chatMessage -> {
-      Element messageElement = new Element("chatMessage");
-      messageElement.setAttribute("message", chatMessage.getMessage());
-      messageElement.setAttribute("author", chatMessage.getAuthor().toString());
-      messagesElement.addContent(messageElement);
-    });
-    stateElement.addContent(messagesElement);
-
-    return stateElement;
+  public OracleAIChatBoxState(ConnectionId connectionId) {
+    this.connectionId = connectionId;
   }
 
-  private Element createProfileElement(AIProfileItem profile) {
-    Element profileElement = new Element("profile");
-    profileElement.setAttribute("label", profile.getLabel());
-    profileElement.setAttribute("effective", String.valueOf(profile.isEffective()));
-    profileElement.setAttribute("provider", profile.getProvider().toString());
-    profileElement.setAttribute("model", profile.getModel().toString());
-    return profileElement;
+  @Override
+  protected ChatBoxStatus[] properties() {
+    return ChatBoxStatus.VALUES;
+  }
+
+  public boolean promptingEnabled() {
+    return isNot(ChatBoxStatus.INITIALIZING) &&
+            isNot(ChatBoxStatus.UNAVAILABLE) &&
+            isNot(ChatBoxStatus.QUERYING);
+  }
+
+  @Nullable
+  public AIProfileItem getSelectedProfile() {
+    return first(profiles, p -> p.isSelected());
+  }
+
+  public void setSelectedProfile(@Nullable AIProfileItem profile) {
+    String profileName = profile == null ? null : profile.getName();
+    forEach(profiles, p -> p.setSelected(Objects.equals(p.getName(), profileName)));
   }
 
   /**
-   * Reconstructs the OracleAIChatBoxState from an XML Element.
-   *
-   * @param stateElement XML element representing the state.
-   * @return OracleAIChatBoxState reconstructed from the XML.
+   * Replaces the list of profiles by preserving the profile and model selection (as far as possible)
+   * @param profiles
    */
-  public static OracleAIChatBoxState fromElement(Element stateElement) {
+  public void setProfiles(List<AIProfileItem> profiles) {
+    AIProfileItem selectedProfile = nvln(getSelectedProfile(), firstElement(profiles));
+    this.profiles = profiles;
+    setSelectedProfile(selectedProfile);
+  }
 
-    // Retrieve the selectedProfile element and handle possible null
-    Element selectedProfileElement = stateElement.getChild("selectedProfile");
-    AIProfileItem selectedProfileLabel = null;
-    if (selectedProfileElement != null) {
-      selectedProfileLabel = createAIProfileItem(selectedProfileElement.getChildren().get(0));
+  public void addMessages(List<ChatMessage> messages) {
+    this.messages.addAll(messages);
+  }
+
+
+  public void clearMessages() {
+    messages.clear();
+  }
+
+  @Override
+  public void readState(Element element) {
+    connectionId = connectionIdAttribute(element, "connection-id");
+    acknowledged = booleanAttribute(element, "acknowledged", acknowledged);
+    selectedAction = enumAttribute(element, "selected-action", selectedAction);
+    availability= enumAttribute(element, "availability", availability);
+
+    Element profilesElement = element.getChild("profiles");
+    List<Element> profileElements = profilesElement.getChildren();
+    for (Element profileElement : profileElements) {
+      AIProfileItem profile = new AIProfileItem();
+      profile.readState(profileElement);
+      profiles.add(profile);
     }
 
-    String currentQuestionText = stateElement.getChildText("currentQuestionText");
-
-    List<AIProfileItem> profiles = stateElement.getChild("profiles").getChildren("profile").stream()
-        .map(OracleAIChatBoxState::createAIProfileItem)
-        .collect(Collectors.toList());
-
-    List<ChatMessage> chatMessages = stateElement.getChild("chatMessages").getChildren("chatMessage").stream()
-        .map(messageElement -> new ChatMessage(
-            messageElement.getAttributeValue("message"),
-            AuthorType.valueOf(messageElement.getAttributeValue("author"))))
-        .collect(Collectors.toList());
-
-    return OracleAIChatBoxState.builder()
-        .selectedProfile(selectedProfileLabel)
-        .currentQuestionText(currentQuestionText)
-        .profiles(profiles)
-        .aiAnswers(chatMessages)
-        .build();
+    Element messagesElement = element.getChild("messages");
+    List<Element> messageElements = messagesElement.getChildren();
+    for (Element messageElement : messageElements) {
+      ChatMessage message = new ChatMessage();
+      message.readState(messageElement);
+      messages.add(message);
+    }
   }
 
-  private static AIProfileItem createAIProfileItem(Element profileElement) {
-    if (profileElement.getAttributeValue("label") == null) return null;
-    String label = profileElement.getAttributeValue("label");
-    boolean effective = Boolean.parseBoolean(profileElement.getAttributeValue("effective"));
-    ProviderType provider = ProviderType.valueOf(profileElement.getAttributeValue("provider").toUpperCase());
-    ProviderModel model = ProviderModel.valueOf(profileElement.getAttributeValue("model"));
-    return new AIProfileItem(label, provider, model, effective);
+  @Override
+  public void writeState(Element element) {
+    setStringAttribute(element, "connection-id", connectionId.id());
+    setBooleanAttribute(element, "acknowledged", acknowledged);
+    setEnumAttribute(element, "selected-action", selectedAction);
+    setEnumAttribute(element, "availability", availability);
 
+    Element profilesElement = newElement(element, "profiles");
+    for (AIProfileItem profile : profiles) {
+      Element profileElement = newElement(profilesElement, "profile");
+      profile.writeState(profileElement);
+    }
+
+    Element messagesElement = newElement(element, "messages");
+    for (ChatMessage message : messages) {
+      Element messageElement = newElement(messagesElement, "message");
+      message.writeState(messageElement);
+    }
   }
 }

@@ -23,8 +23,8 @@ import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.config.ui.OracleAISettingsWindow;
-import com.dbn.oracleAI.ui.ChatBoxState;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
+import com.dbn.oracleAI.ui.OracleAIChatBoxState;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -64,7 +64,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
   public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseAssistantManager";
   public static final String TOOL_WINDOW_ID = "Oracle Companion";
 
-  private final Map<ConnectionId, ChatBoxState> chatStates = new ConcurrentHashMap<>();
+  private final Map<ConnectionId, OracleAIChatBoxState> chatStates = new ConcurrentHashMap<>();
   private final Map<ConnectionId, OracleAIChatBox> chatBoxes = new ConcurrentHashMap<>();
   private final Map<ConnectionId, AIProfileItem> defaultProfileMap = new HashMap<>();
 
@@ -106,8 +106,8 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
     });
   }
 
-  public ChatBoxState getChatBoxState(ConnectionId connectionId, boolean ensure) {
-    return chatStates.compute(connectionId, (c, s) -> s == null && ensure ? new ChatBoxState(c) : s);
+  public OracleAIChatBoxState getChatBoxState(ConnectionId connectionId, boolean ensure) {
+    return chatStates.compute(connectionId, (c, s) -> s == null && ensure ? new OracleAIChatBoxState(c) : s);
   }
 
   public ToolWindow getToolWindow() {
@@ -163,7 +163,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
     Element element = newElement("state");
     Element statesElement = newElement(element, "chat-box-states");
     for (ConnectionId connectionId : chatStates.keySet()) {
-      ChatBoxState state = chatStates.get(connectionId);
+      OracleAIChatBoxState state = chatStates.get(connectionId);
       Element stateElement = newElement(statesElement, "chat-box-state");
       state.writeState(stateElement);
     }
@@ -176,7 +176,7 @@ public class DatabaseOracleAIManager extends ProjectComponentBase implements Per
     if (statesElement != null) {
       List<Element> stateElements = statesElement.getChildren();
       for (Element stateElement : stateElements) {
-        ChatBoxState state = new ChatBoxState();
+        OracleAIChatBoxState state = new OracleAIChatBoxState();
         state.readState(stateElement);
         chatStates.put(state.getConnectionId(), state);
       }

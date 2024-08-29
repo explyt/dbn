@@ -15,6 +15,7 @@ import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
+import lombok.experimental.Delegate;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 import static com.dbn.common.Reflection.invokeMethod;
 import static com.dbn.common.color.ColorCache.cached;
@@ -248,4 +249,22 @@ public final class Colors {
         return ColorAdjustmentCache.adjusted(color, ColorAdjustment.STRONGER, tones);
     }
 
+    public static Color delegate(Supplier<Color> supplier) {
+        return new ColorDelegate(supplier);
+    }
+
+
+    private static class ColorDelegate extends Color {
+        private final Supplier<Color> delegate;
+        public ColorDelegate(Supplier<Color> delegate) {
+            super(0);
+            this.delegate = delegate;
+        }
+
+        @Delegate
+        Color getDelegate() {
+            return delegate.get();
+        }
+
+    }
 }

@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI;
 
 import com.dbn.connection.ConnectionId;
@@ -9,6 +23,8 @@ import com.intellij.openapi.project.Project;
 
 /**
  * This is the class that handles processing the prompt from the console and displaying the results to it.
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  */
 public class ShowSqlOnEditor {
   private final Project project;
@@ -22,7 +38,8 @@ public class ShowSqlOnEditor {
   public void processQuery(ConnectionId connectionId, String comment, Document document, boolean withExplanation) {
     String prompt = comment.substring(3, comment.length() - 1);
     AIProfileItem currProfile = manager.getDefaultProfile(connectionId);
-    manager.queryOracleAI(connectionId, prompt, withExplanation ? ActionAIType.EXPLAINSQL : ActionAIType.SHOWSQL, currProfile.getLabel(), currProfile.getModel().getApiName())
+    String action = withExplanation ? ActionAIType.EXPLAIN_SQL.getId() : ActionAIType.SHOW_SQL.getId();
+    manager.queryOracleAI(connectionId, prompt, action, currProfile.getName(), currProfile.getModel().getApiName())
         .thenAccept(answer -> appendLine(document, processText(answer, withExplanation), comment))
         .exceptionally((e) -> {
           com.dbn.common.util.Messages.showErrorDialog(project, e.getMessage());

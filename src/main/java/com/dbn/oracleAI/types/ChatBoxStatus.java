@@ -14,15 +14,26 @@
 
 package com.dbn.oracleAI.types;
 
-import com.dbn.common.constant.Constant;
+import com.dbn.common.property.Property;
 
 /**
- * This is for the possible authors that can send a message in the chat
+ * Transient status of the Chat Box
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public enum AuthorType implements Constant<AuthorType> {
-  USER,
-  AI,
-  ERROR;
+public enum ChatBoxStatus implements Property.IntBase {
+    INITIALIZING, // the profiles and models are being loaded
+    UNAVAILABLE,  // the chat-box is unavailable due to connectivity, privilege issues or alike
+    QUERYING,     // the chat-box is waiting for response from backend
+    ;
+
+    public static final ChatBoxStatus[] VALUES = values();
+
+    private final IntMasks masks = new IntMasks(this);
+
+    @Override
+    public IntMasks masks() {
+        return masks;
+    }
+
 }

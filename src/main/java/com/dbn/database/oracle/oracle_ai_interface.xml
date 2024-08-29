@@ -92,7 +92,7 @@
             ON p.profile_name = a.profile_name
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="ai-query">
+    <statement-execution-processor id="ai-query" timeout="60">
         <statement>
             declare
             query_output VARCHAR2(4000);
@@ -200,7 +200,7 @@
         <statement>
             BEGIN
             EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD TO {0}';
-            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBM$_CLOUD_AI TO {0}';
+            EXECUTE IMMEDIATE 'GRANT EXECUTE ON DBMS_CLOUD_AI TO {0}';
             END;
         </statement>
     </statement-execution-processor>

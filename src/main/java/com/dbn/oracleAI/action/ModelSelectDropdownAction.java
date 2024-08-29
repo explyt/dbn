@@ -17,7 +17,9 @@ package com.dbn.oracleAI.action;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Lists;
 import com.dbn.oracleAI.AIProfileItem;
+import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.ui.OracleAIChatBox;
 import com.dbn.oracleAI.ui.OracleAIChatBoxState;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -28,30 +30,36 @@ import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
+import java.util.Collections;
 import java.util.List;
 
 /**
- * Action for selecting the current AI-assistant profile
+ * Action for selecting the current AI-assistant model
  *
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class ProfileSelectDropdownAction extends DBNComboBoxAction implements DumbAware {
-
+public class ModelSelectDropdownAction extends DBNComboBoxAction implements DumbAware {
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(JComponent component, DataContext dataContext) {
-        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        List<ProviderModel> models = getProviderModels(dataContext);
 
+        DefaultActionGroup actionGroup = new DefaultActionGroup();
+        Lists.forEach(models, m -> actionGroup.add(new ModelSelectAction(m)));
+
+        return actionGroup;
+    }
+
+    private List<ProviderModel> getProviderModels(DataContext dataContext) {
         OracleAIChatBox chatBox = dataContext.getData(DataKeys.COMPANION_CHAT_BOX);
-        if (chatBox == null) return actionGroup;
+        if (chatBox == null) return Collections.emptyList();
 
         OracleAIChatBoxState state = chatBox.getState();
-        List<AIProfileItem> profiles = state.getProfiles();
-        profiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
-        actionGroup.addSeparator();
 
-        actionGroup.add(new ProfilesSetupAction());
-        return actionGroup;
+        AIProfileItem profile = state.getSelectedProfile();
+        if (profile == null) return Collections.emptyList();
+
+        return profile.getProvider().getModels();
     }
 
     @Override
@@ -61,24 +69,24 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
-        presentation.setDescription(txt("companion.chat.profile.tooltip"));
+        presentation.setDescription(txt("companion.chat.model.tooltip"));
         presentation.setEnabled(enabled);
     }
 
     private String getText(@NotNull AnActionEvent e) {
         OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
-        if (chatBox == null) return "Profile";
+        if (chatBox == null) return "Model";
 
-        String text = getSelectedProfileName(e);
+        String text = getSelectedModelName(e);
         if (text != null) return text;
 
-        List<AIProfileItem> profiles = chatBox.getState().getProfiles();
-        if (!profiles.isEmpty()) return "Select Profile";
+        List<ProviderModel> models = getProviderModels(e.getDataContext());
+        if (!models.isEmpty()) return "Select Model";
 
-        return "Profile";
+        return "Model";
     }
 
-    private static String getSelectedProfileName(@NotNull AnActionEvent e) {
+    private static String getSelectedModelName(@NotNull AnActionEvent e) {
         OracleAIChatBox chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
         if (chatBox == null) return null;
 
@@ -86,7 +94,10 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
         AIProfileItem profile = state.getSelectedProfile();
         if (profile == null) return null;
 
-        return Actions.adjustActionName(profile.getName());
+        ProviderModel model = profile.getModel();
+        if (model == null) return null;
+
+        return Actions.adjustActionName(model.name());
     }
 
     @Override

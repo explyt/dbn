@@ -230,9 +230,9 @@ public class ProfileManagementPanel extends JPanel {
         setEnabled(item.isEnabled());
 
         if (item.equals(manager.getDefaultProfile(getConnectionId()))) {
-          setText(item.getLabel() + " (default)");
+          setText(item.getName() + " (default)");
         } else {
-          setText(item.getLabel());
+          setText(item.getName());
         }
       }
       return this;
