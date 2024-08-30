@@ -16,6 +16,7 @@ package com.dbn.oracleAI.model;
 
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.oracleAI.types.ActionAIType;
+import com.dbn.oracleAI.types.ProviderModel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,10 +34,10 @@ import static com.dbn.common.options.setting.Settings.*;
 @NoArgsConstructor
 public class ChatMessageContext implements PersistentStateElement {
     private String profile;
-    private String model;
+    private ProviderModel model;
     private ActionAIType action;
 
-    public ChatMessageContext(String profile, String model, ActionAIType action) {
+    public ChatMessageContext(String profile, ProviderModel model, ActionAIType action) {
         this.profile = profile;
         this.model = model;
         this.action = action;
@@ -45,14 +46,14 @@ public class ChatMessageContext implements PersistentStateElement {
     @Override
     public void readState(Element element) {
         profile = stringAttribute(element, "profile");
-        model = stringAttribute(element, "model");
+        model = enumAttribute(element, "model", ProviderModel.class);
         action = enumAttribute(element, "action", ActionAIType.class);
     }
 
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "profile", profile);
-        setStringAttribute(element, "model", model);
+        setEnumAttribute(element, "model", model);
         setEnumAttribute(element, "action", action);
     }
 }

@@ -1,0 +1,74 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
+package com.dbn.oracleAI.model;
+
+import com.dbn.common.state.PersistentStateElement;
+import com.dbn.oracleAI.types.AuthorType;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.jdom.Element;
+
+import static com.dbn.common.options.setting.Settings.*;
+
+/**
+ * This class is for message elements that will be in the chat
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ */
+@Getter
+@Setter
+@NoArgsConstructor
+public class PersistentChatMessage extends ChatMessage implements PersistentStateElement {
+
+  private transient boolean progress;
+
+  /**
+   * Creates a new ChatMessage
+   * @param content the message content
+   * @param author the author of the message
+   * @param context the context in which the chat message was produced
+   */
+  public PersistentChatMessage(String content, AuthorType author, ChatMessageContext context) {
+    super(content, author, context);
+  }
+
+  @Override
+  public void readState(Element element) {
+    id = stringAttribute(element, "id");
+    author = enumAttribute(element, "author", AuthorType.class);
+
+    Element contentElement = element.getChild("content");
+    content = readCdata(contentElement);
+
+    Element contextElement = element.getChild("context");
+    context = new ChatMessageContext();
+    context.readState(contextElement);
+  }
+
+  @Override
+  public void writeState(Element element) {
+    setStringAttribute(element, "id", id);
+    setEnumAttribute(element, "author", author);
+
+    Element contentElement = newElement(element,"content");
+    writeCdata(contentElement, content);
+
+    Element contextElement = newElement(element,"context");
+    context.writeState(contextElement);
+  }
+
+}
+

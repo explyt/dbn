@@ -19,7 +19,7 @@ import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.AIProfileItem;
-import com.dbn.oracleAI.model.ChatMessage;
+import com.dbn.oracleAI.model.PersistentChatMessage;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.ChatBoxStatus;
 import lombok.Getter;
@@ -53,7 +53,7 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
 
   private ConnectionId connectionId;
   private List<AIProfileItem> profiles = new ArrayList<>();
-  private List<ChatMessage> messages = new ArrayList<>();
+  private List<PersistentChatMessage> messages = new ArrayList<>();
   private ActionAIType selectedAction = ActionAIType.SHOW_SQL;
   private boolean acknowledged = false;
   private Availability availability = Availability.UNCERTAIN;
@@ -96,7 +96,7 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
     setSelectedProfile(selectedProfile);
   }
 
-  public void addMessages(List<ChatMessage> messages) {
+  public void addMessages(List<PersistentChatMessage> messages) {
     this.messages.addAll(messages);
   }
 
@@ -123,7 +123,7 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
     Element messagesElement = element.getChild("messages");
     List<Element> messageElements = messagesElement.getChildren();
     for (Element messageElement : messageElements) {
-      ChatMessage message = new ChatMessage();
+      PersistentChatMessage message = new PersistentChatMessage();
       message.readState(messageElement);
       messages.add(message);
     }
@@ -143,7 +143,7 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
     }
 
     Element messagesElement = newElement(element, "messages");
-    for (ChatMessage message : messages) {
+    for (PersistentChatMessage message : messages) {
       Element messageElement = newElement(messagesElement, "message");
       message.writeState(messageElement);
     }

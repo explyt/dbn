@@ -108,6 +108,20 @@
             end;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="ai-generate" timeout="60">
+        <statement>
+            declare
+                v_response CLOB;
+            begin
+                v_response := DBMS_CLOUD_AI.GENERATE(
+                                    prompt       => '{2}',
+                                    profile_name => '{0}',
+                                    action       => '{1}',
+                                    attributes   => '{3}');
+                ? := v_response;
+            end;
+        </statement>
+    </statement-execution-processor>
     <statement-execution-processor id="list-tables" timeout="120">
         <statement>
             SELECT TABLE_NAME

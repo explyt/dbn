@@ -12,6 +12,7 @@ import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
@@ -67,7 +68,10 @@ public class ToggleDatabaseLoggingIntentionAction extends GenericIntentionAction
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile psiFile) {
+    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
+        if (isDatabaseAssistantPrompt(psiElement)) return false;
+
+        PsiFile psiFile = psiElement.getContainingFile();
         if (!isDbLanguagePsiFile(psiFile)) return false;
 
         VirtualFile file = psiFile.getVirtualFile();
@@ -86,7 +90,8 @@ public class ToggleDatabaseLoggingIntentionAction extends GenericIntentionAction
     }
 
     @Override
-    public void invoke(@NotNull final Project project, Editor editor, PsiFile psiFile) throws IncorrectOperationException {
+    public void invoke(@NotNull final Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+        PsiFile psiFile = psiElement.getContainingFile();
         ConnectionHandler connection = getConnection(psiFile);
         if (DATABASE_LOGGING.isSupported(connection)) {
             connection.setLoggingEnabled(!connection.isLoggingEnabled());

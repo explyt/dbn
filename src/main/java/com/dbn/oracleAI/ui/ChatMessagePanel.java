@@ -20,9 +20,9 @@ import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.model.ChatMessageContext;
 import com.dbn.oracleAI.model.ChatMessageSection;
+import com.dbn.oracleAI.model.PersistentChatMessage;
 import com.dbn.oracleAI.types.AuthorType;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
@@ -45,14 +45,14 @@ import static com.dbn.common.util.Commons.nvl;
 public class ChatMessagePanel extends JPanel {
 
   private final ConnectionRef connection;
-  private final ChatMessage message;
+  private final PersistentChatMessage message;
   private JPanel messagesPanel;
   private JPanel progressPanel;
   private JPanel titlePanel;
   /**
    * Constructor that sets up the text pane and copy button.
    */
-  public ChatMessagePanel(ConnectionHandler connection, ChatMessage message) {
+  public ChatMessagePanel(ConnectionHandler connection, PersistentChatMessage message) {
     this.connection = ConnectionRef.of(connection);
     this.message = message;
     setLayout(new BorderLayout());
@@ -154,7 +154,7 @@ public class ChatMessagePanel extends JPanel {
   }
 
   private void createMessagePanels() {
-    for (ChatMessageSection section : message.getContentSections()) {
+    for (ChatMessageSection section : message.getSections()) {
       if (section.getLanguage() == null)
         createTextPane(section); else
         createCodePane(section);

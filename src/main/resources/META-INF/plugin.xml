@@ -420,16 +420,10 @@
             <!--<add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="before"/>-->
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
-        <group id="DBNavigator.Actions.TextEditor.OracleCompanion.Group" text="Select AI" popup="true">
-            <add-to-group group-id="EditorPopupMenu" anchor="after"
-                          relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
-            <action id="DBNavigator.Actions.TextEditor.OracleCompanion" class="com.dbn.oracleAI.ShowSqlAction"
-                    text="Show Sql">
-            </action>
-            <action id="DBNavigator.Actions.TextEditor.OracleCompanion.ShowSqlExplanation"
-                    class="com.dbn.oracleAI.ShowSqlExplanationAction"
-                    text="Show Sql/Explanation">
-            </action>
+        <group id="DBNavigator.ActionGroup.FileEditorAssistant" text="Database Assistant" popup="true">
+            <add-to-group group-id="EditorPopupMenu" anchor="after"  relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
+            <action id="DBNavigator.Actions.Companion.ShowSQL" class="com.dbn.oracleAI.editor.action.AssistantShowSqlAction" text="Show SQL for Selection"/>
+            <action id="DBNavigator.Actions.Companion.ExplainSQL" class="com.dbn.oracleAI.editor.action.AssistantExplainSqlAction" text="Explain SQL for Selection"/>
         </group>
         <group id="DBNavigator.ActionGroup.ProjectViewContext">
             <group id="DBNavigator.ActionGroup.ProjectViewPopup" text="DB Navigator" popup="true" keep-content="true">
@@ -937,8 +931,12 @@
         <!--<intentionAction><className>com.dbn.code.common.intention.SetupCodeCompletionIntentionAction</className><category>Database</category></intentionAction>-->
 
         <intentionAction>
-            <className>com.dbn.oracleAI.ShowSqlIntentionAction</className>
-            <category>Database/Connectivity</category>
+            <className>com.dbn.oracleAI.editor.intention.AssistantShowIntentionAction</className>
+            <category>Database/Assistant</category>
+        </intentionAction>
+        <intentionAction>
+            <className>com.dbn.oracleAI.editor.intention.AssistantExplainIntentionAction</className>
+            <category>Database/Assistant</category>
         </intentionAction>
         <fileDocumentManagerListener implementation="com.dbn.connection.console.DatabaseConsoleFileInitializer"/>
 

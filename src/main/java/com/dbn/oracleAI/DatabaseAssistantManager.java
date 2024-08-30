@@ -17,24 +17,35 @@ package com.dbn.oracleAI;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.load.ProgressMonitor;
+import com.dbn.common.thread.Progress;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.common.oracleAI.AssistantQueryResponse;
+import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.config.ui.OracleAISettingsWindow;
+import com.dbn.oracleAI.model.ChatMessage;
+import com.dbn.oracleAI.model.ChatMessageContext;
 import com.dbn.oracleAI.service.*;
 import com.dbn.oracleAI.service.mock.FakeAICredentialService;
 import com.dbn.oracleAI.service.mock.FakeAIProfileService;
 import com.dbn.oracleAI.service.mock.FakeDatabaseService;
+import com.dbn.oracleAI.types.ActionAIType;
+import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.content.Content;
+import com.intellij.util.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
@@ -53,6 +64,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.CardLayouts.*;
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 /**
  * Main database AI-Assistance management component
@@ -151,6 +163,48 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         throw new CompletionException(e);
       }
     });
+  }
+
+  public void generate(ConnectionId connectionId, String text, ChatMessageContext context, Consumer<ChatMessage> consumer) {
+    ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+    Project project = getProject();
+
+    Progress.modal(project, connection, true,
+            "Database Assistant",
+            getPromptText(context.getAction(), text), p -> {
+      try {
+
+        String profile = context.getProfile();
+        String action = context.getAction().getId();
+        String model = context.getModel().getApiName();
+
+        DBNConnection conn = connection.getConnection(SessionId.ORACLE_AI);
+        DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
+        AssistantQueryResponse response = assistantInterface.generate(conn, action, profile, model, text);
+        ProgressMonitor.checkCancelled();
+
+        String content = response.read();
+        consumer.accept(new ChatMessage(content, AuthorType.AI, context));
+
+      } catch (ProcessCanceledException e) {
+        conditionallyLog(e);
+        throw e;
+      } catch (Exception e) {
+        conditionallyLog(e);
+        Messages.showErrorDialog(project, "Database Assistant Error", "Failed to generate AI Assistant response", e);
+      }
+    });
+  }
+
+  private String getPromptText(ActionAIType action, String prompt) {
+    switch (action) {
+      case SHOW_SQL: return txt("prc.assistant.message.PromptAction_SHOW_SQL", prompt);
+      case EXPLAIN_SQL: return txt("prc.assistant.message.PromptAction_EXPLAIN_SQL", prompt);
+      case EXECUTE_SQL: return txt("prc.assistant.message.PromptAction_EXECUTE_SQL", prompt);
+      case NARRATE: return txt("prc.assistant.message.PromptAction_NARRATE", prompt);
+      case CHAT: return txt("prc.assistant.message.PromptAction_CHAT", prompt);
+      default: return txt("prc.assistant.message.PromptAction_ANY", prompt);
+    }
   }
 
   public void openSettings(ConnectionHandler connection) {

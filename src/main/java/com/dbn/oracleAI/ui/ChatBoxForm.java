@@ -26,8 +26,8 @@ import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.intro.ui.IntroductionForm;
-import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.model.ChatMessageContext;
+import com.dbn.oracleAI.model.PersistentChatMessage;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
@@ -137,7 +137,7 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void restoreMessages() {
-    List<ChatMessage> messages = getState().getMessages();
+    List<PersistentChatMessage> messages = getState().getMessages();
     conversationPanelWrapper.addAll(messages);
     Dispatch.run(() -> scrollConversationDown());
   }
@@ -203,8 +203,8 @@ public class ChatBoxForm extends DBNFormBase {
     AIProfileItem profile = state.getSelectedProfile();
     ProviderModel model = profile.getModel();
 
-    ChatMessageContext context = new ChatMessageContext(profile.getName(), model.name(), actionType);
-    ChatMessage inputChatMessage = new ChatMessage(question, AuthorType.USER, context);
+    ChatMessageContext context = new ChatMessageContext(profile.getName(), model, actionType);
+    PersistentChatMessage inputChatMessage = new PersistentChatMessage(question, AuthorType.USER, context);
     inputChatMessage.setProgress(true);
     appendMessageToChat(inputChatMessage);
 
@@ -213,7 +213,7 @@ public class ChatBoxForm extends DBNFormBase {
         .thenAccept((output) -> {
           state.set(QUERYING, false);
           inputField.setReadonly(false);
-          ChatMessage outPutChatMessage = new ChatMessage(output, AuthorType.AI, context);
+          PersistentChatMessage outPutChatMessage = new PersistentChatMessage(output, AuthorType.AI, context);
           appendMessageToChat(outPutChatMessage);
           log.debug("Query processed successfully.");
         })
@@ -221,7 +221,7 @@ public class ChatBoxForm extends DBNFormBase {
           state.set(QUERYING, false);
           inputField.setReadonly(false);
           log.warn("Error processing query", e);
-          ChatMessage errorMessage = new ChatMessage(e.getMessage(), AuthorType.ERROR, context);
+          PersistentChatMessage errorMessage = new PersistentChatMessage(e.getMessage(), AuthorType.ERROR, context);
           appendMessageToChat(errorMessage);
           return null;
         })
@@ -305,8 +305,8 @@ public class ChatBoxForm extends DBNFormBase {
     }
   }
 
-  private void appendMessageToChat(ChatMessage message) {
-    List<ChatMessage> messages = List.of(message);
+  private void appendMessageToChat(PersistentChatMessage message) {
+    List<PersistentChatMessage> messages = List.of(message);
     getState().addMessages(messages);
     Dispatch.run(() -> conversationPanelWrapper.addAll(messages));
     Dispatch.run(() -> scrollConversationDown());

@@ -15,6 +15,7 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.database.common.oracleAI.AssistantQueryResponse;
 import com.dbn.database.common.oracleAI.OracleQueryOutput;
 import com.dbn.database.common.oracleAI.OracleTablesList;
 import com.dbn.database.common.oracleAI.OracleViewsList;
@@ -102,6 +103,8 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    * @throws QueryExecutionException If there is an error in executing the AI query.
    */
   OracleQueryOutput executeQuery(DBNConnection connection, String action, String profile, String text, String model) throws QueryExecutionException;
+
+  AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String model, String text) throws SQLException;
 
   /**
    * Lists all tables available in the current database schema.

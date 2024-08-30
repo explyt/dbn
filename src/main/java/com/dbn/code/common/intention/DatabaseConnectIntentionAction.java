@@ -7,6 +7,7 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.codeInsight.intention.LowPriorityAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +30,10 @@ public class DatabaseConnectIntentionAction extends GenericIntentionAction imple
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiFile psiFile) {
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
+        if (isDatabaseAssistantPrompt(psiElement)) return false;
+
+        PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile instanceof DBLanguagePsiFile) {
             DBLanguagePsiFile dbLanguagePsiFile = (DBLanguagePsiFile) psiFile;
             ConnectionHandler connection = dbLanguagePsiFile.getConnection();
@@ -41,7 +45,8 @@ public class DatabaseConnectIntentionAction extends GenericIntentionAction imple
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiFile psiFile) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+        PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile instanceof DBLanguagePsiFile) {
             DBLanguagePsiFile dbLanguagePsiFile = (DBLanguagePsiFile) psiFile;
             ConnectionHandler connection = dbLanguagePsiFile.getConnection();

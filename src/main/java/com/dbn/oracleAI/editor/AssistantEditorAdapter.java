@@ -12,43 +12,55 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI;
+package com.dbn.oracleAI.editor;
 
+import com.dbn.common.thread.Command;
 import com.dbn.connection.ConnectionId;
+import com.dbn.language.sql.SQLLanguage;
+import com.dbn.oracleAI.AIProfileItem;
+import com.dbn.oracleAI.DatabaseAssistantManager;
+import com.dbn.oracleAI.model.ChatMessage;
+import com.dbn.oracleAI.model.ChatMessageContext;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import lombok.experimental.UtilityClass;
 
 /**
  * This is the class that handles processing the prompt from the console and displaying the results to it.
  *
  * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  */
-public class ShowSqlOnEditor {
-  private final Project project;
-  private final DatabaseAssistantManager manager;
+@UtilityClass
+public class AssistantEditorAdapter {
 
-  public ShowSqlOnEditor(Project project) {
-    this.project = project;
-    this.manager = project.getService(DatabaseAssistantManager.class);
-  }
+  public static void submitQuery(Project project, Editor editor, ConnectionId connectionId, String prompt, ActionAIType action) {
+    DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+    prompt = prompt.trim();
+    if (prompt.startsWith("---")) prompt = prompt.substring(3);
 
-  public void processQuery(ConnectionId connectionId, String comment, Document document, boolean withExplanation) {
-    String prompt = comment.substring(3, comment.length() - 1);
     AIProfileItem currProfile = manager.getDefaultProfile(connectionId);
-    String action = withExplanation ? ActionAIType.EXPLAIN_SQL.getId() : ActionAIType.SHOW_SQL.getId();
-    manager.queryOracleAI(connectionId, prompt, action, currProfile.getName(), currProfile.getModel().getApiName())
-        .thenAccept(answer -> appendLine(document, processText(answer, withExplanation), comment))
-        .exceptionally((e) -> {
-          com.dbn.common.util.Messages.showErrorDialog(project, e.getMessage());
-          return null;
-        });
+    ChatMessageContext context = new ChatMessageContext(currProfile.getName(), currProfile.getModel(), action);
+
+    manager.generate(connectionId, prompt, context, message -> appendMessage(project, editor, message));
+  }
+
+  private static void appendMessage(Project project, Editor editor, ChatMessage message) {
+    Command.run(project, "Database Assistant Response", () -> {
+      int caretLine = editor.getCaretModel().getCurrentCaret().getLogicalPosition().line;
+      Document document = editor.getDocument();
+
+      int offset = document.getLineEndOffset(caretLine);
+      String content = message.outputForLanguage(SQLLanguage.INSTANCE);
+      document.insertString(offset, "\n" + content);
+    });
   }
 
 
-  private void appendLine(Document document, String lineToAppend, String afterComment) {
+  private static void appendLine(Project project, Document document, String lineToAppend, String afterComment) {
     ApplicationManager.getApplication().invokeLater(() -> {
       WriteCommandAction.runWriteCommandAction(project, () -> {
         String content = document.getText();
@@ -68,7 +80,7 @@ public class ShowSqlOnEditor {
     });
   }
 
-  public static String processText(String input, boolean withExplanation) {
+  private static String processText(String input, boolean withExplanation) {
     StringBuilder result = new StringBuilder();
     boolean inCodeBlock = false;
     boolean inExplanationBlock = false;

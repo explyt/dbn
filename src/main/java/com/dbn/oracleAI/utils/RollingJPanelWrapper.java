@@ -17,7 +17,7 @@ package com.dbn.oracleAI.utils;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.oracleAI.model.ChatMessage;
+import com.dbn.oracleAI.model.PersistentChatMessage;
 import com.dbn.oracleAI.ui.ChatMessagePanel;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
@@ -37,7 +37,7 @@ import java.util.List;
 public class RollingJPanelWrapper {
 
   private final ConnectionRef connection;
-  private final FixedSizeList<ChatMessage> items;
+  private final FixedSizeList<PersistentChatMessage> items;
   private final JPanel messageContainer;
   private int maxCapacity = -1;
 
@@ -85,11 +85,11 @@ public class RollingJPanelWrapper {
     UserInterface.repaint(messageContainer);
   }
 
-  public void addAll(List<ChatMessage> chatMessages) {
+  public void addAll(List<PersistentChatMessage> chatMessages) {
     removeProgressIndicator();
     ensureFreeSlot(chatMessages.size());
 
-    for (ChatMessage message : chatMessages) {
+    for (PersistentChatMessage message : chatMessages) {
       this.items.add(message);
       JPanel messagePane = new ChatMessagePanel(getConnection(), message);
       //this.messageContainer.add(messagePane, author.isOneOf(AuthorType.AI, AuthorType.ERROR) ? "growx, wrap, w ::90%" : "wrap, al right, w ::90%");
@@ -98,7 +98,7 @@ public class RollingJPanelWrapper {
     UserInterface.repaint(messageContainer);
   }
 
-  public List<ChatMessage> getMessages() {
+  public List<PersistentChatMessage> getMessages() {
     return new ArrayList<>(this.items);
   }
 }

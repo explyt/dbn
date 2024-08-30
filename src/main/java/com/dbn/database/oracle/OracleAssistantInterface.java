@@ -18,8 +18,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.common.oracleAI.*;
 import com.dbn.database.common.util.BooleanResultSetConsumer;
-import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
@@ -119,6 +119,12 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
     } catch (SQLException e) {
       throw new QueryExecutionException("Failed to query\n", e);
     }
+  }
+
+  public AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String model, String prompt) throws SQLException {
+    prompt = prompt.replaceAll("'", "''");
+    String attributes = "{\"model\":\"" + model + "\"}";
+    return executeCall(connection, new AssistantQueryResponse(), "ai-generate", profile, action, prompt, attributes);
   }
 
 
