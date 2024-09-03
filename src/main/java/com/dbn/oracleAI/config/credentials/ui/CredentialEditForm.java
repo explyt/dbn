@@ -15,6 +15,7 @@
 package com.dbn.oracleAI.config.credentials.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.config.AIProviders.AIProviderCredential;
@@ -23,7 +24,6 @@ import com.dbn.oracleAI.config.AIProviders.AIProvidersSettings;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.OciCredential;
 import com.dbn.oracleAI.config.PasswordCredential;
-import com.dbn.oracleAI.config.ui.ProvidersSelectionCallback;
 import com.dbn.oracleAI.service.AICredentialService;
 import com.dbn.oracleAI.service.AICredentialServiceImpl;
 import com.dbn.oracleAI.types.CredentialType;
@@ -103,10 +103,7 @@ public class CredentialEditForm extends DBNFormBase {
       });
     }
     keyProviderPickerButton.addActionListener((e) -> {
-      ProvidersSelectionCallback providersSelectionCallback = aiProviderType -> populateFields(aiProviderType.getUsername(), aiProviderType.getKey());
-      AiProviderSelection aiProviderSelection = new AiProviderSelection(getProject(), providersSelectionCallback);
-      aiProviderSelection.showAndGet();
-
+      Dialogs.show(() -> new CredentialPickerDialog(getProject(), c -> populateFields(c.getUsername(), c.getKey())));
     });
   }
 

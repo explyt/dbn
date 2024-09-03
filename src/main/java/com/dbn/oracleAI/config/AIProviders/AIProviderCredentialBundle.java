@@ -1,8 +1,21 @@
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
 package com.dbn.oracleAI.config.AIProviders;
 
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.CollectionUtil;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
@@ -13,9 +26,8 @@ import java.util.List;
 
 @Getter
 @Setter
-@EqualsAndHashCode
 public class AIProviderCredentialBundle implements Iterable<AIProviderCredential>, Cloneable {
-  private final List<AIProviderCredential> environmentTypes = new ArrayList<>();
+  private final List<AIProviderCredential> credentials = new ArrayList<>();
   public static final AIProviderCredentialBundle DEFAULT = new AIProviderCredentialBundle();
 
   private AIProviderCredentialBundle() {
@@ -24,12 +36,12 @@ public class AIProviderCredentialBundle implements Iterable<AIProviderCredential
   }
 
   public AIProviderCredentialBundle(AIProviderCredentialBundle source) {
-    setElements(source.environmentTypes);
+    setElements(source.credentials);
   }
 
   private void setElements(List<AIProviderCredential> environmentTypes) {
-    this.environmentTypes.clear();
-    CollectionUtil.cloneElements(environmentTypes, this.environmentTypes);
+    this.credentials.clear();
+    CollectionUtil.cloneElements(environmentTypes, this.credentials);
   }
 
   @NotNull
@@ -44,36 +56,32 @@ public class AIProviderCredentialBundle implements Iterable<AIProviderCredential
 
   @Override
   public Iterator<AIProviderCredential> iterator() {
-    return environmentTypes.iterator();
+    return credentials.iterator();
   }
 
   public void clear() {
-    environmentTypes.clear();
+    credentials.clear();
   }
 
   public void add(AIProviderCredential environmentType) {
-    environmentTypes.add(environmentType);
+    credentials.add(environmentType);
   }
 
   public void add(int index, AIProviderCredential environmentType) {
-    environmentTypes.add(index, environmentType);
+    credentials.add(index, environmentType);
   }
 
 
   public int size() {
-    return environmentTypes.size();
+    return credentials.size();
   }
 
   public AIProviderCredential get(int index) {
-    return environmentTypes.get(index);
+    return credentials.get(index);
   }
 
   public AIProviderCredential remove(int index) {
-    return environmentTypes.remove(index);
-  }
-
-  public List<AIProviderCredential> getEnvironmentTypes() {
-    return environmentTypes;
+    return credentials.remove(index);
   }
 
   @Override
