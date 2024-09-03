@@ -42,7 +42,7 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
     protected DefaultActionGroup createPopupActionGroup(JComponent component, DataContext dataContext) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
 
-        ChatBoxForm chatBox = dataContext.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return actionGroup;
 
         ChatBoxState state = chatBox.getState();
@@ -56,7 +56,7 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
 
         Presentation presentation = e.getPresentation();
@@ -66,7 +66,7 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
     }
 
     private String getText(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return "Profile";
 
         String text = getSelectedProfileName(e);
@@ -79,7 +79,7 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
     }
 
     private static String getSelectedProfileName(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return null;
 
         ChatBoxState state = chatBox.getState();

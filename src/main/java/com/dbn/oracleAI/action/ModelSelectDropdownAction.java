@@ -51,7 +51,7 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
     }
 
     private List<ProviderModel> getProviderModels(DataContext dataContext) {
-        ChatBoxForm chatBox = dataContext.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return Collections.emptyList();
 
         ChatBoxState state = chatBox.getState();
@@ -64,7 +64,7 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
 
     @Override
     public void update(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
 
         Presentation presentation = e.getPresentation();
@@ -74,7 +74,7 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
     }
 
     private String getText(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return "Model";
 
         String text = getSelectedModelName(e);
@@ -87,7 +87,7 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
     }
 
     private static String getSelectedModelName(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return null;
 
         ChatBoxState state = chatBox.getState();

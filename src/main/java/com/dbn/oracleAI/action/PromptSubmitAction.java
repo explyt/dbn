@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 public class PromptSubmitAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return;
 
         chatBox.submitPrompt();
@@ -39,7 +39,7 @@ public class PromptSubmitAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
 
         Presentation presentation = e.getPresentation();

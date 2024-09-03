@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 import static com.dbn.oracleAI.types.ChatBoxStatus.*;
 
 /**
- * Database Companion ChatBox component
+ * Database Assistant ChatBox component
  *
  * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
@@ -336,7 +336,7 @@ public class ChatBoxForm extends DBNFormBase {
   @Nullable
   @Override
   public Object getData(@NotNull String dataId) {
-    if (DataKeys.COMPANION_CHAT_BOX.is(dataId)) return this;
+    if (DataKeys.ASSISTANT_CHAT_BOX.is(dataId)) return this;
     return null;
   }
 }

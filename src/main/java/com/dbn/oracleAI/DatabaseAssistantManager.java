@@ -78,7 +78,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
     storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 public class DatabaseAssistantManager extends ProjectComponentBase implements PersistentState {
   public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseAssistantManager";
-  public static final String TOOL_WINDOW_ID = "Oracle Companion";
+  public static final String TOOL_WINDOW_ID = "DB Assistant";
 
   private final Map<ConnectionId, ChatBoxState> chatStates = new ConcurrentHashMap<>();
   private final Map<ConnectionId, ChatBoxForm> chatBoxes = new ConcurrentHashMap<>();

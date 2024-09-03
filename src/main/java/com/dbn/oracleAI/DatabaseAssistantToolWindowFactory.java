@@ -33,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-import static com.dbn.common.icon.Icons.WINDOW_DATABASE_COMPANION;
+import static com.dbn.common.icon.Icons.WINDOW_DATABASE_ASSISTANT;
 import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.oracleAI.DatabaseAssistantManager.TOOL_WINDOW_ID;
 
@@ -51,7 +51,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
     toolWindow.setStripeTitle(txt("companion.window.title"));
     toolWindow.setToHideOnEmptyContent(true);
     toolWindow.setAutoHide(false);
-    toolWindow.setIcon(WINDOW_DATABASE_COMPANION.get());
+    toolWindow.setIcon(WINDOW_DATABASE_ASSISTANT.get());
   }
 
   @Override

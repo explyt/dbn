@@ -66,7 +66,7 @@ public class TypeSelectAction extends ToggleAction {
 
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox != null) return chatBox.getState().getSelectedAction() == type;
         return false;
     }
@@ -74,7 +74,7 @@ public class TypeSelectAction extends ToggleAction {
     @Override
     public void setSelected(@NotNull AnActionEvent e, boolean state) {
         if(!state) return;
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return;
 
         chatBox.selectAction(type);
@@ -84,7 +84,7 @@ public class TypeSelectAction extends ToggleAction {
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
 
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
         e.getPresentation().setEnabled(enabled);
     }

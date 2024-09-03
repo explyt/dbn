@@ -20,7 +20,7 @@ public class Icons {
     public static final Latent<Icon> WINDOW_DATABASE_BROWSER     = Latent.basic(()-> init("/img/window/DatabaseBrowser.svg"));
     public static final Latent<Icon> WINDOW_EXECUTION_CONSOLE    = Latent.basic(()-> init("/img/window/ExecutionConsole.svg"));
     public static final Latent<Icon> WINDOW_DATABASE_DIAGNOSTICS = Latent.basic(()-> init("/img/window/DatabaseDiagnostics.svg"));
-    public static final Latent<Icon> WINDOW_DATABASE_COMPANION   = Latent.basic(()-> init("/img/window/DatabaseCompanion.svg"));
+    public static final Latent<Icon> WINDOW_DATABASE_ASSISTANT = Latent.basic(()-> init("/img/window/DatabaseAssistant.svg"));
 
 
     public static final Icon DBN_SPLASH = load("/img/DBN.png");

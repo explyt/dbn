@@ -28,11 +28,11 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Getter
 public enum ActionAIType implements Presentable {
-  SHOW_SQL    ("showsql",    txt("app.companion.const.PromptAction_SHOW_SQL"),    txt("app.companion.hint.PromptAction_SHOW_SQL")),
-  EXPLAIN_SQL ("explainsql", txt("app.companion.const.PromptAction_EXPLAIN_SQL"), txt("app.companion.hint.PromptAction_EXPLAIN_SQL")),
-  EXECUTE_SQL ("executesql", txt("app.companion.const.PromptAction_EXECUTE_SQL"), txt("app.companion.hint.PromptAction_EXECUTE_SQL")),
-  NARRATE     ("narrate",    txt("app.companion.const.PromptAction_NARRATE"),     txt("app.companion.hint.PromptAction_NARRATE")),
-  CHAT        ("chat",       txt("app.companion.const.PromptAction_CHAT"),        txt("app.companion.hint.PromptAction_CHAT")),;
+  SHOW_SQL    ("showsql",    txt("app.assistant.const.PromptAction_SHOW_SQL"),    txt("app.assistant.hint.PromptAction_SHOW_SQL")),
+  EXPLAIN_SQL ("explainsql", txt("app.assistant.const.PromptAction_EXPLAIN_SQL"), txt("app.assistant.hint.PromptAction_EXPLAIN_SQL")),
+  EXECUTE_SQL ("executesql", txt("app.assistant.const.PromptAction_EXECUTE_SQL"), txt("app.assistant.hint.PromptAction_EXECUTE_SQL")),
+  NARRATE     ("narrate",    txt("app.assistant.const.PromptAction_NARRATE"),     txt("app.assistant.hint.PromptAction_NARRATE")),
+  CHAT        ("chat",       txt("app.assistant.const.PromptAction_CHAT"),        txt("app.assistant.hint.PromptAction_CHAT")),;
 
   private final String id;
   private final String name;
