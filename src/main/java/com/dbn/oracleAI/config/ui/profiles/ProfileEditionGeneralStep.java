@@ -28,7 +28,7 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.ItemEvent;
-import java.util.List;
+import java.util.Set;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -45,11 +45,11 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private final AICredentialService credentialSvc;
 
   private final Profile profile;
-  private final List<String> existingProfileNames;
+  private final Set<String> existingProfileNames;
 
   private final boolean isUpdate;
 
-  public ProfileEditionGeneralStep(ConnectionHandler connection, Profile profile, List<String> existingProfileNames, boolean isUpdate) {
+  public ProfileEditionGeneralStep(ConnectionHandler connection, Profile profile, Set<String> existingProfileNames, boolean isUpdate) {
     super(txt("profile.mgmt.general_step.title"),
             txt("profile.mgmt.general_step.explaination"),
             AllIcons.General.Settings);

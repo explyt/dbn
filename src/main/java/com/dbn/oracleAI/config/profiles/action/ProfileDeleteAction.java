@@ -12,36 +12,48 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI.action;
+package com.dbn.oracleAI.config.profiles.action;
 
-import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.ProjectAction;
-import com.dbn.oracleAI.ui.ChatBoxForm;
+import com.dbn.common.icon.Icons;
+import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.profiles.ui.ProfileManagementForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Action for refreshing (reloading) the AI-assistant profiles
+ * Profile management deletion action
+ * (allows deleting a profile from the database by prompting the intention)
  *
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class ProfilesRefreshAction extends ProjectAction {
+public class ProfileDeleteAction extends ProfileManagementAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
-        if (chatBox == null) return;
+        ProfileManagementForm managementForm = getManagementForm(e);
+        if (managementForm == null) return;
 
-        chatBox.reloadProfiles();
+        Profile profile = managementForm.getSelectedProfile();
+        if (profile == null) return;
+
+        managementForm.promptProfileDeletion(profile);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = e.getData(DataKeys.COMPANION_CHAT_BOX);
-        boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
-
         Presentation presentation = e.getPresentation();
-        presentation.setEnabled(enabled);
+        presentation.setIcon(Icons.ACTION_REMOVE);
+        presentation.setText("Delete Profile");
+        presentation.setEnabled(isEnabled(e));
+    }
+
+    private static boolean isEnabled(@NotNull AnActionEvent e) {
+        ProfileManagementForm managementForm = getManagementForm(e);
+        if (managementForm == null) return false;
+        if (managementForm.isLoading()) return false;
+        if (managementForm.getSelectedProfile() == null) return false;
+
+        return true;
     }
 }

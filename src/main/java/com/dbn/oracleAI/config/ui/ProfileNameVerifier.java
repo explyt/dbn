@@ -3,7 +3,7 @@ package com.dbn.oracleAI.config.ui;
 import javax.swing.*;
 import javax.swing.border.Border;
 import java.awt.*;
-import java.util.List;
+import java.util.Set;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -13,10 +13,10 @@ import static com.dbn.nls.NlsResources.txt;
 public class ProfileNameVerifier extends InputVerifier {
   private static final Border ERROR_BORDER = BorderFactory.createLineBorder(Color.RED, 1);
   private static final Border DEFAULT_BORDER = UIManager.getBorder("TextField.border");
-  private final List<String> profileNames;
+  private final Set<String> profileNames;
   private final boolean isUpdate;
 
-  public ProfileNameVerifier(List<String> profileNames, boolean isUpdate) {
+  public ProfileNameVerifier(Set<String> profileNames, boolean isUpdate) {
     this.profileNames = profileNames;
     this.isUpdate = isUpdate;
   }

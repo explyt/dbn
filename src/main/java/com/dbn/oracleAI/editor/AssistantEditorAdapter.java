@@ -42,9 +42,12 @@ public class AssistantEditorAdapter {
     prompt = prompt.trim();
     if (prompt.startsWith("---")) prompt = prompt.substring(3);
 
-    AIProfileItem currProfile = manager.getDefaultProfile(connectionId);
-    ChatMessageContext context = new ChatMessageContext(currProfile.getName(), currProfile.getModel(), action);
-
+    AIProfileItem defaultProfile = manager.getDefaultProfile(connectionId);
+    if (defaultProfile == null) {
+      // TODO prompt profile creation wizard
+      return;
+    }
+    ChatMessageContext context = new ChatMessageContext(defaultProfile.getName(), defaultProfile.getModel(), action);
     manager.generate(connectionId, prompt, context, message -> appendMessage(project, editor, message));
   }
 

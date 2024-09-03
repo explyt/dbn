@@ -15,6 +15,7 @@
 package com.dbn.oracleAI;
 
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import lombok.Data;
@@ -40,6 +41,10 @@ public final class AIProfileItem implements PersistentStateElement {
   private ProviderModel model;
   private boolean enabled = true;
   private boolean selected = false;
+
+  public AIProfileItem(Profile profile) {
+    this(profile.getProfileName(), profile.getProvider(), profile.getModel(), profile.isEnabled());
+  }
 
   /**
    * Creates a new combo item

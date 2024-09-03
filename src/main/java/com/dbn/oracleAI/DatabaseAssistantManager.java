@@ -19,6 +19,7 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -27,7 +28,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.oracleAI.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
-import com.dbn.oracleAI.config.ui.OracleAISettingsWindow;
+import com.dbn.oracleAI.config.ui.AssistantSettingsDialog;
 import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.model.ChatMessageContext;
 import com.dbn.oracleAI.service.*;
@@ -53,7 +54,6 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -82,7 +82,6 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   private final Map<ConnectionId, ChatBoxState> chatStates = new ConcurrentHashMap<>();
   private final Map<ConnectionId, ChatBoxForm> chatBoxes = new ConcurrentHashMap<>();
-  private final Map<ConnectionId, AIProfileItem> defaultProfileMap = new HashMap<>();
 
   private DatabaseAssistantManager(Project project) {
     super(project, COMPONENT_NAME);
@@ -122,8 +121,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     });
   }
 
-  public ChatBoxState getChatBoxState(ConnectionId connectionId, boolean ensure) {
-    return chatStates.compute(connectionId, (c, s) -> s == null && ensure ? new ChatBoxState(c) : s);
+  public ChatBoxState getChatBoxState(ConnectionId connectionId) {
+    return chatStates.computeIfAbsent(connectionId, c -> new ChatBoxState(c));
   }
 
   public ToolWindow getToolWindow() {
@@ -208,8 +207,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   }
 
   public void openSettings(ConnectionHandler connection) {
-    OracleAISettingsWindow settingsWindow = new OracleAISettingsWindow(connection);
-    settingsWindow.display();
+    Dialogs.show(() -> new AssistantSettingsDialog(connection));
   }
 
   /*********************************************
@@ -281,12 +279,15 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     return Boolean.parseBoolean(System.getProperty("fake.services"));
   }
 
+
+  @Nullable
   public AIProfileItem getDefaultProfile(ConnectionId connectionId) {
-    return defaultProfileMap.get(connectionId);
+    return getChatBoxState(connectionId).getDefaultProfile();
   }
 
-  public void updateDefaultProfile(ConnectionId connectionId, AIProfileItem profile) {
-    defaultProfileMap.put(connectionId, profile);
+  public void setDefaultProfile(ConnectionId connectionId, AIProfileItem profile) {
+    getChatBoxState(connectionId).setDefaultProfile(profile);
   }
+
 
 }

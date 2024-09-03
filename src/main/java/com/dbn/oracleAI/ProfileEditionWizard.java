@@ -33,9 +33,8 @@ import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
 import java.util.List;
-import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -50,7 +49,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   private final Profile initialProfile;
   private final Profile editedProfile;
-  private static List<String> existingProfileNames;
+  private List<String> existingProfileNames;
   private final boolean isUpdate;
   private JButton finishButton;
 
@@ -70,7 +69,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
    * @param callback                          callback to be called when wizard window closes
    * @param firstStep
    */
-  public ProfileEditionWizard(@NotNull ConnectionHandler connection, Profile profile, List<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStep) {
+  public ProfileEditionWizard(@NotNull ConnectionHandler connection, Profile profile, Set<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStep) {
     super(false, new ProfileEditionWizardModel(
             connection, txt("profiles.settings.window.title"), profile, existingProfileNames, isUpdate,firstStep));
     this.profileSvc = AIProfileService.getInstance(connection);
@@ -160,12 +159,11 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
    * Show the profile creation/edition wizard
    * @param connection the connection against which the profile is edited
    * @param profile the current profile to be edited (null if creating a new one)
-   * @param profileMap the existing profiles
+   * @param usedProfileNames a set of existing profile names (cannot be reused when creating new profiles)
    * @param callback to be called once done
    * @param firstStepClass if not null, the step to move to directly
    */
-  public static void showWizard(@NotNull ConnectionHandler connection, @Nullable Profile profile, Map<String, Profile> profileMap, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStepClass) {
-    existingProfileNames = profileMap.values().stream().map(Profile::getProfileName).collect(Collectors.toList());
+  public static void showWizard(@NotNull ConnectionHandler connection, @Nullable Profile profile, Set<String> usedProfileNames, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStepClass) {
     SwingUtilities.invokeLater(() -> {
       Profile initialProfile = null;
       boolean isUpdate;
@@ -177,7 +175,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         isUpdate = false;
       }
       ProfileUpdate toBeUpdatedProfile = new ProfileUpdate(initialProfile);
-      ProfileEditionWizard wizard = new ProfileEditionWizard(connection, toBeUpdatedProfile, existingProfileNames, isUpdate, callback, firstStepClass);
+      ProfileEditionWizard wizard = new ProfileEditionWizard(connection, toBeUpdatedProfile, usedProfileNames, isUpdate, callback, firstStepClass);
       wizard.show();
 
     });

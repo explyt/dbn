@@ -33,22 +33,6 @@ public class Splitters {
         splitter.setShowDividerControls(pane.isOneTouchExpandable());
         splitter.setHonorComponentsMinimumSize(true);
 
-        if (pane.getDividerLocation() > 0) {
-            SwingUtilities.invokeLater(() -> {
-                double proportion;
-                if (pane.getOrientation() == VERTICAL_SPLIT) {
-                    proportion = (double) pane.getDividerLocation() / (double) (parent.getHeight() - pane.getDividerSize());
-                } else {
-                    proportion = (double) pane.getDividerLocation() / (double) (parent.getWidth() - pane.getDividerSize());
-                }
-
-                if (proportion > 0.0 && proportion < 1.0) {
-                    splitter.setProportion((float) proportion);
-                }
-
-            });
-        }
-
         if (parent instanceof Splitter) {
             Splitter psplitter = (Splitter) parent;
             if (psplitter.getFirstComponent() == pane) {
@@ -60,6 +44,21 @@ public class Splitters {
             parent.remove(0);
             parent.setLayout(new BorderLayout());
             parent.add(splitter, BorderLayout.CENTER);
+        }
+
+        if (pane.getDividerLocation() > 0) {
+            UserInterface.whenShown(splitter, () -> {
+                double proportion;
+                if (pane.getOrientation() == VERTICAL_SPLIT) {
+                    proportion = (double) pane.getDividerLocation() / (double) (parent.getHeight() - pane.getDividerSize());
+                } else {
+                    proportion = (double) pane.getDividerLocation() / (double) (parent.getWidth() - pane.getDividerSize());
+                }
+
+                if (proportion > 0.0 && proportion < 1.0) {
+                    splitter.setProportion((float) proportion);
+                }
+            });
         }
     }
 }

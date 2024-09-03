@@ -78,4 +78,9 @@ public class FakeAIProfileService implements AIProfileService {
         return CompletableFuture.completedFuture(null);
     }
 
+    @Override
+    public void reset() {
+
+    }
+
 }

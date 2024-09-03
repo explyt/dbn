@@ -28,6 +28,7 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.intro.ui.IntroductionForm;
 import com.dbn.oracleAI.model.ChatMessageContext;
 import com.dbn.oracleAI.model.PersistentChatMessage;
+import com.dbn.oracleAI.service.AIProfileService;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
@@ -121,13 +122,13 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void createActionPanels() {
-    ActionToolbar profileActions = Actions.createActionToolbar(profileActionsPanel, "DBNavigator.ActionGroup.CompanionChatBoxProfiles", "", true);
+    ActionToolbar profileActions = Actions.createActionToolbar(profileActionsPanel, "DBNavigator.ActionGroup.AssistantChatBoxProfiles", "", true);
     this.profileActionsPanel.add(profileActions.getComponent(), BorderLayout.CENTER);
 
-    ActionToolbar typeActions = Actions.createActionToolbar(typeActionsPanel, "DBNavigator.ActionGroup.CompanionChatBoxTypes", "", true);
+    ActionToolbar typeActions = Actions.createActionToolbar(typeActionsPanel, "DBNavigator.ActionGroup.AssistantChatBoxTypes", "", true);
     this.typeActionsPanel.add(typeActions.getComponent(), BorderLayout.CENTER);
 
-    ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, "DBNavigator.ActionGroup.CompanionChatBoxPrompt", "", true);
+    ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, "DBNavigator.ActionGroup.AssistantChatBoxPrompt", "", true);
     this.chatActionsPanel.add(chatActions.getComponent(), BorderLayout.CENTER);
   }
 
@@ -148,7 +149,7 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public ChatBoxState getState() {
-    return getManager().getChatBoxState(getConnectionId(), true);
+    return getManager().getChatBoxState(getConnectionId());
   }
 
   public void acknowledgeIntro() {
@@ -236,13 +237,17 @@ public class ChatBoxForm extends DBNFormBase {
    * list of available profiles for the current connection
    */
   public CompletableFuture<Map<String, Profile>> updateProfiles() {
-    DatabaseAssistantManager manager = getManager();
-    return manager.getProfileService(getConnectionId()).list().thenApply(pl -> pl.stream()
+    return getProfileService().list().thenApply(pl -> pl.stream()
         .collect(Collectors.toMap(Profile::getProfileName,
             Function.identity(),
             (existing, replacement) -> existing)));
   }
 
+
+  public void reloadProfiles() {
+    getProfileService().reset();
+    loadProfiles();
+  }
 
   /**
    * Restores the element state from scratch.
@@ -295,14 +300,6 @@ public class ChatBoxForm extends DBNFormBase {
     List<AIProfileItem> profileItems = new ArrayList<>();
     profiles.forEach((pn, p) -> profileItems.add(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled())));
     state.setProfiles(profileItems);
-
-    ConnectionId connectionId = getConnectionId();
-    DatabaseAssistantManager manager = getManager();
-    AIProfileItem defaultProfile = manager.getDefaultProfile(connectionId);
-    AIProfileItem selectedProfile = state.getSelectedProfile();
-    if (defaultProfile == null && selectedProfile != null) {
-      manager.updateDefaultProfile(connectionId, selectedProfile);
-    }
   }
 
   private void appendMessageToChat(PersistentChatMessage message) {
@@ -330,6 +327,10 @@ public class ChatBoxForm extends DBNFormBase {
   private DatabaseAssistantManager getManager() {
     Project project = ensureProject();
     return DatabaseAssistantManager.getInstance(project);
+  }
+
+  private AIProfileService getProfileService() {
+    return AIProfileService.getInstance(getConnection());
   }
 
   @Nullable

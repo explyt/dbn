@@ -62,6 +62,12 @@ public interface AIProfileService extends ManagedObjectService<Profile> {
      */
     CompletionStage<Void> update(Profile updatedProfile);
 
+    /**
+     * Resets the internal state of the service
+     * (clears cache layer)
+     */
+    void reset();
+
 
     class CachedProxy extends ManagedObjectServiceProxy<Profile> implements AIProfileService {
         public CachedProxy(AIProfileService backend) {

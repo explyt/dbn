@@ -261,6 +261,15 @@ public class UserInterface {
         return decorator;
     }
 
+    @NotNull
+    public static ToolbarDecorator createToolbarDecorator(JList<?> list) {
+        ToolbarDecorator decorator = ToolbarDecorator.createDecorator(list);
+        decorator.setToolbarPosition(ActionToolbarPosition.TOP);
+        decorator.setToolbarBorder(Borders.TOOLBAR_DECORATOR_BORDER);
+        decorator.setPanelBorder(Borders.EMPTY_BORDER);
+        return decorator;
+    }
+
 
     public static void updateSplitPanes(JComponent component) {
         visitRecursively(component, JSplitPane.class, sp -> Splitters.replaceSplitPane(sp));

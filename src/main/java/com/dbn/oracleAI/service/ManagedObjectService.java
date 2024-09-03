@@ -31,4 +31,5 @@ public interface ManagedObjectService<E extends AttributeInput> {
     CompletableFuture<Void>    delete(String uuid);
     CompletionStage<Void>      create(E newItem);
     CompletionStage<Void>      update(E updatedItem);
+    void reset();
 }

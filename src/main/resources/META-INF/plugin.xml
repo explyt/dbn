@@ -422,8 +422,8 @@
         </action>
         <group id="DBNavigator.ActionGroup.FileEditorAssistant" text="Database Assistant" popup="true">
             <add-to-group group-id="EditorPopupMenu" anchor="after"  relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
-            <action id="DBNavigator.Actions.Companion.ShowSQL" class="com.dbn.oracleAI.editor.action.AssistantShowSqlAction" text="Show SQL for Selection"/>
-            <action id="DBNavigator.Actions.Companion.ExplainSQL" class="com.dbn.oracleAI.editor.action.AssistantExplainSqlAction" text="Explain SQL for Selection"/>
+            <action id="DBNavigator.Actions.Assistant.ShowSQL" class="com.dbn.oracleAI.editor.action.AssistantShowSqlAction" text="Show SQL for Selection"/>
+            <action id="DBNavigator.Actions.Assistant.ExplainSQL" class="com.dbn.oracleAI.editor.action.AssistantExplainSqlAction" text="Explain SQL for Selection"/>
         </group>
         <group id="DBNavigator.ActionGroup.ProjectViewContext">
             <group id="DBNavigator.ActionGroup.ProjectViewPopup" text="DB Navigator" popup="true" keep-content="true">
@@ -467,23 +467,38 @@
             <group id="DBNavigator.Actions.EditorOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Script Editor - Local Settings" icon="AllIcons.General.Gear" />
             <action id="DBNavigator.Actions.EditorSettings" class="com.dbn.language.editor.action.EditorSettingsOpenAction" text="Script Editor - Settings"/>
         </group>
-        <group id="DBNavigator.ActionGroup.CompanionChatBoxProfiles" text="Companion Chat-Box Profiles">
-            <action class="com.dbn.oracleAI.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Companion.SelectProfile"/>
-            <action class="com.dbn.oracleAI.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Companion.SelectModel"/>
-            <action class="com.dbn.oracleAI.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Companion.ReloadProfiles" icon="AllIcons.Actions.Refresh"/>
+        <group id="DBNavigator.ActionGroup.AssistantChatBoxProfiles" text="Assistant Chat-Box Profiles">
+            <action class="com.dbn.oracleAI.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
+            <action class="com.dbn.oracleAI.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
+            <action class="com.dbn.oracleAI.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
             <separator/>
-            <action class="com.dbn.oracleAI.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Companion.ClearConversation" icon="AllIcons.Actions.GC"/>
+            <action class="com.dbn.oracleAI.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
         </group>
-        <group id="DBNavigator.ActionGroup.CompanionChatBoxTypes" text="Companion Chat-Box Types">
-            <action class="com.dbn.oracleAI.action.TypeSelectAction$ShowSQL" text="Show SQL" id="DBNavigator.Actions.Companion.TypeShow"/>
-            <action class="com.dbn.oracleAI.action.TypeSelectAction$ExplainSQL" id="DBNavigator.Actions.Companion.TypeExplain"/>
-            <action class="com.dbn.oracleAI.action.TypeSelectAction$Narrate" id="DBNavigator.Actions.Companion.TypeNarrate"/>
-            <action class="com.dbn.oracleAI.action.TypeSelectAction$Chat" id="DBNavigator.Actions.Companion.TypeChat"/>
+        <group id="DBNavigator.ActionGroup.AssistantChatBoxTypes" text="Assistant Chat-Box Types">
+            <action class="com.dbn.oracleAI.action.TypeSelectAction$ShowSQL" text="Show SQL" id="DBNavigator.Actions.Assistant.TypeShow"/>
+            <action class="com.dbn.oracleAI.action.TypeSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>
+            <action class="com.dbn.oracleAI.action.TypeSelectAction$Narrate" id="DBNavigator.Actions.Assistant.TypeNarrate"/>
+            <action class="com.dbn.oracleAI.action.TypeSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
         </group>
-        <group id="DBNavigator.ActionGroup.CompanionChatBoxPrompt" text="Companion Chat-Box Prompt">
-            <action class="com.dbn.oracleAI.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Companion.SubmitPrompt" icon="AllIcons.Actions.Execute">
+        <group id="DBNavigator.ActionGroup.AssistantChatBoxPrompt" text="Assistant Chat-Box Prompt">
+            <action class="com.dbn.oracleAI.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">
                 <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
             </action>
+        </group>
+        <group id="DBNavigator.ActionGroup.AssistantCredentialManagement" text="Credential Management">
+            <action class="com.dbn.oracleAI.config.credentials.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>
+            <action class="com.dbn.oracleAI.config.credentials.action.CredentialDeleteAction" id="DBNavigator.Actions.Assistant.DeleteCredential"/>
+            <action class="com.dbn.oracleAI.config.credentials.action.CredentialEditAction" id="DBNavigator.Actions.Assistant.EditCredential"/>
+            <separator/>
+            <action class="com.dbn.oracleAI.config.credentials.action.CredentialsReloadAction" id="DBNavigator.Assistant.Assistant.ReloadCredentials"/>
+        </group>
+        <group id="DBNavigator.ActionGroup.AssistantProfileManagement" text="Profile Management">
+            <action class="com.dbn.oracleAI.config.profiles.action.ProfileCreateAction" id="DBNavigator.Actions.Assistant.CreateProfile"/>
+            <action class="com.dbn.oracleAI.config.profiles.action.ProfileDeleteAction" id="DBNavigator.Actions.Assistant.DeleteProfile"/>
+            <action class="com.dbn.oracleAI.config.profiles.action.ProfileDefaultAction" id="DBNavigator.Actions.Assistant.MarkProfileDefault"/>
+            <action class="com.dbn.oracleAI.config.profiles.action.ProfileEditAction" id="DBNavigator.Actions.Assistant.EditProfile"/>
+            <separator/>
+            <action class="com.dbn.oracleAI.config.profiles.action.ProfilesReloadAction" id="DBNavigator.Actions.Assistant.ReloadProfiles"/>
         </group>
 
         <group id="DBNavigator.Actions.MainMenu" text="_DB Navigator" popup="true">

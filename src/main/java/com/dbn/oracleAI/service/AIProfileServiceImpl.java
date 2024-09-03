@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -73,7 +74,7 @@ public class AIProfileServiceImpl extends AIAssistantComponent implements AIProf
 
         if (log.isDebugEnabled())
           log.debug("fetched profiles:" + profileList);
-          return profileList;
+          return new ArrayList<>(profileList);
       } catch (ProfileManagementException | SQLException e) {
         log.warn("error getting profiles", e);
         throw new CompletionException("Cannot get profiles", e);
@@ -123,4 +124,9 @@ public class AIProfileServiceImpl extends AIAssistantComponent implements AIProf
         }
     );
   }
+
+    @Override
+    public void reset() {
+        // no internal state to be reset
+    }
 }

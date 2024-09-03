@@ -24,6 +24,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static java.util.Collections.unmodifiableList;
+
 /**
  * Proxy on remote service.
  * The purpose of this proxy si to cache information.
@@ -36,7 +38,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class ManagedObjectServiceProxy<E extends AttributeInput> implements ManagedObjectService<E> {
   ReentrantLock lock = new ReentrantLock();
-  private ManagedObjectService<E> backend;
+  private final ManagedObjectService<E> backend;
   private List<E> items = null;
 
   private final PropertyChangeSupport support;
@@ -60,10 +62,10 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> implements Mana
       if (this.items == null) {
         return this.backend.list().thenCompose(list -> {
           this.items = list;
-          return CompletableFuture.completedFuture(list);
+          return CompletableFuture.completedFuture(unmodifiableList(this.items));
         });
       } else {
-        return CompletableFuture.completedFuture(this.items);
+        return CompletableFuture.completedFuture(unmodifiableList(this.items));
       }
     } finally {
       lock.unlock();
@@ -103,7 +105,15 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> implements Mana
       // TODO : dela with the list
       fireUpdatedProfileListEvent();
     });
+  }
 
+  /**
+   * Resets the internal state of the service
+   * (clears cache layer)
+   */
+  public void reset(){
+    items = null;
+    backend.reset();
   }
 
   private void fireUpdatedProfileListEvent() {

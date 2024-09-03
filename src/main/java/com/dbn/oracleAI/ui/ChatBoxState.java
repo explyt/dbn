@@ -31,8 +31,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.*;
 
@@ -55,9 +58,9 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
   private List<AIProfileItem> profiles = new ArrayList<>();
   private List<PersistentChatMessage> messages = new ArrayList<>();
   private ActionAIType selectedAction = ActionAIType.SHOW_SQL;
-  private boolean acknowledged = false;
   private Availability availability = Availability.UNCERTAIN;
-
+  private String defaultProfileName;
+  private boolean acknowledged = false;
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
@@ -96,6 +99,36 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
     setSelectedProfile(selectedProfile);
   }
 
+  public Set<String> getProfileNames() {
+    return profiles.stream().map(p -> p.getName()).collect(Collectors.toSet());
+  }
+
+  @Nullable
+  public AIProfileItem getDefaultProfile() {
+    // resolve default profile by doing ever less qualified lookup inside the list of profiles
+    return coalesce(
+            () -> first(profiles, p -> p.isEnabled() && p.getName().equalsIgnoreCase(defaultProfileName)),
+            () -> first(profiles, p -> p.isEnabled() && p.isSelected()),
+            () -> first(profiles, p -> p.isEnabled()));
+  }
+
+  public void setDefaultProfile(@Nullable AIProfileItem profile) {
+    defaultProfileName = profile == null? null : profile.getName();
+  }
+
+  /**
+   * Verifies if the given profile name represents a valid and enabled profile for use as default
+   * @param profile the profile to be verified
+   * @return true is the profile for the given name exists and is enabled
+   */
+  public boolean isUsableProfile(AIProfileItem profile) {
+    if (profile == null) return false;
+    return profiles
+            .stream()
+            .filter(p -> p.isEnabled())
+            .anyMatch(p -> p.getName().equalsIgnoreCase(profile.getName()));
+  }
+
   public void addMessages(List<PersistentChatMessage> messages) {
     this.messages.addAll(messages);
   }
@@ -110,8 +143,10 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
     connectionId = connectionIdAttribute(element, "connection-id");
     acknowledged = booleanAttribute(element, "acknowledged", acknowledged);
     selectedAction = enumAttribute(element, "selected-action", selectedAction);
-    availability= enumAttribute(element, "availability", availability);
+    availability = enumAttribute(element, "availability", availability);
+    defaultProfileName = stringAttribute(element, "default-profile-name");
 
+    List<AIProfileItem> profiles = new ArrayList<>();
     Element profilesElement = element.getChild("profiles");
     List<Element> profileElements = profilesElement.getChildren();
     for (Element profileElement : profileElements) {
@@ -119,6 +154,7 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
       profile.readState(profileElement);
       profiles.add(profile);
     }
+    setProfiles(profiles);
 
     Element messagesElement = element.getChild("messages");
     List<Element> messageElements = messagesElement.getChildren();
@@ -132,6 +168,7 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
   @Override
   public void writeState(Element element) {
     setStringAttribute(element, "connection-id", connectionId.id());
+    setStringAttribute(element, "default-profile-name", defaultProfileName);
     setBooleanAttribute(element, "acknowledged", acknowledged);
     setEnumAttribute(element, "selected-action", selectedAction);
     setEnumAttribute(element, "availability", availability);

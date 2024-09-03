@@ -13,6 +13,8 @@ import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.method.result.ui.MethodExecutionCursorResultForm;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.object.DBArgument;
+import com.dbn.oracleAI.config.credentials.ui.CredentialManagementForm;
+import com.dbn.oracleAI.config.profiles.ui.ProfileManagementForm;
 import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.intellij.openapi.actionSystem.DataKey;
 
@@ -28,6 +30,8 @@ public interface DataKeys {
     DataKey<DatabaseLoggingResult> DATABASE_LOG_OUTPUT = DataKey.create("DBNavigator.DatabaseLogOutput");
     DataKey<ParserDiagnosticsForm> PARSER_DIAGNOSTICS_FORM = DataKey.create("DBNavigator.ParserDiagnosticsForm");
     DataKey<ChatBoxForm> COMPANION_CHAT_BOX = DataKey.create("DBNavigator.CompanionChatBox");
+    DataKey<CredentialManagementForm> CREDENTIAL_MANAGEMENT_FORM = DataKey.create("DBNavigator.CredentialManagementForm");
+    DataKey<ProfileManagementForm> PROFILE_MANAGEMENT_FORM = DataKey.create("DBNavigator.ProfileManagementForm");
 
     DataKey<CalendarPopupProviderForm> CALENDAR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.CalendarPopupProviderForm");
     DataKey<ArrayEditorPopupProviderForm> ARRAY_EDITOR_POPUP_PROVIDER_FORM = DataKey.create("DBNavigator.ArrayEditorPopupProviderForm");
