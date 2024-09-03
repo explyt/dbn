@@ -17,13 +17,14 @@ package com.dbn.oracleAI.service;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.intellij.openapi.project.Project;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 
 /**
@@ -31,39 +32,51 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  */
-public interface AICredentialService {
+public interface AICredentialService extends ManagedObjectService<Credential>{
   /**
    * Asynchronously creates a new credential.
-   *
-   * @throws CredentialManagementException underlying service failed
    */
-  CompletableFuture<Void> createCredential(Credential credential);
+  CompletionStage<Void> create(Credential credential);
 
   /**
    * Asynchronously updates an attributes of existing credential.
-   *
-   * @throws CredentialManagementException
    */
-  CompletableFuture<Void> updateCredential(Credential editedCredential);
+  CompletionStage<Void> update(Credential editedCredential);
 
   /**
    * Asynchronously lists detailed credential information from the database.
-   *
-   * @throws CredentialManagementException
    */
-  CompletableFuture<List<Credential>> getCredentials();
+  CompletableFuture<List<Credential>> list();
 
   /**
    * Asynchronously deletes a specific credential information from the database.
-   *
-   * @throws CredentialManagementException
    */
-  CompletableFuture<Void> deleteCredential(String credentialName);
+  CompletableFuture<Void> delete(String credentialName);
 
   /**
    * Asynchronously updates the status (enabled/disabled) of the credential from the database.
    */
   void updateStatus(String credentialName, Boolean isEnabled);
+
+  @Override
+  default DBObjectType getObjectType() {
+    return DBObjectType.CREDENTIAL;
+  }
+
+
+  class CachedProxy extends ManagedObjectServiceProxy<Credential> implements AICredentialService {
+    public CachedProxy(AICredentialService backend) {
+      super(backend);
+    }
+
+    @Override
+    public void updateStatus(String credentialName, Boolean isEnabled) {
+      AICredentialService delegate = (AICredentialService) getDelegate();
+      delegate.updateStatus(credentialName, isEnabled);
+
+    }
+  }
+
 
   static AICredentialService getInstance(ConnectionHandler connection) {
     Project project = connection.getProject();

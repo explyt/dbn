@@ -14,27 +14,16 @@
 
 package com.dbn.oracleAI.service;
 
-import com.dbn.connection.ConnectionId;
-import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.config.AttributeInput;
+import lombok.Getter;
+import lombok.experimental.Delegate;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+@Getter
+public class ManagedObjectServiceDelegate<T extends AttributeInput> implements ManagedObjectService<T> {
+    @Delegate
+    protected final ManagedObjectService<T> delegate;
 
-/**
- * Skeleton for a CRUD service
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
- * @param <E>
- */
-public interface ManagedObjectService<E extends AttributeInput> {
-    CompletableFuture<List<E>> list();
-    CompletableFuture<E>       get(String uuid);
-    CompletableFuture<Void>    delete(String uuid);
-    CompletionStage<Void>      create(E newItem);
-    CompletionStage<Void>      update(E updatedItem);
-    void reset();
-
-    ConnectionId getConnectionId();
-    DBObjectType getObjectType();
+    public ManagedObjectServiceDelegate(ManagedObjectService<T> delegate) {
+        this.delegate = delegate;
+    }
 }

@@ -17,6 +17,7 @@ package com.dbn.oracleAI.config.credentials.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.CardLayouts;
@@ -29,6 +30,8 @@ import com.dbn.common.util.Lists;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.service.AICredentialService;
 import com.dbn.oracleAI.service.AIProfileService;
@@ -104,8 +107,16 @@ public class CredentialManagementForm extends DBNFormBase {
     initDetailsPanel();
     initCredentialList();
     loadCredentials();
-  }
 
+    initChangeListener();
+  }
+  private void initChangeListener() {
+    ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
+      if (connectionId != getConnection().getConnectionId()) return;
+      if (objectType != DBObjectType.CREDENTIAL) return;
+      loadCredentials();
+    });
+  }
 
   @NotNull
   public ConnectionHandler getConnection() {
@@ -208,7 +219,7 @@ public class CredentialManagementForm extends DBNFormBase {
    * @param credential The name of the credential to be removed.
    */
   private void removeCredential(String credential) {
-    credentialSvc.deleteCredential(credential)
+    credentialSvc.delete(credential)
         .thenAccept((c) -> this.loadCredentials())
         .exceptionally(
             e -> {
@@ -218,6 +229,11 @@ public class CredentialManagementForm extends DBNFormBase {
 
   }
 
+  public void reloadCredentials() {
+    credentialSvc.reset();
+    loadCredentials();
+  }
+
   /**
    * Asynchronously fetches the list of credential providers from the AI credential service and updates
    * the UI components accordingly. This method retrieves the credentials, updating the credential list
@@ -225,7 +241,7 @@ public class CredentialManagementForm extends DBNFormBase {
    */
   public void loadCredentials() {
     beforeLoad();
-    credentialSvc.getCredentials().thenAcceptBoth(profileSvc.list(), (credentials, profiles) -> {
+    credentialSvc.list().thenAcceptBoth(profileSvc.list(), (credentials, profiles) -> {
       try {
         Map<String, List<String>> credentialUsage = new HashMap<>();
         for (Credential credential : credentials) {

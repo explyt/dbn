@@ -154,7 +154,7 @@ public class CredentialEditForm extends DBNFormBase {
             ociCredentialUserTenancyOcidField.getText(), ociCredentialPrivateKeyField.getText(), ociCredentialFingerprintField.getText());
     }
     boolean isEnabled = statusCheckBox.isSelected();
-    credentialSvc.createCredential(credential)
+    credentialSvc.create(credential)
         .thenAccept(e -> {
           if (!isEnabled) credentialSvc.updateStatus(credential.getCredentialName(), statusCheckBox.isSelected());
         })
@@ -182,7 +182,7 @@ public class CredentialEditForm extends DBNFormBase {
             ociCredentialUserTenancyOcidField.getText(), ociCredentialPrivateKeyField.getText(), ociCredentialFingerprintField.getText());
     }
     boolean isEnabled = credential.isEnabled() != statusCheckBox.isSelected();
-    credentialSvc.updateCredential(editedCredential)
+    credentialSvc.update(editedCredential)
         .thenAccept(e -> {
           if (isEnabled) credentialSvc.updateStatus(credential.getCredentialName(), statusCheckBox.isSelected());
         })

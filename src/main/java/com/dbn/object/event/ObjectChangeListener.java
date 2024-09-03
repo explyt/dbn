@@ -12,29 +12,22 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI.service;
+package com.dbn.object.event;
 
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.SchemaId;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.oracleAI.config.AttributeInput;
+import com.intellij.util.messages.Topic;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
+import java.util.EventListener;
 
-/**
- * Skeleton for a CRUD service
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
- * @param <E>
- */
-public interface ManagedObjectService<E extends AttributeInput> {
-    CompletableFuture<List<E>> list();
-    CompletableFuture<E>       get(String uuid);
-    CompletableFuture<Void>    delete(String uuid);
-    CompletionStage<Void>      create(E newItem);
-    CompletionStage<Void>      update(E updatedItem);
-    void reset();
+public interface ObjectChangeListener extends EventListener {
+    Topic<ObjectChangeListener> TOPIC = Topic.create("Object Change Event", ObjectChangeListener.class);
 
-    ConnectionId getConnectionId();
-    DBObjectType getObjectType();
+    void objectsChanged(
+            @NotNull ConnectionId connectionId,
+            @Nullable SchemaId ownerId,
+            @NotNull DBObjectType objectType);
 }

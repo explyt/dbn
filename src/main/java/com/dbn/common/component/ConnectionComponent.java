@@ -5,6 +5,7 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -17,6 +18,11 @@ public abstract class ConnectionComponent {
 
     public ConnectionComponent(@NotNull ConnectionHandler connection) {
         this.connection = connection.ref();
+    }
+
+    @NotNull
+    public Project getProject() {
+        return getConnection().getProject();
     }
 
     @NotNull

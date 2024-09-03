@@ -42,7 +42,7 @@ public class AIProfileServiceImpl extends AIAssistantComponent implements AIProf
       super(connection);
   }
 
-  private void dumpThem(List<Profile> profileList, String path) {
+    private void dumpThem(List<Profile> profileList, String path) {
       if (path != null ) {
           try {
               FileWriter writer = new FileWriter(path);
@@ -111,7 +111,7 @@ public class AIProfileServiceImpl extends AIAssistantComponent implements AIProf
     );
   }
 
-  @Override
+    @Override
   public CompletionStage<Void> update(Profile updatedProfile) {
     return CompletableFuture.runAsync(() -> {
           try {

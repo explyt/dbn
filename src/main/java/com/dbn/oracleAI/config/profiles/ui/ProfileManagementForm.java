@@ -17,6 +17,7 @@ package com.dbn.oracleAI.config.profiles.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.CardLayouts;
@@ -29,6 +30,8 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.ProfileEditionWizard;
@@ -91,6 +94,16 @@ public class ProfileManagementForm extends DBNFormBase {
     initProfilesList();
     initDetailsPanel();
     loadProfiles();
+
+    initChangeListener();
+  }
+
+  private void initChangeListener() {
+    ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
+      if (connectionId != getConnection().getConnectionId()) return;
+      if (objectType != DBObjectType.PROFILE) return;
+      loadProfiles();
+    });
   }
 
   @Override
@@ -155,11 +168,11 @@ public class ProfileManagementForm extends DBNFormBase {
   }
 
   public void promptProfileCreation() {
-    ProfileEditionWizard.showWizard(getConnection(), null, getProfileNames(), isCommit -> when(isCommit, () -> loadProfiles()), null);
+    ProfileEditionWizard.showWizard(getConnection(), null, getProfileNames(), null);
   }
 
   public void promptProfileEdition(@NotNull Profile profile) {
-    ProfileEditionWizard.showWizard(getConnection(), profile, getProfileNames(), isCommit -> when(isCommit, () -> loadProfiles()), null);
+    ProfileEditionWizard.showWizard(getConnection(), profile, getProfileNames(), null);
   }
 
   public void promptProfileDeletion(@NotNull Profile profile) {

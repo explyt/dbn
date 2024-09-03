@@ -14,6 +14,7 @@
 
 package com.dbn.oracleAI.service.mock;
 
+import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.service.AICredentialService;
 import com.google.common.reflect.TypeToken;
@@ -46,20 +47,30 @@ public class FakeAICredentialService implements AICredentialService {
 
 
   @Override
-  public CompletableFuture<Void> createCredential(Credential credential) {
+  public CompletableFuture<Void> create(Credential credential) {
     this.credentials.add(credential);
     return CompletableFuture.completedFuture(null);
   }
 
   @Override
-  public CompletableFuture<Void> updateCredential(Credential credential) {
+  public CompletableFuture<Void> update(Credential credential) {
     this.credentials.removeIf(cred -> cred.getCredentialName().equalsIgnoreCase(credential.getCredentialName()));
     this.credentials.add(credential);
     return CompletableFuture.completedFuture(null);
   }
 
   @Override
-  public CompletableFuture<List<Credential>> getCredentials() {
+  public void reset() {
+
+  }
+
+  @Override
+  public ConnectionId getConnectionId() {
+    return null;
+  }
+
+  @Override
+  public CompletableFuture<List<Credential>> list() {
     if (credentials == null) {
       try {
         this.credentials = new Gson().fromJson(new FileReader(credentialsRepoFilename), CREDENTIAL_TYPE);
@@ -71,7 +82,12 @@ public class FakeAICredentialService implements AICredentialService {
   }
 
   @Override
-  public CompletableFuture<Void> deleteCredential(String credentialName) {
+  public CompletableFuture<Credential> get(String uuid) {
+    return null;
+  }
+
+  @Override
+  public CompletableFuture<Void> delete(String credentialName) {
     this.credentials.removeIf(cred -> cred.getCredentialName().equalsIgnoreCase(credentialName));
     return CompletableFuture.completedFuture(null);
   }

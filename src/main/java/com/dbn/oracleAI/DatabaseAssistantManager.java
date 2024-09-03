@@ -262,10 +262,10 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   }
 
   public AICredentialService getCredentialService(ConnectionId connectionId) {
-    return credentialManagerMap.computeIfAbsent(connectionId, id ->
-            isMockEnv() ?
+    return credentialManagerMap.computeIfAbsent(connectionId,
+            id -> new AICredentialService.CachedProxy(isMockEnv() ?
                     new FakeAICredentialService() :
-                    new AICredentialServiceImpl(ConnectionHandler.ensure(id)));
+                    new AICredentialServiceImpl(ConnectionHandler.ensure(id))));
   }
 
   public DatabaseService getDatabaseService(ConnectionId connectionId) {

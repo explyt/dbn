@@ -14,6 +14,7 @@
 
 package com.dbn.oracleAI.service.mock;
 
+import com.dbn.connection.ConnectionId;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.service.AIProfileService;
 import com.google.common.reflect.TypeToken;
@@ -81,6 +82,11 @@ public class FakeAIProfileService implements AIProfileService {
     @Override
     public void reset() {
 
+    }
+
+    @Override
+    public ConnectionId getConnectionId() {
+        return null;
     }
 
 }

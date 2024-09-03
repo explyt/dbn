@@ -103,7 +103,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   }
 
   private void populateCredentials() {
-    credentialSvc.getCredentials().thenAccept(credentialProviderList -> {
+    credentialSvc.list().thenAccept(credentialProviderList -> {
       SwingUtilities.invokeLater(() -> {
         credentialComboBox.removeAllItems();
         for (Credential credential : credentialProviderList) {

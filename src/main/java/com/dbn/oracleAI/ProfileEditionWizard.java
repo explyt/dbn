@@ -32,9 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
-import java.util.List;
 import java.util.Set;
-import java.util.function.Consumer;
 
 import static com.dbn.nls.NlsResources.txt;
 
@@ -49,13 +47,12 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   private final Profile initialProfile;
   private final Profile editedProfile;
-  private List<String> existingProfileNames;
+  private final Set<String> existingProfileNames;
   private final boolean isUpdate;
   private JButton finishButton;
 
   private final Project project;
   private final AIProfileService profileSvc;
-  private final Consumer<Boolean> callback;
 
   /**
    * Creates a new wizard
@@ -66,18 +63,17 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
    * @param profile                           the profile to be edited or created.
    * @param existingProfileNames              list of existing profile names. used to forbid naming collision
    * @param isUpdate                          denote if current wizard is for an update
-   * @param callback                          callback to be called when wizard window closes
    * @param firstStep
    */
-  public ProfileEditionWizard(@NotNull ConnectionHandler connection, Profile profile, Set<String> existingProfileNames, boolean isUpdate, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStep) {
+  public ProfileEditionWizard(@NotNull ConnectionHandler connection, Profile profile, Set<String> existingProfileNames, boolean isUpdate, Class<ProfileEditionObjectListStep> firstStep) {
     super(false, new ProfileEditionWizardModel(
             connection, txt("profiles.settings.window.title"), profile, existingProfileNames, isUpdate,firstStep));
     this.profileSvc = AIProfileService.getInstance(connection);
     this.project = connection.getProject();
     this.initialProfile = new Profile(profile);
     this.editedProfile = profile;
+    this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
-    this.callback = callback;
     finishButton.setText(txt(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
 
   }
@@ -135,7 +131,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
       profileSvc.update(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
           dispose();
-          callback.accept(true);
         });
       }).exceptionally(e -> {
         log.warn("cannot commit profile edition wizard", e);
@@ -146,7 +141,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
       profileSvc.create(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
           dispose();
-          callback.accept(true);
         });
       }).exceptionally(e -> {
         SwingUtilities.invokeLater(() -> Messages.showErrorDialog(project, e.getCause().getMessage()));
@@ -160,10 +154,9 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
    * @param connection the connection against which the profile is edited
    * @param profile the current profile to be edited (null if creating a new one)
    * @param usedProfileNames a set of existing profile names (cannot be reused when creating new profiles)
-   * @param callback to be called once done
    * @param firstStepClass if not null, the step to move to directly
    */
-  public static void showWizard(@NotNull ConnectionHandler connection, @Nullable Profile profile, Set<String> usedProfileNames, @NotNull Consumer<Boolean> callback, Class<ProfileEditionObjectListStep> firstStepClass) {
+  public static void showWizard(@NotNull ConnectionHandler connection, @Nullable Profile profile, Set<String> usedProfileNames, Class<ProfileEditionObjectListStep> firstStepClass) {
     SwingUtilities.invokeLater(() -> {
       Profile initialProfile = null;
       boolean isUpdate;
@@ -175,7 +168,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         isUpdate = false;
       }
       ProfileUpdate toBeUpdatedProfile = new ProfileUpdate(initialProfile);
-      ProfileEditionWizard wizard = new ProfileEditionWizard(connection, toBeUpdatedProfile, usedProfileNames, isUpdate, callback, firstStepClass);
+      ProfileEditionWizard wizard = new ProfileEditionWizard(connection, toBeUpdatedProfile, usedProfileNames, isUpdate, firstStepClass);
       wizard.show();
 
     });

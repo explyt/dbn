@@ -47,7 +47,7 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
   }
 
   @Override
-  public CompletableFuture<Void> createCredential(Credential credential) {
+  public CompletableFuture<Void> create(Credential credential) {
     return CompletableFuture.runAsync(() -> {
       try {
         DBNConnection connection = getAssistantConnection();
@@ -59,7 +59,7 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
   }
 
   @Override
-  public CompletableFuture<Void> updateCredential(Credential editedCredential) {
+  public CompletableFuture<Void> update(Credential editedCredential) {
     return CompletableFuture.runAsync(() -> {
       try {
         DBNConnection connection = getAssistantConnection();
@@ -71,7 +71,12 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
   }
 
   @Override
-  public CompletableFuture<List<Credential>> getCredentials() {
+  public void reset() {
+    // no state to reset
+  }
+
+  @Override
+  public CompletableFuture<List<Credential>> list() {
     return CompletableFuture.supplyAsync(() -> {
       try {
         // Obtain a connection for Oracle AI session
@@ -98,7 +103,12 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
   }
 
   @Override
-  public CompletableFuture<Void> deleteCredential(String credentialName) {
+  public CompletableFuture<Credential> get(String uuid) {
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
+
+  @Override
+  public CompletableFuture<Void> delete(String credentialName) {
     if (credentialName.isEmpty()) {
       throw new IllegalArgumentException("Credential Name shouldn't be empty");
     }

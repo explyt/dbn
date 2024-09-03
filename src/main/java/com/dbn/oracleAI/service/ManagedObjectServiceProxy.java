@@ -14,10 +14,13 @@
 
 package com.dbn.oracleAI.service;
 
+import com.dbn.common.event.ProjectEvents;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.oracleAI.config.AttributeInput;
+import com.intellij.openapi.project.Project;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -36,16 +39,14 @@ import static java.util.Collections.unmodifiableList;
  * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
  * @param <E>
  */
-public class ManagedObjectServiceProxy<E extends AttributeInput> implements ManagedObjectService<E> {
-  ReentrantLock lock = new ReentrantLock();
-  private final ManagedObjectService<E> backend;
-  private List<E> items = null;
+public class ManagedObjectServiceProxy<E extends AttributeInput> extends ManagedObjectServiceDelegate<E> {
+  private final ReentrantLock lock = new ReentrantLock();
 
-  private final PropertyChangeSupport support;
+  private List<E> items = null;
+  private boolean dirty;
 
   public ManagedObjectServiceProxy(ManagedObjectService<E> backend) {
-    this.backend = backend;
-    this.support = new PropertyChangeSupport(this);
+    super(backend);
   }
 
   /**
@@ -58,9 +59,12 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> implements Mana
   @Override
   public CompletableFuture<List<E>> list() {
     try {
+      // TODO REVIEW: the lock does not prevent parallel loads as the enclosed code quickly returns a not-yet completed CompletableFuture
+      //  (the loads on the other hand will wait for each other as they share the same connection)
       lock.lock();
-      if (this.items == null) {
-        return this.backend.list().thenCompose(list -> {
+      if (this.items == null || dirty) {
+        dirty = false;
+        return delegate.list().thenCompose(list -> {
           this.items = list;
           return CompletableFuture.completedFuture(unmodifiableList(this.items));
         });
@@ -84,26 +88,27 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> implements Mana
 
   @Override
   public CompletableFuture<Void> delete(String uuid) {
-    return backend.delete(uuid).thenRunAsync(() -> {
+    return delegate.delete(uuid).thenRunAsync(() -> {
       this.items.removeIf(e -> e.getUuid().equalsIgnoreCase(uuid));
-      fireUpdatedProfileListEvent();
+      dirty = true;
+      notifyChanges();
     });
   }
 
   @Override
   public CompletionStage<Void> create(E newItem) {
-    return backend.create(newItem).thenRunAsync(() -> {
+    return delegate.create(newItem).thenRunAsync(() -> {
       this.items.add(newItem);
-      // TODO : deal with errors
-      fireUpdatedProfileListEvent();
+      dirty = true;
+      notifyChanges();
     });
   }
 
   @Override
   public CompletionStage<Void> update(E updatedItem) {
-    return backend.update(updatedItem).thenRunAsync(() -> {
-      // TODO : dela with the list
-      fireUpdatedProfileListEvent();
+    return delegate.update(updatedItem).thenRunAsync(() -> {
+      dirty = true;
+      notifyChanges();
     });
   }
 
@@ -112,19 +117,17 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> implements Mana
    * (clears cache layer)
    */
   public void reset(){
-    items = null;
-    backend.reset();
+    dirty = true;
+    delegate.reset();
   }
 
-  private void fireUpdatedProfileListEvent() {
-    support.firePropertyChange(this.backend.getClass().getCanonicalName(), null, null);
-  }
+  private void notifyChanges() {
+    ConnectionId connectionId = getConnectionId();
+    if (connectionId == null) return;
 
-  public void addPropertyChangeListener(PropertyChangeListener pcl) {
-    support.addPropertyChangeListener(pcl);
-  }
-
-  public void removePropertyChangeListener(PropertyChangeListener pcl) {
-    support.removePropertyChangeListener(pcl);
+    ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+    Project project = connection.getProject();
+    ProjectEvents.notify(project, ObjectChangeListener.TOPIC,
+            l -> l.objectsChanged(connectionId, null, getObjectType()));
   }
 }

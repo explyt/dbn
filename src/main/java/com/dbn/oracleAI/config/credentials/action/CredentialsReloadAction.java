@@ -33,7 +33,7 @@ public class CredentialsReloadAction extends CredentialManagementAction {
         CredentialManagementForm managementForm = getManagementForm(e);
         if (managementForm == null) return;
 
-        managementForm.loadCredentials();
+        managementForm.reloadCredentials();
     }
 
     @Override

@@ -14,6 +14,7 @@
 package com.dbn.oracleAI.ui;
 
 import com.dbn.common.action.DataKeys;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -22,6 +23,8 @@ import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.config.Profile;
@@ -90,6 +93,16 @@ public class ChatBoxForm extends DBNFormBase {
     createHeaderForm();
     createIntroForm();
     createChatBoxForm();
+
+    initChangeListener();
+  }
+
+  private void initChangeListener() {
+    ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
+      if (connectionId != getConnectionId()) return;
+      if (objectType != DBObjectType.PROFILE) return;
+      loadProfiles();
+    });
   }
 
   private void createIntroForm() {

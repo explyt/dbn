@@ -16,6 +16,7 @@ package com.dbn.oracleAI.service;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.config.Profile;
 import com.intellij.openapi.project.Project;
@@ -67,6 +68,10 @@ public interface AIProfileService extends ManagedObjectService<Profile> {
      * (clears cache layer)
      */
     void reset();
+
+    default DBObjectType getObjectType() {
+        return DBObjectType.PROFILE;
+    }
 
 
     class CachedProxy extends ManagedObjectServiceProxy<Profile> implements AIProfileService {
