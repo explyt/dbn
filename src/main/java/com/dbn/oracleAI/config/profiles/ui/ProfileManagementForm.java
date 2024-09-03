@@ -24,6 +24,7 @@ import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
@@ -213,13 +214,19 @@ public class ProfileManagementForm extends DBNFormBase {
   }
 
   private void applyProfiles(List<Profile> profiles) {
+    // capture selection
+    Profile selectedProfile = getSelectedProfile();
+    String selectedProfileName = selectedProfile == null ? null : selectedProfile.getProfileName();
+
+    // apply new profiles
     this.profiles = profiles;
     this.profileDetailForms = Disposer.replace(this.profileDetailForms, new ConcurrentHashMap<>());
-
     this.profilesList.setListData(profiles.toArray(new Profile[0]));
-    if (!profiles.isEmpty()) {
-      this.profilesList.setSelectedIndex(0);
-    }
+
+    // restore selection
+    int selectionIndex = Lists.indexOf(profiles, c -> c.getProfileName().equalsIgnoreCase(selectedProfileName));
+    if (selectionIndex == -1 && !profiles.isEmpty()) selectionIndex = 0;
+    if (selectionIndex != -1) this.profilesList.setSelectedIndex(selectionIndex);
   }
 
   private void beforeLoad() {

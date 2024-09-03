@@ -25,6 +25,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
@@ -254,11 +255,19 @@ public class CredentialManagementForm extends DBNFormBase {
   }
 
   private void applyCredentials(List<Credential> credentials, Map<String, List<String>> credentialUsage) {
+    // capture selection
+    Credential selectedCredential = getSelectedCredential();
+    String selectedCredentialName = selectedCredential == null ? null : selectedCredential.getCredentialName();
+
+    // apply new credentials
     this.credentialUsage = credentialUsage;
     this.credentialDetailForms = Disposer.replace(this.credentialDetailForms, new ConcurrentHashMap<>());
-
     this.credentialList.setListData(credentials.toArray(new Credential[0]));
-    if (!credentials.isEmpty()) this.credentialList.setSelectedIndex(0);
+
+    // restore selection
+    int selectionIndex = Lists.indexOf(credentials, c -> c.getCredentialName().equalsIgnoreCase(selectedCredentialName));
+    if (selectionIndex == -1 && !credentials.isEmpty()) selectionIndex = 0;
+    if (selectionIndex != -1) this.credentialList.setSelectedIndex(selectionIndex);
   }
 
   private void beforeLoad() {
