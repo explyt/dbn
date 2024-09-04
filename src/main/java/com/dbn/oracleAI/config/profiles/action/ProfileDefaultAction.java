@@ -46,7 +46,7 @@ public class ProfileDefaultAction extends ProfileManagementAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setIcon(Icons.COMMON_CHECK);
+        presentation.setIcon(Icons.ACTION_CHECK);
         presentation.setText("Mark as Default");
         presentation.setEnabled(isEnabled(e));
     }

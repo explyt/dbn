@@ -66,6 +66,8 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> extends Managed
         dirty = false;
         return delegate.list().thenCompose(list -> {
           this.items = list;
+          // TODO cleanup - workaround for asynchronous load response
+          notifyChanges();
           return CompletableFuture.completedFuture(unmodifiableList(this.items));
         });
       } else {

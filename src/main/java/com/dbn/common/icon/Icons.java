@@ -45,6 +45,7 @@ public class Icons {
 
     public static final Icon ACTION_ADD                       = AllIcons.General.Add;
     public static final Icon ACTION_COPY                      = AllIcons.Actions.Copy;
+    public static final Icon ACTION_CHECK                     = AllIcons.Actions.Checked;
     public static final Icon ACTION_REMOVE                    = AllIcons.General.Remove;
     public static final Icon ACTION_SORT_ALPHA                = AllIcons.ObjectBrowser.Sorted;
     public static final Icon ACTION_SORT_NUMERIC              = load("/img/action/SortNumerically.png");
