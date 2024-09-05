@@ -50,14 +50,14 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
         profiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
         actionGroup.addSeparator();
 
-        actionGroup.add(new ProfilesSetupAction());
+        actionGroup.add(new ProfileCreateAction());
         return actionGroup;
     }
 
     @Override
     public void update(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
+        boolean enabled = chatBox != null && chatBox.getState().available();
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));

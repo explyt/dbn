@@ -14,8 +14,6 @@
 
 package com.dbn.oracleAI.action;
 
-import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.ProjectAction;
 import com.dbn.common.util.Actions;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.ui.ChatBoxForm;
@@ -29,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class ProfileSelectAction extends ProjectAction {
+public class ProfileSelectAction extends AbstractChatBoxAction {
     private final AIProfileItem profile;
     ProfileSelectAction(AIProfileItem profile) {
         this.profile = profile;
@@ -37,7 +35,7 @@ public class ProfileSelectAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
         chatBox.selectProfile(profile);

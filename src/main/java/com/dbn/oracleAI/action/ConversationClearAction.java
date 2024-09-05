@@ -14,10 +14,9 @@
 
 package com.dbn.oracleAI.action;
 
-import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.ProjectAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.oracleAI.ui.ChatBoxForm;
+import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -28,10 +27,10 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class ConversationClearAction extends ProjectAction {
+public class ConversationClearAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
         chatBox.clearConversation();
@@ -39,8 +38,8 @@ public class ConversationClearAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        boolean enabled = chatBox != null && !chatBox.getState().getMessages().isEmpty();
+        ChatBoxState state = geChatBoxState(e);
+        boolean enabled = state != null && !state.getMessages().isEmpty();
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_DELETE);

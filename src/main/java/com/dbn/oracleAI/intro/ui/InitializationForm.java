@@ -107,7 +107,8 @@ public class InitializationForm extends DBNFormBase {
             unsupportedPanel.setVisible(true);
         } else if (availability == Availability.UNCERTAIN) {
             reinitializePanel.setVisible(true);
-            TextContent message = TextContent.plain(availabilityInfo.getMessage());
+            String messageContent = "Could not initialize Database Assistant\n\n" + availabilityInfo.getMessage();
+            TextContent message = TextContent.plain(messageContent);
             DBNHintForm messageForm = new DBNHintForm(this, message, MessageType.ERROR, true);
             messagePanel.add(messageForm.getComponent());
         }

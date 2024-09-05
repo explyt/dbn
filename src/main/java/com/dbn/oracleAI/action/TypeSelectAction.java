@@ -85,7 +85,7 @@ public class TypeSelectAction extends ToggleAction {
         super.update(e);
 
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        boolean enabled = chatBox != null && chatBox.getState().promptingEnabled();
+        boolean enabled = chatBox != null && chatBox.getState().promptingAvailable();
         e.getPresentation().setEnabled(enabled);
     }
 }

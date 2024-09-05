@@ -118,6 +118,7 @@ public class ChatBoxInputField extends JPanel {
         settings.setRightMarginShown(false);
         settings.setCaretRowShown(false);
         settings.setUseSoftWraps(true);
+
         return editor;
 
     }
@@ -132,7 +133,7 @@ public class ChatBoxInputField extends JPanel {
             CharSequence newFragment = event.getNewFragment();
             if (!newFragment.isEmpty() && newFragment.charAt(0) == '\n') {
                 ChatBoxForm chatBox = getChatBox();
-                if (chatBox.getState().promptingEnabled()) {
+                if (chatBox.getState().promptingAvailable()) {
                     chatBox.submitPrompt();
                 } else {
                     String text = document.getText();

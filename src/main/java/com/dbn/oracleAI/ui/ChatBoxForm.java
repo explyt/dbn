@@ -23,6 +23,7 @@ import com.dbn.common.util.Actions;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.AIProfileItem;
@@ -76,6 +77,7 @@ public class ChatBoxForm extends DBNFormBase {
   private JPanel introPanel;
   private JPanel chatBoxPanel;
   private JPanel initializingIconPanel;
+  private JPanel initializingPanel;
 
   private final ConnectionRef connection;
   private ChatBoxInputField inputField;
@@ -90,11 +92,12 @@ public class ChatBoxForm extends DBNFormBase {
     this.introPanel.setVisible(false);
     this.chatBoxPanel.setVisible(false);
 
-    createHeaderForm();
-    createIntroForm();
-    createChatBoxForm();
+    initHeaderForm();
+    initIntroForm();
+    initChatBoxForm();
 
     initChangeListener();
+    initConnectivityListener();
   }
 
   private void initChangeListener() {
@@ -105,7 +108,19 @@ public class ChatBoxForm extends DBNFormBase {
     });
   }
 
-  private void createIntroForm() {
+  /**
+   * Attempts to load the profiles when connectivity is restored if the connection was down on first initialization attempt
+   */
+  private void initConnectivityListener() {
+    ProjectEvents.subscribe(ensureProject(), this, ConnectionStatusListener.TOPIC, (connectionId, sessionId) -> {
+      if (connectionId != this.getConnectionId()) return;
+      if (getState().isNot(UNAVAILABLE)) return;
+
+      loadProfiles();
+    });
+  }
+
+  private void initIntroForm() {
     if (isAcknowledged()) return;
 
     IntroductionForm introductionForm = new IntroductionForm(this);
@@ -113,7 +128,7 @@ public class ChatBoxForm extends DBNFormBase {
     introPanel.setVisible(!isAcknowledged());
   }
 
-  private void createChatBoxForm() {
+  private void initChatBoxForm() {
     if (!isAcknowledged()) return;
     chatBoxPanel.setVisible(true);
 
@@ -128,7 +143,7 @@ public class ChatBoxForm extends DBNFormBase {
     return getState().isAcknowledged();
   }
 
-  private void createHeaderForm() {
+  private void initHeaderForm() {
     ConnectionHandler connection = getConnection();
     DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
     headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
@@ -167,7 +182,7 @@ public class ChatBoxForm extends DBNFormBase {
 
   public void acknowledgeIntro() {
     getState().setAcknowledged(true);
-    createChatBoxForm();
+    initChatBoxForm();
     introPanel.setVisible(false);
     chatBoxPanel.setVisible(true);
   }
@@ -211,10 +226,13 @@ public class ChatBoxForm extends DBNFormBase {
 
   private void processQuery(String question, ActionAIType actionType) {
     ChatBoxState state = getState();
-    state.set(QUERYING, true);
-    inputField.setReadonly(true);
+    if (!state.promptingAvailable()) return;
 
     AIProfileItem profile = state.getSelectedProfile();
+    if (profile == null) return;
+
+    state.set(QUERYING, true);
+    inputField.setReadonly(true);
     ProviderModel model = profile.getModel();
 
     ChatMessageContext context = new ChatMessageContext(profile.getName(), model, actionType);
@@ -263,12 +281,11 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   /**
-   * Restores the element state from scratch.
-   * basically called only once ny switchConnection()
+   * Initializes the profile dropdowns for the chat box
    */
   public void loadProfiles() {
+    if (getState().is(INITIALIZING)) return;
     beforeProfileLoad();
-
     updateProfiles().thenAccept(profiles -> {
       try {
         applyProfiles(profiles);
@@ -285,20 +302,23 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void beforeProfileLoad() {
-    initializingIconPanel.setVisible(true);
+    initializingPanel.setVisible(true);
+    inputField.setReadonly(true);
     ChatBoxState state = getState();
     state.set(INITIALIZING, true);
     state.set(UNAVAILABLE, false);
   }
 
   private void afterProfileLoad(@Nullable Throwable e) {
-    initializingIconPanel.setVisible(false);
-    ChatBoxState chatBoxState = getState();
-    chatBoxState.set(INITIALIZING, false);
+    initializingPanel.setVisible(false);
+    ChatBoxState state = getState();
+    state.set(INITIALIZING, false);
     if (e != null) {
-      chatBoxState.set(UNAVAILABLE, true);
+      state.set(UNAVAILABLE, true);
       showErrorHeader(e);
     }
+
+    inputField.setReadonly(!state.promptingAvailable());
     inputField.requestFocus();
     UserInterface.visitRecursively(chatBoxPanel,  c -> UserInterface.repaint(c));
 

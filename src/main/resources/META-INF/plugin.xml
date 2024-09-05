@@ -464,13 +464,15 @@
             <separator/>
             <action id="DBNavigator.Actions.ExecuteAsScript" class="com.dbn.execution.script.action.ExecuteScriptEditorAction" text="Script Editor - Execute as Script" icon="com.dbn.common.icon.Icons.EXECUTE_SQL_SCRIPT"/>
             <separator/>
-            <group id="DBNavigator.Actions.EditorOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Script Editor - Local Settings" icon="AllIcons.General.Gear" />
+            <group id="DBNavigator.Actions.EditorOptions" class="com.dbn.language.editor.action.EditorOptionsAction" text="Script Editor - Local Settings" icon="AllIcons.General.GearPlain" />
             <action id="DBNavigator.Actions.EditorSettings" class="com.dbn.language.editor.action.EditorSettingsOpenAction" text="Script Editor - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantChatBoxProfiles" text="Assistant Chat-Box Profiles">
             <action class="com.dbn.oracleAI.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
             <action class="com.dbn.oracleAI.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
             <action class="com.dbn.oracleAI.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
+            <action class="com.dbn.oracleAI.action.ProfilesSetupAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ProfileSettings" icon="AllIcons.General.GearPlain"/>
+
             <separator/>
             <action class="com.dbn.oracleAI.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
         </group>

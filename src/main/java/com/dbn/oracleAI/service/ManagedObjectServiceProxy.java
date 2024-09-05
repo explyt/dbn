@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.locks.ReentrantLock;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.concurrent.CompletableFuture.completedFuture;
 
 /**
  * Proxy on remote service.
@@ -40,8 +40,6 @@ import static java.util.Collections.unmodifiableList;
  * @param <E>
  */
 public class ManagedObjectServiceProxy<E extends AttributeInput> extends ManagedObjectServiceDelegate<E> {
-  private final ReentrantLock lock = new ReentrantLock();
-
   private List<E> items = null;
   private boolean dirty;
 
@@ -58,33 +56,35 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> extends Managed
 
   @Override
   public CompletableFuture<List<E>> list() {
-    try {
-      // TODO REVIEW: the lock does not prevent parallel loads as the enclosed code quickly returns a not-yet completed CompletableFuture
-      //  (the loads on the other hand will wait for each other as they share the same connection)
-      lock.lock();
-      if (this.items == null || dirty) {
-        dirty = false;
-        return delegate.list().thenCompose(list -> {
-          this.items = list;
-          // TODO cleanup - workaround for asynchronous load response
-          notifyChanges();
-          return CompletableFuture.completedFuture(unmodifiableList(this.items));
-        });
-      } else {
-        return CompletableFuture.completedFuture(unmodifiableList(this.items));
-      }
-    } finally {
-      lock.unlock();
-    }
+      if (isValid()) return completedFuture(unmodifiableList(this.items));
+
+      dirty = false;
+      CompletableFuture<List<E>> future = delegate.list();
+
+      // internally capture the result upon completion
+      future.thenCompose(list -> {
+        this.items = list;
+
+        // notify all consumers about potential content change
+        notifyChanges();
+        return null;
+      });
+
+      // pass on to caller to consume the loaded list
+      return future;
+  }
+
+  private boolean isValid() {
+    return this.items != null && !dirty;
   }
 
   @Override
   public CompletableFuture<E> get(String uuid) {
     Optional<E> item = this.items.stream().filter(e -> e.getUuid().equalsIgnoreCase(uuid)).findFirst();
     if (item.isPresent()) {
-      return CompletableFuture.completedFuture(item.get());
+      return completedFuture(item.get());
     } else {
-      return CompletableFuture.completedFuture(null);
+      return completedFuture(null);
     }
   }
 

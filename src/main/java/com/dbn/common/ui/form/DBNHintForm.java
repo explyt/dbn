@@ -23,7 +23,8 @@ import java.awt.*;
 public class DBNHintForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel contentPanel;
-    private JLabel hintLabel;
+    private JPanel iconPanel;
+    private JLabel iconLabel;
     private JTextPane hintTextPane;
     private HyperlinkLabel actionLink;
 
@@ -37,7 +38,7 @@ public class DBNHintForm extends DBNFormBase {
     public DBNHintForm(DBNForm parent, @Nullable TextContent hintContent, MessageType messageType, boolean boxed, String actionText, Runnable action) {
         super(parent);
         this.boxed = boxed;
-        hintLabel.setText("");
+        iconLabel.setText("");
         setMessageType(messageType);
         setHintContent(hintContent);
 
@@ -65,7 +66,6 @@ public class DBNHintForm extends DBNFormBase {
     private void updateComponentColors() {
         Color background = getBackground();
         Color foreground = getForeground();
-        hintTextPane.setBackground(background);
         contentPanel.setBackground(background);
         contentPanel.setForeground(foreground);
         contentPanel.setForeground(foreground);
@@ -135,12 +135,12 @@ public class DBNHintForm extends DBNFormBase {
 
     public void setMessageType(MessageType messageType) {
         if (messageType == null) {
-            hintLabel.setVisible(false);
+            iconPanel.setVisible(false);
             return;
         }
 
         Icon icon = getIcon(messageType);
-        hintLabel.setIcon(icon);
+        iconLabel.setIcon(icon);
     }
 
     private static Icon getIcon(MessageType messageType) {

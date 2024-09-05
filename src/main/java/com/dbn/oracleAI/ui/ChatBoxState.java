@@ -73,10 +73,29 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
     return ChatBoxStatus.VALUES;
   }
 
-  public boolean promptingEnabled() {
+  /**
+   * State utility indicating the feature is initialized and ready to use
+   * @return true if the chat box is properly initialized and can be interacted with
+   */
+  public boolean available() {
     return isNot(ChatBoxStatus.INITIALIZING) &&
             isNot(ChatBoxStatus.UNAVAILABLE) &&
             isNot(ChatBoxStatus.QUERYING);
+  }
+
+  /**
+   * State utility indicating the prompting is available.
+   * It internally checks if the feature is ready to use by calling {@link #available()} but also checks if a valid profile is selected
+   * @return true if prompting is allowed
+   */
+  public boolean promptingAvailable() {
+    if (!available()) return false;
+
+    AIProfileItem profile = getSelectedProfile();
+    if (profile == null) return false;
+    if (!profile.isEnabled()) return false;
+
+    return true;
   }
 
   @Nullable

@@ -14,37 +14,37 @@
 
 package com.dbn.oracleAI.action;
 
-import com.dbn.common.util.Actions;
-import com.dbn.oracleAI.types.ProviderModel;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.oracleAI.DatabaseAssistantManager;
+import com.dbn.oracleAI.ProfileEditionWizard;
 import com.dbn.oracleAI.ui.ChatBoxForm;
+import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Action for selecting one individual AI-assistant model
+ * Action for opening the AI-assistant profile setup wizard for creating a new profile
  *
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class ModelSelectAction extends AbstractChatBoxAction {
-    private final ProviderModel model;
-
-    ModelSelectAction(ProviderModel model) {
-        this.model = model;
-    }
-
+public class ProfileCreateAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        chatBox.selectModel(model);
+        ConnectionHandler connection = chatBox.getConnection();
+        DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+        ChatBoxState state = manager.getChatBoxState(connection.getConnectionId());
+
+        ProfileEditionWizard.showWizard(connection, null, state.getProfileNames(), null);
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(Actions.adjustActionName(model.name()));
+        presentation.setText("New Profile...");
     }
 }

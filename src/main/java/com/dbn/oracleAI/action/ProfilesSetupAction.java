@@ -14,8 +14,6 @@
 
 package com.dbn.oracleAI.action;
 
-import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.ProjectAction;
 import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -28,10 +26,10 @@ import org.jetbrains.annotations.NotNull;
  *
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class ProfilesSetupAction extends ProjectAction {
+public class ProfilesSetupAction extends AbstractChatBoxAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
         DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
