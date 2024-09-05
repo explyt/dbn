@@ -19,6 +19,7 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Commons;
+import com.dbn.oracleAI.config.ui.AICloudSettingsForm;
 import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.ide.BrowserUtil;
@@ -42,6 +43,7 @@ public class IntroductionForm extends DBNFormBase {
     private JPanel hintPanel;
     private HyperlinkLabel selectAiHyperlink;
     private JButton continueButton;
+    private JButton helpButton;
     private JPanel initPanel;
     private JPanel introPanel;
 
@@ -73,7 +75,7 @@ public class IntroductionForm extends DBNFormBase {
     private void createIntroForm() {
         initHyperlink();
         initIntroContent();
-        initAction();
+        initButtons();
     }
 
     private void initHyperlink() {
@@ -99,8 +101,14 @@ public class IntroductionForm extends DBNFormBase {
     }
 
 
-    protected void initAction() {
+    protected void initButtons() {
         continueButton.addActionListener(e -> getChatBox().acknowledgeIntro());
+        helpButton.addActionListener(e -> showHelpDialog());
+    }
+
+    private void showHelpDialog() {
+        AICloudSettingsForm helpDialog = new AICloudSettingsForm(getChatBox().getConnection());
+        helpDialog.showAndGet();
     }
 
     ChatBoxForm getChatBox() {
