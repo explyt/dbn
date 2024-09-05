@@ -19,7 +19,9 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.common.util.Commons;
-import com.dbn.oracleAI.config.ui.AICloudSettingsForm;
+import com.dbn.common.util.Dialogs;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.oracleAI.config.ui.AssistantPrerequisitesDialog;
 import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.ide.BrowserUtil;
@@ -107,8 +109,11 @@ public class IntroductionForm extends DBNFormBase {
     }
 
     private void showHelpDialog() {
-        AICloudSettingsForm helpDialog = new AICloudSettingsForm(getChatBox().getConnection());
-        helpDialog.showAndGet();
+        Dialogs.show(() -> new AssistantPrerequisitesDialog(getConnection()));
+    }
+
+    private @NotNull ConnectionHandler getConnection() {
+        return getChatBox().getConnection();
     }
 
     ChatBoxForm getChatBox() {

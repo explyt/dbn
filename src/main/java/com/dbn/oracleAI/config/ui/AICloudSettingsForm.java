@@ -14,33 +14,40 @@
 
 package com.dbn.oracleAI.config.ui;
 
-import com.dbn.common.util.Messages;
+import com.dbn.common.thread.Progress;
+import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.oracleAI.config.ProviderConfiguration;
 import com.dbn.oracleAI.service.DatabaseService;
 import com.dbn.oracleAI.types.ProviderType;
-import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.ui.JBColor;
-import org.jetbrains.annotations.NotNull;
+import com.intellij.ide.BrowserUtil;
+import com.intellij.openapi.project.Project;
+import com.intellij.ui.HyperlinkLabel;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.MatteBorder;
+import javax.swing.event.HyperlinkEvent;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
-import static com.dbn.nls.NlsResources.txt;
+import static com.dbn.common.Priority.HIGH;
+import static com.dbn.common.util.Conditional.when;
 
-public class AICloudSettingsForm extends DialogWrapper {
+/**
+ * Database Assistant prerequisites information form
+ * Explains the necessary grants and access rights for Select AI.
+ * Also provisions actions to grant such privileges
+ * TODO FEATURE proposal: "Grant for colleague" allowing the user to select another user for the grant operation
+ *
+ * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Dan Cioca (dan.cioca@oracle.com)
+ */
+public class AICloudSettingsForm extends DBNFormBase {
 
   private JPanel mainPanel;
   private JLabel intro;
@@ -53,25 +60,38 @@ public class AICloudSettingsForm extends DialogWrapper {
   private JButton applyACLButton;
   private JButton copyPrivilegeButton;
   private JButton applyPrivilegeButton;
-  private JLabel linkLabel;
+  private JPanel headerPanel;
+  private HyperlinkLabel docuLink;
   private final String SELECT_AI_DOCS = "https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/sql-generation-ai-autonomous.html";
 
-  private final String username;
+  private final ConnectionRef connection;
   private final DatabaseService databaseSvc;
-  private final ConnectionHandler connectionHandler;
 
   // Pass Project object to constructor
-  public AICloudSettingsForm(ConnectionHandler connectionHandler) {
-    super(true);
-    this.databaseSvc = DatabaseService.getInstance(connectionHandler);
+  public AICloudSettingsForm(AssistantPrerequisitesDialog dialog) {
+    super(dialog);
 
-    this.connectionHandler = connectionHandler;
-    this.username = connectionHandler.getUserName();
+    ConnectionHandler connection = dialog.getConnection();
+    this.connection = ConnectionRef.of(connection);
+    this.databaseSvc = DatabaseService.getInstance(connection);
+
+    initHeaderPanel();
     initializeWindow();
-    setTitle("Select AI - Help");
-    init();
-    pack();
-    setResizable(false);
+  }
+
+  private ConnectionHandler getConnection() {
+    return connection.ensure();
+  }
+
+  private void initHeaderPanel() {
+    ConnectionHandler connection = getConnection();
+    DBNHeaderForm headerForm = new DBNHeaderForm(this, connection);
+    headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
+  }
+
+  @Override
+  protected JComponent getMainComponent() {
+    return mainPanel;
   }
 
   private void initializeWindow() {
@@ -79,66 +99,38 @@ public class AICloudSettingsForm extends DialogWrapper {
     providerComboBox.addItem(ProviderType.COHERE);
     providerComboBox.addItem(ProviderType.OCI);
 
-    linkLabel.addMouseListener(new MouseAdapter() {
-      public void mouseClicked(MouseEvent e) {
-        if (Desktop.isDesktopSupported()) {
-          try {
-            Desktop.getDesktop().browse(new URI(SELECT_AI_DOCS));
-          } catch (IOException | URISyntaxException ex) {
-            ex.printStackTrace();
-          }
-        }
-      }
-    });
-    linkLabel.setText("SelectAI Docs");
-    linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-    linkLabel.setForeground(JBColor.BLUE);
+    docuLink.addHyperlinkListener(e -> when(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED, () -> BrowserUtil.browse(SELECT_AI_DOCS)));
+    docuLink.setHyperlinkText("Select AI Docs");
 
-    grantTextField.setText(txt("permissions3.message", username));
-
-    grantTextArea.setText(txt("permissions4.message", username));
+    String userName = getConnection().getUserName();
+    grantTextField.setText(txt("permissions3.message", userName));
+    grantTextArea.setText(txt("permissions4.message", userName));
 
     networkAllow.setText(txt("permissions5.message"));
+    aclTextArea.setText(txt("permissions6.message", getAccessPoint(), userName));
 
-    aclTextArea.setText(txt("permissions6.message", ProviderConfiguration.getAccessPoint((ProviderType) providerComboBox.getSelectedItem()), username));
-
-    providerComboBox.addActionListener(e -> {
-      aclTextArea.setText(txt("permissions6.message", ProviderConfiguration.getAccessPoint((ProviderType) providerComboBox.getSelectedItem()), username));
-    });
+    providerComboBox.addActionListener(e -> aclTextArea.setText(txt("permissions6.message", getAccessPoint(), userName)));
 
     copyPrivilegeButton.addActionListener(e -> copyTextToClipboard(grantTextArea.getText()));
     copyACLButton.addActionListener(e -> copyTextToClipboard(aclTextArea.getText()));
 
-
     applyPrivilegeButton.setToolTipText(txt("privilege.apply.disabled"));
     applyACLButton.setToolTipText(txt("privilege.apply.disabled"));
 
-    applyPrivilegeButton.addActionListener(e -> grantPrivileges(username));
-    applyACLButton.addActionListener(e -> grantACLRights(aclTextArea.getText()));
+    applyPrivilegeButton.addActionListener(e -> grantExecutionPrivileges());
+    applyACLButton.addActionListener(e -> grantNetworkAccess());
 
     isUserAdmin();
   }
 
-  @Override
-  protected @Nullable JComponent createCenterPanel() {
-    return mainPanel;
+  private String getAccessPoint() {
+    ProviderType selectedProvider = getSelectedProvider();
+    return selectedProvider == null ? "" : ProviderConfiguration.getAccessPoint(selectedProvider);
   }
 
-  @Override
-  protected JComponent createSouthPanel() {
-    JComponent wizard = super.createSouthPanel();
-    MatteBorder topBorder = new MatteBorder(1, 0, 0, 0, new Color(43, 45, 48));
-    EmptyBorder emptyBorder = new EmptyBorder(7, 0, 0, 0);
-    Border compoundBorder = new CompoundBorder(topBorder, emptyBorder);
-    wizard.setBorder(compoundBorder);
-    return wizard;
-  }
-
-  @Override
-  protected Action @NotNull [] createActions() {
-    super.setCancelButtonText(txt("profiles.mgnt.buttons.close.text"));
-
-    return new Action[]{super.getCancelAction()};
+  @Nullable
+  private ProviderType getSelectedProvider() {
+    return (ProviderType) providerComboBox.getSelectedItem();
   }
 
   private void copyTextToClipboard(String text) {
@@ -147,36 +139,49 @@ public class AICloudSettingsForm extends DialogWrapper {
     clipboard.setContents(selection, null);
   }
 
-  private void grantACLRights(String command) {
-    databaseSvc.grantACLRights(command)
-        .thenAccept(a -> {
-          SwingUtilities.invokeLater(() -> {
-            Messages.showInfoDialog(connectionHandler.getProject(), txt("privileges.granted.title"), txt("privileges.granted.message"));
-          });
-        })
-        .exceptionally(e -> {
-          SwingUtilities.invokeLater(() -> {
-            Messages.showErrorDialog(connectionHandler.getProject(), txt("privileges.not_granted.title"), txt("privileges.not_granted.message") + e.getMessage());
-          });
-          return null;
-        });
+  // TODO move in dedicated AssistantPrerequisitesManager
+  private void grantNetworkAccess() {
+    String command = aclTextArea.getText();
+    ConnectionHandler connection = getConnection();
+    Project project = connection.getProject();
 
+    String host = getAccessPoint();
+    String user = connection.getUserName();
+    String title = txt("prc.assistant.title.GrantingAccess");
+    String message = txt("prc.assistant.message.GrantingNetworkAccess", host, user);
 
+    Progress.modal(project, connection, false, title, message, progress -> {
+      try {
+        DatabaseInterfaceInvoker.execute(HIGH, title, message, project, connection.getConnectionId(),
+                c -> connection.getAssistantInterface().grantACLRights(c, command));
+
+        showInfoDialog(txt("msg.assistant.title.AccessGranted"), txt("msg.assistant.info.NetworkAccessGranted", host, user));
+      } catch (Throwable e) {
+        Diagnostics.conditionallyLog(e);
+        showErrorDialog(txt("msg.assistant.title.AccessGrantFailed"), txt("msg.assistant.error.NetworkAccessGrantFailed", host, user, e.getMessage()));
+      }
+    });
   }
+  // TODO move in dedicated AssistantPrerequisitesManager
+  private void grantExecutionPrivileges() {
+    ConnectionHandler connection = getConnection();
+    Project project = connection.getProject();
 
-  private void grantPrivileges(String username) {
-    databaseSvc.grantPrivilege(username)
-        .thenAccept(a -> {
-          SwingUtilities.invokeLater(() -> {
-            Messages.showInfoDialog(connectionHandler.getProject(), txt("privileges.granted.title"), txt("privileges.granted.message"));
-          });
-        })
-        .exceptionally(e -> {
-          SwingUtilities.invokeLater(() -> {
-            Messages.showErrorDialog(connectionHandler.getProject(), txt("privileges.not_granted.title"), txt("privileges.not_granted.message") + e.getMessage());
-          });
-          return null;
-        });
+    String user = connection.getUserName();
+    String title = txt("prc.assistant.title.GrantingPrivileges");
+    String message = txt("prc.assistant.message.GrantingExecutionPrivileges", user);
+
+    Progress.modal(project, connection, false, title, message, progress -> {
+      try {
+        DatabaseInterfaceInvoker.execute(HIGH, title, message, project, connection.getConnectionId(),
+                c -> connection.getAssistantInterface().grantPrivilege(c, user));
+
+        showInfoDialog(txt("msg.assistant.title.PrivilegesGranted"), txt("msg.assistant.info.ExecutionPrivilegesGranted", user));
+      } catch (Throwable e) {
+        Diagnostics.conditionallyLog(e);
+        showErrorDialog(txt("msg.assistant.title.PrivilegesGrantFailed"), txt("msg.assistant.error.ExecutionPrivilegesGrantFailed", user, e.getMessage()));
+      }
+    });
   }
 
   private void isUserAdmin() {

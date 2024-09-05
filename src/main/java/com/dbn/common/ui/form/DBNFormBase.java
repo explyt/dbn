@@ -5,9 +5,11 @@ import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.notification.NotificationSupport;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Messages;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.intellij.ide.DataManager;
 import com.intellij.ide.ui.LafManagerListener;
@@ -69,6 +71,24 @@ public abstract class DBNFormBase
     @Override
     public Object getData(@NotNull String dataId) {
         return null;
+    }
+
+    /**
+     * Modality state aware showInfoDialog utility
+     * (invokes {@link Messages#showInfoDialog(Project, String, String)} )
+     */
+    protected <T> T showInfoDialog(String title, String message) {
+        Dispatch.run(getMainComponent(), () -> Messages.showInfoDialog(getProject(), title, message));
+        return null; // artificial return to allow inline lambda
+    }
+
+    /**
+     * Modality state aware showErrorDialog utility
+     * (invokes {@link Messages#showErrorDialog(Project, String, String)} )
+     */
+    protected <T> T showErrorDialog(String title, String message) {
+        Dispatch.run(getMainComponent(), () -> Messages.showErrorDialog(getProject(), title, message));
+        return null; // artificial return to allow inline lambda
     }
 
     @Override

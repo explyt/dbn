@@ -109,7 +109,9 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
         for (Credential credential : credentialProviderList) {
           credentialComboBox.addItem(credential.getCredentialName());
         }
-        credentialComboBox.setSelectedIndex(0);
+        if (!credentialProviderList.isEmpty()) {
+          credentialComboBox.setSelectedIndex(0);
+        }
       });
     });
   }
