@@ -78,6 +78,7 @@ public class ChatBoxForm extends DBNFormBase {
   private JPanel chatBoxPanel;
   private JPanel initializingIconPanel;
   private JPanel initializingPanel;
+  private JPanel helpActionPanel;
 
   private final ConnectionRef connection;
   private ChatBoxInputField inputField;
@@ -152,6 +153,11 @@ public class ChatBoxForm extends DBNFormBase {
   private void createActionPanels() {
     ActionToolbar profileActions = Actions.createActionToolbar(profileActionsPanel, "DBNavigator.ActionGroup.AssistantChatBoxProfiles", "", true);
     this.profileActionsPanel.add(profileActions.getComponent(), BorderLayout.CENTER);
+
+/*
+    ActionToolbar helpActions = Actions.createActionToolbar(helpActionPanel, "DBNavigator.ActionGroup.AssistantChatBoxHelp", "", true);
+    this.helpActionPanel.add(helpActions.getComponent(), BorderLayout.CENTER);
+*/
 
     ActionToolbar typeActions = Actions.createActionToolbar(typeActionsPanel, "DBNavigator.ActionGroup.AssistantChatBoxTypes", "", true);
     this.typeActionsPanel.add(typeActions.getComponent(), BorderLayout.CENTER);

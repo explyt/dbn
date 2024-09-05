@@ -471,11 +471,16 @@
             <action class="com.dbn.oracleAI.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
             <action class="com.dbn.oracleAI.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
             <action class="com.dbn.oracleAI.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
+            <action class="com.dbn.oracleAI.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
             <action class="com.dbn.oracleAI.action.ProfilesSetupAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ProfileSettings" icon="AllIcons.General.GearPlain"/>
-
             <separator/>
             <action class="com.dbn.oracleAI.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
         </group>
+<!--
+        <group id="DBNavigator.ActionGroup.AssistantChatBoxHelp" text="Assistant Chat-Box Help">
+            <action class="com.dbn.oracleAI.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
+        </group>
+-->
         <group id="DBNavigator.ActionGroup.AssistantChatBoxTypes" text="Assistant Chat-Box Types">
             <action class="com.dbn.oracleAI.action.TypeSelectAction$ShowSQL" text="Show SQL" id="DBNavigator.Actions.Assistant.TypeShow"/>
             <action class="com.dbn.oracleAI.action.TypeSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>

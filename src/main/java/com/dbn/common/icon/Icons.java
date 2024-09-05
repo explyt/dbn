@@ -60,6 +60,7 @@ public class Icons {
     public static final Icon ACTION_EXPAND_ALL                = AllIcons.Actions.Expandall;
     public static final Icon ACTION_GROUP                     = load("/img/action/Group.svg");
     public static final Icon ACTION_DELETE                    = AllIcons.Actions.GC;
+    public static final Icon ACTION_HELP                      = AllIcons.Actions.Help;
     public static final Icon ACTION_EXECUTE                   = AllIcons.Actions.Execute;
     public static final Icon ACTION_DEBUG                     = AllIcons.Actions.StartDebugger;
     public static final Icon ACTION_CLOSE                     = AllIcons.Actions.Cancel;
