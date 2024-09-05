@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class AssistantPrerequisitesDialog extends DBNDialog<AICloudSettingsForm> {
+public class AssistantPrerequisitesDialog extends DBNDialog<AssistantPrerequisiteForm> {
 
   private final ConnectionRef connection;
 
@@ -30,7 +30,7 @@ public class AssistantPrerequisitesDialog extends DBNDialog<AICloudSettingsForm>
   }
 
   @Override
-  protected @NotNull AICloudSettingsForm createForm() {
-    return new AICloudSettingsForm(this);
+  protected @NotNull AssistantPrerequisiteForm createForm() {
+    return new AssistantPrerequisiteForm(this);
   }
 }

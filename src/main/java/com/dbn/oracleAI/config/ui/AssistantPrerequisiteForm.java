@@ -47,7 +47,7 @@ import static com.dbn.common.util.Conditional.when;
  * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class AICloudSettingsForm extends DBNFormBase {
+public class AssistantPrerequisiteForm extends DBNFormBase {
 
   private JPanel mainPanel;
   private JLabel intro;
@@ -68,7 +68,7 @@ public class AICloudSettingsForm extends DBNFormBase {
   private final DatabaseService databaseSvc;
 
   // Pass Project object to constructor
-  public AICloudSettingsForm(AssistantPrerequisitesDialog dialog) {
+  public AssistantPrerequisiteForm(AssistantPrerequisitesDialog dialog) {
     super(dialog);
 
     ConnectionHandler connection = dialog.getConnection();
