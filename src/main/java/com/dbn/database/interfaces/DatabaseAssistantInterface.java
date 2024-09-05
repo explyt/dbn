@@ -15,10 +15,7 @@
 package com.dbn.database.interfaces;
 
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.oracleAI.AssistantQueryResponse;
-import com.dbn.database.common.oracleAI.OracleQueryOutput;
-import com.dbn.database.common.oracleAI.OracleTablesList;
-import com.dbn.database.common.oracleAI.OracleViewsList;
+import com.dbn.database.common.oracleAI.*;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.Profile;
@@ -203,4 +200,9 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    * @throws SQLException if the interaction with the database was unsuccessful
    */
   boolean isAssistantFeatureSupported(DBNConnection connection) throws SQLException;
+
+
+  default DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
+    return DatabaseAssistantType.GENERIC;
+  }
 }

@@ -18,6 +18,7 @@ import com.dbn.common.Availability;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionId;
+import com.dbn.database.common.oracleAI.DatabaseAssistantType;
 import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.model.PersistentChatMessage;
 import com.dbn.oracleAI.types.ActionAIType;
@@ -55,6 +56,7 @@ import static com.dbn.common.util.Lists.*;
 public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> implements PersistentStateElement {
 
   private ConnectionId connectionId;
+  private DatabaseAssistantType assistantType = DatabaseAssistantType.SELECT_AI;
   private List<AIProfileItem> profiles = new ArrayList<>();
   private List<PersistentChatMessage> messages = new ArrayList<>();
   private ActionAIType selectedAction = ActionAIType.SHOW_SQL;
@@ -71,6 +73,14 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
   @Override
   protected ChatBoxStatus[] properties() {
     return ChatBoxStatus.VALUES;
+  }
+
+  public String getAssistantName() {
+    switch (assistantType) {
+      case SELECT_AI: return txt("app.assistant.title.DatabaseAssistantName_SELECT_AI");
+      case GENERIC:
+      default: return txt("app.assistant.title.DatabaseAssistantName_GENERIC");
+    }
   }
 
   /**
@@ -135,19 +145,6 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
     defaultProfileName = profile == null? null : profile.getName();
   }
 
-  /**
-   * Verifies if the given profile name represents a valid and enabled profile for use as default
-   * @param profile the profile to be verified
-   * @return true is the profile for the given name exists and is enabled
-   */
-  public boolean isUsableProfile(AIProfileItem profile) {
-    if (profile == null) return false;
-    return profiles
-            .stream()
-            .filter(p -> p.isEnabled())
-            .anyMatch(p -> p.getName().equalsIgnoreCase(profile.getName()));
-  }
-
   public void addMessages(List<PersistentChatMessage> messages) {
     this.messages.addAll(messages);
   }
@@ -160,6 +157,7 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
   @Override
   public void readState(Element element) {
     connectionId = connectionIdAttribute(element, "connection-id");
+    assistantType = enumAttribute(element, "assistant-type", assistantType);
     acknowledged = booleanAttribute(element, "acknowledged", acknowledged);
     selectedAction = enumAttribute(element, "selected-action", selectedAction);
     availability = enumAttribute(element, "availability", availability);
@@ -187,6 +185,7 @@ public class ChatBoxState extends PropertyHolderBase.IntStore<ChatBoxStatus> imp
   @Override
   public void writeState(Element element) {
     setStringAttribute(element, "connection-id", connectionId.id());
+    setEnumAttribute(element, "assistant-type", assistantType);
     setStringAttribute(element, "default-profile-name", defaultProfileName);
     setBooleanAttribute(element, "acknowledged", acknowledged);
     setEnumAttribute(element, "selected-action", selectedAction);

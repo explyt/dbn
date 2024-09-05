@@ -25,6 +25,7 @@ import com.dbn.common.ui.form.DBNHintForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.database.DatabaseFeature;
+import com.dbn.database.common.oracleAI.DatabaseAssistantType;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.oracleAI.ui.ChatBoxForm;
@@ -121,6 +122,7 @@ public class InitializationForm extends DBNFormBase {
      * @return an {@link AvailabilityInfo} object
      */
     private AvailabilityInfo doCheckAvailability() {
+        DatabaseAssistantType assistantType = getChatBox().getState().getAssistantType();
         Availability availability = getCurrentAvailability();
         String availabilityMessage = null;
 
@@ -135,7 +137,9 @@ public class InitializationForm extends DBNFormBase {
             } else {
                 // perform deep verification by accessing the database
                 try {
-                    boolean available =  checkAvailability(connection);
+                    boolean available = checkAvailability(connection);
+                    assistantType = resolveAssistantType(connection);
+
                     availability = available ? Availability.AVAILABLE : Availability.UNAVAILABLE;
                 } catch (Throwable e) {
                     // availability remains uncertain at this stage as it could bot be verified against the database
@@ -145,18 +149,27 @@ public class InitializationForm extends DBNFormBase {
             }
         }
 
-
         chatBoxState.setAvailability(availability);
+        chatBoxState.setAssistantType(assistantType);
         return new AvailabilityInfo(availability, availabilityMessage);
     }
 
     private static boolean checkAvailability(ConnectionHandler connection) throws SQLException {
         return DatabaseInterfaceInvoker.load(HIGHEST,
                 "Loading metadata",
-                "Verifying database companion feature support",
+                "Verifying database assistant feature support",
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> connection.getAssistantInterface().isAssistantFeatureSupported(conn));
+    }
+
+    private static DatabaseAssistantType resolveAssistantType(ConnectionHandler connection) throws SQLException {
+        return DatabaseInterfaceInvoker.load(HIGHEST,
+                "Loading metadata",
+                "Resolving database assistant type",
+                connection.getProject(),
+                connection.getConnectionId(),
+                conn -> connection.getAssistantInterface().getAssistantType(conn));
     }
 
     private ChatBoxForm getChatBox() {

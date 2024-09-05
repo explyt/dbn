@@ -12,27 +12,16 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI.editor.intention;
-
-import com.dbn.oracleAI.types.ActionAIType;
-import com.intellij.codeInsight.intention.HighPriorityAction;
-import org.jetbrains.annotations.NotNull;
+package com.dbn.database.common.oracleAI;
 
 /**
- * Editor intention action for invoking AI-Assistant module from within the editor
+ * The type of backend behind the database assistant
+ *  - GENERIC - custom AI implementation (direct interface to AI provider pre-prompting with the data model as ddl statements) TBD
+ *  - ORACLE_AI - Oracle Autonomous Database Select AI
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class AssistantShowIntentionAction extends AssistantBaseIntentionAction implements HighPriorityAction {
-
-  @Override
-  @NotNull
-  public String getText() {
-    return "Select AI - Show SQL";
-  }
-
-  @Override
-  protected ActionAIType getAction() {
-    return ActionAIType.SHOW_SQL;
-  }
+public enum DatabaseAssistantType {
+    GENERIC,
+    SELECT_AI
 }

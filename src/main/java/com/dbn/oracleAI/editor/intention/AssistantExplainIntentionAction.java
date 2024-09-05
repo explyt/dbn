@@ -29,7 +29,7 @@ public class AssistantExplainIntentionAction extends AssistantBaseIntentionActio
   @Override
   @NotNull
   public String getText() {
-    return "Database assistant Explain SQL";
+    return "Select AI - Explain SQL";
   }
 
   @Override

@@ -231,5 +231,12 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   public boolean isAssistantFeatureSupported(DBNConnection connection) throws SQLException {
     return BooleanResultSetConsumer.INSTANCE.consume(() -> executeQuery(connection, "is-feature-supported"));
   }
+
+  @Override
+  public DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
+    return isAssistantFeatureSupported(connection) ?
+            DatabaseAssistantType.SELECT_AI :
+            DatabaseAssistantType.GENERIC;
+  }
 }
 

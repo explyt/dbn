@@ -18,7 +18,6 @@ import com.dbn.code.common.intention.GenericIntentionAction;
 import com.dbn.common.util.Documents;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContextManager;
-import com.dbn.database.DatabaseFeature;
 import com.dbn.oracleAI.editor.AssistantEditorAdapter;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.intellij.openapi.editor.Editor;
@@ -27,10 +26,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 
 /**
  * Intention action stub for DB-Assistant editor intentions
@@ -41,18 +42,14 @@ import static com.dbn.common.dispose.Checks.isValid;
 public abstract class AssistantBaseIntentionAction extends GenericIntentionAction {
     @Override
     public final boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-        return isDatabaseAssistantPrompt(element) && isValid(editor);
+        return isDatabaseAssistantPrompt(element) && isValid(editor) && isSupported(project, editor);
     }
 
     @Override
     public final void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-        VirtualFile file = Documents.getVirtualFile(editor);
-        if (file == null) return;
-
-        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        ConnectionHandler connection = contextManager.getConnection(file);
+        ConnectionHandler connection = getConnection(project, editor);
         if (connection == null) return;
-        if (!DatabaseFeature.AI_ASSISTANT.isSupported(connection)) return;
+        if (!AI_ASSISTANT.isSupported(connection)) return;
 
         String prompt = element.getText();
         AssistantEditorAdapter.submitQuery(project, editor, connection.getConnectionId(), prompt, getAction());
@@ -63,6 +60,19 @@ public abstract class AssistantBaseIntentionAction extends GenericIntentionActio
     @Override
     public boolean startInWriteAction() {
         return false;
+    }
+
+    private static @Nullable ConnectionHandler getConnection(@NotNull Project project, Editor editor) {
+        VirtualFile file = Documents.getVirtualFile(editor);
+        if (file == null) return null;
+
+        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
+        return contextManager.getConnection(file);
+    }
+
+    protected boolean isSupported(@NotNull Project project, Editor editor) {
+        ConnectionHandler connection = getConnection(project, editor);
+        return AI_ASSISTANT.isSupported(connection);
     }
 
     @Override
