@@ -3,8 +3,10 @@ package com.dbn.oracleAI.config.ui.profiles;
 import com.dbn.oracleAI.config.DBObjectItem;
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import javax.swing.table.TableModel;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,21 +83,28 @@ public class DBObjectsTransferHandler extends TransferHandler {
     }
 
 
-    @org.jetbrains.annotations.Nullable
+    @Nullable
     @Override
     protected Transferable createTransferable(JComponent c) {
         log.trace("DatabaseObjectsTransferHandler.createTransferable: " + c);
         JTable table = (JTable) c;
         int[] rows = table.getSelectedRows();
-        DatabaseObjectListTableModel model = (DatabaseObjectListTableModel) table.getModel();
-        List<DBObjectItem> transfered = new ArrayList<>();
-        for (int i = 0; i < rows.length; i++) {
-            transfered.add(model.getItemAt(rows[i]));
+        TableModel model = table.getModel();
+
+        // TODO below code (before if check was introduced) was throwing CCE as it was always assuming the model was of type DatabaseObjectListTableModel (transfer from "selected" to "source" was always throwing CCE)
+        if (model instanceof DatabaseObjectListTableModel) {
+            DatabaseObjectListTableModel objectListModel = (DatabaseObjectListTableModel) table.getModel();
+            List<DBObjectItem> transfered = new ArrayList<>();
+            for (int row : rows) {
+                transfered.add(objectListModel.getItemAt(row));
+            }
+            DatabaseObjectsTransferable transferable = new DatabaseObjectsTransferable(transfered);
+            if (log.isTraceEnabled())
+                log.trace("DatabaseObjectsTransferHandler.createTransferable new transferable: " + transferable);
+            return transferable;
         }
-        DatabaseObjectsTransferable transferable = new DatabaseObjectsTransferable(transfered);
-        if (log.isTraceEnabled())
-            log.trace("DatabaseObjectsTransferHandler.createTransferable new transferable: " + transferable);
-        return transferable;
+
+        return null;
     }
 
 
