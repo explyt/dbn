@@ -1,6 +1,7 @@
 package com.dbn.oracleAI.config.AIProviders.ui;
 
 
+import com.dbn.common.action.BasicActionButton;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
@@ -12,14 +13,12 @@ import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialGeneralSettings;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.AnActionButton;
 import com.intellij.ui.ToolbarDecorator;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JPanel;
+import javax.swing.*;
 import javax.swing.table.TableCellEditor;
-import java.awt.BorderLayout;
-import java.awt.Dimension;
+import java.awt.*;
 
 public class AIProvidersGeneralSettingsForm extends ConfigurationEditorForm<AIProviderCredentialGeneralSettings> {
   private JPanel mainPanel;
@@ -38,7 +37,7 @@ public class AIProvidersGeneralSettingsForm extends ConfigurationEditorForm<AIPr
     decorator.setRemoveAction(anActionButton -> environmentTypesTable.removeRow());
     decorator.setMoveUpAction(anActionButton -> environmentTypesTable.moveRowUp());
     decorator.setMoveDownAction(anActionButton -> environmentTypesTable.moveRowDown());
-    decorator.addExtraAction(new AnActionButton("Revert Changes", Icons.ACTION_REVERT) {
+    decorator.addExtraAction(new BasicActionButton("Revert Changes", null, Icons.ACTION_REVERT) {
       @Override
       public void actionPerformed(@NotNull AnActionEvent anActionEvent) {
         TableCellEditor cellEditor = environmentTypesTable.getCellEditor();
