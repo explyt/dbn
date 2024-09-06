@@ -388,6 +388,7 @@
         <projectService serviceImplementation="com.dbn.debugger.DatabaseDebuggerManager"/>
         <projectService serviceImplementation="com.dbn.debugger.ExecutionConfigManager"/>
         <projectService serviceImplementation="com.dbn.oracleAI.DatabaseAssistantManager"/>
+        <projectService serviceImplementation="com.dbn.oracleAI.DatabaseAssistantPrerequisiteManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>

@@ -14,19 +14,17 @@
 
 package com.dbn.oracleAI.config.ui;
 
-import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.diagnostics.Diagnostics;
+import com.dbn.oracleAI.DatabaseAssistantPrerequisiteManager;
 import com.dbn.oracleAI.config.ProviderConfiguration;
 import com.dbn.oracleAI.service.DatabaseService;
 import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.ide.BrowserUtil;
-import com.intellij.openapi.project.Project;
 import com.intellij.ui.HyperlinkLabel;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -35,7 +33,6 @@ import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
-import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.util.Conditional.when;
 
 /**
@@ -123,6 +120,23 @@ public class AssistantPrerequisiteForm extends DBNFormBase {
     isUserAdmin();
   }
 
+  private void grantNetworkAccess() {
+    ConnectionHandler connection = getConnection();
+    DatabaseAssistantPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
+    prerequisiteManager.grantNetworkAccess(connection, getSelectedProvider(), aclTextArea.getText());
+  }
+
+  private void grantExecutionPrivileges() {
+    DatabaseAssistantPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
+    ConnectionHandler connection = getConnection();
+    prerequisiteManager.grantExecutionPrivileges(connection, connection.getUserName());
+  }
+
+  @NotNull
+  private DatabaseAssistantPrerequisiteManager getPrerequisiteManager() {
+    return DatabaseAssistantPrerequisiteManager.getInstance(ensureProject());
+  }
+
   private String getAccessPoint() {
     ProviderType selectedProvider = getSelectedProvider();
     return selectedProvider == null ? "" : ProviderConfiguration.getAccessPoint(selectedProvider);
@@ -137,51 +151,6 @@ public class AssistantPrerequisiteForm extends DBNFormBase {
     StringSelection selection = new StringSelection(text);
     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
     clipboard.setContents(selection, null);
-  }
-
-  // TODO move in dedicated AssistantPrerequisitesManager
-  private void grantNetworkAccess() {
-    String command = aclTextArea.getText();
-    ConnectionHandler connection = getConnection();
-    Project project = connection.getProject();
-
-    String host = getAccessPoint();
-    String user = connection.getUserName();
-    String title = txt("prc.assistant.title.GrantingAccess");
-    String message = txt("prc.assistant.message.GrantingNetworkAccess", host, user);
-
-    Progress.modal(project, connection, false, title, message, progress -> {
-      try {
-        DatabaseInterfaceInvoker.execute(HIGH, title, message, project, connection.getConnectionId(),
-                c -> connection.getAssistantInterface().grantACLRights(c, command));
-
-        showInfoDialog(txt("msg.assistant.title.AccessGranted"), txt("msg.assistant.info.NetworkAccessGranted", host, user));
-      } catch (Throwable e) {
-        Diagnostics.conditionallyLog(e);
-        showErrorDialog(txt("msg.assistant.title.AccessGrantFailed"), txt("msg.assistant.error.NetworkAccessGrantFailed", host, user, e.getMessage()));
-      }
-    });
-  }
-  // TODO move in dedicated AssistantPrerequisitesManager
-  private void grantExecutionPrivileges() {
-    ConnectionHandler connection = getConnection();
-    Project project = connection.getProject();
-
-    String user = connection.getUserName();
-    String title = txt("prc.assistant.title.GrantingPrivileges");
-    String message = txt("prc.assistant.message.GrantingExecutionPrivileges", user);
-
-    Progress.modal(project, connection, false, title, message, progress -> {
-      try {
-        DatabaseInterfaceInvoker.execute(HIGH, title, message, project, connection.getConnectionId(),
-                c -> connection.getAssistantInterface().grantPrivilege(c, user));
-
-        showInfoDialog(txt("msg.assistant.title.PrivilegesGranted"), txt("msg.assistant.info.ExecutionPrivilegesGranted", user));
-      } catch (Throwable e) {
-        Diagnostics.conditionallyLog(e);
-        showErrorDialog(txt("msg.assistant.title.PrivilegesGrantFailed"), txt("msg.assistant.error.ExecutionPrivilegesGrantFailed", user, e.getMessage()));
-      }
-    });
   }
 
   private void isUserAdmin() {
