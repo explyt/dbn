@@ -7346,7 +7346,6 @@
         <element ref-id="expression" />
     </element-def>
 
-
     <element-def attributes="DATA_MANIPULATION, QUERY, SPECIFIC" description="SELECT statement" id="select_statement">
         <element ref-id="subquery" />
         <element optional="true" ref-id="for_update_clause" />
@@ -7357,19 +7356,39 @@
                 <element optional="true" ref-id="subquery_factoring_clause" />
                 <sequence attributes="FOLDABLE_BLOCK" id="04137">
                     <token id="04138" type-id="KW_SELECT" />
-
-                    <one-of id="04139" optional="true">
-                        <token id="04140" type-id="KW_DISTINCT" />
-                        <token id="04141" type-id="KW_UNIQUE" />
-                        <token id="04142" type-id="KW_ALL" />
+                    <one-of>
+                        <sequence branch-check="-br_with">
+                            <token type-id="KW_AI"/>
+                            <one-of optional="true">
+                                <token type-id="KW_SHOWPROMPT"/>
+                                <token type-id="KW_SHOWSQL"/>
+                                <token type-id="KW_EXPLAINSQL"/>
+                                <token type-id="KW_EXECUTESQL"/>
+                                <token type-id="KW_NARRATE"/>
+                                <token type-id="KW_CHAT"/>
+                            </one-of>
+                            <one-of>
+                                <token original-name="prompt" type-id="STRING" />
+                                <iteration>
+                                    <token type-id="IDENTIFIER" />
+                                </iteration>
+                            </one-of>
+                        </sequence>
+                        <sequence>
+                            <one-of id="04139" optional="true">
+                                <token id="04140" type-id="KW_DISTINCT" />
+                                <token id="04141" type-id="KW_UNIQUE" />
+                                <token id="04142" type-id="KW_ALL" />
+                            </one-of>
+                            <element ref-id="select_list" />
+                            <element ref-id="from_clause" />
+                            <element optional="true" ref-id="where_clause" />
+                            <element optional="true" ref-id="hierarchical_query_clause" />
+                            <element optional="true" ref-id="having_clause" />
+                            <element optional="true" ref-id="group_by_clause" />
+                            <element optional="true" ref-id="model_clause" />
+                        </sequence>
                     </one-of>
-                    <element ref-id="select_list" />
-                    <element ref-id="from_clause" />
-                    <element optional="true" ref-id="where_clause" />
-                    <element optional="true" ref-id="hierarchical_query_clause" />
-                    <element optional="true" ref-id="having_clause" />
-                    <element optional="true" ref-id="group_by_clause" />
-                    <element optional="true" ref-id="model_clause" />
                 </sequence>
             </sequence>
             <wrapper id="04143" template="PARENTHESES">
@@ -7382,7 +7401,7 @@
         <element optional="true" ref-id="order_by_clause" />
         <element optional="true" ref-id="row_limiting_clause" />
     </element-def>
-    <element-def description="Subquery factoring clause" id="subquery_factoring_clause">
+    <element-def description="Subquery factoring clause" id="subquery_factoring_clause" branch="br_with" >
         <token id="04145" type-id="KW_WITH" />
         <iteration id="04146" separator="CHR_COMMA">
             <element ref-id="subquery_factoring_clause_item" />
