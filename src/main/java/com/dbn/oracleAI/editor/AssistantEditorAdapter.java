@@ -15,6 +15,7 @@
 package com.dbn.oracleAI.editor;
 
 import com.dbn.common.thread.Command;
+import com.dbn.common.util.Documents;
 import com.dbn.connection.ConnectionId;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.oracleAI.AIProfileItem;
@@ -27,6 +28,8 @@ import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import lombok.experimental.UtilityClass;
 
 /**
@@ -39,8 +42,6 @@ public class AssistantEditorAdapter {
 
   public static void submitQuery(Project project, Editor editor, ConnectionId connectionId, String prompt, ActionAIType action) {
     DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-    prompt = prompt.trim();
-    if (prompt.startsWith("---")) prompt = prompt.substring(3);
 
     AIProfileItem defaultProfile = manager.getDefaultProfile(connectionId);
     if (defaultProfile == null) {
@@ -53,12 +54,18 @@ public class AssistantEditorAdapter {
 
   private static void appendMessage(Project project, Editor editor, ChatMessage message) {
     Command.run(project, "Database Assistant Response", () -> {
-      int caretLine = editor.getCaretModel().getCurrentCaret().getLogicalPosition().line;
       Document document = editor.getDocument();
+      PsiFile psiFile = Documents.getPsiFile(editor);
+      if (psiFile == null) return;
 
-      int offset = document.getLineEndOffset(caretLine);
+      PsiElement psiElement = psiFile.findElementAt(editor.getCaretModel().getOffset());
+      if (psiElement == null) return;
+
+      String prefix = psiElement.getText().endsWith("\n") ? "" : "\n";
+
+      int offset = psiElement.getTextRange().getEndOffset();
       String content = message.outputForLanguage(SQLLanguage.INSTANCE);
-      document.insertString(offset, "\n" + content);
+      document.insertString(offset, prefix + content + "\n");
     });
   }
 

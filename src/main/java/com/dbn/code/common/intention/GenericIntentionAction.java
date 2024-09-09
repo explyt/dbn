@@ -5,13 +5,16 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInsight.intention.PriorityAction;
 import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.Iconable;
-import com.intellij.psi.PsiComment;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.isAssistantSupported;
+import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.resolvePromptText;
 
 public abstract class GenericIntentionAction extends PsiElementBaseIntentionAction implements IntentionAction, PriorityAction, Iconable, DumbAware, Comparable {
 
@@ -47,15 +50,13 @@ public abstract class GenericIntentionAction extends PsiElementBaseIntentionActi
 
     /**
      * Verifies if the element where intention has been invoked is a database assistant comment
-     * To be used to expose the DatabaseAssistant intention actions, but also hide all other intentions ()
+     * To be used to expose the DatabaseAssistant intention actions, but also hide all other intentions
+     *
+     * @param editor the editor from the intention context
      * @param element the element from the intention context
      * @return true if the element is an AI-Assistant comment (starting with three dashes), false otherwise
      */
-    protected boolean isDatabaseAssistantPrompt(PsiElement element) {
-        if (element instanceof PsiComment) {
-            String text = element.getText();
-            return text.startsWith("---")/* && (text.endsWith(";") || text.endsWith(";\n"))*/;
-        }
-        return false;
+    protected boolean isDatabaseAssistantPrompt(Editor editor, PsiElement element) {
+        return isAssistantSupported(editor) && resolvePromptText(editor, element) != null;
     }
 }

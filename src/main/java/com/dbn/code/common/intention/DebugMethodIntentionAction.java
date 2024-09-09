@@ -26,7 +26,7 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(psiElement)) return false;
+        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile != null) {

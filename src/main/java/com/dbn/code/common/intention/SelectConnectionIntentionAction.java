@@ -37,7 +37,7 @@ public class SelectConnectionIntentionAction extends GenericIntentionAction impl
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(psiElement)) return false;
+        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
         if (!isDbLanguagePsiFile(psiFile)) return false;

@@ -421,10 +421,16 @@
             <!--<add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="before"/>-->
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
-        <group id="DBNavigator.ActionGroup.FileEditorAssistant" text="Database Assistant" popup="true">
-            <add-to-group group-id="EditorPopupMenu" anchor="after"  relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
-            <action id="DBNavigator.Actions.Assistant.ShowSQL" class="com.dbn.oracleAI.editor.action.AssistantShowSqlAction" text="Show SQL for Selection"/>
-            <action id="DBNavigator.Actions.Assistant.ExplainSQL" class="com.dbn.oracleAI.editor.action.AssistantExplainSqlAction" text="Explain SQL for Selection"/>
+        <action id="DBNavigator.Actions.Assistant.ExplainSQL" class="com.dbn.oracleAI.editor.action.AssistantExplainSqlAction" text="DB Assistant - Generate SQL With Explanation">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
+        </action>
+        <action id="DBNavigator.Actions.Assistant.ShowSQL" class="com.dbn.oracleAI.editor.action.AssistantShowSqlAction" text="DB Assistant - Generate SQL">
+            <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
+        </action>
+        <group id="DBNavigator.ActionGroup.FileEditorGenerate">
+            <add-to-group group-id="GenerateGroup" anchor="last" />
+            <action id="DBNavigator.Actions.Assistant.GenerateSQL" class="com.dbn.oracleAI.editor.action.AssistantShowSqlAction" text="Generate SQL"/>
+            <action id="DBNavigator.Actions.Assistant.GenerateAndExplainSQL" class="com.dbn.oracleAI.editor.action.AssistantExplainSqlAction" text="Generate and Explain SQL"/>
         </group>
         <group id="DBNavigator.ActionGroup.ProjectViewContext">
             <group id="DBNavigator.ActionGroup.ProjectViewPopup" text="DB Navigator" popup="true" keep-content="true">

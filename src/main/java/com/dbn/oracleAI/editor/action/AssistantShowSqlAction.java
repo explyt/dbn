@@ -16,6 +16,7 @@ package com.dbn.oracleAI.editor.action;
 
 
 import com.dbn.oracleAI.types.ActionAIType;
+import org.jetbrains.annotations.Nls;
 
 /**
  * This action runs when we select a text in the console and hit right click and chose "Show Sql".
@@ -28,5 +29,14 @@ public class AssistantShowSqlAction extends AssistantBaseEditorAction {
   @Override
   protected ActionAIType getAction() {
     return ActionAIType.SHOW_SQL;
+  }
+
+  @Override
+  protected @Nls String getActionName(AssistantBaseEditorAction.ActionPlace place) {
+    switch (place) {
+      case GENERATE_ACTION_GROUP: return "SQL Statement";
+      case EDITOR_POPUP_MENU:
+      default: return "Generate SQL";
+    }
   }
 }

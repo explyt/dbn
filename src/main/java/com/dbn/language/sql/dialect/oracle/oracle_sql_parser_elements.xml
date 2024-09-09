@@ -7398,13 +7398,15 @@
             <token type-id="KW_NARRATE" id="04153" />
             <token type-id="KW_CHAT" id="04154" />
         </one-of>
+        <element ref-id="select_ai_prompt"/>
+    </element-def>
+    <element-def id="select_ai_prompt" description="SELECT AI prompt" attributes="DB_ASSISTANT_PROMPT">
         <one-of id="04155">
             <iteration id="04156">
                 <token type-id="IDENTIFIER" id="04157" flavor="literal" />
             </iteration>
             <token type-id="STRING" id="04158" />
         </one-of>
-
     </element-def>
     <element-def description="Subquery factoring clause" id="subquery_factoring_clause" branch="br_with">
         <token id="04159" type-id="KW_WITH" />

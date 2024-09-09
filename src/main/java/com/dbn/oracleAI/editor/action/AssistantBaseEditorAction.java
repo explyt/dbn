@@ -15,18 +15,21 @@
 package com.dbn.oracleAI.editor.action;
 
 import com.dbn.common.action.ProjectAction;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.mapping.FileConnectionContextManager;
-import com.dbn.database.DatabaseFeature;
 import com.dbn.oracleAI.editor.AssistantEditorAdapter;
 import com.dbn.oracleAI.types.ActionAIType;
+import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.common.action.Lookups.getEditor;
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.*;
 
 /**
  * Action stub for DB-Assistant editor context menu
@@ -38,42 +41,59 @@ public abstract class AssistantBaseEditorAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        Editor editor = e.getData(CommonDataKeys.EDITOR);
-        if (editor == null) return;
+        Editor editor = getEditor(e);
+        if (isNotValid(editor)) return;
 
-        VirtualFile file = e.getData(CommonDataKeys.VIRTUAL_FILE);
-        if (file == null) return;
+        ConnectionHandler connection = getConnection(e);
+        if (isNotValid(connection)) return;
 
-        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        ConnectionHandler connection = contextManager.getConnection(file);
-        if (connection == null) return;
-        if (!DatabaseFeature.AI_ASSISTANT.isSupported(connection)) return;
+        String promptText = resolvePromptText(e, null);
+        if (promptText == null) return;
 
-        String selectedText = getSelectedText(e);
-        if (selectedText == null) return;
-
-        AssistantEditorAdapter.submitQuery(project, editor, connection.getConnectionId(), selectedText, getAction());
-    }
-
-    private String getSelectedText(@NotNull AnActionEvent e) {
-        Editor editor = e.getData(CommonDataKeys.EDITOR);
-        if (editor == null) return null;
-
-        SelectionModel selectionModel = editor.getSelectionModel();
-        String text = selectionModel.getSelectedText();
-        if (text == null) return null;
-
-        text = text.trim();
-        if (text.length() < 10) return null; // do not expose the actions if no text is selected
-
-        return text;
+        AssistantEditorAdapter.submitQuery(project, editor, connection.getConnectionId(), promptText, getAction());
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        String selectedText = getSelectedText(e);
-        e.getPresentation().setVisible(selectedText != null);
+        String promptText = resolvePromptText(e, null);
+        boolean visible = isAssistantSupported(e);
+        boolean enabled = promptText != null;
+
+        ActionPlace actionPlace = getActionPlace(e);
+        String actionText = getActionGroupName(e) + getActionName(actionPlace);
+
+        Presentation presentation = e.getPresentation();
+        presentation.setVisible(visible);
+        presentation.setEnabled(enabled);
+        presentation.setText(actionText);
+    }
+
+    private String getActionGroupName(@NotNull AnActionEvent e){
+        ChatBoxState chatBoxState = getChatBoxState(e);
+        if (isNotValid(chatBoxState)) return "";
+
+        return chatBoxState.getAssistantName() + " - ";
+    }
+
+    /**
+     * Returns the place where the action is being invoked
+     *  - EDITOR_POPUP_MENU when action is shown in the context menu of the editor (right-click)
+     *  - GENERATE_ACTION_GROUP when action is invoked in the "Generate (code)" utility
+     * @param e the {@link AnActionEvent} to resolve context of the action
+     * @return the {@link ActionPlace} where action has been invoked / shown
+     */
+    private ActionPlace getActionPlace(@NotNull AnActionEvent e) {
+        boolean editorPopup = Strings.containsIgnoreCase(e.getPlace(), "EditorPopup");
+        return editorPopup ? ActionPlace.EDITOR_POPUP_MENU : ActionPlace.GENERATE_ACTION_GROUP;
     }
 
     protected abstract ActionAIType getAction();
+
+    @Nls
+    protected abstract String getActionName(ActionPlace place);
+
+    protected enum ActionPlace {
+        GENERATE_ACTION_GROUP,
+        EDITOR_POPUP_MENU
+    }
 }

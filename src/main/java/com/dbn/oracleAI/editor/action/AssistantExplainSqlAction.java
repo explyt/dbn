@@ -15,6 +15,7 @@
 package com.dbn.oracleAI.editor.action;
 
 import com.dbn.oracleAI.types.ActionAIType;
+import org.jetbrains.annotations.Nls;
 
 /**
  * Editor menu action to invoke AI-Assistant with "Explain SQL" instruction
@@ -26,5 +27,14 @@ public class AssistantExplainSqlAction extends AssistantBaseEditorAction {
   @Override
   protected ActionAIType getAction() {
     return ActionAIType.EXPLAIN_SQL;
+  }
+
+  @Override
+  protected @Nls String getActionName(AssistantBaseEditorAction.ActionPlace place) {
+    switch (place) {
+      case GENERATE_ACTION_GROUP: return "SQL Statement with Explanation";
+      case EDITOR_POPUP_MENU:
+      default: return "Generate and Explain SQL";
+    }
   }
 }

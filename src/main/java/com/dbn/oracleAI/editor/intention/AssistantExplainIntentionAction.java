@@ -16,7 +16,6 @@ package com.dbn.oracleAI.editor.intention;
 
 import com.dbn.oracleAI.types.ActionAIType;
 import com.intellij.codeInsight.intention.HighPriorityAction;
-import org.jetbrains.annotations.NotNull;
 
 /**
  * Editor intention action for invoking AI-Assistant module from within the editor
@@ -25,15 +24,15 @@ import org.jetbrains.annotations.NotNull;
  */
 public class AssistantExplainIntentionAction extends AssistantBaseIntentionAction implements HighPriorityAction {
 
-
   @Override
-  @NotNull
-  public String getText() {
-    return "Select AI - Explain SQL";
+  protected String getActionName() {
+    return "Generate and Explain SQL";
   }
 
   @Override
   protected ActionAIType getAction() {
     return ActionAIType.EXPLAIN_SQL;
   }
+
+
 }

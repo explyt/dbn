@@ -27,7 +27,7 @@ public class SetupCodeCompletionIntentionAction extends GenericIntentionAction i
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(psiElement)) return false;
+        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
         return psiFile instanceof DBLanguagePsiFile && psiFile.getVirtualFile().getParent() != null;

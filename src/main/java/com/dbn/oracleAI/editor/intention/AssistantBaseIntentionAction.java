@@ -15,23 +15,20 @@
 package com.dbn.oracleAI.editor.intention;
 
 import com.dbn.code.common.intention.GenericIntentionAction;
-import com.dbn.common.util.Documents;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.mapping.FileConnectionContextManager;
+import com.dbn.oracleAI.editor.AssistantEditorActionUtil;
 import com.dbn.oracleAI.editor.AssistantEditorAdapter;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-import static com.dbn.common.dispose.Checks.isValid;
-import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
+import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.resolvePromptText;
 
 /**
  * Intention action stub for DB-Assistant editor intentions
@@ -42,41 +39,37 @@ import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 public abstract class AssistantBaseIntentionAction extends GenericIntentionAction {
     @Override
     public final boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-        return isDatabaseAssistantPrompt(element) && isValid(editor) && isSupported(project, editor);
+        return AssistantEditorActionUtil.isAssistantSupported(editor) && resolvePromptText(editor, element) != null;
     }
 
     @Override
     public final void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-        ConnectionHandler connection = getConnection(project, editor);
-        if (connection == null) return;
-        if (!AI_ASSISTANT.isSupported(connection)) return;
+        ConnectionHandler connection = AssistantEditorActionUtil.getConnection(editor);
+        if (isNotValid(connection)) return;
 
-        String prompt = element.getText();
-        AssistantEditorAdapter.submitQuery(project, editor, connection.getConnectionId(), prompt, getAction());
+        String promptText = resolvePromptText(editor, element);
+        if (promptText == null) return;
+
+        AssistantEditorAdapter.submitQuery(project, editor, connection.getConnectionId(), promptText, getAction());
     }
 
     protected abstract ActionAIType getAction();
+
+    protected abstract String getActionName();
 
     @Override
     public boolean startInWriteAction() {
         return false;
     }
 
-    private static @Nullable ConnectionHandler getConnection(@NotNull Project project, Editor editor) {
-        VirtualFile file = Documents.getVirtualFile(editor);
-        if (file == null) return null;
-
-        FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
-        return contextManager.getConnection(file);
-    }
-
-    protected boolean isSupported(@NotNull Project project, Editor editor) {
-        ConnectionHandler connection = getConnection(project, editor);
-        return AI_ASSISTANT.isSupported(connection);
-    }
-
     @Override
     public Icon getIcon(int flags) {
         return null;
+    }
+
+    @NotNull
+    @Override
+    public final String getText() {
+        return "Select AI - " + getActionName();
     }
 }

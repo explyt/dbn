@@ -31,7 +31,7 @@ public class DatabaseConnectIntentionAction extends GenericIntentionAction imple
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(psiElement)) return false;
+        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile instanceof DBLanguagePsiFile) {
