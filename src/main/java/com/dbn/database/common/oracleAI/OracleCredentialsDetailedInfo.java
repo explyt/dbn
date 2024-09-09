@@ -2,9 +2,12 @@ package com.dbn.database.common.oracleAI;
 
 import com.dbn.database.common.statement.CallableStatementOutput;
 import com.dbn.oracleAI.config.Credential;
+import com.dbn.oracleAI.config.OciCredential;
+import com.dbn.oracleAI.config.PasswordCredential;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
@@ -76,11 +79,17 @@ public class OracleCredentialsDetailedInfo implements CallableStatementOutput {
       String username = rs.getString(USERNAME);
       String comments = deserializeComments(rs.getString(COMMENTS));
       boolean enabled = rs.getBoolean(ENABLED);
-      credentialProviderBuildersMap.computeIfAbsent(credentialName, k -> new Credential(credentialName, username, enabled, comments));
+      credentialProviderBuildersMap.computeIfAbsent(credentialName, k -> createCredential(credentialName, username, enabled, comments));
     }
 
     // Convert map values to a list and return
     return new ArrayList<>(credentialProviderBuildersMap.values());
+  }
+
+  private static @NotNull Credential createCredential(String credentialName, String userName, boolean enabled, String comments) {
+    return userName.startsWith("ocid") ?
+            new OciCredential(credentialName, userName, enabled, comments) :
+            new PasswordCredential(credentialName, userName, enabled, comments);
   }
 
   /**

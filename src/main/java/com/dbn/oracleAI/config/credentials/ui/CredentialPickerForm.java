@@ -20,10 +20,10 @@ import com.dbn.common.ui.table.DBNReadonlyTableModel;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Mouse;
-import com.dbn.oracleAI.config.AIProviders.AIProviderCredential;
-import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialBundle;
-import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialGeneralSettings;
-import com.dbn.oracleAI.config.AIProviders.AIProvidersSettings;
+import com.dbn.oracleAI.config.providers.AIProviderCredential;
+import com.dbn.oracleAI.config.providers.AIProviderCredentialBundle;
+import com.dbn.oracleAI.config.providers.AIProviderCredentialSettings;
+import com.dbn.oracleAI.config.providers.AIProviderSettings;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredTableCellRenderer;
 import org.jetbrains.annotations.NotNull;
@@ -60,8 +60,8 @@ public class CredentialPickerForm extends DBNFormBase {
   }
 
   private void initCredentialTable(Project project) {
-    AIProviderCredentialGeneralSettings settings = AIProvidersSettings.getInstance(project).getGeneralSettings();
-    AIProviderCredentialBundle credentials = settings.getAIProviderTypes();
+    AIProviderCredentialSettings settings = AIProviderSettings.getInstance(project).getCredentialSettings();
+    AIProviderCredentialBundle credentials = settings.getCredentials();
 
     CredentialPickerTableModel credentialTableModel = new CredentialPickerTableModel(credentials);
     credentialsTable = new DBNTable<>(this, credentialTableModel, true);
@@ -91,8 +91,8 @@ public class CredentialPickerForm extends DBNFormBase {
         AIProviderCredential credential = (AIProviderCredential) value;
         if (credential == null) return;
         switch (column) {
-          case 0: append(credential.getCredentialName()); break;
-          case 1: append(credential.getUsername()); break;
+          case 0: append(credential.getName()); break;
+          case 1: append(credential.getUser()); break;
           case 2: append("************"); break;
         }
         setBorder(Borders.EMPTY_BORDER);

@@ -1,11 +1,11 @@
-package com.dbn.oracleAI.config.AIProviders;
+package com.dbn.oracleAI.config.providers;
 
 import com.dbn.common.options.CompositeProjectConfiguration;
 import com.dbn.common.options.Configuration;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.TopLevelConfig;
-import com.dbn.oracleAI.config.AIProviders.ui.AIProvidersSettingsForm;
+import com.dbn.oracleAI.config.providers.ui.AIProvidersSettingsForm;
 import com.intellij.openapi.project.Project;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -13,13 +13,13 @@ import org.jetbrains.annotations.NotNull;
 
 @Getter
 @EqualsAndHashCode(callSuper = false)
-public class AIProvidersSettings
+public class AIProviderSettings
     extends CompositeProjectConfiguration<ProjectSettings, AIProvidersSettingsForm>
     implements TopLevelConfig {
 
-  private final AIProviderCredentialGeneralSettings generalSettings = new AIProviderCredentialGeneralSettings(this);
+  private final AIProviderCredentialSettings credentialSettings = new AIProviderCredentialSettings(this);
 
-  public AIProvidersSettings(ProjectSettings parent) {
+  public AIProviderSettings(ProjectSettings parent) {
     super(parent);
   }
 
@@ -29,8 +29,8 @@ public class AIProvidersSettings
     return new AIProvidersSettingsForm(this);
   }
 
-  public static AIProvidersSettings getInstance(@NotNull Project project) {
-    return ProjectSettings.get(project).getAiProvidersSettings();
+  public static AIProviderSettings getInstance(@NotNull Project project) {
+    return ProjectSettings.get(project).getAiProviderSettings();
   }
 
   @NotNull
@@ -51,12 +51,12 @@ public class AIProvidersSettings
 
   @Override
   public ConfigId getConfigId() {
-    return ConfigId.AI_CREDENTIALS;
+    return ConfigId.AI_PROVIDERS;
   }
 
   @NotNull
   @Override
-  public AIProvidersSettings getOriginalSettings() {
+  public AIProviderSettings getOriginalSettings() {
     return getInstance(getProject());
   }
 
@@ -67,11 +67,11 @@ public class AIProvidersSettings
   @Override
   protected Configuration[] createConfigurations() {
     return new Configuration[]{
-        generalSettings};
+            credentialSettings};
   }
 
   @Override
   public String getConfigElementName() {
-    return "ai-providers-settings";
+    return "ai-provider-settings";
   }
 }

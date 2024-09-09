@@ -20,7 +20,7 @@ import com.dbn.navigation.options.NavigationSettings;
 import com.dbn.options.ConfigId;
 import com.dbn.options.ProjectSettings;
 import com.dbn.options.general.GeneralProjectSettings;
-import com.dbn.oracleAI.config.AIProviders.AIProvidersSettings;
+import com.dbn.oracleAI.config.providers.AIProviderSettings;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +52,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         OperationSettings operationSettings = globalSettings.getOperationSettings();
         DDLFileSettings ddlFileSettings = globalSettings.getDdlFileSettings();
         GeneralProjectSettings generalSettings = globalSettings.getGeneralSettings();
-        AIProvidersSettings aiProvidersSettings = globalSettings.getAiProvidersSettings();
+        AIProviderSettings aiProviderSettings = globalSettings.getAiProviderSettings();
 
         addSettingsPanel(connectionSettings);
         addSettingsPanel(browserSettings);
@@ -65,7 +65,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         addSettingsPanel(operationSettings);
         addSettingsPanel(ddlFileSettings);
         addSettingsPanel(generalSettings);
-        addSettingsPanel(aiProvidersSettings);
+        addSettingsPanel(aiProviderSettings);
         globalSettings.reset();
 
         tabsPanel.setFocusable(true);

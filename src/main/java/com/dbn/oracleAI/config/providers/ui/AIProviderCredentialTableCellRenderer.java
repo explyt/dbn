@@ -1,8 +1,8 @@
-package com.dbn.oracleAI.config.AIProviders.ui;
+package com.dbn.oracleAI.config.providers.ui;
 
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.Component;
+import java.awt.*;
 
 public class AIProviderCredentialTableCellRenderer extends DefaultTableCellRenderer {
   public static final int SECRET_COLUMN = 2;

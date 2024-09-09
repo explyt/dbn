@@ -2,7 +2,7 @@ package com.dbn.oracleAI.config.credentials.ui;
 
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.oracleAI.config.AIProviders.AIProviderCredential;
+import com.dbn.oracleAI.config.providers.AIProviderCredential;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;

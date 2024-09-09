@@ -15,7 +15,7 @@ public enum ConfigId {
   DDL_FILES("DDL Files"),
   CONNECTIONS("Connections"),
   OPERATIONS("Operations"),
-  AI_CREDENTIALS("AI Credentials"),
+  AI_PROVIDERS("AI Providers"),
   GENERAL("General");
 
     private final String name;

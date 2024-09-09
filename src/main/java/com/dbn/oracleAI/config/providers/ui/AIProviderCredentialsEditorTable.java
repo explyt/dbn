@@ -1,15 +1,13 @@
-package com.dbn.oracleAI.config.AIProviders.ui;
+package com.dbn.oracleAI.config.providers.ui;
 
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEditableTable;
-import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialBundle;
+import com.dbn.oracleAI.config.providers.AIProviderCredentialBundle;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.JPasswordField;
-import javax.swing.ListSelectionModel;
+import javax.swing.*;
 import javax.swing.table.TableColumn;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
@@ -20,8 +18,8 @@ import java.awt.event.ComponentEvent;
  */
 public class AIProviderCredentialsEditorTable extends DBNEditableTable<AIProviderCredentialTableModel> {
 
-  AIProviderCredentialsEditorTable(DBNComponent parent, AIProviderCredentialBundle environmentTypes) {
-    super(parent, createModel(parent.getProject(), environmentTypes), true);
+  AIProviderCredentialsEditorTable(DBNComponent parent, AIProviderCredentialBundle credentials) {
+    super(parent, createModel(parent.getProject(), credentials), true);
     setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
     setSelectionBackground(UIUtil.getTableBackground());
     setSelectionForeground(UIUtil.getTableForeground());
@@ -41,8 +39,8 @@ public class AIProviderCredentialsEditorTable extends DBNEditableTable<AIProvide
   }
 
   @NotNull
-  private static AIProviderCredentialTableModel createModel(Project project, AIProviderCredentialBundle environmentTypes) {
-    return new AIProviderCredentialTableModel(project, environmentTypes);
+  private static AIProviderCredentialTableModel createModel(Project project, AIProviderCredentialBundle credentials) {
+    return new AIProviderCredentialTableModel(project, credentials);
   }
 
   private void adjustColumnSizes() {
@@ -64,8 +62,8 @@ public class AIProviderCredentialsEditorTable extends DBNEditableTable<AIProvide
     }
   }
 
-  void setEnvironmentTypes(AIProviderCredentialBundle environmentTypes) {
-    super.setModel(createModel(getProject(), environmentTypes));
+  void setCredentials(AIProviderCredentialBundle credentials) {
+    super.setModel(createModel(getProject(), credentials));
     adjustColumnSizes();
   }
 

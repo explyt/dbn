@@ -12,13 +12,13 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI.config.AIProviders;
+package com.dbn.oracleAI.config.providers;
 
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.CollectionUtil;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -26,32 +26,17 @@ import java.util.List;
 
 @Getter
 @Setter
+@NoArgsConstructor
 public class AIProviderCredentialBundle implements Iterable<AIProviderCredential>, Cloneable {
   private final List<AIProviderCredential> credentials = new ArrayList<>();
-  public static final AIProviderCredentialBundle DEFAULT = new AIProviderCredentialBundle();
-
-  private AIProviderCredentialBundle() {
-    List<AIProviderCredential> environmentTypes = List.of();
-    setElements(environmentTypes);
-  }
 
   public AIProviderCredentialBundle(AIProviderCredentialBundle source) {
     setElements(source.credentials);
   }
 
-  private void setElements(List<AIProviderCredential> environmentTypes) {
+  private void setElements(List<AIProviderCredential> credentials) {
     this.credentials.clear();
-    CollectionUtil.cloneElements(environmentTypes, this.credentials);
-  }
-
-  @NotNull
-  public AIProviderCredential getEnvironmentType(AIProviderCredentialId id) {
-    for (AIProviderCredential environmentType : this) {
-      if (environmentType.getId() == id) {
-        return environmentType;
-      }
-    }
-    return AIProviderCredential.DEFAULT;
+    CollectionUtil.cloneElements(credentials, this.credentials);
   }
 
   @Override
@@ -63,12 +48,12 @@ public class AIProviderCredentialBundle implements Iterable<AIProviderCredential
     credentials.clear();
   }
 
-  public void add(AIProviderCredential environmentType) {
-    credentials.add(environmentType);
+  public void add(AIProviderCredential credential) {
+    credentials.add(credential);
   }
 
-  public void add(int index, AIProviderCredential environmentType) {
-    credentials.add(index, environmentType);
+  public void add(int index, AIProviderCredential credential) {
+    credentials.add(index, credential);
   }
 
 

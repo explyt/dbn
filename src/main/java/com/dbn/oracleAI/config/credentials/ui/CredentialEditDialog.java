@@ -62,7 +62,7 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   @Override
   protected void doOKAction() {
     CredentialEditForm form = getForm();
-    if (form.getSaveInfoCheckBox().isSelected() && form.getCredentialTypeComboBox().getSelectedItem() == CredentialType.PASSWORD) {
+    if (form.getSaveLocalCheckBox().isSelected() && form.getCredentialTypeComboBox().getSelectedItem() == CredentialType.PASSWORD) {
       form.saveProviderInfo();
     }
     if (credential != null) {

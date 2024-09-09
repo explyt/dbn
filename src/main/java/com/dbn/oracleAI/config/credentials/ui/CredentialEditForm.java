@@ -14,16 +14,19 @@
 
 package com.dbn.oracleAI.config.credentials.ui;
 
+import com.dbn.common.exception.Exceptions;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.oracleAI.config.AIProviders.AIProviderCredential;
-import com.dbn.oracleAI.config.AIProviders.AIProviderCredentialGeneralSettings;
-import com.dbn.oracleAI.config.AIProviders.AIProvidersSettings;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.OciCredential;
 import com.dbn.oracleAI.config.PasswordCredential;
+import com.dbn.oracleAI.config.providers.AIProviderCredential;
+import com.dbn.oracleAI.config.providers.AIProviderCredentialSettings;
+import com.dbn.oracleAI.config.providers.AIProviderSettings;
 import com.dbn.oracleAI.service.AICredentialService;
 import com.dbn.oracleAI.service.AICredentialServiceImpl;
 import com.dbn.oracleAI.types.CredentialType;
@@ -32,8 +35,11 @@ import lombok.Getter;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
-import java.awt.*;
+import java.util.Objects;
 import java.util.Set;
+
+import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.common.util.Conditional.when;
 
 /**
  * A dialog window for creating new AI credentials.
@@ -54,8 +60,8 @@ public class CredentialEditForm extends DBNFormBase {
   private JTextField ociCredentialUserTenancyOcidField;
   private JTextField ociCredentialPrivateKeyField;
   private JTextField ociCredentialFingerprintField;
-  private JButton keyProviderPickerButton;
-  private JCheckBox saveInfoCheckBox;
+  private JButton localCredentialPickerButton;
+  private JCheckBox saveLocalCheckBox;
   private JCheckBox statusCheckBox;
   private JPanel passwordCard;
   private JPanel ociCard;
@@ -63,6 +69,7 @@ public class CredentialEditForm extends DBNFormBase {
 
 
   private Credential credential;
+  private AIProviderCredential localCredential;
   private final Set<String> usedCredentialNames;
 
   /**
@@ -77,7 +84,10 @@ public class CredentialEditForm extends DBNFormBase {
     this.credentialSvc = AICredentialService.getInstance(connection);
     this.credential = credential;
     this.usedCredentialNames = usedCredentialNames;
-    initializeUI();
+
+    initCredentialTypeComboBox();
+    initCredentialPickerButton();
+    initCredentialAttributeFields();
   }
 
   @Override
@@ -85,54 +95,72 @@ public class CredentialEditForm extends DBNFormBase {
     return mainPanel;
   }
 
-  /**
-   * Initializes the user interface components and event listeners for the dialog.
-   */
-  private void initializeUI() {
-    saveInfoCheckBox.setText(txt("ai.settings.credentials.info.save"));
-    if (credential != null) {
-      hydrateFields();
-    } else {
-      credentialTypeComboBox.addItem(CredentialType.PASSWORD);
-      credentialTypeComboBox.addItem(CredentialType.OCI);
-      credentialTypeComboBox.addActionListener((e) -> {
-        if (credentialTypeComboBox.getSelectedItem() == CredentialType.PASSWORD) saveInfoCheckBox.setVisible(true);
-        else saveInfoCheckBox.setVisible(false);
-        CardLayout cl = (CardLayout) (attributesPane.getLayout());
-        cl.show(attributesPane, credentialTypeComboBox.getSelectedItem().toString());
-      });
-    }
-    keyProviderPickerButton.addActionListener((e) -> {
-      Dialogs.show(() -> new CredentialPickerDialog(getProject(), c -> populateFields(c.getUsername(), c.getKey())));
-    });
+  private void initCredentialTypeComboBox() {
+    credentialTypeComboBox.addItem(CredentialType.PASSWORD);
+    credentialTypeComboBox.addItem(CredentialType.OCI);
+    credentialTypeComboBox.addActionListener((e) -> showCard(attributesPane, credentialTypeComboBox.getSelectedItem()));
+    credentialTypeComboBox.setEnabled(credential == null);
   }
 
-  private void populateFields(String username, String key) {
-    credentialTypeComboBox.setSelectedItem(CredentialType.PASSWORD);
-    passwordCredentialUsernameField.setText(username);
-    passwordCredentialPasswordField.setText(key);
+  private void initCredentialPickerButton() {
+    localCredentialPickerButton.addActionListener((e) -> showCredentialPicker());
+  }
+
+  private void showCredentialPicker() {
+    Dialogs.show(() -> new CredentialPickerDialog(getProject(), c -> pickLocalCredential(c)));
+  }
+
+  private void pickLocalCredential(AIProviderCredential credential) {
+    localCredential = credential;
+    passwordCredentialUsernameField.setText(credential.getUser());
+    passwordCredentialPasswordField.setText(credential.getKey());
+    saveLocalCheckBox.setEnabled(false);
   }
 
   /**
    * Populate fields with the attributes of the credential to be updated
    */
-  private void hydrateFields() {
+  private void initCredentialAttributeFields() {
+    if (credential == null) return;
+
     credentialNameField.setText(credential.getCredentialName());
     credentialNameField.setEnabled(false);
     statusCheckBox.setSelected(credential.isEnabled());
     if (credential instanceof PasswordCredential) {
-      credentialTypeComboBox.addItem(CredentialType.PASSWORD);
-      passwordCredentialUsernameField.setText(credential.getUsername());
+      initPasswordCredentialFields();
     } else if (credential instanceof OciCredential) {
-      credentialTypeComboBox.addItem(CredentialType.OCI);
-      OciCredential ociCredentialProvider = (OciCredential) credential;
-      ociCredentialUserOcidField.setText(ociCredentialProvider.getUsername());
-      ociCredentialUserTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
-      ociCredentialPrivateKeyField.setText(ociCredentialProvider.getPrivateKey());
-      ociCredentialFingerprintField.setText(ociCredentialProvider.getFingerprint());
+      initOciCredentialFields();
     }
-    credentialTypeComboBox.addItem(CredentialType.PASSWORD);
-    credentialTypeComboBox.setEnabled(false);
+  }
+
+  private void initOciCredentialFields() {
+    credentialTypeComboBox.setSelectedItem(CredentialType.OCI);
+    OciCredential ociCredentialProvider = (OciCredential) credential;
+    ociCredentialUserOcidField.setText(ociCredentialProvider.getUsername());
+    ociCredentialUserTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
+    ociCredentialPrivateKeyField.setText(ociCredentialProvider.getPrivateKey());
+    ociCredentialFingerprintField.setText(ociCredentialProvider.getFingerprint());
+  }
+
+  private void initPasswordCredentialFields() {
+    credentialTypeComboBox.setSelectedItem(CredentialType.PASSWORD);
+    passwordCredentialUsernameField.setText(credential.getUsername());
+    TextFields.onTextChange(passwordCredentialUsernameField, e -> initLocalSaveCheckbox());
+    TextFields.onTextChange(passwordCredentialPasswordField, e -> initLocalSaveCheckbox());
+  }
+
+  private void initLocalSaveCheckbox() {
+    boolean enabled = canSaveLocalCredential();
+    boolean selected = enabled && saveLocalCheckBox.isSelected();
+    saveLocalCheckBox.setEnabled(enabled);
+    saveLocalCheckBox.setSelected(selected);
+  }
+
+  private boolean canSaveLocalCredential() {
+    if (localCredential == null) return true; // local credential has been chosen to fill the attributes
+    return
+        !Objects.equals(localCredential.getUser(), passwordCredentialUsernameField.getText()) ||
+        !Objects.equals(localCredential.getKey(), passwordCredentialPasswordField.getText());
   }
 
 
@@ -140,60 +168,66 @@ public class CredentialEditForm extends DBNFormBase {
    * Collects the fields' info and sends them to the service layer to create new credential
    */
   protected void doCreateAction() {
-    CredentialType credentialType = (CredentialType) credentialTypeComboBox.getSelectedItem();
-    credential = null;
-    switch (credentialType) {
-      case PASSWORD:
-        credential = new PasswordCredential(credentialNameField.getText(), passwordCredentialUsernameField.getText(), passwordCredentialPasswordField.getText());
-        break;
-      case OCI:
-        credential = new OciCredential(credentialNameField.getText(), ociCredentialUserOcidField.getText(),
-            ociCredentialUserTenancyOcidField.getText(), ociCredentialPrivateKeyField.getText(), ociCredentialFingerprintField.getText());
-    }
-    boolean isEnabled = statusCheckBox.isSelected();
+    credential = createCredential();
     credentialSvc.create(credential)
-        .thenAccept(e -> {
-          if (!isEnabled) credentialSvc.updateStatus(credential.getCredentialName(), statusCheckBox.isSelected());
-        })
-        .exceptionally(this::handleException);
-
-  }
-
-  private Void handleException(Throwable e) {
-    SwingUtilities.invokeLater(() -> Messages.showErrorDialog(getProject(), e.getCause().getMessage()));
-    return null;
+            .thenAccept(e -> credentialSvc.updateStatus(credential.getCredentialName(), statusCheckBox.isSelected()))
+            .exceptionally(this::handleException);
   }
 
   /**
    * Collects the fields' info and sends them to the service layer to update new credential
    */
   protected void doUpdateAction() {
-    CredentialType credentialType = CredentialType.valueOf(credentialTypeComboBox.getSelectedItem().toString());
-    Credential editedCredential = null;
-    switch (credentialType) {
-      case PASSWORD:
-        editedCredential = new PasswordCredential(credentialNameField.getText(), passwordCredentialUsernameField.getText(), passwordCredentialPasswordField.getText());
-        break;
-      case OCI:
-        editedCredential = new OciCredential(credentialNameField.getText(), ociCredentialUserOcidField.getText(),
-            ociCredentialUserTenancyOcidField.getText(), ociCredentialPrivateKeyField.getText(), ociCredentialFingerprintField.getText());
-    }
-    boolean isEnabled = credential.isEnabled() != statusCheckBox.isSelected();
+    Credential editedCredential = createCredential();
+    if (editedCredential == null) return;
+
+    boolean enabled = statusCheckBox.isSelected();
+    boolean statusChanged = credential.isEnabled() != enabled;
     credentialSvc.update(editedCredential)
-        .thenAccept(e -> {
-          if (isEnabled) credentialSvc.updateStatus(credential.getCredentialName(), statusCheckBox.isSelected());
-        })
+        .thenAccept(e -> when(statusChanged, () -> credentialSvc.updateStatus(credential.getCredentialName(), enabled)))
         .exceptionally(this::handleException);
   }
 
+  private Void handleException(Throwable e) {
+    Dispatch.run(mainPanel, () -> Messages.showErrorDialog(getProject(), Exceptions.causeMessage(e)));
+    return null;
+  }
+
+  @Nullable
+  private Credential createCredential() {
+    CredentialType credentialType = (CredentialType) credentialTypeComboBox.getSelectedItem();
+    if (credentialType == null) return null;
+
+    switch (credentialType) {
+      case PASSWORD: return createPasswordCredential();
+      case OCI: return createOciCredential();
+      default: return null;
+    }
+  }
+
+  private PasswordCredential createPasswordCredential() {
+    return new PasswordCredential(
+            credentialNameField.getText(),
+            passwordCredentialUsernameField.getText(),
+            passwordCredentialPasswordField.getText());
+  }
+
+  private OciCredential createOciCredential() {
+    return new OciCredential(
+            credentialNameField.getText(),
+            ociCredentialUserOcidField.getText(),
+            ociCredentialUserTenancyOcidField.getText(),
+            ociCredentialPrivateKeyField.getText(),
+            ociCredentialFingerprintField.getText());
+  }
 
   protected void saveProviderInfo() {
     Project project = ensureProject();
-    AIProviderCredentialGeneralSettings settings = AIProvidersSettings.getInstance(project).getGeneralSettings();
+    AIProviderCredentialSettings settings = AIProviderSettings.getInstance(project).getCredentialSettings();
     AIProviderCredential aiProviderCredential = new AIProviderCredential();
-    aiProviderCredential.setCredentialName(credentialNameField.getText());
-    aiProviderCredential.setUsername(passwordCredentialUsernameField.getText());
+    aiProviderCredential.setName(credentialNameField.getText());
+    aiProviderCredential.setUser(passwordCredentialUsernameField.getText());
     aiProviderCredential.setKey(passwordCredentialPasswordField.getText());
-    settings.getAIProviderTypes().add(aiProviderCredential);
+    settings.getCredentials().add(aiProviderCredential);
   }
 }
