@@ -14,11 +14,13 @@
 
 package com.dbn.oracleAI.config;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
+import com.dbn.common.util.Named;
+import com.dbn.oracleAI.types.CredentialType;
+import lombok.Data;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class can store credentials for basic
@@ -28,34 +30,35 @@ import java.util.List;
  * and formatting methods suitable for use in preparing data for PL/SQL calls.
  */
 
-@Getter
-@ToString
-@EqualsAndHashCode
+@Data
 /**
  * AI provider credential class
  */
-public class Credential implements AttributeInput {
+public class Credential implements AttributeInput, Named {
   /**
    * name of that credential
    */
-  protected String credentialName;
+  protected String name;
+
+  protected CredentialType type;
   /**
    * username used in that credential
    */
-  protected String username;
+  protected String userName;
   /**
    * Is that credential enabled, a credential can be defined on DB side but been disabled
    */
-  protected boolean isEnabled;
+  protected boolean enabled;
   /**
    * comment used in that credential
    */
   protected String comments;
 
-  public Credential(String credentialName, String userName, boolean isEnabled, String comments) {
-    this.credentialName = credentialName;
-    this.username = userName;
-    this.isEnabled = isEnabled;
+  public Credential(String name, CredentialType type, String userName, boolean enabled, String comments) {
+    this.name = name;
+    this.type = type;
+    this.userName = userName;
+    this.enabled = enabled;
     this.comments = comments;
   }
 
@@ -70,7 +73,7 @@ public class Credential implements AttributeInput {
         "credential_name => '%s', \n" +
             "attribute => '%s', \n" +
             "value => '%s'",
-        credentialName,
+            name,
         attributeName,
         attributeValue
     );
@@ -88,6 +91,10 @@ public class Credential implements AttributeInput {
 
   @Override
   public String getUuid() {
-    return this.credentialName;
+    return this.name;
+  }
+
+  public Map<String, String> getAttributes() {
+    return Collections.emptyMap();
   }
 }

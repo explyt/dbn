@@ -107,7 +107,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       SwingUtilities.invokeLater(() -> {
         credentialComboBox.removeAllItems();
         for (Credential credential : credentialProviderList) {
-          credentialComboBox.addItem(credential.getCredentialName());
+          credentialComboBox.addItem(credential.getName());
         }
         if (!credentialProviderList.isEmpty()) {
           credentialComboBox.setSelectedIndex(0);

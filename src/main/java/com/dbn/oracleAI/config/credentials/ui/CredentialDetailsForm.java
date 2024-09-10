@@ -53,7 +53,7 @@ public class CredentialDetailsForm extends DBNFormBase {
     }
 
     private void updateUsageList(List<Profile> profiles) {
-        String credentialName = credential.getCredentialName();
+        String credentialName = credential.getName();
         List<String> usedByProfiles =  getManagementForm().getCredentialUsage(credentialName);
         usageList.setListData(usedByProfiles.toArray(new String[0]));
         usageList.setBorder(Borders.EMPTY_BORDER);
@@ -74,8 +74,8 @@ public class CredentialDetailsForm extends DBNFormBase {
     }
 
     private void initCredentialFields() {
-        credentialNameTextField.setText(credential.getCredentialName());
-        userNameTextField.setText(credential.getUsername());
+        credentialNameTextField.setText(credential.getName());
+        userNameTextField.setText(credential.getUserName());
         commentsTextField.setText(credential.getComments());
         enabledCheckBox.setSelected(credential.isEnabled());
     }

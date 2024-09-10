@@ -15,10 +15,12 @@
 package com.dbn.oracleAI.config;
 
 
+import com.dbn.oracleAI.types.CredentialType;
 import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Getter
@@ -32,11 +34,11 @@ public class OciCredential extends Credential {
   private String fingerprint;
 
   public OciCredential(String credentialName, String userOcid, boolean enabled, String comments) {
-    super(credentialName, userOcid, enabled, comments);
+    super(credentialName, CredentialType.OCI, userOcid, enabled, comments);
   }
 
   public OciCredential(String credentialName, String userOcid, String tenancyOcid, String privateKey, String fingerprint) {
-    super(credentialName, userOcid, true, null);
+    super(credentialName, CredentialType.OCI, userOcid, true, null);
     this.userTenancyOCID = tenancyOcid;
     this.privateKey = privateKey;
     this.fingerprint = fingerprint;
@@ -69,8 +71,8 @@ public class OciCredential extends Credential {
             "tenancy_ocid => '%s', \n" +
             "private_key => '%s', \n" +
             "fingerprint => '%s'",
-        credentialName,
-        username,
+            name,
+            userName,
         userTenancyOCID,
         privateKey,
         fingerprint
@@ -81,13 +83,19 @@ public class OciCredential extends Credential {
   public List<String> toUpdatingAttributeList() {
     List<String> output = new ArrayList<>();
 
-    if (!Objects.equals(username, "")) output.add(toAttributeFormat("user_ocid", username));
+    if (!Objects.equals(userName, "")) output.add(toAttributeFormat("user_ocid", userName));
     if (!Objects.equals(userTenancyOCID, "")) output.add(toAttributeFormat("user_tenancy_ocid", userTenancyOCID));
     if (!Objects.equals(privateKey, "")) output.add(toAttributeFormat("private_key", privateKey));
     if (!Objects.equals(fingerprint, "")) output.add(toAttributeFormat("fingerprint", fingerprint));
     return output;
   }
 
-
+  public Map<String, String> getAttributes() {
+    return Map.of(
+            "user_ocid", userName,
+            "user_tenancy_ocid", userTenancyOCID,
+            "private_key", privateKey,
+            "fingerprint", fingerprint);
+  }
 }
 

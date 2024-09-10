@@ -65,8 +65,6 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> extends Managed
       future.thenCompose(list -> {
         this.items = list;
 
-        // notify all consumers about potential content change
-        notifyChanges();
         return null;
       });
 

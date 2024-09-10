@@ -54,7 +54,7 @@ public class FakeAICredentialService implements AICredentialService {
 
   @Override
   public CompletableFuture<Void> update(Credential credential) {
-    this.credentials.removeIf(cred -> cred.getCredentialName().equalsIgnoreCase(credential.getCredentialName()));
+    this.credentials.removeIf(cred -> cred.getName().equalsIgnoreCase(credential.getName()));
     this.credentials.add(credential);
     return CompletableFuture.completedFuture(null);
   }
@@ -88,7 +88,7 @@ public class FakeAICredentialService implements AICredentialService {
 
   @Override
   public CompletableFuture<Void> delete(String credentialName) {
-    this.credentials.removeIf(cred -> cred.getCredentialName().equalsIgnoreCase(credentialName));
+    this.credentials.removeIf(cred -> cred.getName().equalsIgnoreCase(credentialName));
     return CompletableFuture.completedFuture(null);
   }
 

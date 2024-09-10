@@ -14,6 +14,8 @@
 
 package com.dbn.oracleAI.config.credentials.ui;
 
+import com.dbn.common.outcome.DialogCloseOutcomeHandler;
+import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
@@ -66,11 +68,15 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
       form.saveProviderInfo();
     }
     if (credential != null) {
-      form.doUpdateAction();
+      form.doUpdateAction(dialogClose());
     } else {
-      form.doCreateAction();
+      form.doCreateAction(dialogClose());
     }
-    super.doOKAction();
+
+  }
+
+  private OutcomeHandler dialogClose() {
+    return DialogCloseOutcomeHandler.create(this);
   }
 
   @Override
@@ -79,13 +85,12 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
     return super.createActions();
   }
 
-  private ConnectionHandler getConnection() {
+  public ConnectionHandler getConnection() {
     return connection.ensure();
   }
-
   @Override
   protected @NotNull CredentialEditForm createForm() {
-    CredentialEditForm form = new CredentialEditForm(getConnection(), credential, usedCredentialNames);
+    CredentialEditForm form = new CredentialEditForm(this, credential, usedCredentialNames);
     validator = new CredentialEditFormValidator(form);
     return form;
   }

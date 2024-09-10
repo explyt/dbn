@@ -33,6 +33,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.config.Credential;
+import com.dbn.oracleAI.config.credentials.CredentialManagementService;
 import com.dbn.oracleAI.service.AICredentialService;
 import com.dbn.oracleAI.service.AIProfileService;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -114,7 +115,7 @@ public class CredentialManagementForm extends DBNFormBase {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
       if (connectionId != getConnection().getConnectionId()) return;
       if (objectType != DBObjectType.CREDENTIAL) return;
-      loadCredentials();
+      reloadCredentials();
     });
   }
 
@@ -171,7 +172,7 @@ public class CredentialManagementForm extends DBNFormBase {
   }
 
   public void promptCredentialDeletion(@NotNull Credential credential) {
-    String credentialName = credential.getCredentialName();
+    String credentialName = credential.getName();
 
     StringBuilder detailedMessage = new StringBuilder(txt("ai.settings.credential.deletion.message.prefix"));
     detailedMessage.append(' ');
@@ -189,14 +190,14 @@ public class CredentialManagementForm extends DBNFormBase {
             txt("ai.settings.credential.deletion.title"),
             detailedMessage.toString(),
             Messages.OPTIONS_YES_NO, 1,
-            option -> when(option == 0, () -> removeCredential(credentialName)));
+            option -> when(option == 0, () -> removeCredential(credential)));
   }
 
   private ListCellRenderer<Credential> createListCellRenderer() {
     return new ColoredListCellRenderer<>() {
         @Override
         protected void customizeCellRenderer(@NotNull JList<? extends Credential> list, Credential credential, int index, boolean selected, boolean hasFocus) {
-            String credentialName = credential.getCredentialName();
+            String credentialName = credential.getName();
             boolean enabled = credential.isEnabled();
             boolean used = isCredentialUsed(credential);
             append(credentialName, enabled ? used ? REGULAR_BOLD_ATTRIBUTES : REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES);
@@ -207,7 +208,7 @@ public class CredentialManagementForm extends DBNFormBase {
   }
 
   private boolean isCredentialUsed(Credential credential) {
-    List<String> usage = credentialUsage.get(credential.getCredentialName());
+    List<String> usage = credentialUsage.get(credential.getName());
     return usage != null && !usage.isEmpty();
   }
 
@@ -216,14 +217,19 @@ public class CredentialManagementForm extends DBNFormBase {
    *
    * @param credential The name of the credential to be removed.
    */
-  private void removeCredential(String credential) {
-    credentialSvc.delete(credential)
+  private void removeCredential(Credential credential) {
+    CredentialManagementService managementService = CredentialManagementService.getInstance(ensureProject());
+    managementService.deleteCredential(getConnection(), credential, null);
+
+/*
+    credentialSvc.delete(credential.getName())
         .thenAccept((c) -> this.loadCredentials())
         .exceptionally(
             e -> {
               Messages.showErrorDialog(getProject(), e.getCause().getMessage());
               return null;
             });
+*/
 
   }
 
@@ -243,7 +249,7 @@ public class CredentialManagementForm extends DBNFormBase {
       try {
         Map<String, List<String>> credentialUsage = new HashMap<>();
         for (Credential credential : credentials) {
-          String credentialName = credential.getCredentialName();
+          String credentialName = credential.getName();
           List<String> profileNames = profiles
                   .stream()
                   .filter(p -> credentialName.equals(p.getCredentialName()))
@@ -271,7 +277,7 @@ public class CredentialManagementForm extends DBNFormBase {
   private void applyCredentials(List<Credential> credentials, Map<String, List<String>> credentialUsage) {
     // capture selection
     Credential selectedCredential = getSelectedCredential();
-    String selectedCredentialName = selectedCredential == null ? null : selectedCredential.getCredentialName();
+    String selectedCredentialName = selectedCredential == null ? null : selectedCredential.getName();
 
     // apply new credentials
     this.credentialUsage = credentialUsage;
@@ -279,7 +285,7 @@ public class CredentialManagementForm extends DBNFormBase {
     this.credentialList.setListData(credentials.toArray(new Credential[0]));
 
     // restore selection
-    int selectionIndex = Lists.indexOf(credentials, c -> c.getCredentialName().equalsIgnoreCase(selectedCredentialName));
+    int selectionIndex = Lists.indexOf(credentials, c -> c.getName().equalsIgnoreCase(selectedCredentialName));
     if (selectionIndex == -1 && !credentials.isEmpty()) selectionIndex = 0;
     if (selectionIndex != -1) this.credentialList.setSelectedIndex(selectionIndex);
   }
@@ -308,7 +314,7 @@ public class CredentialManagementForm extends DBNFormBase {
     if (credential == null) {
       CardLayouts.showBlankCard(detailPanel);
     } else {
-      String credentialName = credential.getCredentialName();
+      String credentialName = credential.getName();
       credentialDetailForms.computeIfAbsent(credentialName, c -> createDetailForm(credential));
       CardLayouts.showCard(detailPanel, credentialName);
     }
@@ -317,7 +323,7 @@ public class CredentialManagementForm extends DBNFormBase {
   @NotNull
   private CredentialDetailsForm createDetailForm(Credential credential) {
     CredentialDetailsForm detailsForm = new CredentialDetailsForm(this, credential);
-    CardLayouts.addCard(detailPanel, detailsForm.getComponent(), credential.getCredentialName());
+    CardLayouts.addCard(detailPanel, detailsForm.getComponent(), credential.getName());
     return detailsForm;
   }
 

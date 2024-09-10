@@ -14,21 +14,26 @@
 
 package com.dbn.oracleAI.config;
 
+import com.dbn.oracleAI.types.CredentialType;
+import lombok.Getter;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * User/password AI provider credential type
  */
+@Getter
 public class PasswordCredential extends Credential {
   private String password;
 
   public PasswordCredential(String credentialName, String username, boolean enabled, String comments) {
-    super(credentialName, username, enabled, comments);
+    super(credentialName, CredentialType.PASSWORD, username, enabled, comments);
   }
   public PasswordCredential(String credentialName, String username, String password) {
-    super(credentialName, username, true, null);
+    super(credentialName, CredentialType.PASSWORD, username, true, null);
     this.password = password;
     validate();
   }
@@ -58,8 +63,8 @@ public class PasswordCredential extends Credential {
         "credential_name => '%s',\n" +
             "username => '%s',\n" +
             "password => '%s'",
-        credentialName,
-        username,
+            name,
+            userName,
         password
     );
   }
@@ -68,8 +73,15 @@ public class PasswordCredential extends Credential {
   public List<String> toUpdatingAttributeList() {
     List<String> output = new ArrayList<>();
 
-    if (!Objects.equals(username, "")) output.add(toAttributeFormat("username", username));
+    if (!Objects.equals(userName, "")) output.add(toAttributeFormat("username", userName));
     if (!Objects.equals(password, "")) output.add(toAttributeFormat("password", password));
     return output;
+  }
+
+  @Override
+  public Map<String, String> getAttributes() {
+    return Map.of(
+          "username", userName,
+          "password", password);
   }
 }
