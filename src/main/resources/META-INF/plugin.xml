@@ -389,6 +389,7 @@
         <projectService serviceImplementation="com.dbn.debugger.ExecutionConfigManager"/>
         <projectService serviceImplementation="com.dbn.oracleAI.DatabaseAssistantManager"/>
         <projectService serviceImplementation="com.dbn.oracleAI.DatabaseAssistantPrerequisiteManager"/>
+        <projectService serviceImplementation="com.dbn.oracleAI.config.credentials.CredentialManagementService"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
@@ -503,6 +504,7 @@
             <action class="com.dbn.oracleAI.config.credentials.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>
             <action class="com.dbn.oracleAI.config.credentials.action.CredentialDeleteAction" id="DBNavigator.Actions.Assistant.DeleteCredential"/>
             <action class="com.dbn.oracleAI.config.credentials.action.CredentialEditAction" id="DBNavigator.Actions.Assistant.EditCredential"/>
+            <action class="com.dbn.oracleAI.config.credentials.action.CredentialStatusToggleAction" id="DBNavigator.Actions.Assistant.EnableDisableCredential"/>
             <separator/>
             <action class="com.dbn.oracleAI.config.credentials.action.CredentialsReloadAction" id="DBNavigator.Assistant.Assistant.ReloadCredentials"/>
         </group>

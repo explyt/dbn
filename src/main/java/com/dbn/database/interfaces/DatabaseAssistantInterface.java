@@ -201,6 +201,18 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    */
   boolean isAssistantFeatureSupported(DBNConnection connection) throws SQLException;
 
+  void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException;
+
+  void createOciCredential(DBNConnection connection, String credentialName, String userOcid, String tenancyOcid, String privateKey, String fingerprint) throws SQLException;
+
+  void updateCredentialAttribute(DBNConnection connection, String credentialName, String attribute, String value) throws SQLException;
+
+  void enableCredential(DBNConnection connection, String credentialName) throws SQLException;
+
+  void disableCredential(DBNConnection connection, String credentialName) throws SQLException;
+
+  void deleteCredential(DBNConnection connection, String credentialName) throws SQLException;
+
 
   default DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
     return DatabaseAssistantType.GENERIC;

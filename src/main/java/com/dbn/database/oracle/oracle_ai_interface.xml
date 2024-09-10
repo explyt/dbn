@@ -26,6 +26,30 @@
                 prefixes CDATA #IMPLIED>
         ]>
 <data-dictionary>
+    <statement-execution-processor id="create-password-credential" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD.CREATE_CREDENTIAL(
+                                credential_name => '{0}',
+                                username        => '{1}',
+                                password        => '{2}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="create-oci-credential" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD.CREATE_CREDENTIAL(
+                                credential_name => '{0}',
+                                user_ocid       => '{1}',
+                                tenancy_ocid    => '{2}',
+                                private_key     => '{3}',
+                                fingerprint     => '{4}');
+            end;
+        </statement>
+    </statement-execution-processor>
+
+
     <statement-execution-processor id="create-credential" timeout="120">
         <statement>
             BEGIN
@@ -175,11 +199,21 @@
     </statement-execution-processor>
     <statement-execution-processor id="update-credential" timeout="120">
         <statement>
-            BEGIN
+            begin
             DBMS_CLOUD.UPDATE_CREDENTIAL(
             {0}
             );
             END;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="update-credential-attribute" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD.UPDATE_CREDENTIAL(
+                        credential_name => '{0}',
+                        attribute       => '{1}',
+                        value           => '{2}');
+            end;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="disable-credential" timeout="20">

@@ -50,9 +50,9 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   @Override
   public void createCredential(DBNConnection connection, Credential credentialAttributes) throws CredentialManagementException {
     try {
-      executeCall(connection, null, "create-credential", credentialAttributes.getCredentialName(), credentialAttributes.toAttributeMap());
+      executeCall(connection, null, "create-credential", credentialAttributes.getName(), credentialAttributes.toAttributeMap());
     } catch (SQLException e) {
-      throw new CredentialManagementException("Failed to create credential: " + credentialAttributes.getCredentialName(), e);
+      throw new CredentialManagementException("Failed to create credential: " + credentialAttributes.getName(), e);
     }
   }
 
@@ -75,7 +75,7 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
       try {
         executeCall(connection, null, "update-credential", updatedAttr);
       } catch (SQLException e) {
-        throw new CredentialManagementException("Failed to set credential attribute: " + credential.getCredentialName(), e);
+        throw new CredentialManagementException("Failed to set credential attribute: " + credential.getName(), e);
       }
     }
 
@@ -237,6 +237,37 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
     return isAssistantFeatureSupported(connection) ?
             DatabaseAssistantType.SELECT_AI :
             DatabaseAssistantType.GENERIC;
+  }
+
+
+  @Override
+  public void createPwdCredential(DBNConnection connection, String credentialName, String userName, String password) throws SQLException {
+    executeUpdate(connection, "create-password-credential", credentialName, userName, password);
+  }
+
+  @Override
+  public void createOciCredential(DBNConnection connection, String credentialName, String userOcid, String tenancyOcid, String privateKey, String fingerprint) throws SQLException {
+    executeUpdate(connection, "create-oci-credential", credentialName, userOcid, tenancyOcid, privateKey, fingerprint);
+  }
+
+  @Override
+  public void updateCredentialAttribute(DBNConnection connection, String credentialName, String attribute, String value) throws SQLException {
+    executeUpdate(connection, "update-credential-attribute", credentialName, attribute, value);
+  }
+
+  @Override
+  public void enableCredential(DBNConnection connection, String credentialName) throws SQLException {
+    executeUpdate(connection, "enable-credential", credentialName);
+  }
+
+  @Override
+  public void disableCredential(DBNConnection connection, String credentialName) throws SQLException {
+    executeUpdate(connection, "disable-credential", credentialName);
+  }
+
+  @Override
+  public void deleteCredential(DBNConnection connection, String credentialName) throws SQLException {
+    executeUpdate(connection, "drop-credential", credentialName);
   }
 }
 
