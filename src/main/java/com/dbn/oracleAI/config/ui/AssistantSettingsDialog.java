@@ -18,6 +18,9 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.oracleAI.DatabaseAssistantManager;
+import com.dbn.oracleAI.ui.ChatBoxState;
+import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -34,12 +37,19 @@ public class AssistantSettingsDialog extends DBNDialog<AssistantSettingsForm> {
   private final ConnectionRef connection;
 
   public AssistantSettingsDialog(ConnectionHandler connection) {
-    super(connection.getProject(), "Database Assistant Settings", true);
+    super(connection.getProject(), getAssistantName(connection) + " Settings", true);
     this.connection = ConnectionRef.of(connection);
     renameAction(getCancelAction(), "Close");
 
     setDefaultSize(800, 600);
     init();
+  }
+
+  private static String getAssistantName(ConnectionHandler connection) {
+    Project project = connection.getProject();
+    DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
+    ChatBoxState chatBoxState = assistantManager.getChatBoxState(connection.getConnectionId());
+    return chatBoxState.getAssistantName();
   }
 
   @Override
