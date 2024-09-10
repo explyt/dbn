@@ -178,7 +178,7 @@ public class CredentialManagementForm extends DBNFormBase {
     detailedMessage.append(' ');
     detailedMessage.append(credentialName);
     List<String> uses = credentialUsage.get(credentialName);
-    if (!uses.isEmpty()) {
+    if (uses != null && !uses.isEmpty()) {
       detailedMessage.append('\n');
       detailedMessage.append(txt("ai.settings.credential.deletion.message.warning"));
       uses.forEach(c -> {
