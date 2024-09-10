@@ -16,7 +16,7 @@ package com.dbn.oracleAI.config.credentials.ui;
 
 import com.dbn.common.ref.WeakRef;
 import com.dbn.nls.NlsSupport;
-import com.dbn.oracleAI.types.CredentialType;
+import com.dbn.object.type.DBCredentialType;
 import com.intellij.openapi.ui.ValidationInfo;
 
 import javax.swing.*;
@@ -52,7 +52,7 @@ public class CredentialEditFormValidator implements NlsSupport {
                     credentialNameField);
         }
         if (credentialNameField.isEnabled()) {
-            CredentialType credentialType = (CredentialType) form.getCredentialTypeComboBox().getSelectedItem();
+            DBCredentialType credentialType = (DBCredentialType) form.getCredentialTypeComboBox().getSelectedItem();
             if (credentialType == null) return new ValidationInfo("Please select a credential type"); // TODO NLS
             switch (credentialType) {
                 case PASSWORD:

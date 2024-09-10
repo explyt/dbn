@@ -14,7 +14,7 @@
 
 package com.dbn.oracleAI.config;
 
-import com.dbn.oracleAI.types.CredentialType;
+import com.dbn.object.type.DBCredentialType;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -30,10 +30,10 @@ public class PasswordCredential extends Credential {
   private String password;
 
   public PasswordCredential(String credentialName, String username, boolean enabled, String comments) {
-    super(credentialName, CredentialType.PASSWORD, username, enabled, comments);
+    super(credentialName, DBCredentialType.PASSWORD, username, enabled, comments);
   }
   public PasswordCredential(String credentialName, String username, String password) {
-    super(credentialName, CredentialType.PASSWORD, username, true, null);
+    super(credentialName, DBCredentialType.PASSWORD, username, true, null);
     this.password = password;
     validate();
   }

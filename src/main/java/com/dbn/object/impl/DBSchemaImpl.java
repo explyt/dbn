@@ -75,6 +75,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(DIMENSION,         this);
         childObjects.createObjectList(CLUSTER,           this);
         childObjects.createObjectList(DBLINK,            this);
+        childObjects.createObjectList(CREDENTIAL,        this);
 
         DBObjectList<DBConstraint> constraints = childObjects.createObjectList(CONSTRAINT, this, INTERNAL, GROUPED);
         DBObjectList<DBIndex> indexes          = childObjects.createObjectList(INDEX,      this, INTERNAL, GROUPED);
@@ -255,6 +256,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public List<DBCredential> getCredentials() {
+        return getChildObjects(CREDENTIAL);
+    }
+
+    @Override
     public List<DBDatabaseLink> getDatabaseLinks() {
         return getChildObjects(DBLINK);
     }
@@ -283,6 +289,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     @Override
     public DBCluster getCluster(String name) {
         return getChildObject(CLUSTER, name);
+    }
+
+    @Override
+    public DBCredential getCredential(String name) {
+        return getChildObject(CREDENTIAL, name);
     }
 
     @Override
@@ -464,7 +475,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(DATABASE_TRIGGER),
                 getChildObjectList(DIMENSION),
                 getChildObjectList(CLUSTER),
-                getChildObjectList(DBLINK));
+                getChildObjectList(DBLINK),
+                getChildObjectList(CREDENTIAL));
     }
 
     @Override
@@ -483,6 +495,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(DATABASE_TRIGGER) ||
             settings.isVisible(DIMENSION) ||
             settings.isVisible(CLUSTER) ||
-            settings.isVisible(DBLINK);
+            settings.isVisible(DBLINK) ||
+            settings.isVisible(CREDENTIAL);
     }
 }

@@ -1,35 +1,7 @@
 package com.dbn.database.common.metadata;
 
 import com.dbn.common.content.DynamicContentType;
-import com.dbn.database.common.metadata.impl.DBArgumentMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBCharsetMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBClusterMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBColumnMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBConstraintColumnMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBConstraintMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBDatabaseLinkMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBDimensionMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBFunctionMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBGrantedPrivilegeMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBGrantedRoleMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBIndexColumnMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBIndexMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBNestedTableMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBPackageMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBPrivilegeMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBProcedureMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBRoleMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBSchemaMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBSequenceMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBSynonymMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBTableMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBTriggerMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBTypeAttributeMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBTypeMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBUserMetadataImpl;
-import com.dbn.database.common.metadata.impl.DBViewMetadataImpl;
+import com.dbn.database.common.metadata.impl.*;
 import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
 
@@ -64,6 +36,7 @@ public class DBObjectMetadataFactory {
             case DBLINK:              return new DBDatabaseLinkMetadataImpl(resultSet);
             case CHARSET:             return new DBCharsetMetadataImpl(resultSet);
             case CLUSTER:             return new DBClusterMetadataImpl(resultSet);
+            case CREDENTIAL:          return new DBCredentialMetadataImpl(resultSet);
             case OBJECT_PRIVILEGE:    return new DBPrivilegeMetadataImpl(resultSet);
             case SYSTEM_PRIVILEGE:    return new DBPrivilegeMetadataImpl(resultSet);
             case PROCEDURE:           return new DBProcedureMetadataImpl(resultSet);

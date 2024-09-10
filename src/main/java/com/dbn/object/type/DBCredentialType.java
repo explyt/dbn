@@ -12,7 +12,7 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.oracleAI.types;
+package com.dbn.object.type;
 
 
 /**
@@ -20,7 +20,7 @@ package com.dbn.oracleAI.types;
  *
  * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  */
-public enum CredentialType {
+public enum DBCredentialType {
   /**
    * We can create either using username/password aka the provider key, or we can use OCI information
    */

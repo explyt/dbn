@@ -319,6 +319,14 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     /*********************************************************
+     *                      CREDENTIALS                      *
+     *********************************************************/
+    @Override
+    public ResultSet loadCredentials(final String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "credentials", ownerName);
+    }
+
+    /*********************************************************
      *                      REFERENCES                       *
      *********************************************************/
     @Override

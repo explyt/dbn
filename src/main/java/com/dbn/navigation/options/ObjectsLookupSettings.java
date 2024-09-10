@@ -48,7 +48,8 @@ public class ObjectsLookupSettings extends BasicProjectConfiguration<NavigationS
         //new ObjectTypeEntry(DBObjectType.ARGUMENT, false),
         new ObjectTypeEntry(DBObjectType.DIMENSION, false),
         new ObjectTypeEntry(DBObjectType.CLUSTER, false),
-        new ObjectTypeEntry(DBObjectType.DBLINK, true)
+        new ObjectTypeEntry(DBObjectType.DBLINK, false),
+        new ObjectTypeEntry(DBObjectType.CREDENTIAL, true)
     );
 
     private final BooleanSetting forceDatabaseLoad = new BooleanSetting("force-database-load", false);

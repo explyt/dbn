@@ -12,7 +12,6 @@ import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.loader.DBObjectListFromRelationListLoader;
 import com.dbn.object.type.DBObjectRelationType;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.object.*;
 import lombok.experimental.UtilityClass;
 
 import java.util.ArrayList;
@@ -198,6 +197,11 @@ public class DBObjectLoaders {
                 "CLUSTERS", DBObjectType.SCHEMA, DBObjectType.CLUSTER, true, true,
                 (content, conn, mdi) -> mdi.loadClusters(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBClusterImpl(content.getParentEntity(), md));
+
+        DynamicContentResultSetLoader.<DBCredential, DBCredentialMetadata>create(
+                "CREDENTIALS", DBObjectType.SCHEMA, DBObjectType.CREDENTIAL, true, true,
+                (content, conn, mdi) -> mdi.loadCredentials(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBCredentialImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBDatabaseLink, DBDatabaseLinkMetadata>create(
                 "DBLINKS", DBObjectType.SCHEMA, DBObjectType.DBLINK, true, true,

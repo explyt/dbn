@@ -23,6 +23,7 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.type.DBCredentialType;
 import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.OciCredential;
 import com.dbn.oracleAI.config.PasswordCredential;
@@ -32,7 +33,6 @@ import com.dbn.oracleAI.config.providers.AIProviderCredentialSettings;
 import com.dbn.oracleAI.config.providers.AIProviderSettings;
 import com.dbn.oracleAI.service.AICredentialService;
 import com.dbn.oracleAI.service.AICredentialServiceImpl;
-import com.dbn.oracleAI.types.CredentialType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -55,7 +55,7 @@ public class CredentialEditForm extends DBNFormBase {
   private final AICredentialService credentialSvc;
   private JPanel mainPanel;
   private JTextField credentialNameField;
-  private JComboBox<CredentialType> credentialTypeComboBox;
+  private JComboBox<DBCredentialType> credentialTypeComboBox;
   private JTextField passwordCredentialUsernameField;
   private javax.swing.JPasswordField passwordCredentialPasswordField;
   private JPanel attributesPane;
@@ -105,8 +105,8 @@ public class CredentialEditForm extends DBNFormBase {
   }
 
   private void initCredentialTypeComboBox() {
-    credentialTypeComboBox.addItem(CredentialType.PASSWORD);
-    credentialTypeComboBox.addItem(CredentialType.OCI);
+    credentialTypeComboBox.addItem(DBCredentialType.PASSWORD);
+    credentialTypeComboBox.addItem(DBCredentialType.OCI);
     credentialTypeComboBox.addActionListener((e) -> showCard(attributesPane, credentialTypeComboBox.getSelectedItem()));
     credentialTypeComboBox.setEnabled(credential == null);
   }
@@ -143,7 +143,7 @@ public class CredentialEditForm extends DBNFormBase {
   }
 
   private void initOciCredentialFields() {
-    credentialTypeComboBox.setSelectedItem(CredentialType.OCI);
+    credentialTypeComboBox.setSelectedItem(DBCredentialType.OCI);
     OciCredential ociCredentialProvider = (OciCredential) credential;
     ociCredentialUserOcidField.setText(ociCredentialProvider.getUserName());
     ociCredentialUserTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
@@ -152,7 +152,7 @@ public class CredentialEditForm extends DBNFormBase {
   }
 
   private void initPasswordCredentialFields() {
-    credentialTypeComboBox.setSelectedItem(CredentialType.PASSWORD);
+    credentialTypeComboBox.setSelectedItem(DBCredentialType.PASSWORD);
     passwordCredentialUsernameField.setText(credential.getUserName());
     TextFields.onTextChange(passwordCredentialUsernameField, e -> initLocalSaveCheckbox());
     TextFields.onTextChange(passwordCredentialPasswordField, e -> initLocalSaveCheckbox());
@@ -217,12 +217,12 @@ public class CredentialEditForm extends DBNFormBase {
 
   @Nullable
   private Credential createCredential() {
-    CredentialType credentialType = (CredentialType) credentialTypeComboBox.getSelectedItem();
+    DBCredentialType credentialType = (DBCredentialType) credentialTypeComboBox.getSelectedItem();
     if (credentialType == null) return null;
 
     Credential credential =
-            credentialType == CredentialType.PASSWORD ? createPwdCredential() :
-            credentialType == CredentialType.OCI ? createOciCredential() :
+            credentialType == DBCredentialType.PASSWORD ? createPwdCredential() :
+            credentialType == DBCredentialType.OCI ? createOciCredential() :
             null;
 
     credential.setEnabled(statusCheckBox.isSelected());

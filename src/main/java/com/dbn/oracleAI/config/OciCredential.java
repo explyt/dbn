@@ -15,7 +15,7 @@
 package com.dbn.oracleAI.config;
 
 
-import com.dbn.oracleAI.types.CredentialType;
+import com.dbn.object.type.DBCredentialType;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -34,11 +34,11 @@ public class OciCredential extends Credential {
   private String fingerprint;
 
   public OciCredential(String credentialName, String userOcid, boolean enabled, String comments) {
-    super(credentialName, CredentialType.OCI, userOcid, enabled, comments);
+    super(credentialName, DBCredentialType.OCI, userOcid, enabled, comments);
   }
 
   public OciCredential(String credentialName, String userOcid, String tenancyOcid, String privateKey, String fingerprint) {
-    super(credentialName, CredentialType.OCI, userOcid, true, null);
+    super(credentialName, DBCredentialType.OCI, userOcid, true, null);
     this.userTenancyOCID = tenancyOcid;
     this.privateKey = privateKey;
     this.fingerprint = fingerprint;

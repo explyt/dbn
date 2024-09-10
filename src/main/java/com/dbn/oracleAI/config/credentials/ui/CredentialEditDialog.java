@@ -19,8 +19,8 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.type.DBCredentialType;
 import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.types.CredentialType;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -64,7 +64,7 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   @Override
   protected void doOKAction() {
     CredentialEditForm form = getForm();
-    if (form.getSaveLocalCheckBox().isSelected() && form.getCredentialTypeComboBox().getSelectedItem() == CredentialType.PASSWORD) {
+    if (form.getSaveLocalCheckBox().isSelected() && form.getCredentialTypeComboBox().getSelectedItem() == DBCredentialType.PASSWORD) {
       form.saveProviderInfo();
     }
     if (credential != null) {

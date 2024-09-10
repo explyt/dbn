@@ -15,7 +15,7 @@
 package com.dbn.oracleAI.config;
 
 import com.dbn.common.util.Named;
-import com.dbn.oracleAI.types.CredentialType;
+import com.dbn.object.type.DBCredentialType;
 import lombok.Data;
 
 import java.util.Collections;
@@ -40,7 +40,7 @@ public class Credential implements AttributeInput, Named {
    */
   protected String name;
 
-  protected CredentialType type;
+  protected DBCredentialType type;
   /**
    * username used in that credential
    */
@@ -54,7 +54,7 @@ public class Credential implements AttributeInput, Named {
    */
   protected String comments;
 
-  public Credential(String name, CredentialType type, String userName, boolean enabled, String comments) {
+  public Credential(String name, DBCredentialType type, String userName, boolean enabled, String comments) {
     this.name = name;
     this.type = type;
     this.userName = userName;
