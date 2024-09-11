@@ -19,6 +19,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.model.PersistentChatMessage;
 import com.dbn.oracleAI.types.AuthorType;
+import com.dbn.oracleAI.ui.AssistantChatMessageForm;
 import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.dbn.oracleAI.ui.ChatMessagePanel;
 import com.dbn.oracleAI.ui.UserChatMessageForm;
@@ -29,8 +30,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.dbn.common.util.Conditional.when;
 
 /**
  * Wrapper class around a JPanel that will display <code>ChatMessage</code>
@@ -86,9 +85,7 @@ public class RollingJPanelWrapper {
       messagePanel.clearProgressPanel();
     } else if (panel instanceof JComponent) {
       JComponent component = (JComponent) panel;
-      UserInterface.visitRecursively(component, JPanel.class, b ->
-              when(b.getClientProperty("CHAT_MESSAGE_PROGRESS_PANEL") != null,
-                      () -> b.setVisible(false)));
+      UserInterface.visitRecursively(component, JProgressBar.class, b -> b.setVisible(false));
     }
   }
 
@@ -107,6 +104,9 @@ public class RollingJPanelWrapper {
       JComponent messagePane;
       if (message.getAuthor() == AuthorType.USER) {
         UserChatMessageForm messageForm = new UserChatMessageForm(parent, message);
+        messagePane = messageForm.getComponent();
+      } else if (message.getAuthor() == AuthorType.AI) {
+        AssistantChatMessageForm messageForm = new AssistantChatMessageForm(parent, message);
         messagePane = messageForm.getComponent();
       } else {
         messagePane = new ChatMessagePanel(getConnection(), message);

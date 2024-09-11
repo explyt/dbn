@@ -29,6 +29,8 @@ public abstract class ChatMessageForm extends DBNFormBase {
         super(parent);
     }
 
+    protected abstract Color getBackground();
+
     /**
      * Custom painted JPanel to be used as rounded-corner container for chatbox messages
      */

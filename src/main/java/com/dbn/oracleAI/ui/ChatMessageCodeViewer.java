@@ -16,12 +16,15 @@ package com.dbn.oracleAI.ui;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Viewers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.oracleAI.model.ChatMessageSection;
 import com.intellij.lang.Language;
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
@@ -40,6 +43,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.awt.*;
 
+import static javax.swing.JLayeredPane.DRAG_LAYER;
+
 /**
  * Specialized viewer for AI responses containing qualified code sections
  *
@@ -52,16 +57,25 @@ public class ChatMessageCodeViewer extends JPanel {
     private ChatMessageCodeViewer(EditorEx viewer) {
         super(new BorderLayout());
         this.viewer = viewer;
+        setOpaque(false);
         setBorder(JBUI.Borders.empty(10));
         add(viewer.getComponent(), BorderLayout.CENTER);
 
-/*
-        JBLayeredPane layeredPane = new JBLayeredPane();
-        layeredPane.add(viewer.getComponent(), JLayeredPane.DEFAULT_LAYER);
-        add(layeredPane, BorderLayout.CENTER);
-*/
+        initActionToolbar();
+    }
 
-        setOpaque(false);
+    private void initActionToolbar() {
+        JPanel actionPanel = new JPanel();
+        actionPanel.setOpaque(false);
+        String content = viewer.getDocument().getText();
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, "", false, new CopyContentAction(content));
+        JComponent component = actionToolbar.getComponent();
+        component.setOpaque(false);
+        component.setBorder(Borders.EMPTY_BORDER);
+        actionPanel.add(component, BorderLayout.NORTH);
+
+        JComponent viewerComponent = viewer.getComponent();
+        UserInterface.visitRecursively(viewerComponent,JLayeredPane.class, p -> p.add(actionPanel, DRAG_LAYER));
     }
 
     public static ChatMessageCodeViewer create(ConnectionHandler connection, ChatMessageSection section){

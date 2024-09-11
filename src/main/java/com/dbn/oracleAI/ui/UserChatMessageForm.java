@@ -19,6 +19,7 @@ import com.dbn.common.util.Actions;
 import com.dbn.oracleAI.model.PersistentChatMessage;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.JBColor;
+import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
 import java.awt.*;
@@ -30,26 +31,35 @@ public class UserChatMessageForm extends ChatMessageForm {
     private JProgressBar progressBar;
     private JPanel actionPanel;
     private JTextPane messageTextPane;
-    private JPanel progressPanel;
 
     public UserChatMessageForm(ChatBoxForm parent, PersistentChatMessage message) {
         super(parent);
         messageTextPane.setText(message.getContent());
-        progressPanel.setVisible(message.isProgress());
-        progressPanel.putClientProperty("CHAT_MESSAGE_PROGRESS_PANEL", true);
+        progressBar.setVisible(message.isProgress());
         progressBar.setIndeterminate(true);
 
+        initLayout();
         initActionToolbar(message);
+    }
+
+    private void initLayout() {
+        actionPanel.setBorder(JBUI.Borders.empty(4));
+        progressBar.setBorder(JBUI.Borders.empty(0, 8, 8, 8));
     }
 
     private void createUIComponents() {
         mainPanel = new MessagePanel();
-        mainPanel.setBackground(BACKGROUND);
+        mainPanel.setBackground(getBackground());
     }
 
     @Override
     protected JComponent getMainComponent() {
         return mainPanel;
+    }
+
+    @Override
+    protected Color getBackground() {
+        return BACKGROUND;
     }
 
     private void initActionToolbar(PersistentChatMessage message) {
@@ -58,6 +68,5 @@ public class UserChatMessageForm extends ChatMessageForm {
         component.setOpaque(false);
         component.setBorder(Borders.EMPTY_BORDER);
         actionPanel.add(component, BorderLayout.NORTH);
-
     }
 }
