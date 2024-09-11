@@ -15,7 +15,7 @@
 package com.dbn.oracleAI.config.credentials.action;
 
 import com.dbn.common.icon.Icons;
-import com.dbn.oracleAI.config.Credential;
+import com.dbn.object.DBCredential;
 import com.dbn.oracleAI.config.credentials.ui.CredentialManagementForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
@@ -35,7 +35,7 @@ public class CredentialEditAction extends CredentialManagementAction {
         CredentialManagementForm managementForm = getManagementForm(e);
         if (managementForm == null) return;
 
-        Credential credential = managementForm.getSelectedCredential();
+        DBCredential credential = managementForm.getSelectedCredential();
         if (credential == null) return;
 
         managementForm.promptCredentialEdition(credential);

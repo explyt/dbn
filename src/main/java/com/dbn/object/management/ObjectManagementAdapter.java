@@ -60,29 +60,21 @@ public interface ObjectManagementAdapter<T extends Named> extends NlsSupport {
     /**
      * Invokes the object management action in the current thread
      * (the caller has to make sure this is not invoked in the dispatch thread)
-     *
-     * @param entity the entity to be processed
      */
-    void invoke(T entity);
+    void invoke();
 
     /**
      * Invokes the object management action in a cancelable MODAL process thread
-     *
-     * @param entity the entity to be processed
      */
-    void invokeModal(T entity);
+    void invokeModal();
 
     /**
      * Invokes the object management action in a cancelable PROMPTED process thread
-     *
-     * @param entity the entity to be processed
      */
-    void invokePrompted(T entity);
+    void invokePrompted();
 
     /**
      * Invokes the object management action in a cancelable BACKGROUND process thread
-     *
-     * @param entity the entity to be processed
      */
-    void invokeInBackground(T entity);
+    void invokeInBackground();
 }

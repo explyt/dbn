@@ -14,12 +14,16 @@
 
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.common.thread.Background;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.oracleAI.config.Credential;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.object.DBCredential;
+import com.dbn.object.DBSchema;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.ProfileNameVerifier;
 import com.dbn.oracleAI.service.AICredentialService;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
@@ -28,8 +32,10 @@ import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.event.ItemEvent;
+import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -44,6 +50,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private JTextField descriptionTextField;
   private final AICredentialService credentialSvc;
 
+  private ConnectionRef connection;
   private final Profile profile;
   private final Set<String> existingProfileNames;
 
@@ -53,6 +60,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     super(txt("profile.mgmt.general_step.title"),
             txt("profile.mgmt.general_step.explaination"),
             AllIcons.General.Settings);
+    this.connection = ConnectionRef.of(connection);
     this.profile = profile;
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
@@ -61,14 +69,17 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
     initializeUI();
     addValidationListener();
-    if (!isUpdate) populateCredentials();
+    populateCredentials();
+  }
+
+  ConnectionHandler getConnection() {
+    return ConnectionRef.ensure(connection);
   }
 
   private void initializeUI() {
     if (isUpdate) {
       nameTextField.setText(profile.getProfileName());
       descriptionTextField.setText(profile.getDescription());
-      credentialComboBox.addItem(profile.getCredentialName());
       nameTextField.setEnabled(false);
       credentialComboBox.setEnabled(true);
       descriptionTextField.setEnabled(false);
@@ -103,17 +114,37 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   }
 
   private void populateCredentials() {
+    ConnectionHandler connection = getConnection();
+    Project project = connection.getProject();
+
+    Background.run(project, () -> {
+      String currentCredential = profile.getCredentialName();
+      DBSchema schema = connection.getObjectBundle().getUserSchema();
+      if (schema == null) return;
+
+      List<DBCredential> credentials = schema.getCredentials();
+      List<String> credentialNames = convert(credentials, c -> c.getName());
+      if (!credentialNames.contains(currentCredential)) credentialNames.add(currentCredential);
+
+      credentialNames.forEach(c -> credentialComboBox.addItem(c));
+      credentialComboBox.setSelectedItem(currentCredential);
+    });
+
+/*
     credentialSvc.list().thenAccept(credentialProviderList -> {
       SwingUtilities.invokeLater(() -> {
+
+
         credentialComboBox.removeAllItems();
         for (Credential credential : credentialProviderList) {
           credentialComboBox.addItem(credential.getName());
         }
         if (!credentialProviderList.isEmpty()) {
-          credentialComboBox.setSelectedIndex(0);
+          credentialComboBox.setSelectedItem(currentCredential);
         }
       });
     });
+*/
   }
 
   @Override

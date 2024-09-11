@@ -19,8 +19,9 @@ import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.DBCredential;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBCredentialType;
-import com.dbn.oracleAI.config.Credential;
 import com.intellij.openapi.ui.ValidationInfo;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -31,21 +32,21 @@ import java.util.Set;
 public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
 
   private final ConnectionRef connection;
-  private final Credential credential;
+  private final DBObjectRef<DBCredential> credential;
   private final Set<String> usedCredentialNames;
   private CredentialEditFormValidator validator;
 
 
-  public CredentialEditDialog(ConnectionHandler connection, @Nullable Credential credential, @NotNull Set<String> usedCredentialNames) {
+  public CredentialEditDialog(ConnectionHandler connection, @Nullable DBCredential credential, @NotNull Set<String> usedCredentialNames) {
     super(connection.getProject(), getDialogTitle(credential), true);
     this.connection = ConnectionRef.of(connection);
-    this.credential = credential;
+    this.credential = DBObjectRef.of(credential);
     this.usedCredentialNames = usedCredentialNames;
 
     init();
   }
 
-  private static String getDialogTitle(@Nullable Credential credential) {
+  private static String getDialogTitle(@Nullable DBCredential credential) {
     return credential == null ? "Create Credential" : "Update Credential";
   }
 
@@ -90,7 +91,7 @@ public class CredentialEditDialog extends DBNDialog<CredentialEditForm> {
   }
   @Override
   protected @NotNull CredentialEditForm createForm() {
-    CredentialEditForm form = new CredentialEditForm(this, credential, usedCredentialNames);
+    CredentialEditForm form = new CredentialEditForm(this, DBObjectRef.get(credential), usedCredentialNames);
     validator = new CredentialEditFormValidator(form);
     return form;
   }

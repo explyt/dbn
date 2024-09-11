@@ -19,10 +19,9 @@ import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.object.DBCredential;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
-import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.credentials.adapter.*;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -36,7 +35,7 @@ import static com.dbn.common.component.Components.projectService;
 
 /**
  * Database Assistant credential management component
- * Exposes CRUD-like actions for the {@link Credential} entities
+ * Exposes CRUD-like actions for the {@link DBCredential} entities
  * Internally instantiates the specialized {@link com.dbn.object.management.ObjectManagementAdapter}
  * component and invokes the MODAL invocation option of the adapter (TODO - should ask the caller to specify the invocation mode)
  *
@@ -58,42 +57,42 @@ public class CredentialManagementService extends ProjectComponentBase implements
     return projectService(project, CredentialManagementService.class);
   }
 
-  public void createCredential(ConnectionHandler connection, Credential credential, OutcomeHandler successHandler) {
-    invokeAdapter(connection, credential, ObjectChangeAction.CREATE, successHandler);
+  public void createCredential(DBCredential credential, OutcomeHandler successHandler) {
+    invokeAdapter(credential, ObjectChangeAction.CREATE, successHandler);
   }
 
-  public void updateCredential(ConnectionHandler connection, Credential credential, OutcomeHandler successHandler) {
-    invokeAdapter(connection, credential, ObjectChangeAction.UPDATE, successHandler);
+  public void updateCredential(DBCredential credential, OutcomeHandler successHandler) {
+    invokeAdapter(credential, ObjectChangeAction.UPDATE, successHandler);
   }
 
-  public void deleteCredential(ConnectionHandler connection, Credential credential, OutcomeHandler successHandler) {
-    invokeAdapter(connection, credential, ObjectChangeAction.DELETE, successHandler);
+  public void deleteCredential(DBCredential credential, OutcomeHandler successHandler) {
+    invokeAdapter(credential, ObjectChangeAction.DELETE, successHandler);
   }
 
-  public void enableCredential(ConnectionHandler connection, Credential credential, OutcomeHandler successHandler) {
-    invokeAdapter(connection, credential, ObjectChangeAction.ENABLE, successHandler);
+  public void enableCredential(DBCredential credential, OutcomeHandler successHandler) {
+    invokeAdapter(credential, ObjectChangeAction.ENABLE, successHandler);
   }
 
-  public void disableCredential(ConnectionHandler connection, Credential credential, OutcomeHandler successHandler) {
-    invokeAdapter(connection, credential, ObjectChangeAction.DISABLE, successHandler);
+  public void disableCredential(DBCredential credential, OutcomeHandler successHandler) {
+    invokeAdapter(credential, ObjectChangeAction.DISABLE, successHandler);
   }
 
-  private static void invokeAdapter(ConnectionHandler connection, Credential credential, ObjectChangeAction action, OutcomeHandler successHandler) {
-    ObjectManagementAdapterBase<Credential> adapter = createAdapter(action, connection);
+  private static void invokeAdapter(DBCredential credential, ObjectChangeAction action, OutcomeHandler successHandler) {
+    ObjectManagementAdapterBase<DBCredential> adapter = createAdapter(credential, action);
     if (adapter == null) return;
 
     adapter.addOutcomeHandler(OutcomeType.SUCCESS, successHandler);
-    adapter.invokeModal(credential);
+    adapter.invokeModal();
   }
 
   @Nullable
-  private static ObjectManagementAdapterBase<Credential> createAdapter(ObjectChangeAction action, ConnectionHandler connection) {
+  private static ObjectManagementAdapterBase<DBCredential> createAdapter(DBCredential credential, ObjectChangeAction action) {
     switch (action) {
-      case CREATE: return new CredentialCreationAdapter(connection);
-      case UPDATE: return new CredentialUpdateAdapter(connection);
-      case DELETE: return new CredentialDeleteAdapter(connection);
-      case ENABLE: return new CredentialEnableAdapter(connection);
-      case DISABLE: return new CredentialDisableAdapter(connection);
+      case CREATE: return new CredentialCreationAdapter(credential);
+      case UPDATE: return new CredentialUpdateAdapter(credential);
+      case DELETE: return new CredentialDeleteAdapter(credential);
+      case ENABLE: return new CredentialEnableAdapter(credential);
+      case DISABLE: return new CredentialDisableAdapter(credential);
       default: return null;
     }
   }

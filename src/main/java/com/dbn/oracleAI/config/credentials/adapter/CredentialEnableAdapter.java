@@ -17,22 +17,21 @@ package com.dbn.oracleAI.config.credentials.adapter;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.object.DBCredential;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
-import com.dbn.object.type.DBObjectType;
-import com.dbn.oracleAI.config.Credential;
 import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 
 /**
- * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in enabling entities of type {@link Credential}
+ * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in enabling entities of type {@link DBCredential}
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class CredentialEnableAdapter extends ObjectManagementAdapterBase<Credential> {
+public class CredentialEnableAdapter extends ObjectManagementAdapterBase<DBCredential> {
 
-    public CredentialEnableAdapter(ConnectionHandler connection) {
-        super(connection, DBObjectType.CREDENTIAL, ObjectChangeAction.ENABLE);
+    public CredentialEnableAdapter(DBCredential credential) {
+        super(credential, ObjectChangeAction.ENABLE);
     }
 
     @Nls
@@ -43,24 +42,24 @@ public class CredentialEnableAdapter extends ObjectManagementAdapterBase<Credent
 
     @Nls
     @Override
-    protected String getProcessDescription(Credential entity) {
-        return txt("prc.assistant.message.EnablingCredential", entity.getType(), entity.getName());
+    protected String getProcessDescription(DBCredential object) {
+        return txt("prc.assistant.message.EnablingCredential", object.getType(), object.getName());
     }
 
     @Nls
     @Override
-    protected String getSuccessMessage(Credential entity) {
-        return txt("msg.assistant.info.CredentialEnablingSuccess", entity.getType(), entity.getName());
+    protected String getSuccessMessage(DBCredential object) {
+        return txt("msg.assistant.info.CredentialEnablingSuccess", object.getType(), object.getName());
     }
 
     @Nls
     @Override
-    protected String getFailureMessage(Credential entity) {
-        return txt("msg.assistant.error.CredentialEnablingFailure", entity.getType(), entity.getName());
+    protected String getFailureMessage(DBCredential object) {
+        return txt("msg.assistant.error.CredentialEnablingFailure", object.getType(), object.getName());
     }
 
     @Override
-    protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, Credential credential) throws SQLException {
+    protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, DBCredential credential) throws SQLException {
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
         assistantInterface.enableCredential(conn, credential.getName());
     }

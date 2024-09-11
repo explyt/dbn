@@ -18,7 +18,7 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ToggleAction;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.oracleAI.config.Credential;
+import com.dbn.object.DBCredential;
 import com.dbn.oracleAI.config.credentials.CredentialManagementService;
 import com.dbn.oracleAI.config.credentials.ui.CredentialManagementForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -34,7 +34,7 @@ import org.jetbrains.annotations.Nullable;
 public class CredentialStatusToggleAction extends ToggleAction {
     @Override
     public boolean isSelected(@NotNull AnActionEvent e) {
-        Credential credential = getSelectedCredential(e);
+        DBCredential credential = getSelectedCredential(e);
         return credential != null && credential.isEnabled();
     }
 
@@ -43,7 +43,7 @@ public class CredentialStatusToggleAction extends ToggleAction {
         CredentialManagementForm managementForm = getManagementForm(e);
         if (managementForm == null) return;
 
-        Credential credential = managementForm.getSelectedCredential();
+        DBCredential credential = managementForm.getSelectedCredential();
         if (credential == null) return;
 
         ConnectionHandler connection = managementForm.getConnection();
@@ -51,8 +51,8 @@ public class CredentialStatusToggleAction extends ToggleAction {
         CredentialManagementService managementService = CredentialManagementService.getInstance(project);
 
         if (selected)
-            managementService.enableCredential(connection, credential, null); else
-            managementService.disableCredential(connection, credential, null);
+            managementService.enableCredential(credential, null); else
+            managementService.disableCredential(credential, null);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CredentialStatusToggleAction extends ToggleAction {
         return e.getData(DataKeys.CREDENTIAL_MANAGEMENT_FORM);
     }
 
-    private static Credential getSelectedCredential(@NotNull AnActionEvent e) {
+    private static DBCredential getSelectedCredential(@NotNull AnActionEvent e) {
         CredentialManagementForm managementForm = getManagementForm(e);
         if (managementForm == null) return null;
 

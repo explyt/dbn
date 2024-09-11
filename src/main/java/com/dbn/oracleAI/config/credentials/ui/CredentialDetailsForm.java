@@ -17,7 +17,8 @@ package com.dbn.oracleAI.config.credentials.ui;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.oracleAI.config.Credential;
+import com.dbn.object.DBCredential;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.service.AIProfileService;
 import com.intellij.ui.ColoredListCellRenderer;
@@ -36,14 +37,18 @@ public class CredentialDetailsForm extends DBNFormBase {
     private JList<String> usageList;
     private JScrollPane usageScrollPane;
 
-    private final Credential credential;
+    private final DBObjectRef<DBCredential> credential;
 
-    public CredentialDetailsForm(@NotNull CredentialManagementForm parent, Credential credential) {
+    public CredentialDetailsForm(@NotNull CredentialManagementForm parent, DBCredential credential) {
         super(parent);
-        this.credential = credential;
+        this.credential = DBObjectRef.of(credential);
 
         initCredentialFields();
         initUsageList();
+    }
+
+    public DBCredential getCredential() {
+        return credential.ensure();
     }
 
     private void initUsageList() {
@@ -53,6 +58,7 @@ public class CredentialDetailsForm extends DBNFormBase {
     }
 
     private void updateUsageList(List<Profile> profiles) {
+        DBCredential credential = getCredential();
         String credentialName = credential.getName();
         List<String> usedByProfiles =  getManagementForm().getCredentialUsage(credentialName);
         usageList.setListData(usedByProfiles.toArray(new String[0]));
@@ -74,6 +80,7 @@ public class CredentialDetailsForm extends DBNFormBase {
     }
 
     private void initCredentialFields() {
+        DBCredential credential = getCredential();
         credentialNameTextField.setText(credential.getName());
         userNameTextField.setText(credential.getUserName());
         commentsTextField.setText(credential.getComments());

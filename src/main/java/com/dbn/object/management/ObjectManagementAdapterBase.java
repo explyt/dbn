@@ -14,21 +14,22 @@
 
 package com.dbn.object.management;
 
-import com.dbn.common.component.ConnectionComponent;
 import com.dbn.common.notification.NotificationGroup;
 import com.dbn.common.outcome.*;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.util.Named;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.common.DBObjectWrapper;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.event.ObjectChangeNotifier;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
@@ -38,23 +39,23 @@ import static com.dbn.common.Priority.HIGHEST;
  * Abstract base implementation of an {@link ObjectManagementAdapter}
  * Forces the actual adapter implementers to provide the logic for the actual {@link com.dbn.database.interfaces.DatabaseInterface} interaction,
  * as well as the various titles and captions to be displayed in the progress elements and outcome confirmation messages
- * @param <T> the type of the entity being handled by the adapter
+ * @param <T> the type of the database object being handled by the adapter
  *
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
 @Getter
 @Setter
-public abstract class ObjectManagementAdapterBase<T extends Named> extends ConnectionComponent implements ObjectManagementAdapter<T> {
+public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DBObjectWrapper<T> implements ObjectManagementAdapter<T> {
     private final ObjectChangeAction action;
     private final DBObjectType objectType;
     private final OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
 
-    public ObjectManagementAdapterBase(ConnectionHandler connection, DBObjectType objectType, ObjectChangeAction action) {
-        super(connection);
-        this.objectType = objectType;
+    public ObjectManagementAdapterBase(@NotNull T object, ObjectChangeAction action) {
+        super(object);
+        this.objectType = object.getObjectType();
         this.action = action;
 
-        outcomeHandlers.addHandler(OutcomeType.SUCCESS, ObjectChangeNotifier.create(connection, objectType, action));
+        outcomeHandlers.addHandler(OutcomeType.SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
         outcomeHandlers.addNotificationHandler(OutcomeType.SUCCESS, getProject(), NotificationGroup.ASSISTANT);
         outcomeHandlers.addMessageHandler(OutcomeType.FAILURE, getProject());
     }
@@ -66,65 +67,70 @@ public abstract class ObjectManagementAdapterBase<T extends Named> extends Conne
     }
 
     @Override
-    public final void invokeModal(T entity) {
+    public final void invokeModal() {
+        T object = getObject();
         Progress.modal(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(entity),
-                progress -> invoke(entity));
+                getProcessDescription(object),
+                progress -> invoke());
     }
 
     @Override
-    public void invokePrompted(T entity) {
+    public void invokePrompted() {
+        T object = getObject();
         Progress.prompt(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(entity),
-                progress -> invoke(entity));
+                getProcessDescription(object),
+                progress -> invoke());
     }
 
     @Override
-    public final void invokeInBackground(T entity) {
+    public final void invokeInBackground() {
+        T object = getObject();
         Progress.background(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(entity),
-                progress -> invoke(entity));
+                getProcessDescription(object),
+                progress -> invoke());
     }
 
-    public final void invoke(T entity) {
+    public final void invoke() {
+        T object = getObject();
         try {
             DatabaseInterfaceInvoker.execute(HIGHEST,
                     getProcessTitle(),
-                    getProcessDescription(entity),
+                    getProcessDescription(object),
                     getProject(),
                     getConnectionId(),
-                    conn -> invokeDatabaseInterface(getConnection(), conn, entity));
+                    getOwnerId(),
+                    conn -> invokeDatabaseInterface(getConnection(), conn, object));
 
-            handleSuccess(entity);
+            handleSuccess(object);
         } catch (Exception e) {
             Diagnostics.conditionallyLog(e);
-            handleFailure(entity, e);
+            handleFailure(object, e);
         }
     }
 
-    protected void handleSuccess(T entity) {
-        Outcome outcome = Outcomes.success(getSuccessTitle(), getSuccessMessage(entity));
+    protected void handleSuccess(T object) {
+        Outcome outcome = Outcomes.success(getSuccessTitle(), getSuccessMessage(object));
         outcomeHandlers.handle(outcome);
     }
 
-    protected void handleFailure(T entity, Exception e) {
-        Outcome outcome = Outcomes.failure(getFailureTitle(), getFailureMessage(entity), e);
+    protected void handleFailure(T object, Exception e) {
+        Outcome outcome = Outcomes.failure(getFailureTitle(), getFailureMessage(object), e);
         outcomeHandlers.handle(outcome);
     }
 
-    protected abstract void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, T entity) throws SQLException;
+    protected abstract void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException;
 
     @Nls
-    protected abstract String getProcessDescription(T entity);
+    protected abstract String getProcessDescription(T object);
 
     @Nls
-    protected abstract String getSuccessMessage(T entity);
+    protected abstract String getSuccessMessage(T object);
 
     @Nls
-    protected abstract String getFailureMessage(T entity);
+    protected abstract String getFailureMessage(T object);
 
     @Nls
     protected abstract String getProcessTitle();

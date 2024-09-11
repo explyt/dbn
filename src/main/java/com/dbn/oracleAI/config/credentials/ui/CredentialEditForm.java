@@ -23,8 +23,11 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.DBCredential;
+import com.dbn.object.DBCredential.Attribute;
+import com.dbn.object.DBSchema;
+import com.dbn.object.impl.DBCredentialImpl;
 import com.dbn.object.type.DBCredentialType;
-import com.dbn.oracleAI.config.Credential;
 import com.dbn.oracleAI.config.OciCredential;
 import com.dbn.oracleAI.config.PasswordCredential;
 import com.dbn.oracleAI.config.credentials.CredentialManagementService;
@@ -35,6 +38,7 @@ import com.dbn.oracleAI.service.AICredentialService;
 import com.dbn.oracleAI.service.AICredentialServiceImpl;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -72,7 +76,7 @@ public class CredentialEditForm extends DBNFormBase {
 
 
   private final ConnectionRef connection;
-  private Credential credential;
+  private DBCredential credential;
   private AIProviderCredential localCredential;
   private final Set<String> usedCredentialNames;
 
@@ -83,7 +87,7 @@ public class CredentialEditForm extends DBNFormBase {
    * @param credential the credential to be edited, can be null in case of credential creation
    * @param usedCredentialNames the names of credentials which are already defined and name can no longer be used
    */
-  public CredentialEditForm(CredentialEditDialog dialog, @Nullable Credential credential, Set<String> usedCredentialNames) {
+  public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, Set<String> usedCredentialNames) {
     super(dialog);
     this.connection = dialog.getConnection().ref();
     this.credentialSvc = AICredentialService.getInstance(getConnection());
@@ -177,9 +181,9 @@ public class CredentialEditForm extends DBNFormBase {
    * Collects the fields' info and sends them to the service layer to create new credential
    */
   protected void doCreateAction(OutcomeHandler successHandler) {
-    credential = createCredential();
+    credential = inputsToCredential();
     if (credential == null) return;
-    getManagementService().createCredential(getConnection(), credential, successHandler);
+    getManagementService().createCredential(credential, successHandler);
 
 /*
     credentialSvc.create(credential)
@@ -192,9 +196,9 @@ public class CredentialEditForm extends DBNFormBase {
    * Collects the fields' info and sends them to the service layer to update new credential
    */
   protected void doUpdateAction(OutcomeHandler successHandler) {
-    credential = createCredential();
+    credential = inputsToCredential();
     if (credential == null) return;
-    getManagementService().updateCredential(getConnection(), credential, successHandler);
+    getManagementService().updateCredential(credential, successHandler);
 
 /*
     boolean enabled = statusCheckBox.isSelected();
@@ -216,33 +220,28 @@ public class CredentialEditForm extends DBNFormBase {
   }
 
   @Nullable
-  private Credential createCredential() {
+  @SneakyThrows
+  private DBCredential inputsToCredential() {
     DBCredentialType credentialType = (DBCredentialType) credentialTypeComboBox.getSelectedItem();
     if (credentialType == null) return null;
 
-    Credential credential =
-            credentialType == DBCredentialType.PASSWORD ? createPwdCredential() :
-            credentialType == DBCredentialType.OCI ? createOciCredential() :
-            null;
+    DBSchema schema = getConnection().getObjectBundle().getUserSchema();
+    String credentialName = credentialNameField.getText();
+    boolean selected = statusCheckBox.isSelected();
 
-    credential.setEnabled(statusCheckBox.isSelected());
+    DBCredential credential = new DBCredentialImpl(schema, credentialName, DBCredentialType.PASSWORD, selected);
+    if (credentialType == DBCredentialType.PASSWORD) {
+      credential.setAttribute(Attribute.USER_NAME, passwordCredentialUsernameField.getText());
+      credential.setAttribute(Attribute.PASSWORD , passwordCredentialPasswordField.getText());
+
+    } else if (credentialType == DBCredentialType.OCI) {
+      credential.setAttribute(Attribute.USER_OCID,         ociCredentialUserOcidField.getText());
+      credential.setAttribute(Attribute.USER_TENANCY_OCID, ociCredentialUserTenancyOcidField.getText());
+      credential.setAttribute(Attribute.PRIVATE_KEY,       ociCredentialPrivateKeyField.getText());
+      credential.setAttribute(Attribute.FINGERPRINT,       ociCredentialFingerprintField.getText());
+
+    }
     return credential;
-  }
-
-  private PasswordCredential createPwdCredential() {
-    return new PasswordCredential(
-            credentialNameField.getText(),
-            passwordCredentialUsernameField.getText(),
-            passwordCredentialPasswordField.getText());
-  }
-
-  private OciCredential createOciCredential() {
-    return new OciCredential(
-            credentialNameField.getText(),
-            ociCredentialUserOcidField.getText(),
-            ociCredentialUserTenancyOcidField.getText(),
-            ociCredentialPrivateKeyField.getText(),
-            ociCredentialFingerprintField.getText());
   }
 
   protected void saveProviderInfo() {

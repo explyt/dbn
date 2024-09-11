@@ -20,6 +20,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,17 +30,19 @@ import org.jetbrains.annotations.NotNull;
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
 public class ObjectChangeNotifier extends ConnectionComponent implements OutcomeHandler {
+    private final SchemaId ownerId;
     private final DBObjectType objectType;
     private final ObjectChangeAction action;
 
-    private ObjectChangeNotifier(@NotNull ConnectionHandler connection, DBObjectType objectType, ObjectChangeAction action) {
+    private ObjectChangeNotifier(@NotNull ConnectionHandler connection, SchemaId ownerId, DBObjectType objectType, ObjectChangeAction action) {
         super(connection);
+        this.ownerId = ownerId;
         this.objectType = objectType;
         this.action = action;
     }
 
-    public static OutcomeHandler create(ConnectionHandler connection, DBObjectType objectType, ObjectChangeAction action) {
-        return new ObjectChangeNotifier(connection, objectType, action);
+    public static OutcomeHandler create(ConnectionHandler connection, SchemaId ownerId, DBObjectType objectType, ObjectChangeAction action) {
+        return new ObjectChangeNotifier(connection, ownerId, objectType, action);
     }
 
     @Override
@@ -48,7 +51,7 @@ public class ObjectChangeNotifier extends ConnectionComponent implements Outcome
     }
 
     private void notify(ObjectChangeListener listener) {
-        listener.objectsChanged(getConnectionId(), null, objectType);
+        listener.objectsChanged(getConnectionId(), ownerId, objectType);
     }
 
     @Override

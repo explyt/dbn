@@ -17,24 +17,23 @@ package com.dbn.oracleAI.config.credentials.adapter;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.object.DBCredential;
+import com.dbn.object.DBCredential.Attribute;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
-import com.dbn.object.type.DBObjectType;
-import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.config.OciCredential;
-import com.dbn.oracleAI.config.PasswordCredential;
+import com.dbn.object.type.DBCredentialType;
 import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 
 /**
- * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in creating entities of type {@link Credential}
+ * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in creating entities of type {@link DBCredential}
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class CredentialCreationAdapter extends ObjectManagementAdapterBase<Credential> {
+public class CredentialCreationAdapter extends ObjectManagementAdapterBase<DBCredential> {
 
-    public CredentialCreationAdapter(ConnectionHandler connection) {
-        super(connection, DBObjectType.CREDENTIAL, ObjectChangeAction.CREATE);
+    public CredentialCreationAdapter(DBCredential credential) {
+        super(credential, ObjectChangeAction.CREATE);
     }
 
     @Nls
@@ -45,41 +44,41 @@ public class CredentialCreationAdapter extends ObjectManagementAdapterBase<Crede
 
     @Nls
     @Override
-    protected String getProcessDescription(Credential entity) {
-        return txt("prc.assistant.message.CreatingCredential", entity.getType(), entity.getName());
+    protected String getProcessDescription(DBCredential object) {
+        return txt("prc.assistant.message.CreatingCredential", object.getType(), object.getName());
     }
 
     @Nls
     @Override
-    protected String getSuccessMessage(Credential entity) {
-        return txt("msg.assistant.info.CredentialCreateSuccess", entity.getType(), entity.getName());
+    protected String getSuccessMessage(DBCredential object) {
+        return txt("msg.assistant.info.CredentialCreateSuccess", object.getType(), object.getName());
     }
 
     @Nls
     @Override
-    protected String getFailureMessage(Credential entity) {
-        return txt("msg.assistant.error.CredentialCreateFailure", entity.getType(), entity.getName());
+    protected String getFailureMessage(DBCredential object) {
+        return txt("msg.assistant.error.CredentialCreateFailure", object.getType(), object.getName());
     }
 
     @Override
-    protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, Credential credential) throws SQLException {
+    protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, DBCredential credential) throws SQLException {
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
         String credentialName = credential.getName();
-        if (credential instanceof PasswordCredential) {
-            PasswordCredential passwordCredential = (PasswordCredential) credential;
+        DBCredentialType credentialType = credential.getType();
+
+        if (credentialType == DBCredentialType.PASSWORD) {
             assistantInterface.createPwdCredential(conn,
                     credentialName,
-                    passwordCredential.getUserName(),
-                    passwordCredential.getPassword());
+                    credential.getAttribute(Attribute.USER_NAME),
+                    credential.getAttribute(Attribute.PASSWORD));
 
-        } else if (credential instanceof OciCredential) {
-            OciCredential ociCredential = (OciCredential) credential;
+        } else if (credentialType == DBCredentialType.OCI) {
             assistantInterface.createOciCredential(conn,
                     credentialName,
-                    ociCredential.getUserName(),
-                    ociCredential.getUserTenancyOCID(),
-                    ociCredential.getPrivateKey(),
-                    ociCredential.getFingerprint());
+                    credential.getAttribute(Attribute.USER_OCID),
+                    credential.getAttribute(Attribute.USER_TENANCY_OCID),
+                    credential.getAttribute(Attribute.PRIVATE_KEY),
+                    credential.getAttribute(Attribute.FINGERPRINT));
         }
         // update status
         if (credential.isEnabled())

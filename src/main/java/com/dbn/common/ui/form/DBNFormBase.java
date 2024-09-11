@@ -5,6 +5,7 @@ import com.dbn.common.dispose.ComponentDisposer;
 import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.notification.NotificationSupport;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.misc.DBNButton;
 import com.dbn.common.ui.util.UserInterface;
@@ -42,6 +43,14 @@ public abstract class DBNFormBase
     public final JComponent getComponent() {
         if (!initialized) initialize();
         return getMainComponent();
+    }
+
+    /**
+     * Passes on the runnable to the dispatch thread (Application.invokeLater) under full awareness of the component modality state
+     * @param runnable the runnable to be sent to dispatch thread
+     */
+    protected void dispatch(Runnable runnable) {
+        Dispatch.run(getMainComponent(), runnable);
     }
 
     private void initialize() {

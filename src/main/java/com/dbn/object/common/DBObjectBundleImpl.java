@@ -32,6 +32,7 @@ import com.dbn.object.*;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectListImpl;
+import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.impl.DBObjectLoaders;
 import com.dbn.object.status.ObjectStatusManager;
 import com.dbn.object.type.DBObjectRelationType;
@@ -108,6 +109,7 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
         ProjectEvents.subscribe(project, this, DataDefinitionChangeListener.TOPIC, dataDefinitionChangeListener());
         ProjectEvents.subscribe(project, this, SourceCodeManagerListener.TOPIC, sourceCodeManagerListener());
         ProjectEvents.subscribe(project, this, CompileManagerListener.TOPIC, compileManagerListener());
+        ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, objectChangeListener());
 
         Disposer.register(connection, this);
     }
@@ -158,6 +160,21 @@ public class DBObjectBundleImpl extends StatefulDisposableBase implements DBObje
 
             ObjectStatusManager statusManager = ObjectStatusManager.getInstance(getProject());
             statusManager.refreshObjectsStatus(getConnection(), object);
+        };
+    }
+
+    private ObjectChangeListener objectChangeListener() {
+        return (connectionId, ownerId, objectType) -> {
+            if (ownerId == null) {
+                DBObjectList<DBObject> objectList = getObjectLists().getObjectList(objectType);
+                if (objectList != null) objectList.markDirty();
+            } else {
+                DBSchema schema = getSchema(ownerId.id());
+                if (schema != null) {
+                    DBObjectList<DBObject> objectList = schema.getChildObjectList(objectType);
+                    if (objectList != null) objectList.markDirty();
+                }
+            }
         };
     }
 
