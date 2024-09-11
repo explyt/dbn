@@ -251,7 +251,7 @@ public class ChatBoxForm extends DBNFormBase {
         .thenAccept((output) -> {
           state.set(QUERYING, false);
           inputField.setReadonly(false);
-          PersistentChatMessage outPutChatMessage = new PersistentChatMessage(output, AuthorType.AI, context);
+          PersistentChatMessage outPutChatMessage = new PersistentChatMessage(output, AuthorType.AGENT, context);
           appendMessageToChat(outPutChatMessage);
           log.debug("Query processed successfully.");
         })
@@ -259,7 +259,7 @@ public class ChatBoxForm extends DBNFormBase {
           state.set(QUERYING, false);
           inputField.setReadonly(false);
           log.warn("Error processing query", e);
-          PersistentChatMessage errorMessage = new PersistentChatMessage(e.getMessage(), AuthorType.ERROR, context);
+          PersistentChatMessage errorMessage = new PersistentChatMessage(e.getMessage(), AuthorType.SYSTEM, context);
           appendMessageToChat(errorMessage);
           return null;
         })

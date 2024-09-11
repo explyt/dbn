@@ -15,14 +15,22 @@
 package com.dbn.oracleAI.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.common.util.Actions;
+import com.dbn.oracleAI.model.ChatMessage;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 
 /**
- * Stub for chat message forms
+ * Stub implementation for chat message forms
+ * Exposes logic shared by all different chat message types (USER, AGENT, SYSTEM)
+ *
+ * @author Dan Cioca (dan.cioca@oracle.com)
  */
 public abstract class ChatMessageForm extends DBNFormBase {
     public ChatMessageForm(@Nullable Disposable parent) {
@@ -30,6 +38,18 @@ public abstract class ChatMessageForm extends DBNFormBase {
     }
 
     protected abstract Color getBackground();
+
+    protected void initActionToolbar(ChatMessage message) {
+        JPanel actionPanel = getActionPanel();
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, "", false, new CopyContentAction(message.getContent()));
+        JComponent component = actionToolbar.getComponent();
+        component.setOpaque(false);
+        component.setBorder(Borders.EMPTY_BORDER);
+        actionPanel.add(component, BorderLayout.NORTH);
+        actionPanel.setBorder(JBUI.Borders.empty(4));
+    }
+
+    protected abstract JPanel getActionPanel();
 
     /**
      * Custom painted JPanel to be used as rounded-corner container for chatbox messages

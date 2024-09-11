@@ -48,7 +48,7 @@ public class PersistentChatMessage extends ChatMessage implements PersistentStat
   @Override
   public void readState(Element element) {
     id = stringAttribute(element, "id");
-    author = enumAttribute(element, "author", AuthorType.class);
+    author = enumAttribute(element, "author", author);
 
     Element contentElement = element.getChild("content");
     content = readCdata(contentElement);

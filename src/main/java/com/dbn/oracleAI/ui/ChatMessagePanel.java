@@ -197,9 +197,9 @@ public class ChatMessagePanel extends JPanel {
   private Color resolveBackground() {
     switch (message.getAuthor()) {
       case USER: return USER_MSG_COLOR;
-      case AI: return Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 2));
+      case AGENT: return Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 2));
       //case AI: return AI_MSG_COLOR;
-      case ERROR: return ERROR_MSG_COLOR;
+      case SYSTEM: return ERROR_MSG_COLOR;
     } return null;
   }
 

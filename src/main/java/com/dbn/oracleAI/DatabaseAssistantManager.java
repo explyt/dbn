@@ -183,7 +183,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         ProgressMonitor.checkCancelled();
 
         String content = response.read();
-        consumer.accept(new ChatMessage(content, AuthorType.AI, context));
+        consumer.accept(new ChatMessage(content, AuthorType.AGENT, context));
 
       } catch (ProcessCanceledException e) {
         conditionallyLog(e);

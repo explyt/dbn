@@ -19,7 +19,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.model.PersistentChatMessage;
 import com.dbn.oracleAI.types.AuthorType;
-import com.dbn.oracleAI.ui.AssistantChatMessageForm;
+import com.dbn.oracleAI.ui.AgentChatMessageForm;
 import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.dbn.oracleAI.ui.ChatMessagePanel;
 import com.dbn.oracleAI.ui.UserChatMessageForm;
@@ -105,8 +105,8 @@ public class RollingJPanelWrapper {
       if (message.getAuthor() == AuthorType.USER) {
         UserChatMessageForm messageForm = new UserChatMessageForm(parent, message);
         messagePane = messageForm.getComponent();
-      } else if (message.getAuthor() == AuthorType.AI) {
-        AssistantChatMessageForm messageForm = new AssistantChatMessageForm(parent, message);
+      } else if (message.getAuthor() == AuthorType.AGENT) {
+        AgentChatMessageForm messageForm = new AgentChatMessageForm(parent, message);
         messagePane = messageForm.getComponent();
       } else {
         messagePane = new ChatMessagePanel(getConnection(), message);

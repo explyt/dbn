@@ -70,13 +70,13 @@ public class ChatMessage {
      * @return a list of {@link ChatMessageSection} with the different sections
      */
     private List<ChatMessageSection> buildSections() {
-        if (author == AuthorType.AI && context.getAction() == ActionAIType.SHOW_SQL && !content.contains("```")) {
+        if (author == AuthorType.AGENT && context.getAction() == ActionAIType.SHOW_SQL && !content.contains("```")) {
             // output is already expected to be SQL code based on the action
             // TODO not always true (workaround -> enhance the prompt with "(please use code demarcation with language identifier in the output)")
             return new ChatMessageSection(content.trim(), "sql").asList();
         }
 
-        if (author.isOneOf(AuthorType.USER, AuthorType.ERROR)) {
+        if (author.isOneOf(AuthorType.USER, AuthorType.SYSTEM)) {
             // output is already expected to be plain text
             return new ChatMessageSection(content.trim(), null).asList();
         }

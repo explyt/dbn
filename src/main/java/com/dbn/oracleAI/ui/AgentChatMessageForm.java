@@ -25,18 +25,32 @@ import com.intellij.util.ui.JBUI;
 import javax.swing.*;
 import java.awt.*;
 
-public class AssistantChatMessageForm extends ChatMessageForm {
+/**
+ * Message for implementation for AI agent responses.
+ * Features code viewers for the code-qualified sections of the message
+ *
+ * @author Dan Cioca (dan.cioca@oracle.com)
+ */
+public class AgentChatMessageForm extends ChatMessageForm {
 
     public JPanel mainPanel;
     private JPanel contentPanel;
     private JLabel titleLabel;
+    private JPanel actionPanel;
 
-    public AssistantChatMessageForm(ChatBoxForm parent, ChatMessage message) {
+    private boolean hasCodeContents = false;
+
+    public AgentChatMessageForm(ChatBoxForm parent, ChatMessage message) {
         super(parent);
 
-        initActionToolbar(message);
         initTitlePanel(message);
-        createMessagePanels(message);
+        initMessagePanels(message);
+        initActionToolbar(message);
+    }
+
+    private void createUIComponents() {
+        mainPanel = new MessagePanel();
+        mainPanel.setBackground(getBackground());
     }
 
     @Override
@@ -44,9 +58,9 @@ public class AssistantChatMessageForm extends ChatMessageForm {
         return mainPanel;
     }
 
-    private void createUIComponents() {
-        mainPanel = new MessagePanel();
-        mainPanel.setBackground(getBackground());
+    @Override
+    protected JPanel getActionPanel() {
+        return actionPanel;
     }
 
     private void initTitlePanel(ChatMessage message) {
@@ -61,7 +75,7 @@ public class AssistantChatMessageForm extends ChatMessageForm {
         titleLabel.setText(title);
     }
 
-    private void createMessagePanels(ChatMessage message) {
+    private void initMessagePanels(ChatMessage message) {
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         for (ChatMessageSection section : message.getSections()) {
             if (section.getLanguage() == null)
@@ -95,22 +109,21 @@ public class AssistantChatMessageForm extends ChatMessageForm {
 
         contentPanel.add(actionsPanel);
         contentPanel.add(codePanel);
+        hasCodeContents = true; // mark as having code contents if successfully created one
     }
 
+    @Override
+    protected void initActionToolbar(ChatMessage message) {
+        if (hasCodeContents) {
+            actionPanel.setVisible(false);
+            return;
+        }
+
+        super.initActionToolbar(message);
+    }
 
     @Override
     protected Color getBackground() {
         return Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 2));
-    }
-
-    private void initActionToolbar(ChatMessage message) {
-/*
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, "", false, new CopyContentAction(message.getContent()));
-        JComponent component = actionToolbar.getComponent();
-        component.setOpaque(false);
-        component.setBorder(Borders.EMPTY_BORDER);
-        actionPanel.add(component, BorderLayout.NORTH);
-*/
-
     }
 }

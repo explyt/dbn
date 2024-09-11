@@ -22,7 +22,7 @@ import com.dbn.common.constant.Constant;
  * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  */
 public enum AuthorType implements Constant<AuthorType> {
-  USER,
-  AI,
-  ERROR;
+  USER,   // user prompt
+  AGENT,  // assistant backend responses
+  SYSTEM; // error responses or information blocks
 }
