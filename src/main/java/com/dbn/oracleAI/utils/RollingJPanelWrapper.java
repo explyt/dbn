@@ -18,7 +18,10 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.model.PersistentChatMessage;
+import com.dbn.oracleAI.types.AuthorType;
+import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.dbn.oracleAI.ui.ChatMessagePanel;
+import com.dbn.oracleAI.ui.UserChatMessageForm;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
 
@@ -26,6 +29,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.dbn.common.util.Conditional.when;
 
 /**
  * Wrapper class around a JPanel that will display <code>ChatMessage</code>
@@ -75,8 +80,16 @@ public class RollingJPanelWrapper {
     Component[] messagePanels = messageContainer.getComponents();
     if (messagePanels.length == 0) return;
 
-    ChatMessagePanel messagePanel = (ChatMessagePanel) messagePanels[messagePanels.length -1];
-    messagePanel.clearProgressPanel();
+    Component panel = messagePanels[messagePanels.length - 1];
+    if (panel instanceof ChatMessagePanel) {
+      ChatMessagePanel messagePanel = (ChatMessagePanel) panel;
+      messagePanel.clearProgressPanel();
+    } else if (panel instanceof JComponent) {
+      JComponent component = (JComponent) panel;
+      UserInterface.visitRecursively(component, JPanel.class, b ->
+              when(b.getClientProperty("CHAT_MESSAGE_PROGRESS_PANEL") != null,
+                      () -> b.setVisible(false)));
+    }
   }
 
   public void clear() {
@@ -85,13 +98,20 @@ public class RollingJPanelWrapper {
     UserInterface.repaint(messageContainer);
   }
 
-  public void addAll(List<PersistentChatMessage> chatMessages) {
+  public void addAll(List<PersistentChatMessage> chatMessages, ChatBoxForm parent) {
     removeProgressIndicator();
     ensureFreeSlot(chatMessages.size());
 
     for (PersistentChatMessage message : chatMessages) {
       this.items.add(message);
-      JPanel messagePane = new ChatMessagePanel(getConnection(), message);
+      JComponent messagePane;
+      if (message.getAuthor() == AuthorType.USER) {
+        UserChatMessageForm messageForm = new UserChatMessageForm(parent, message);
+        messagePane = messageForm.getComponent();
+      } else {
+        messagePane = new ChatMessagePanel(getConnection(), message);
+      }
+
       //this.messageContainer.add(messagePane, author.isOneOf(AuthorType.AI, AuthorType.ERROR) ? "growx, wrap, w ::90%" : "wrap, al right, w ::90%");
       this.messageContainer.add(messagePane, "growx, wrap, w ::93%"); // TODO try to occupy the entire width (100% breaks the wrapping for some reason)
     }

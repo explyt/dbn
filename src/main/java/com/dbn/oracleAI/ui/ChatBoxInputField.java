@@ -76,7 +76,7 @@ public class ChatBoxInputField extends JPanel {
 
     public String getAndClearText() {
         DocumentEx document = editor.getDocument();
-        String text = document.getText();
+        String text = document.getText().trim();
         Documents.setText(document, "");
         return text;
     }

@@ -28,7 +28,6 @@ import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
-import javax.swing.text.*;
 import java.awt.*;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
@@ -213,7 +212,7 @@ public class ChatMessagePanel extends JPanel {
     g2.fillRoundRect(0, 0, getWidth(), getHeight(), 6, 6);
     g2.dispose();
   }
-
+/*
   private static class WarpEditorKit extends StyledEditorKit {
     private final ViewFactory defaultFactory = new WarpColumnFactory();
 
@@ -262,4 +261,5 @@ public class ChatMessagePanel extends JPanel {
       }
     }
   }
+*/
 }

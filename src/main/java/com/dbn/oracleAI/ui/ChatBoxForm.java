@@ -173,7 +173,7 @@ public class ChatBoxForm extends DBNFormBase {
 
   private void restoreMessages() {
     List<PersistentChatMessage> messages = getState().getMessages();
-    conversationPanelWrapper.addAll(messages);
+    conversationPanelWrapper.addAll(messages, this);
     Dispatch.run(() -> scrollConversationDown());
   }
 
@@ -344,7 +344,7 @@ public class ChatBoxForm extends DBNFormBase {
   private void appendMessageToChat(PersistentChatMessage message) {
     List<PersistentChatMessage> messages = List.of(message);
     getState().addMessages(messages);
-    Dispatch.run(() -> conversationPanelWrapper.addAll(messages));
+    Dispatch.run(() -> conversationPanelWrapper.addAll(messages, this));
     Dispatch.run(() -> scrollConversationDown());
   }
 
