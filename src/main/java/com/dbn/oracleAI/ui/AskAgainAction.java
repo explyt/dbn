@@ -20,10 +20,6 @@ import com.dbn.common.icon.Icons;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
-
 public class AskAgainAction extends BasicAction {
   private final String content;
 
