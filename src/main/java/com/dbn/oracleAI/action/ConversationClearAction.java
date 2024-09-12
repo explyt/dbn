@@ -15,12 +15,15 @@
 package com.dbn.oracleAI.action;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Messages;
 import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.common.util.Conditional.when;
 
 /**
  * Action for clearing the AI Assistant conversation history
@@ -33,7 +36,7 @@ public class ConversationClearAction extends AbstractChatBoxAction {
         ChatBoxForm chatBox = getChatBox(e);
         if (chatBox == null) return;
 
-        chatBox.clearConversation();
+        promptConversationClearing(chatBox);
     }
 
     @Override
@@ -47,4 +50,11 @@ public class ConversationClearAction extends AbstractChatBoxAction {
         presentation.setDescription("Clear all conversation messages");
         presentation.setEnabled(enabled);
     }
+
+    public void promptConversationClearing(ChatBoxForm chatBox) {
+        Messages.showQuestionDialog(getProject(), "Conversation Clearing", "Are you sure you want to clear this conversation?",
+            Messages.OPTIONS_YES_NO, 1,
+            option -> when(option == 0, chatBox::clearConversation));
+    }
+
 }
