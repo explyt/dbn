@@ -47,17 +47,16 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
   @Override
   protected void initialize(@NotNull ToolWindow toolWindow) {
     toolWindow.setTitle(txt("companion.window.title"));
-
     toolWindow.setStripeTitle(txt("companion.window.title"));
-    toolWindow.setToHideOnEmptyContent(true);
-    toolWindow.setAutoHide(false);
     toolWindow.setIcon(WINDOW_DATABASE_ASSISTANT.get());
+
   }
 
   @Override
   public void createContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
     createContentPanel(toolWindow);
-
+    toolWindow.setToHideOnEmptyContent(true);
+    toolWindow.setAutoHide(false);
 
     DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
     ProjectEvents.subscribe(project, manager,
