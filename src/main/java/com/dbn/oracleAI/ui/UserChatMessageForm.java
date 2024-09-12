@@ -30,7 +30,7 @@ public class UserChatMessageForm extends ChatMessageForm {
         super(parent, message);
         messageTextPane.setText(message.getContent());
 
-        initActionToolbar();
+        initActionToolbar(true);
         initProgressBar();
     }
 

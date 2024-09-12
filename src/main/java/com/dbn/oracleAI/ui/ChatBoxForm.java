@@ -223,6 +223,14 @@ public class ChatBoxForm extends DBNFormBase {
     conversationPanelWrapper = new RollingJPanelWrapper(getConnection(), ChatBoxState.MAX_CHAR_MESSAGE_COUNT, chatPanel);
   }
 
+  public void submitPrompt(String question) {
+    ApplicationManager.getApplication()
+        .executeOnPooledThread(
+            () -> {
+              processQuery(question, getState().getSelectedAction());
+            });
+  }
+
   public void submitPrompt() {
     ApplicationManager.getApplication()
         .executeOnPooledThread(

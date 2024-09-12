@@ -82,9 +82,12 @@ public abstract class ChatMessageForm extends DBNFormBase {
         titleLabel.setText(title);
     }
 
-    protected void initActionToolbar() {
+    protected void initActionToolbar(boolean isUserMessage) {
         JPanel actionPanel = getActionPanel();
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, "", false, new CopyContentAction(message.getContent()));
+        ActionToolbar actionToolbar = isUserMessage ?
+            Actions.createActionToolbar(actionPanel, "", true, new AskAgainAction(message.getContent()), new CopyContentAction(message.getContent()))
+            :
+            Actions.createActionToolbar(actionPanel, "", true, new CopyContentAction(message.getContent()));
         JComponent component = actionToolbar.getComponent();
         component.setOpaque(false);
         component.setBorder(Borders.EMPTY_BORDER);
