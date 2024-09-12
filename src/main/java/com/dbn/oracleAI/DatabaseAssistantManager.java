@@ -18,6 +18,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.load.ProgressMonitor;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -183,7 +184,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         ProgressMonitor.checkCancelled();
 
         String content = response.read();
-        consumer.accept(new ChatMessage(content, AuthorType.AGENT, context));
+        consumer.accept(new ChatMessage(MessageType.NEUTRAL, content, AuthorType.AGENT, context));
 
       } catch (ProcessCanceledException e) {
         conditionallyLog(e);

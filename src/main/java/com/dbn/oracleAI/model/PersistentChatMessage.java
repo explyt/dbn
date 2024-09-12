@@ -14,6 +14,7 @@
 
 package com.dbn.oracleAI.model;
 
+import com.dbn.common.message.MessageType;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.oracleAI.types.AuthorType;
 import lombok.Getter;
@@ -33,22 +34,23 @@ import static com.dbn.common.options.setting.Settings.*;
 @NoArgsConstructor
 public class PersistentChatMessage extends ChatMessage implements PersistentStateElement {
 
-  private transient boolean progress;
-
   /**
    * Creates a new ChatMessage
+   *
+   * @param type the message type (relevant for SYSTEM messages)
    * @param content the message content
-   * @param author the author of the message
+   * @param author  the author of the message
    * @param context the context in which the chat message was produced
    */
-  public PersistentChatMessage(String content, AuthorType author, ChatMessageContext context) {
-    super(content, author, context);
+  public PersistentChatMessage(MessageType type, String content, AuthorType author, ChatMessageContext context) {
+    super(type, content, author, context);
   }
 
   @Override
   public void readState(Element element) {
     id = stringAttribute(element, "id");
-    author = enumAttribute(element, "author", author);
+    type = enumAttribute(element, "type", type);
+    author = enumAttribute(element, "author", AuthorType.class);
 
     Element contentElement = element.getChild("content");
     content = readCdata(contentElement);
@@ -61,6 +63,7 @@ public class PersistentChatMessage extends ChatMessage implements PersistentStat
   @Override
   public void writeState(Element element) {
     setStringAttribute(element, "id", id);
+    setEnumAttribute(element, "type", type);
     setEnumAttribute(element, "author", author);
 
     Element contentElement = newElement(element,"content");

@@ -40,6 +40,7 @@ import static com.dbn.common.util.Commons.nvl;
  *
  * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  * @author Dan Cioca (dan.cioca@oracle.com)
+ * @deprecated broken down in {@link UserChatMessageForm}, {@link AgentChatMessageForm}, {@link SystemChatMessageForm}
  */
 public class ChatMessagePanel extends JPanel {
 

@@ -15,6 +15,8 @@ package com.dbn.oracleAI.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.exception.Exceptions;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -242,7 +244,7 @@ public class ChatBoxForm extends DBNFormBase {
     ProviderModel model = profile.getModel();
 
     ChatMessageContext context = new ChatMessageContext(profile.getName(), model, actionType);
-    PersistentChatMessage inputChatMessage = new PersistentChatMessage(question, AuthorType.USER, context);
+    PersistentChatMessage inputChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, context);
     inputChatMessage.setProgress(true);
     appendMessageToChat(inputChatMessage);
 
@@ -251,7 +253,7 @@ public class ChatBoxForm extends DBNFormBase {
         .thenAccept((output) -> {
           state.set(QUERYING, false);
           inputField.setReadonly(false);
-          PersistentChatMessage outPutChatMessage = new PersistentChatMessage(output, AuthorType.AGENT, context);
+          PersistentChatMessage outPutChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, output, AuthorType.AGENT, context);
           appendMessageToChat(outPutChatMessage);
           log.debug("Query processed successfully.");
         })
@@ -259,7 +261,7 @@ public class ChatBoxForm extends DBNFormBase {
           state.set(QUERYING, false);
           inputField.setReadonly(false);
           log.warn("Error processing query", e);
-          PersistentChatMessage errorMessage = new PersistentChatMessage(e.getMessage(), AuthorType.SYSTEM, context);
+          PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, Exceptions.causeMessage(e), AuthorType.SYSTEM, context);
           appendMessageToChat(errorMessage);
           return null;
         })

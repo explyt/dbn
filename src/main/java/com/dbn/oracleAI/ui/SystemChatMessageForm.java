@@ -14,31 +14,27 @@
 
 package com.dbn.oracleAI.ui;
 
+import com.dbn.common.message.MessageType;
 import com.dbn.oracleAI.model.ChatMessage;
-import com.intellij.util.ui.JBUI;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
 
-public class UserChatMessageForm extends ChatMessageForm {
+public class SystemChatMessageForm extends ChatMessageForm {
+
     private JPanel mainPanel;
-    private JProgressBar progressBar;
     private JPanel actionPanel;
     private JTextPane messageTextPane;
+    private JLabel titleLabel;
+    private JPanel titlePanel;
 
-    public UserChatMessageForm(ChatBoxForm parent, ChatMessage message) {
+    public SystemChatMessageForm(ChatBoxForm parent, ChatMessage message) {
         super(parent, message);
         messageTextPane.setText(message.getContent());
 
+        initTitlePanel();
         initActionToolbar();
-        initProgressBar();
-    }
-
-    private void initProgressBar() {
-        ChatMessage message = getMessage();
-        progressBar.setVisible(message.isProgress());
-        progressBar.setIndeterminate(true);
-        progressBar.setBorder(JBUI.Borders.empty(0, 8, 8, 8));
     }
 
     private void createUIComponents() {
@@ -51,12 +47,20 @@ public class UserChatMessageForm extends ChatMessageForm {
     }
 
     @Override
+    protected @Nullable JLabel getTitleLabel() {
+        return titleLabel;
+    }
+
+    @Override
     protected JPanel getActionPanel() {
         return actionPanel;
     }
 
     @Override
     protected Color getBackground() {
-        return Backgrounds.USER_PROMPT;
+        MessageType messageType = getMessage().getType();
+        return messageType == MessageType.ERROR ?
+                Backgrounds.SYSTEM_ERROR :
+                Backgrounds.SYSTEM_INFO;
     }
 }

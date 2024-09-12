@@ -15,6 +15,7 @@
 package com.dbn.oracleAI.model;
 
 import com.dbn.common.latent.Latent;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.util.UUIDs;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.oracleAI.editor.SQLChatMessageConverter;
@@ -41,18 +42,25 @@ public class ChatMessage {
      * Unique identifier of the chat message to establish causality relations and chaining of messages
      */
     protected String id = UUIDs.regular();
-    protected String content;
+
+    protected MessageType type = MessageType.NEUTRAL;
     protected AuthorType author;
+    protected String content;
     protected ChatMessageContext context;
     private Latent<List<ChatMessageSection>> sections = Latent.basic(() -> buildSections());
 
+    private transient boolean progress;
+
     /**
      * Creates a new ChatMessage
+     *
+     * @param type the message type (relevant for SYSTEM messages)
      * @param content the message content
-     * @param author the author of the message
+     * @param author  the author of the message
      * @param context the context in which the chat message was produced
      */
-    public ChatMessage(String content, AuthorType author, ChatMessageContext context) {
+    public ChatMessage(MessageType type, String content, AuthorType author, ChatMessageContext context) {
+        this.type = type;
         this.content = content;
         this.author = author;
         this.context = context;
@@ -111,5 +119,4 @@ public class ChatMessage {
         }
         return content;
     }
-
 }

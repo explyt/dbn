@@ -18,11 +18,9 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.oracleAI.model.PersistentChatMessage;
-import com.dbn.oracleAI.types.AuthorType;
-import com.dbn.oracleAI.ui.AgentChatMessageForm;
 import com.dbn.oracleAI.ui.ChatBoxForm;
+import com.dbn.oracleAI.ui.ChatMessageForm;
 import com.dbn.oracleAI.ui.ChatMessagePanel;
-import com.dbn.oracleAI.ui.UserChatMessageForm;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
 
@@ -80,10 +78,8 @@ public class RollingJPanelWrapper {
     if (messagePanels.length == 0) return;
 
     Component panel = messagePanels[messagePanels.length - 1];
-    if (panel instanceof ChatMessagePanel) {
-      ChatMessagePanel messagePanel = (ChatMessagePanel) panel;
-      messagePanel.clearProgressPanel();
-    } else if (panel instanceof JComponent) {
+    if (panel instanceof JComponent) {
+      // identify the message panels that have progress indicators and hide them
       JComponent component = (JComponent) panel;
       UserInterface.visitRecursively(component, JProgressBar.class, b -> b.setVisible(false));
     }
@@ -102,17 +98,11 @@ public class RollingJPanelWrapper {
     for (PersistentChatMessage message : chatMessages) {
       this.items.add(message);
       JComponent messagePane;
-      if (message.getAuthor() == AuthorType.USER) {
-        UserChatMessageForm messageForm = new UserChatMessageForm(parent, message);
-        messagePane = messageForm.getComponent();
-      } else if (message.getAuthor() == AuthorType.AGENT) {
-        AgentChatMessageForm messageForm = new AgentChatMessageForm(parent, message);
-        messagePane = messageForm.getComponent();
-      } else {
-        messagePane = new ChatMessagePanel(getConnection(), message);
-      }
+      ChatMessageForm form = ChatMessageForm.create(parent, message);
 
-      //this.messageContainer.add(messagePane, author.isOneOf(AuthorType.AI, AuthorType.ERROR) ? "growx, wrap, w ::90%" : "wrap, al right, w ::90%");
+      // TODO remove fallback on old CHatMessagePanel when all author types are handled
+      messagePane = form == null ? new ChatMessagePanel(getConnection(), message) : form.getComponent();
+
       this.messageContainer.add(messagePane, "growx, wrap, w ::93%"); // TODO try to occupy the entire width (100% breaks the wrapping for some reason)
     }
     UserInterface.repaint(messageContainer);

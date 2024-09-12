@@ -14,11 +14,8 @@
 
 package com.dbn.oracleAI.ui;
 
-import com.dbn.common.color.Colors;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.model.ChatMessage;
-import com.dbn.oracleAI.model.ChatMessageContext;
 import com.dbn.oracleAI.model.ChatMessageSection;
 import com.intellij.util.ui.JBUI;
 
@@ -33,7 +30,7 @@ import java.awt.*;
  */
 public class AgentChatMessageForm extends ChatMessageForm {
 
-    public JPanel mainPanel;
+    private JPanel mainPanel;
     private JPanel contentPanel;
     private JLabel titleLabel;
     private JPanel actionPanel;
@@ -41,16 +38,15 @@ public class AgentChatMessageForm extends ChatMessageForm {
     private boolean hasCodeContents = false;
 
     public AgentChatMessageForm(ChatBoxForm parent, ChatMessage message) {
-        super(parent);
+        super(parent, message);
 
-        initTitlePanel(message);
-        initMessagePanels(message);
-        initActionToolbar(message);
+        initTitlePanel();
+        initMessagePanels();
+        initActionToolbar();
     }
 
     private void createUIComponents() {
-        mainPanel = new MessagePanel();
-        mainPanel.setBackground(getBackground());
+        mainPanel = createMainPanel();
     }
 
     @Override
@@ -59,23 +55,17 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     @Override
+    protected JLabel getTitleLabel() {
+        return titleLabel;
+    }
+
+    @Override
     protected JPanel getActionPanel() {
         return actionPanel;
     }
 
-    private void initTitlePanel(ChatMessage message) {
-        ChatMessageContext context = message.getContext();
-        String title =
-                context.getProfile() + " / " +
-                        context.getModel() + "  -  " +
-                        context.getAction().getName();
-
-        titleLabel.setFont(Fonts.smaller(Fonts.deriveFont(Fonts.getLabelFont(), Font.BOLD), 2));
-        titleLabel.setForeground(Colors.delegate(Colors::getLabelForeground));
-        titleLabel.setText(title);
-    }
-
-    private void initMessagePanels(ChatMessage message) {
+    private void initMessagePanels() {
+        ChatMessage message = getMessage();
         contentPanel.setLayout(new BoxLayout(contentPanel, BoxLayout.Y_AXIS));
         for (ChatMessageSection section : message.getSections()) {
             if (section.getLanguage() == null)
@@ -113,17 +103,17 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     @Override
-    protected void initActionToolbar(ChatMessage message) {
+    protected void initActionToolbar() {
         if (hasCodeContents) {
             actionPanel.setVisible(false);
             return;
         }
 
-        super.initActionToolbar(message);
+        super.initActionToolbar();
     }
 
     @Override
     protected Color getBackground() {
-        return Colors.delegate(() -> Colors.lafDarker(Colors.getPanelBackground(), 2));
+        return Backgrounds.AGENT_RESPONSE;
     }
 }
