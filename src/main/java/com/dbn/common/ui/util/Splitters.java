@@ -49,10 +49,14 @@ public class Splitters {
         if (pane.getDividerLocation() > 0) {
             UserInterface.whenShown(splitter, () -> {
                 double proportion;
+                double dividerLocation = pane.getDividerLocation();
+
                 if (pane.getOrientation() == VERTICAL_SPLIT) {
-                    proportion = (double) pane.getDividerLocation() / (double) (parent.getHeight() - pane.getDividerSize());
+                    double height = (parent.getHeight() - pane.getDividerSize());
+                    proportion = height > 0 ? dividerLocation / height : 0;
                 } else {
-                    proportion = (double) pane.getDividerLocation() / (double) (parent.getWidth() - pane.getDividerSize());
+                    double width = (parent.getWidth() - pane.getDividerSize());
+                    proportion = width > 0 ? dividerLocation / width : 0;
                 }
 
                 if (proportion > 0.0 && proportion < 1.0) {
