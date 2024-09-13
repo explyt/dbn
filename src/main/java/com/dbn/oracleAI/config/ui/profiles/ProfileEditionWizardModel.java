@@ -1,9 +1,9 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
-import com.dbn.common.dispose.Disposer;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.config.Profile;
 import com.intellij.openapi.Disposable;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.wizard.WizardModel;
 import com.intellij.ui.wizard.WizardStep;
 
@@ -25,7 +25,7 @@ public class ProfileEditionWizardModel extends WizardModel implements Disposable
             new ProfileEditionObjectListStep(connection, profile, isUpdate));
 
     mysteps.forEach(s->add(s));
-    mysteps.forEach(s-> Disposer.register(this, s));
+    mysteps.forEach(s-> Disposer.register(this, (Disposable) s));
     if (firstStep != null) {
       moveToStep(firstStep);
     }
@@ -51,6 +51,6 @@ public class ProfileEditionWizardModel extends WizardModel implements Disposable
 
   @Override
   public void dispose() {
-
+    // TODO dispose UI resources
   }
 }

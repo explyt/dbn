@@ -5,6 +5,7 @@ import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.types.ProviderType;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.Disposable;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
@@ -20,7 +21,7 @@ import static com.dbn.nls.NlsResources.txt;
  *
  * @see com.dbn.oracleAI.ProfileEditionWizard
  */
-public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardModel> {
+public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardModel>  implements Disposable {
 
   private JPanel profileEditionProviderMainPane;
   private JComboBox<ProviderType> providerNameCombo;
@@ -108,5 +109,10 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
     profile.setModel((ProviderModel) providerModelCombo.getSelectedItem());
     profile.setTemperature((float) temperatureSlider.getValue() / 10);
     return super.onNext(model);
+  }
+
+  @Override
+  public void dispose() {
+    // TODO dispose UI resources
   }
 }

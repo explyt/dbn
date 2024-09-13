@@ -77,7 +77,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
     finishButton.setText(txt(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
-    Disposer.register(this, myModel);
   }
 
   @Override
@@ -178,5 +177,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   @Override
   public void dispose() {
     super.dispose();
+    Disposer.dispose(myModel);
   }
 }

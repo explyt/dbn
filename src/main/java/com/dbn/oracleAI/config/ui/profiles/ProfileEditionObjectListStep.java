@@ -25,6 +25,7 @@ import com.dbn.oracleAI.config.ui.SelectedObjectItemsVerifier;
 import com.dbn.oracleAI.service.DatabaseService;
 import com.dbn.oracleAI.types.DatabaseObjectType;
 import com.dbn.oracleAI.ui.ActivityNotifier;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
@@ -53,7 +54,7 @@ import static com.dbn.nls.NlsResources.txt;
  * @see ProfileEditionWizard
  */
 @Slf4j
-public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizardModel> {
+public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizardModel> implements Disposable {
 
 
   private static final int TABLES_COLUMN_HEADERS_NAME_IDX = 0;
@@ -512,5 +513,10 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   private void createUIComponents() {
     activityProgress = new ActivityNotifier();
+  }
+
+  @Override
+  public void dispose() {
+    // TODO dispose UI resources
   }
 }

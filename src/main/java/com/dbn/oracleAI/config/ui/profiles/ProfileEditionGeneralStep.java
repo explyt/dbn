@@ -149,7 +149,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
       List<DBCredential> credentials = schema.getCredentials();
       List<String> credentialNames = convert(credentials, c -> c.getName());
-      if (!credentialNames.contains(currentCredential)) credentialNames.add(currentCredential);
+      if (currentCredential != null && !credentialNames.contains(currentCredential)) credentialNames.add(currentCredential);
 
       credentialComboBox.removeAllItems();
       credentialNames.forEach(c -> credentialComboBox.addItem(c));
@@ -209,6 +209,6 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
   @Override
   public void dispose() {
-
+    // TODO dispose UI resources
   }
 }
