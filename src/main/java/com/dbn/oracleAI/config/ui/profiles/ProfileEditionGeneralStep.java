@@ -14,15 +14,23 @@
 
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
+import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Dialogs;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
+import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.credentials.ui.CredentialEditDialog;
 import com.dbn.oracleAI.config.ui.ProfileNameVerifier;
 import com.dbn.oracleAI.service.AICredentialService;
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
@@ -43,11 +51,12 @@ import static com.dbn.nls.NlsResources.txt;
  *
  * @see com.dbn.oracleAI.ProfileEditionWizard
  */
-public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardModel> {
-  private JPanel profileEditionGeneralMainPane;
+public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardModel> implements Disposable {
+  private JPanel mainPanel;
   private JTextField nameTextField;
   private JComboBox<String> credentialComboBox;
   private JTextField descriptionTextField;
+  private JButton addCredentialButton;
   private final AICredentialService credentialSvc;
 
   private ConnectionRef connection;
@@ -64,12 +73,28 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     this.profile = profile;
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
-
     this.credentialSvc = AICredentialService.getInstance(connection);
 
+    initCredentialAddButton();
     initializeUI();
     addValidationListener();
-    populateCredentials();
+
+    UserInterface.whenShown(mainPanel, () -> populateCredentials());
+  }
+
+  private void initCredentialAddButton() {
+    addCredentialButton.setIcon(Icons.ACTION_ADD);
+    addCredentialButton.setText(null);
+
+    ConnectionHandler connection = getConnection();
+    addCredentialButton.addActionListener(e -> Dialogs.show(() -> new CredentialEditDialog(connection, null, Set.of())));
+
+    Project project = connection.getProject();
+    ProjectEvents.subscribe(project, this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
+      if (connectionId != connection.getConnectionId()) return;
+      if (objectType != DBObjectType.CREDENTIAL) return;
+      populateCredentials();
+    });
   }
 
   ConnectionHandler getConnection() {
@@ -126,6 +151,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       List<String> credentialNames = convert(credentials, c -> c.getName());
       if (!credentialNames.contains(currentCredential)) credentialNames.add(currentCredential);
 
+      credentialComboBox.removeAllItems();
       credentialNames.forEach(c -> credentialComboBox.addItem(c));
       credentialComboBox.setSelectedItem(currentCredential);
     });
@@ -149,7 +175,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
   @Override
   public JComponent prepare(WizardNavigationState wizardNavigationState) {
-    return profileEditionGeneralMainPane;
+    return mainPanel;
   }
 
   @Override
@@ -181,4 +207,8 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     return super.onNext(model);
   }
 
+  @Override
+  public void dispose() {
+
+  }
 }

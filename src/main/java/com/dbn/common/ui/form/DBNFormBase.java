@@ -53,6 +53,17 @@ public abstract class DBNFormBase
         Dispatch.run(getMainComponent(), runnable);
     }
 
+    /**
+     * Allows invoking a task when the form is first shown.
+     * Useful for delaying the execution of a given task when the modality state of the form is clarified.
+     * Can also be helpful when component size decisions have to be taken based on surrounding container size.
+     *
+     * @param runnable the task to execute when the form is shown
+     */
+    protected void whenShown(Runnable runnable) {
+        UserInterface.whenShown(getMainComponent(), runnable);
+    }
+
     private void initialize() {
         initialized = true;
         JComponent mainComponent = getMainComponent();

@@ -53,7 +53,6 @@ import java.util.List;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.common.ui.util.UserInterface.whenShown;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.ui.SimpleTextAttributes.*;
@@ -108,9 +107,9 @@ public class CredentialManagementForm extends DBNFormBase {
     initActionsPanel();
     initDetailsPanel();
     initCredentialList();
-    loadCredentials();
-
     initChangeListener();
+
+    whenShown(() -> loadCredentials());
   }
   private void initChangeListener() {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
@@ -157,7 +156,6 @@ public class CredentialManagementForm extends DBNFormBase {
     });
 
     credentialList.setCellRenderer(createListCellRenderer());
-    whenShown(contentSplitPane, () -> contentSplitPane.setDividerLocation(240));
   }
 
   public void promptCredentialCreation() {

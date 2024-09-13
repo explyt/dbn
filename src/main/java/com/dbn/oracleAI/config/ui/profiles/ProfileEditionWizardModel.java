@@ -1,7 +1,9 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.common.dispose.Disposer;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.config.Profile;
+import com.intellij.openapi.Disposable;
 import com.intellij.ui.wizard.WizardModel;
 import com.intellij.ui.wizard.WizardStep;
 
@@ -12,7 +14,7 @@ import java.util.Set;
 /**
  * This is where we add the step we want in our wizard
  */
-public class ProfileEditionWizardModel extends WizardModel {
+public class ProfileEditionWizardModel extends WizardModel implements Disposable {
   // need to keep our own list as WizardModel do not expose it.
   List<WizardStep> mysteps = null;
   public ProfileEditionWizardModel(ConnectionHandler connection, String title, Profile profile, Set<String> profileNames, boolean isUpdate, Class<ProfileEditionObjectListStep> firstStep) {
@@ -21,7 +23,9 @@ public class ProfileEditionWizardModel extends WizardModel {
             new ProfileEditionGeneralStep(connection, profile, profileNames, isUpdate),
             new ProfileEditionProviderStep(connection, profile, isUpdate),
             new ProfileEditionObjectListStep(connection, profile, isUpdate));
+
     mysteps.forEach(s->add(s));
+    mysteps.forEach(s-> Disposer.register(this, s));
     if (firstStep != null) {
       moveToStep(firstStep);
     }
@@ -45,4 +49,8 @@ public class ProfileEditionWizardModel extends WizardModel {
     }
   }
 
+  @Override
+  public void dispose() {
+
+  }
 }

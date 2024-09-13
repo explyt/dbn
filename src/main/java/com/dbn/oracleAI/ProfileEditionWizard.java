@@ -21,7 +21,9 @@ import com.dbn.oracleAI.config.ProfileUpdate;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionWizardModel;
 import com.dbn.oracleAI.service.AIProfileService;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.wizard.WizardDialog;
 import com.intellij.util.ui.JBDimension;
@@ -43,7 +45,7 @@ import static com.dbn.nls.NlsResources.txt;
  * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
  */
 @Slf4j
-public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> {
+public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> implements Disposable {
 
   private final Profile initialProfile;
   private final Profile editedProfile;
@@ -75,9 +77,8 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
     finishButton.setText(txt(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
-
+    Disposer.register(this, myModel);
   }
-
 
   @Override
   protected void doOKAction() {
@@ -172,5 +173,10 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
       wizard.show();
 
     });
+  }
+
+  @Override
+  public void dispose() {
+    super.dispose();
   }
 }

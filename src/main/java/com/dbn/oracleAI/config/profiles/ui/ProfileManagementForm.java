@@ -52,7 +52,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-import static com.dbn.common.ui.util.UserInterface.whenShown;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -93,9 +92,9 @@ public class ProfileManagementForm extends DBNFormBase {
     initActionsPanel();
     initProfilesList();
     initDetailsPanel();
-    loadProfiles();
-
     initChangeListener();
+
+    whenShown(() -> loadProfiles());
   }
 
   private void initChangeListener() {
@@ -137,7 +136,6 @@ public class ProfileManagementForm extends DBNFormBase {
     });
 
     profilesList.setCellRenderer(new ProfileListCellRenderer(getConnection()));
-    whenShown(profilesList, () -> contentSplitPane.setDividerLocation(240));
   }
 
   private void initActionsPanel() {
