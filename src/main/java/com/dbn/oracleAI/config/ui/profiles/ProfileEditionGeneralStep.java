@@ -19,6 +19,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
@@ -43,6 +44,7 @@ import java.awt.event.ItemEvent;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -153,7 +155,8 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
       credentialComboBox.removeAllItems();
       credentialNames.forEach(c -> credentialComboBox.addItem(c));
-      credentialComboBox.setSelectedItem(currentCredential);
+      String selectedCredential = nvln(currentCredential, Lists.firstElement(credentialNames));
+      credentialComboBox.setSelectedItem(selectedCredential);
     });
 
 /*
