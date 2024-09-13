@@ -14,6 +14,7 @@ import java.sql.SQLException;
 import java.util.StringTokenizer;
 
 import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.common.util.Unsafe.warned;
 import static com.dbn.editor.code.content.GuardedBlockMarker.END_OFFSET_IDENTIFIER;
 import static com.dbn.editor.code.content.GuardedBlockMarker.START_OFFSET_IDENTIFIER;
 
@@ -25,7 +26,7 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
     @Override
     public void initializeJdwpSession(DBNConnection connection, String host, String port) throws SQLException {
         executeCall(connection, null, "initialize-session-debugging");
-        executeCall(connection, null, "initialize-session-compiler-flags");
+        warned(() -> executeCall(connection, null, "initialize-session-compiler-flags"));
         executeCall(connection, null, "connect-jdwp-session", host, port);
     }
 
@@ -37,7 +38,7 @@ public class OracleDebuggerInterface extends DatabaseDebuggerInterfaceImpl imple
     @Override
     public DebuggerSessionInfo initializeSession(DBNConnection connection) throws SQLException {
         executeCall(connection, null, "initialize-session-debugging");
-        executeCall(connection, null, "initialize-session-compiler-flags");
+        warned(() -> executeCall(connection, null, "initialize-session-compiler-flags"));
         return executeCall(connection, new DebuggerSessionInfo(), "initialize-session");
     }
 
