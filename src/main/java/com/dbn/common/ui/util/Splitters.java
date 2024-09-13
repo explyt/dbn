@@ -1,5 +1,6 @@
 package com.dbn.common.ui.util;
 
+import com.dbn.common.thread.Dispatch;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.ui.JBSplitter;
 import com.intellij.ui.OnePixelSplitter;
@@ -32,6 +33,7 @@ public class Splitters {
         splitter.setSecondComponent(component2);
         splitter.setShowDividerControls(pane.isOneTouchExpandable());
         splitter.setHonorComponentsMinimumSize(true);
+        splitter.setDividerPositionStrategy(Splitter.DividerPositionStrategy.KEEP_FIRST_SIZE);
 
         if (parent instanceof Splitter) {
             Splitter psplitter = (Splitter) parent;
@@ -46,22 +48,25 @@ public class Splitters {
             parent.add(splitter, BorderLayout.CENTER);
         }
 
-        if (pane.getDividerLocation() > 0) {
+        double dividerLocation = pane.getDividerLocation();
+        if (dividerLocation > 0) {
             UserInterface.whenShown(splitter, () -> {
-                double proportion;
-                double dividerLocation = pane.getDividerLocation();
+                Dispatch.run(() -> {
+                    double proportion;
 
-                if (pane.getOrientation() == VERTICAL_SPLIT) {
-                    double height = (parent.getHeight() - pane.getDividerSize());
-                    proportion = height > 0 ? dividerLocation / height : 0;
-                } else {
-                    double width = (parent.getWidth() - pane.getDividerSize());
-                    proportion = width > 0 ? dividerLocation / width : 0;
-                }
+                    if (pane.getOrientation() == VERTICAL_SPLIT) {
+                        double height = (parent.getHeight() - pane.getDividerSize());
+                        proportion = height > 0 ? dividerLocation / height : 0;
+                    } else {
+                        double width = (parent.getWidth() - pane.getDividerSize());
+                        proportion = width > 0 ? dividerLocation / width : 0;
+                    }
 
-                if (proportion > 0.0 && proportion < 1.0) {
-                    splitter.setProportion((float) proportion);
-                }
+                    if (proportion > 0.0 && proportion < 1.0) {
+                        splitter.setProportion((float) proportion);
+                    }
+                });
+
             });
         }
     }
