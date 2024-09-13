@@ -14,10 +14,6 @@
 
 package com.dbn.oracleAI.config.credentials.action;
 
-import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.ToggleAction;
-import com.dbn.common.icon.Icons;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBCredential;
 import com.dbn.oracleAI.config.credentials.CredentialManagementService;
 import com.dbn.oracleAI.config.credentials.ui.CredentialManagementForm;
@@ -25,57 +21,38 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import static com.intellij.icons.AllIcons.Diff.GutterCheckBox;
+import static com.intellij.icons.AllIcons.Diff.GutterCheckBoxSelected;
 
 /**
  * Toggle action for the credential management dialogs, allowing to quickly enable or disable a Credential
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
-public class CredentialStatusToggleAction extends ToggleAction {
+public class CredentialStatusAction extends CredentialManagementAction {
+
     @Override
-    public boolean isSelected(@NotNull AnActionEvent e) {
+    protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         DBCredential credential = getSelectedCredential(e);
-        return credential != null && credential.isEnabled();
-    }
-
-    @Override
-    public void setSelected(@NotNull AnActionEvent e, boolean selected) {
-        CredentialManagementForm managementForm = getManagementForm(e);
-        if (managementForm == null) return;
-
-        DBCredential credential = managementForm.getSelectedCredential();
         if (credential == null) return;
 
-        ConnectionHandler connection = managementForm.getConnection();
-        Project project = connection.getProject();
         CredentialManagementService managementService = CredentialManagementService.getInstance(project);
-
-        if (selected)
-            managementService.enableCredential(credential, null); else
-            managementService.disableCredential(credential, null);
+        if (credential.isEnabled())
+            managementService.disableCredential(credential, null); else
+            managementService.enableCredential(credential, null);
     }
 
     @Override
-    public void update(@NotNull AnActionEvent e) {
-        Presentation presentation = e.getPresentation();
-        presentation.setIcon(
-                isSelected(e) ?
-                        Icons.COMMON_FILTER_ACTIVE :
-                        Icons.COMMON_FILTER_INACTIVE);
+    protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
+        DBCredential credential = getSelectedCredential(e);
+        boolean enabled = credential != null && credential.isEnabled();
 
+        Presentation presentation = e.getPresentation();
+        presentation.setIcon(enabled ? GutterCheckBoxSelected: GutterCheckBox);
+        presentation.setText(enabled ? "Disable Credential" : "Enable Credential");
         presentation.setEnabled(isEnabled(e));
     }
 
-    private static @Nullable CredentialManagementForm getManagementForm(@NotNull AnActionEvent e) {
-        return e.getData(DataKeys.CREDENTIAL_MANAGEMENT_FORM);
-    }
-
-    private static DBCredential getSelectedCredential(@NotNull AnActionEvent e) {
-        CredentialManagementForm managementForm = getManagementForm(e);
-        if (managementForm == null) return null;
-
-        return managementForm.getSelectedCredential();
-    }
 
     private static boolean isEnabled(@NotNull AnActionEvent e) {
         CredentialManagementForm managementForm = getManagementForm(e);

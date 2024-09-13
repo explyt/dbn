@@ -16,6 +16,7 @@ package com.dbn.oracleAI.config.credentials.action;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.action.ProjectAction;
+import com.dbn.object.DBCredential;
 import com.dbn.oracleAI.config.credentials.ui.CredentialManagementForm;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
@@ -28,7 +29,17 @@ import org.jetbrains.annotations.Nullable;
  * @author Dan Cioca (dan.cioca@oracle.com)
  */
 public abstract class CredentialManagementAction extends ProjectAction {
-    protected static @Nullable CredentialManagementForm getManagementForm(@NotNull AnActionEvent e) {
+
+    @Nullable
+    protected static CredentialManagementForm getManagementForm(@NotNull AnActionEvent e) {
         return e.getData(DataKeys.CREDENTIAL_MANAGEMENT_FORM);
+    }
+
+    @Nullable
+    protected static DBCredential getSelectedCredential(@NotNull AnActionEvent e) {
+        CredentialManagementForm managementForm = getManagementForm(e);
+        if (managementForm == null) return null;
+
+        return managementForm.getSelectedCredential();
     }
 }
