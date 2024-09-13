@@ -14,11 +14,14 @@
 
 package com.dbn.oracleAI;
 
+import com.dbn.common.Priority;
 import com.dbn.common.component.ConnectionComponent;
+import com.dbn.common.routine.ParametricCallable;
+import com.dbn.common.routine.ParametricRunnable;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
@@ -38,7 +41,22 @@ public abstract class AIAssistantComponent extends ConnectionComponent {
         return getConnection().getAssistantInterface();
     }
 
-    protected final DBNConnection getAssistantConnection() throws SQLException {
-        return getConnection(SessionId.ORACLE_AI);
+    /**
+     * Executes a database interface call using the controlled {@link DatabaseInterfaceInvoker} managed threads
+     * @param callable the task to execute inside database interface managed threads
+     * @param <T> the return type expected from the interface
+     * @throws SQLException if task execution fails
+     */
+    protected <T> T executeCall(ParametricCallable<DBNConnection, T, SQLException> callable) throws SQLException {
+        return DatabaseInterfaceInvoker.load(Priority.HIGH, getProject(), getConnectionId(), conn -> callable.call(conn));
+    }
+
+    /**
+     * Executes a database interface task using the controlled {@link DatabaseInterfaceInvoker} managed threads
+     * @param runnable the task to execute inside database interface managed threads
+     * @throws SQLException if task execution fails
+     */
+    protected void executeTask(ParametricRunnable<DBNConnection, SQLException> runnable) throws SQLException {
+        DatabaseInterfaceInvoker.execute(Priority.HIGH, getProject(), getConnectionId(), conn -> runnable.run(conn));
     }
 }

@@ -28,7 +28,6 @@ import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.oracleAI.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
-import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
 import com.dbn.oracleAI.config.ui.AssistantSettingsDialog;
 import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.model.ChatMessageContext;
@@ -159,7 +158,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         return connection.getAssistantInterface()
                 .executeQuery(conn, action, profile, text, model)
                 .getQueryOutput();
-      } catch (QueryExecutionException | SQLException e) {
+      } catch (SQLException e) {
         throw new CompletionException(e);
       }
     });

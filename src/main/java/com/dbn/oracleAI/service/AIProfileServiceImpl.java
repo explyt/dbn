@@ -15,10 +15,8 @@
 package com.dbn.oracleAI.service;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.AIAssistantComponent;
 import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 
@@ -67,15 +65,13 @@ public class AIProfileServiceImpl extends AIAssistantComponent implements AIProf
     return CompletableFuture.supplyAsync(() -> {
       try {
         log.debug("getting profiles");
-        DBNConnection connection = getAssistantConnection();
-        List<Profile> profileList = getAssistantInterface().listProfiles(connection);
-
+        List<Profile> profileList = executeCall(connection -> getAssistantInterface().listProfiles(connection));
         dumpThem(profileList, System.getProperty("fake.services.profiles.dump") );
 
         if (log.isDebugEnabled())
           log.debug("fetched profiles:" + profileList);
           return new ArrayList<>(profileList);
-      } catch (ProfileManagementException | SQLException e) {
+      } catch (SQLException e) {
         log.warn("error getting profiles", e);
         throw new CompletionException("Cannot get profiles", e);
       }
@@ -87,9 +83,8 @@ public class AIProfileServiceImpl extends AIAssistantComponent implements AIProf
   public CompletableFuture<Void> delete(String profileName) {
     return CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = getAssistantConnection();
-        getAssistantInterface().dropProfile(connection, profileName);
-      } catch (SQLException | ProfileManagementException e) {
+        executeTask(connection -> getAssistantInterface().dropProfile(connection, profileName));
+      } catch (SQLException e) {
         log.warn("error deleting profile "+ profileName, e);
         throw new CompletionException("Cannot delete profile", e);
       }
@@ -101,9 +96,8 @@ public class AIProfileServiceImpl extends AIAssistantComponent implements AIProf
   public CompletionStage<Void> create(Profile profile) {
     return CompletableFuture.runAsync(() -> {
           try {
-            DBNConnection connection = getAssistantConnection();
-            getAssistantInterface().createProfile(connection, profile);
-          } catch (SQLException | ProfileManagementException e) {
+            executeTask(connection -> getAssistantInterface().createProfile(connection, profile));
+          } catch (SQLException e) {
             log.warn("error creating profile", e);
             throw new CompletionException("Cannot create profile", e);
           }
@@ -115,9 +109,8 @@ public class AIProfileServiceImpl extends AIAssistantComponent implements AIProf
   public CompletionStage<Void> update(Profile updatedProfile) {
     return CompletableFuture.runAsync(() -> {
           try {
-            DBNConnection connection = getAssistantConnection();
-            getAssistantInterface().setProfileAttributes(connection, updatedProfile);
-          } catch (SQLException | ProfileManagementException e) {
+            executeTask(connection -> getAssistantInterface().setProfileAttributes(connection, updatedProfile));
+          } catch (SQLException e) {
             log.warn("error updating profiles", e);
             throw new CompletionException("Cannot update profile", e);
           }

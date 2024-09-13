@@ -15,10 +15,8 @@
 package com.dbn.oracleAI.service;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.AIAssistantComponent;
 import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 
@@ -50,9 +48,8 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
   public CompletableFuture<Void> create(Credential credential) {
     return CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = getAssistantConnection();
-        getAssistantInterface().createCredential(connection, credential);
-      } catch (CredentialManagementException | SQLException e) {
+        executeTask(connection -> getAssistantInterface().createCredential(connection, credential));
+      } catch (SQLException e) {
         throw new CompletionException("Cannot create credential", e);
       }
     });
@@ -62,9 +59,8 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
   public CompletableFuture<Void> update(Credential editedCredential) {
     return CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = getAssistantConnection();
-        getAssistantInterface().setCredentialAttribute(connection, editedCredential);
-      } catch (CredentialManagementException | SQLException e) {
+        executeTask(connection -> getAssistantInterface().setCredentialAttribute(connection, editedCredential));
+      } catch (SQLException e) {
         throw new CompletionException("Cannot update credential", e);
       }
     });
@@ -79,10 +75,7 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
   public CompletableFuture<List<Credential>> list() {
     return CompletableFuture.supplyAsync(() -> {
       try {
-        // Obtain a connection for Oracle AI session
-        DBNConnection connection = getAssistantConnection();
-
-        List<Credential> credentialList = getAssistantInterface().listCredentials(connection);
+        List<Credential> credentialList = executeCall(connection-> getAssistantInterface().listCredentials(connection));
         if (System.getProperty("fake.services.credentials.dump") != null) {
           try {
             FileWriter writer = new FileWriter(System.getProperty("fake.services.credentials.dump"));
@@ -96,7 +89,7 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
         }
         // Fetch and return detailed list of credentials
         return credentialList;
-      } catch (CredentialManagementException | SQLException e) {
+      } catch (SQLException e) {
         throw new CompletionException("Cannot list credentials", e);
       }
     });
@@ -114,9 +107,8 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
     }
     return CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = getAssistantConnection();
-        getAssistantInterface().dropCredential(connection, credentialName);
-      } catch (SQLException | CredentialManagementException e) {
+        executeTask(connection-> getAssistantInterface().dropCredential(connection, credentialName));
+      } catch (SQLException e) {
         throw new CompletionException("Cannot delete credential", e);
       }
     });
@@ -129,9 +121,8 @@ public class AICredentialServiceImpl extends AIAssistantComponent implements AIC
     }
     CompletableFuture.runAsync(() -> {
       try {
-        DBNConnection connection = getAssistantConnection();
-        getAssistantInterface().updateCredentialStatus(connection, credentialName, isEnabled);
-      } catch (SQLException | CredentialManagementException e) {
+        executeTask(connection-> getAssistantInterface().updateCredentialStatus(connection, credentialName, isEnabled));
+      } catch (SQLException e) {
         throw new CompletionException("Cannot update credential status", e);
       }
     });

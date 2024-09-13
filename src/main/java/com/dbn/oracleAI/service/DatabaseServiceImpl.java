@@ -15,10 +15,8 @@
 package com.dbn.oracleAI.service;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.oracleAI.AIAssistantComponent;
 import com.dbn.oracleAI.config.DBObjectItem;
-import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +44,7 @@ public class DatabaseServiceImpl extends AIAssistantComponent implements Databas
     return CompletableFuture.supplyAsync(() -> {
       try {
         log.debug("fetching schemas");
-        DBNConnection connection = getAssistantConnection();
-        List<String> schemas = getAssistantInterface().listSchemas(connection);
+        List<String> schemas = executeCall(connection -> getAssistantInterface().listSchemas(connection));
         if (log.isDebugEnabled())
           log.debug("fetched schemas: " + schemas);
         if (System.getProperty("fake.services.schemas.dump") != null) {
@@ -62,7 +59,7 @@ public class DatabaseServiceImpl extends AIAssistantComponent implements Databas
           }
         }
         return schemas;
-      } catch (DatabaseOperationException | SQLException e) {
+      } catch (SQLException e) {
         log.warn("cannot fetch schemas", e);
         throw new CompletionException("Cannot get schemas", e);
       }
@@ -73,8 +70,7 @@ public class DatabaseServiceImpl extends AIAssistantComponent implements Databas
     return CompletableFuture.supplyAsync(() -> {
       try {
         log.debug("fetching objects for schema " + schema);
-        DBNConnection connection = getAssistantConnection();
-        List<DBObjectItem> objectListItemsList = getAssistantInterface().listObjectListItems(connection, schema);
+        List<DBObjectItem> objectListItemsList = executeCall(connection -> getAssistantInterface().listObjectListItems(connection, schema));
         log.debug("getObjectItemsForSchema: "+objectListItemsList.size() + " objects returned ");
         if (System.getProperty("fake.services.dbitems.dump") != null) {
           try {
@@ -91,7 +87,7 @@ public class DatabaseServiceImpl extends AIAssistantComponent implements Databas
           }
         }
         return objectListItemsList;
-      } catch (DatabaseOperationException | SQLException e) {
+      } catch (SQLException e) {
         log.warn("error while fetching schema object list", e);
         throw new CompletionException("Cannot list object list items", e);
       }
@@ -101,8 +97,7 @@ public class DatabaseServiceImpl extends AIAssistantComponent implements Databas
   public CompletableFuture<Void> grantACLRights(String command) {
     return CompletableFuture.supplyAsync(() -> {
       try {
-        DBNConnection connection = getAssistantConnection();
-        getAssistantInterface().grantACLRights(connection, command);
+        executeTask(connection -> getAssistantInterface().grantACLRights(connection, command));
       } catch (SQLException e) {
         throw new CompletionException(e);
       }
@@ -113,8 +108,7 @@ public class DatabaseServiceImpl extends AIAssistantComponent implements Databas
   public CompletableFuture<Void> grantPrivilege(String username) {
     return CompletableFuture.supplyAsync(() -> {
       try {
-        DBNConnection connection = getAssistantConnection();
-        getAssistantInterface().grantPrivilege(connection, username);
+        executeTask(connection -> getAssistantInterface().grantPrivilege(connection, username));
       } catch (SQLException e) {
         throw new CompletionException(e);
       }
@@ -125,8 +119,7 @@ public class DatabaseServiceImpl extends AIAssistantComponent implements Databas
   public CompletableFuture<Void> isUserAdmin() {
     return CompletableFuture.supplyAsync(() -> {
       try {
-        DBNConnection connection = getAssistantConnection();
-        getAssistantInterface().checkAdmin(connection);
+        executeTask(connection -> getAssistantInterface().checkAdmin(connection));
       } catch (SQLException e) {
         throw new CompletionException(e);
       }
