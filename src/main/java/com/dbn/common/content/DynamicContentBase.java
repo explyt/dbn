@@ -12,12 +12,12 @@ import com.dbn.common.list.FilteredList;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.property.DisposablePropertyHolder;
 import com.dbn.common.property.PropertyHolderBase;
-import com.dbn.common.util.Lists;
-import com.dbn.common.util.Strings;
-import com.dbn.common.util.Unsafe;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Synchronized;
 import com.dbn.common.thread.ThreadMonitor;
+import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
+import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseEntity;
@@ -266,11 +266,9 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
         checkDisposed();
 
         try {
-            // mark first the dirty status since dirty dependencies may
-            // become valid due to parallel background load
-            set(DynamicContentProperty.DIRTY, false);
             DynamicContentLoader<T, ?> loader = getLoader();
             loader.loadContent(this);
+            set(DynamicContentProperty.DIRTY, false);
             set(DynamicContentProperty.LOADED, true);
 
             // refresh inner elements
