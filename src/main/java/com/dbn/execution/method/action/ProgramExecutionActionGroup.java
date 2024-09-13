@@ -14,8 +14,8 @@ public class ProgramExecutionActionGroup extends DefaultActionGroup {
             add(new ProgramMethodRunAction((DBProgram) object));
             add(new ProgramMethodDebugAction((DBProgram) object));
         } else {
-            add(new MethodRunAction((DBMethod) object));
-            add(new MethodDebugAction((DBMethod) object));
+            add(new MethodRunAction((DBMethod) object, false));
+            add(new MethodDebugAction((DBMethod) object, false));
         }
     }
 }

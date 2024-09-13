@@ -58,6 +58,6 @@ public class ProgramMethodDebugAction extends ObjectListShowAction {
 
     @Override
     protected AnAction createObjectAction(DBObject object) {
-        return new MethodDebugAction((DBProgram) getSourceObject(), (DBMethod) object);
+        return new MethodDebugAction((DBMethod) object, true);
     }
 }

@@ -59,6 +59,6 @@ public class ProgramMethodRunAction extends ObjectListShowAction {
 
     @Override
     protected AnAction createObjectAction(DBObject object) {
-        return new MethodRunAction((DBProgram) getSourceObject(), (DBMethod) object);
+        return new MethodRunAction((DBMethod) object, true);
     }
 }

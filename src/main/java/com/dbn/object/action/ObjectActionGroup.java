@@ -12,7 +12,6 @@ import com.dbn.generator.action.GenerateStatementActionGroup;
 import com.dbn.object.*;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.*;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.action.HideAuditColumnsToggleAction;
 import com.dbn.object.common.list.action.HideEmptySchemasToggleAction;
@@ -65,9 +64,10 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
         if (object instanceof DBMethod) {
             addSeparator();
-            add(new MethodRunAction((DBMethod) object));
+            DBMethod method = (DBMethod) object;
+            add(new MethodRunAction(method, false));
             if (DatabaseFeature.DEBUGGING.isSupported(object)) {
-                add(new MethodDebugAction((DBMethod) object));
+                add(new MethodDebugAction(method, false));
             }
         }
 
