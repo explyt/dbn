@@ -15,6 +15,7 @@
 package com.dbn.oracleAI.ui;
 
 import com.dbn.oracleAI.model.ChatMessage;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.util.ui.JBUI;
 
 import javax.swing.*;
@@ -30,7 +31,7 @@ public class UserChatMessageForm extends ChatMessageForm {
         super(parent, message);
         messageTextPane.setText(message.getContent());
 
-        initActionToolbar(true);
+        initActionToolbar();
         initProgressBar();
     }
 
@@ -39,6 +40,12 @@ public class UserChatMessageForm extends ChatMessageForm {
         progressBar.setVisible(message.isProgress());
         progressBar.setIndeterminate(true);
         progressBar.setBorder(JBUI.Borders.empty(0, 8, 8, 8));
+    }
+
+    @Override
+    protected AnAction[] createActions() {
+        String content = getMessage().getContent();
+        return new AnAction[]{new AskAgainAction(content), new CopyContentAction(content)};
     }
 
     private void createUIComponents() {

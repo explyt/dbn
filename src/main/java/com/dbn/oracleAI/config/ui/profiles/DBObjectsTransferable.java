@@ -1,6 +1,6 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
-import com.dbn.oracleAI.config.DBObjectItem;
+import com.dbn.object.DBDataset;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.DataFlavor;
@@ -14,19 +14,19 @@ import java.util.List;
  * This class is used during drag and drop between tables.
  * This class maintain a list of <code>DBObjectItem</code> to be transferred
  */
-public class DatabaseObjectsTransferable implements Transferable {
+public class DBObjectsTransferable implements Transferable {
 
-    public static final DataFlavor DatabaseObjectFlavor =
-            new DataFlavor(DBObjectItem.class, "DB object");
+    public static final DataFlavor ADD_FLAVOR = new DataFlavor(DBDataset.class, "Datasets");
+    public static final DataFlavor REMOVE_FLAVOR = new DataFlavor(Void.class, "Remove datasets");
 
-    private static final DataFlavor[] supportedFlavor = {DatabaseObjectFlavor};
-    private List<DBObjectItem> transferred;
+    private static final DataFlavor[] supportedFlavor = {ADD_FLAVOR};
+    private final List<DBDataset> transferred;
 
     /**
      * Creates a new DatabaseObjectsTransferable with a given list of DB object.
      * @param transferred list of DB object that will be transferred
      */
-    public DatabaseObjectsTransferable(List<DBObjectItem> transferred) {
+    public DBObjectsTransferable(List<DBDataset> transferred) {
         this.transferred = transferred;
     }
 

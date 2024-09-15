@@ -1,6 +1,7 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.swing.table.AbstractTableModel;
@@ -14,6 +15,7 @@ import static com.dbn.nls.NlsResources.txt;
  * A model that manipulate list of <code>ProfileDBObjectItem</code>
  */
 @Slf4j
+@Getter
 public class ProfileObjectListTableModel extends AbstractTableModel {
 
 
@@ -41,11 +43,15 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
 
     @Override
     public int getColumnCount() {
-        return columnNames.length;
+        return 1;
+        //return columnNames.length;
     }
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
+        return data.get(rowIndex);
+
+/*
         ProfileDBObjectItem item = data.get(rowIndex);
         switch (columnIndex) {
             case NAME_COLUMN_IDX:
@@ -55,24 +61,24 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
             default:
                 return null;
         }
+*/
     }
 
     @Override
     public String getColumnName(int column) {
-        return columnNames[column];
+        return "Dataset";
+        //return columnNames[column];
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
+        return ProfileDBObjectItem.class;
+/*
         if (columnIndex == 1) {
             return String.class;
         }
         return String.class;
-    }
-
-    @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
+*/
     }
 
 
@@ -98,6 +104,10 @@ public class ProfileObjectListTableModel extends AbstractTableModel {
     public void removeItem(ProfileDBObjectItem item) {
         log.debug("ProfileObjectListTableModel.removeItem: " + item);
         int index = data.indexOf(item);
+        removeItem(index);
+    }
+
+    public void removeItem(int index) {
         if (index >= 0) {
             data.remove(index);
             log.debug(

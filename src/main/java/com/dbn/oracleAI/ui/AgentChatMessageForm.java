@@ -42,7 +42,7 @@ public class AgentChatMessageForm extends ChatMessageForm {
 
         initTitlePanel();
         initMessagePanels();
-        initActionToolbar(false);
+        initActionToolbar();
     }
 
     private void createUIComponents() {
@@ -103,13 +103,12 @@ public class AgentChatMessageForm extends ChatMessageForm {
     }
 
     @Override
-    protected void initActionToolbar(boolean isUserMessage) {
+    protected void initActionToolbar() {
         if (hasCodeContents) {
             actionPanel.setVisible(false);
-            return;
+        } else {
+            super.initActionToolbar();
         }
-
-        super.initActionToolbar(isUserMessage);
     }
 
     @Override

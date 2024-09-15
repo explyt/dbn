@@ -34,7 +34,7 @@ public class SystemChatMessageForm extends ChatMessageForm {
         messageTextPane.setText(message.getContent());
 
         initTitlePanel();
-        initActionToolbar(false);
+        initActionToolbar();
     }
 
     private void createUIComponents() {

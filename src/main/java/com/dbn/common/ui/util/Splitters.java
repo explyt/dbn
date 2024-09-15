@@ -26,14 +26,17 @@ public class Splitters {
         JComponent component1 = (JComponent) pane.getTopComponent();
         JComponent component2 = (JComponent) pane.getBottomComponent();
         int orientation = pane.getOrientation();
-
+        double dividerLocation = pane.getDividerLocation();
         boolean vertical = orientation == VERTICAL_SPLIT;
         Splitter splitter = ClientProperty.REGULAR_SPLITTER.is(pane) ? new JBSplitter(vertical) : new OnePixelSplitter(vertical);
+
         splitter.setFirstComponent(component1);
         splitter.setSecondComponent(component2);
         splitter.setShowDividerControls(pane.isOneTouchExpandable());
         splitter.setHonorComponentsMinimumSize(true);
-        splitter.setDividerPositionStrategy(Splitter.DividerPositionStrategy.KEEP_FIRST_SIZE);
+        splitter.setDividerPositionStrategy(dividerLocation > 0 ?
+                Splitter.DividerPositionStrategy.KEEP_FIRST_SIZE :
+                Splitter.DividerPositionStrategy.KEEP_PROPORTION);
 
         if (parent instanceof Splitter) {
             Splitter psplitter = (Splitter) parent;
@@ -48,7 +51,7 @@ public class Splitters {
             parent.add(splitter, BorderLayout.CENTER);
         }
 
-        double dividerLocation = pane.getDividerLocation();
+
         if (dividerLocation > 0) {
             UserInterface.whenShown(splitter, () -> {
                 Dispatch.run(() -> {

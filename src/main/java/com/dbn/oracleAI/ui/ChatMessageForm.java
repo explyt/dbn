@@ -24,6 +24,7 @@ import com.dbn.oracleAI.model.ChatMessageContext;
 import com.dbn.oracleAI.types.AuthorType;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
@@ -82,17 +83,19 @@ public abstract class ChatMessageForm extends DBNFormBase {
         titleLabel.setText(title);
     }
 
-    protected void initActionToolbar(boolean isUserMessage) {
+    protected void initActionToolbar() {
         JPanel actionPanel = getActionPanel();
-        ActionToolbar actionToolbar = isUserMessage ?
-            Actions.createActionToolbar(actionPanel, "", true, new AskAgainAction(message.getContent()), new CopyContentAction(message.getContent()))
-            :
-            Actions.createActionToolbar(actionPanel, "", true, new CopyContentAction(message.getContent()));
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, "", true, createActions());
+
         JComponent component = actionToolbar.getComponent();
         component.setOpaque(false);
         component.setBorder(Borders.EMPTY_BORDER);
         actionPanel.add(component, BorderLayout.NORTH);
         actionPanel.setBorder(JBUI.Borders.empty(4));
+    }
+
+    protected AnAction[] createActions() {
+        return new AnAction[]{new CopyContentAction(message.getContent())};
     }
 
     @Nullable

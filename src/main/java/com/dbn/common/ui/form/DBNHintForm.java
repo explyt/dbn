@@ -61,6 +61,9 @@ public class DBNHintForm extends DBNFormBase {
         } else {
             actionLink.setVisible(false);
         }
+
+        // workaround to force the text pane to resize to fit the content (alternative suggestions welcome)
+        hintTextPane.setPreferredSize(new Dimension(-1, 500));
     }
 
     private void updateComponentColors() {

@@ -61,12 +61,15 @@
           <grid row="3" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
-      <component id="17f72" class="javax.swing.JButton" binding="addCredentialButton">
+      <component id="87676" class="javax.swing.JButton" binding="addCredentialButton">
         <constraints>
-          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="+"/>
+          <minimumSize width="30" height="30"/>
+          <preferredSize width="30" height="15"/>
+          <text value=""/>
+          <toolTipText value="Create Credential"/>
         </properties>
       </component>
     </children>

@@ -16,6 +16,7 @@ package com.dbn.oracleAI;
 
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.diagnostics.Diagnostics;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileUpdate;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
@@ -26,8 +27,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.wizard.WizardDialog;
-import com.intellij.util.ui.JBDimension;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -80,6 +81,12 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   }
 
   @Override
+  protected void init() {
+    super.init();
+    setSize(600, 600);
+  }
+
+  @Override
   protected void doOKAction() {
     log.debug("entering doOKAction");
     if (editedProfile.getProfileName().isEmpty()) {
@@ -101,11 +108,17 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   }
 
   @Override
+  protected @NonNls @Nullable String getDimensionServiceKey() {
+    // remember last dialog size and position
+    return Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + getClass().getSimpleName();
+  }
+
+  @Override
   protected JComponent createCenterPanel() {
     JComponent wizard = super.createCenterPanel();
     JPanel mainPanel = new JPanel(new BorderLayout());
     mainPanel.add(wizard, BorderLayout.CENTER);
-    mainPanel.setMinimumSize(new JBDimension(600, 400));
+    //ainPanel.setMinimumSize(new JBDimension(600, 600));
     return mainPanel;
   }
 

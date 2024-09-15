@@ -1,12 +1,14 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
-import com.dbn.oracleAI.config.DBObjectItem;
+import com.dbn.object.DBDataset;
 import com.dbn.oracleAI.config.ProfileDBObjectItem;
+import com.intellij.designer.clipboard.SimpleTransferable;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.TableModel;
+import java.awt.*;
 import java.awt.datatransfer.Transferable;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,64 +23,55 @@ import java.util.stream.Collectors;
 public class DBObjectsTransferHandler extends TransferHandler {
 
     @Override
-    public boolean canImport(TransferHandler.TransferSupport info) {
-        log.trace("DatabaseObjectsTransferHandler.canImport: drop action: " + info.getDropAction());
-        // Check for String flavor
-        if (!info.isDataFlavorSupported(DatabaseObjectsTransferable.DatabaseObjectFlavor) ||!info.isDrop()) {
-            log.trace("DatabaseObjectsTransferHandler.canImport: -> false");
-            return false;
-        }
+    public boolean canImport(TransferSupport info) {
+        if (!info.isDrop()) return false;
+        if (!isSelectAction(info) && !isDeselectAction(info)) return false;
 
-        log.trace("DatabaseObjectsTransferHandler.canImport: -> true");
         info.setShowDropLocation(true);
         return true;
     }
 
-    @Override
-    public boolean importData(TransferHandler.TransferSupport info) {
-        log.trace("DatabaseObjectsTransferHandler.importData");
-        if (!canImport(info)) {
-            return false;
-        }
 
-        JTable.DropLocation dl = (JTable.DropLocation)info.getDropLocation();
-        int row = dl.getRow();
-        JTable table = (JTable)info.getComponent();
-        try {
-            List<DBObjectItem> l = (List<DBObjectItem>)info.getTransferable().getTransferData(DatabaseObjectsTransferable.DatabaseObjectFlavor);
-            ProfileObjectListTableModel model = ((ProfileObjectListTableModel)((JTable)info.getComponent()).getModel());
-            model.addItems(l.stream().map(i->new ProfileDBObjectItem(i.getOwner(),i.getName())).collect(Collectors.toList()));
-        } catch (Exception e) {
-            // never happen
-            log.warn("Failed to transfer data", e);
-            throw new RuntimeException(e);
-        }return true;
+    @Override
+    public boolean importData(TransferSupport info) {
+        if (!canImport(info)) return false;
+
+        if (info.isDataFlavorSupported(DBObjectsTransferable.REMOVE_FLAVOR)) return true;
+        if (info.isDataFlavorSupported(DBObjectsTransferable.ADD_FLAVOR)) return selectData(info);
+
+        return false;
     }
 
-    @Override
-    protected void exportDone(JComponent source, Transferable data, int action) {
-        if (log.isTraceEnabled()) {
-            log.trace("DatabaseObjectsTransferHandler.exportDone: action == "+action+ ", data == " + data);
-        }
-        if (action == TransferHandler.MOVE) {
-            // hide selected hitems
-            DatabaseObjectsTransferable tData = (DatabaseObjectsTransferable)data;
-            JTable table = (JTable)source;
-            try {
-                List<DBObjectItem> l = (List<DBObjectItem>)data.getTransferData(DatabaseObjectsTransferable.DatabaseObjectFlavor);
-                ((DatabaseObjectListTableModel)table.getModel()).hideItemByNames(
-                        l.stream().map(dbObjectItem -> dbObjectItem.getName()).collect(Collectors.toList()));
+    private static boolean selectData(TransferSupport info) {
+        try {
+            Transferable transferable = info.getTransferable();
+            List<DBDataset> l = (List<DBDataset>) transferable.getTransferData(DBObjectsTransferable.ADD_FLAVOR);
 
-            } catch (Exception e) {
-                // never happen
-                throw new RuntimeException(e);
-            }
+            JTable table = (JTable) info.getComponent();
+            ProfileObjectListTableModel model = (ProfileObjectListTableModel) table.getModel();
+            model.addItems(l.stream().map(i->new ProfileDBObjectItem(i.getSchemaName(),i.getName())).collect(Collectors.toList()));
+            return true;
+        } catch (Exception e) {
+            log.warn("Failed to transfer data", e);
+            return false;
+
         }
+    }
+
+    protected void exportDone(JComponent source, Transferable data, int action) {
+        if (action != TransferHandler.MOVE) return;
+        JTable table = (JTable) source;
+        TableModel model = table.getModel();
+        if (model instanceof ProfileObjectListTableModel) {
+            ProfileObjectListTableModel objectModel = (ProfileObjectListTableModel) model;
+            List<ProfileDBObjectItem> objects = getSelectedItems(table);
+            objects.forEach(o -> objectModel.removeItem(o));
+        }
+
     }
 
     @Override
     public int getSourceActions(JComponent c) {
-        log.trace("DatabaseObjectsTransferHandler.getSourceActions -> " +  MOVE);
         return MOVE;
     }
 
@@ -86,26 +79,46 @@ public class DBObjectsTransferHandler extends TransferHandler {
     @Nullable
     @Override
     protected Transferable createTransferable(JComponent c) {
-        log.trace("DatabaseObjectsTransferHandler.createTransferable: " + c);
         JTable table = (JTable) c;
-        int[] rows = table.getSelectedRows();
         TableModel model = table.getModel();
 
-        // TODO below code (before if check was introduced) was throwing CCE as it was always assuming the model was of type DatabaseObjectListTableModel (transfer from "selected" to "source" was always throwing CCE)
-        if (model instanceof DatabaseObjectListTableModel) {
-            DatabaseObjectListTableModel objectListModel = (DatabaseObjectListTableModel) table.getModel();
-            List<DBObjectItem> transfered = new ArrayList<>();
-            for (int row : rows) {
-                transfered.add(objectListModel.getItemAt(row));
-            }
-            DatabaseObjectsTransferable transferable = new DatabaseObjectsTransferable(transfered);
-            if (log.isTraceEnabled())
-                log.trace("DatabaseObjectsTransferHandler.createTransferable new transferable: " + transferable);
-            return transferable;
+        if (model instanceof AvailableDatasetsTableModel) {
+            List<DBDataset> datasets = getSelectedItems(table);
+            return new DBObjectsTransferable(datasets);
+        } else if (model instanceof ProfileObjectListTableModel) {
+            return new SimpleTransferable("NULL", DBObjectsTransferable.REMOVE_FLAVOR);
         }
 
         return null;
     }
 
+
+    private static boolean isSelectAction(TransferSupport info) {
+        return info.isDataFlavorSupported(DBObjectsTransferable.ADD_FLAVOR) &&
+                getTableModel(info) instanceof ProfileObjectListTableModel;
+    }
+
+    private static boolean isDeselectAction(TransferSupport info) {
+        return info.isDataFlavorSupported(DBObjectsTransferable.REMOVE_FLAVOR) &&
+                getTableModel(info) instanceof AvailableDatasetsTableModel;
+    }
+
+    private static TableModel getTableModel(TransferSupport info) {
+        Component component = info.getComponent();
+        if (!(component instanceof JTable)) return null;
+        JTable table = (JTable) component;
+        return table.getModel();
+    }
+
+    private static <T> List<T> getSelectedItems(JTable table) {
+        int[] rows = table.getSelectedRows();
+        List<T> items = new ArrayList<>();
+        for (int row : rows) {
+            TableModel model = table.getModel();
+            T item = (T) model.getValueAt(row, 0);
+            items.add(item);
+        }
+        return items;
+    }
 
 }
