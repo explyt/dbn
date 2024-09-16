@@ -1,5 +1,7 @@
 package com.dbn.oracleAI.config.ui.profiles;
 
+import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.types.ProviderModel;
@@ -11,9 +13,12 @@ import com.intellij.ui.wizard.WizardStep;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Objects;
+import java.util.Set;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -29,14 +34,14 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
   private JLabel providerModelLabel;
   private JComboBox<ProviderModel> providerModelCombo;
   private JSlider temperatureSlider;
-  private Profile profile;
+  private final Profile profile;
 
   private static final int MIN_TEMPERATURE = 0;
   private static final int MAX_TEMPERATURE = 10;
   private static final int DEFAULT_TEMPERATURE = 5;
 
 
-  public ProfileEditionProviderStep(ConnectionHandler connection, @Nullable Profile profile, boolean isUpdate) {
+  public ProfileEditionProviderStep(ConnectionHandler connection, Profile profile, boolean isUpdate) {
     super(txt("profile.mgmt.provider_step.title"),
             txt("profile.mgmt.provider_step.explaination"),
             AllIcons.General.Settings);
@@ -47,7 +52,27 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
       providerNameCombo.setSelectedItem(profile.getProvider());
       providerModelCombo.setSelectedItem(profile.getModel() != null ? profile.getModel() : profile.getProvider().getDefaultModel());
       temperatureSlider.setValue((int) (profile.getTemperature() * 10));
+    } else {
+      UserInterface.whenShown(profileEditionProviderMainPane, () -> {
+        ProviderType providerType = guessProviderType(profile);
+        providerNameCombo.setSelectedItem(providerType);
+        providerModelCombo.setSelectedItem(providerType.getDefaultModel());
+        temperatureSlider.setValue(5);
+      }, false);
+
     }
+  }
+
+  private ProviderType guessProviderType(Profile profile) {
+    Set<String> captions = new HashSet<>();
+    captions.add(nvl(profile.getProfileName(), ""));
+    captions.add(nvl(profile.getCredentialName(), ""));
+    captions.add(nvl(profile.getDescription(), ""));
+
+    for (ProviderType value : ProviderType.values()) {
+        if (captions.stream().anyMatch(c -> Strings.containsIgnoreCase(c, value.name()))) return value;
+    }
+    return ProviderType.values()[0];
   }
 
   private void populateCombos() {

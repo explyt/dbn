@@ -72,7 +72,16 @@ public class UserInterface {
         });
     }
 
+    /**
+     * TODO rename to whenFirstShown
+     * @param component
+     * @param runnable
+     */
     public static void whenShown(JComponent component, Runnable runnable) {
+        whenShown(component, runnable, true);
+    }
+
+    public static void whenShown(JComponent component, Runnable runnable, boolean first) {
         // one time invocation of the runnable when component is shown
         AtomicReference<AncestorListener> listenerRef = new AtomicReference<>();
         AncestorListener listener = new AncestorListenerAdapter() {
@@ -81,8 +90,11 @@ public class UserInterface {
                 try {
                     runnable.run();
                 } finally {
-                    AncestorListener listener = listenerRef.get();
-                    component.removeAncestorListener(listener);
+                    if (first) {
+                        // remove the listener if only first shown time is to be considered
+                        AncestorListener listener = listenerRef.get();
+                        component.removeAncestorListener(listener);
+                    }
                 }
 
             }
