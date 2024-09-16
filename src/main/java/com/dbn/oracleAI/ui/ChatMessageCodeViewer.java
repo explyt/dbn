@@ -68,7 +68,7 @@ public class ChatMessageCodeViewer extends JPanel {
         JPanel actionPanel = new JPanel();
         actionPanel.setOpaque(false);
         String content = viewer.getDocument().getText();
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, "", false, new CopyContentAction(content));
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, "", true, new CopyContentAction(content));
         JComponent component = actionToolbar.getComponent();
         component.setOpaque(false);
         component.setBorder(Borders.EMPTY_BORDER);
