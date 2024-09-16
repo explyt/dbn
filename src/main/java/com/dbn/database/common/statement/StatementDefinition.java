@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 
+import static com.dbn.common.util.Commons.nvl;
+
 public class StatementDefinition {
     private static final String DBN_PARAM_PLACEHOLDER = "DBN_PARAM_PLACEHOLDER";
     private final String statementText;
@@ -72,7 +74,7 @@ public class StatementDefinition {
     String prepareStatementText(Object... arguments) {
         String statementText = this.statementText;
         for (Integer argumentIndex : placeholderIndexes) {
-            String argumentValue = Matcher.quoteReplacement(arguments[argumentIndex].toString());
+            String argumentValue = Matcher.quoteReplacement(nvl(arguments[argumentIndex], "").toString());
             statementText = statementText.replaceFirst(prepared ? "\\?" : DBN_PARAM_PLACEHOLDER, argumentValue);
         }
         return statementText;

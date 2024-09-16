@@ -71,6 +71,9 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    */
   void createProfile(DBNConnection connection, Profile profileAttributes) throws ProfileManagementException;
 
+  void createProfile(DBNConnection connection, String name, String attributes, String description) throws SQLException;
+  void updateProfile(DBNConnection connection, String name, String attributes) throws SQLException;
+
   /**
    * Updates an attribute of an existing AI profile in the database.
    *

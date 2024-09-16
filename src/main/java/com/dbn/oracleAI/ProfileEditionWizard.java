@@ -14,9 +14,18 @@
 
 package com.dbn.oracleAI;
 
+import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.thread.Dispatch;
+import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionRef;
+import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.diagnostics.Diagnostics;
+import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBObjectType;
 import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ProfileUpdate;
 import com.dbn.oracleAI.config.ui.profiles.ProfileEditionObjectListStep;
@@ -35,8 +44,10 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.border.MatteBorder;
 import java.awt.*;
+import java.sql.SQLException;
 import java.util.Set;
 
+import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -54,7 +65,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private final boolean isUpdate;
   private JButton finishButton;
 
-  private final Project project;
+  private final ConnectionRef connection;
   private final AIProfileService profileSvc;
 
   /**
@@ -72,7 +83,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     super(false, new ProfileEditionWizardModel(
             connection, txt("profiles.settings.window.title"), profile, existingProfileNames, isUpdate,firstStep));
     this.profileSvc = AIProfileService.getInstance(connection);
-    this.project = connection.getProject();
+    this.connection = ConnectionRef.of(connection);
     this.initialProfile = new Profile(profile);
     this.editedProfile = profile;
     this.existingProfileNames = existingProfileNames;
@@ -88,6 +99,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   @Override
   protected void doOKAction() {
+    Project project = getProject();
     log.debug("entering doOKAction");
     if (editedProfile.getProfileName().isEmpty()) {
       Messages.showErrorDialog(project, txt("profile.mgmt.general_step.profile_name.validation.empty"));
@@ -103,7 +115,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
       Messages.showErrorDialog(project, txt("profile.mgmt.update.validation"));
     } else {
       commitWizardView();
-      super.doOKAction();
     }
   }
 
@@ -139,7 +150,38 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
 
   private void commitWizardView() {
-    log.debug("entering commitWizardView. isUpdate? " + isUpdate);
+    Project project = getProject();
+    String profileName = editedProfile.getProfileName();
+
+    String title = isUpdate ? "Updating AI-Profile" : "Creating AI-Profile";
+    String description = (isUpdate ? "Updating AI-profile \"" : "Creating AI-profile \"") + profileName + "\"";
+
+    Progress.modal(project, getConnection(), false, title, description, progress -> {
+        try {
+          ConnectionId connectionId = getConnection().getConnectionId();
+          DatabaseInterfaceInvoker.execute(HIGHEST,
+                    title,
+                    description,
+                    project,
+                  connectionId,
+                    conn -> {
+                      DatabaseAssistantInterface assistantInterface = getConnection().getAssistantInterface();
+                      String attributes = editedProfile.getAttributeJson();
+                      if (isUpdate)
+                          assistantInterface.updateProfile(conn, profileName, attributes); else
+                          assistantInterface.createProfile(conn, profileName, attributes, editedProfile.getDescription());
+
+                      ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, null, DBObjectType.PROFILE));
+                    });
+          Dispatch.run(getContentPanel(), () -> super.doOKAction());
+        } catch (SQLException e) {
+          String errorTitle = isUpdate ? "Profile Update Error" : "Profile Creation Error";
+          String errorMessage = (isUpdate ? "Failed to update AI-profile \"" : "Failed to create AI-profile \"") + profileName + "\"" ;
+          Messages.showErrorDialog(project, errorTitle, errorMessage, e);
+        }
+    });
+
+/*
     if (isUpdate) {
       profileSvc.update(editedProfile).thenRun(() -> {
         SwingUtilities.invokeLater(() -> {
@@ -160,6 +202,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
         return null;
       });
     }
+*/
   }
 
   /**
@@ -185,6 +228,14 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
       wizard.show();
 
     });
+  }
+
+  private ConnectionHandler getConnection() {
+    return ConnectionRef.ensure(connection);
+  }
+
+  private Project getProject() {
+    return getConnection().getProject();
   }
 
   @Override

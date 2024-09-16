@@ -64,6 +64,26 @@
             END;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="create-ai-profile" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.CREATE_PROFILE(
+                    PROFILE_NAME => '{0}',
+                    ATTRIBUTES   => '{1}',
+                    STATUS       => '{2}',
+                    DESCRIPTION  => '{3}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="update-ai-profile" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.SET_ATTRIBUTES(
+                    PROFILE_NAME => '{0}',
+                    ATTRIBUTES   => '{1}');
+            end;
+        </statement>
+    </statement-execution-processor>
     <statement-execution-processor id="pick-profile" timeout="120">
         <statement>
             BEGIN

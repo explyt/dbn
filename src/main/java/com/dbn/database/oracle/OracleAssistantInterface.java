@@ -91,6 +91,16 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   }
 
   @Override
+  public void createProfile(DBNConnection connection, String name, String attributes, String description) throws SQLException {
+    executeUpdate(connection, "create-ai-profile", name, attributes, "ENABLED", description);
+  }
+
+  @Override
+  public void updateProfile(DBNConnection connection, String name, String attributes) throws SQLException {
+    executeUpdate(connection, "update-ai-profile", name, attributes);
+  }
+
+  @Override
   public void dropProfile(DBNConnection connection, String profileName) throws ProfileManagementException {
     try {
       executeCall(connection, null, "drop-profile", profileName);

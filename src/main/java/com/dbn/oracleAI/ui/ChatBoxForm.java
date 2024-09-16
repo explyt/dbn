@@ -40,7 +40,6 @@ import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.utils.RollingJPanelWrapper;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.extern.slf4j.Slf4j;
@@ -107,7 +106,7 @@ public class ChatBoxForm extends DBNFormBase {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
       if (connectionId != getConnectionId()) return;
       if (objectType != DBObjectType.PROFILE) return;
-      loadProfiles();
+      reloadProfiles();
     });
   }
 

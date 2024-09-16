@@ -12,7 +12,7 @@ public class AssistantPrerequisitesDialog extends DBNDialog<AssistantPrerequisit
   private final ConnectionRef connection;
 
   public AssistantPrerequisitesDialog(ConnectionHandler connection) {
-    super(connection.getProject(), "Select AI - Help", true);
+    super(connection.getProject(), "Select AI Help", true);
     this.connection = ConnectionRef.of(connection);
     renameAction(getCancelAction(), "Close");
 

@@ -188,8 +188,8 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
   @Override
   public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
-    nameTextField.getInputVerifier().verify(nameTextField);
-    credentialComboBox.getInputVerifier().verify(credentialComboBox);
+    boolean nameValid = isUpdate || nameTextField.getInputVerifier().verify(nameTextField);
+    boolean credentialValid = credentialComboBox.getInputVerifier().verify(credentialComboBox);
     profile.setProfileName(nameTextField.getText());
     profile.setCredentialName((String) credentialComboBox.getSelectedItem());
     // special case for description: null and empty string is the same
@@ -205,9 +205,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
       profile.setDescription(descriptionTextField.getText());
     }
 
-
-
-    return super.onNext(model);
+    return nameValid && credentialValid ? super.onNext(model) : this;
   }
 
   @Override

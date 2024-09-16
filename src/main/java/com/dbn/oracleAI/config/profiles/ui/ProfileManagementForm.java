@@ -101,7 +101,7 @@ public class ProfileManagementForm extends DBNFormBase {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
       if (connectionId != getConnection().getConnectionId()) return;
       if (objectType != DBObjectType.PROFILE) return;
-      loadProfiles();
+      reloadProfiles();
     });
   }
 

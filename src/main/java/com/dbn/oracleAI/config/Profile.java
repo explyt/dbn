@@ -94,12 +94,7 @@ public class Profile implements AttributeInput {
 
   @Override
   public String toAttributeMap() throws IllegalArgumentException {
-    Gson gson = new GsonBuilder()
-            .excludeFieldsWithoutExposeAnnotation()
-            .registerTypeAdapter(ProviderModel.class, new ProviderModelSerializer())
-            .create();
-
-    String attributesJson = gson.toJson(this).replace("'", "''");
+    String attributesJson = getAttributeJson();
     return String.format(
             "profile_name => '%s',\n" +
                     "attributes => '%s',\n" +
@@ -108,6 +103,15 @@ public class Profile implements AttributeInput {
             attributesJson,
             description);
 
+  }
+
+  public String getAttributeJson() {
+    Gson gson = new GsonBuilder()
+            .excludeFieldsWithoutExposeAnnotation()
+            .registerTypeAdapter(ProviderModel.class, new ProviderModelSerializer())
+            .create();
+
+    return gson.toJson(this).replace("'", "''");
   }
 
   @Override
