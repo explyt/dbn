@@ -158,6 +158,8 @@ public class AssistantEditorActionUtil {
         if (psiFile == null) return null;
 
         PsiElement psiElement = psiFile.findElementAt(editor.getCaretModel().getOffset());
+        if (psiElement == null) psiElement = psiFile.getLastChild();
+
         return resolveCommentText(psiElement);
     }
 
