@@ -24,7 +24,7 @@ public class AskAgainAction extends BasicAction {
   private final String content;
 
   public AskAgainAction(String content) {
-    super("Ask Again", "Resend this prompt", Icons.ACTION_RERUN);
+    super("Ask Again", "Resend this prompt", Icons.ACTION_RETRY);
     this.content = content;
   }
 
