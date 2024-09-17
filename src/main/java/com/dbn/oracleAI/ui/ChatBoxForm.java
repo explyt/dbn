@@ -17,11 +17,13 @@ import com.dbn.common.action.DataKeys;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
@@ -40,6 +42,7 @@ import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.utils.RollingJPanelWrapper;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +58,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.oracleAI.types.ChatBoxStatus.*;
 
 /**
@@ -223,32 +227,28 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public void submitPrompt(String question) {
-    ApplicationManager.getApplication()
-        .executeOnPooledThread(
-            () -> {
-              processQuery(question, getState().getSelectedAction());
-            });
+    Background.run(getProject(), () -> processQuery(question));
   }
 
   public void submitPrompt() {
-    ApplicationManager.getApplication()
-        .executeOnPooledThread(
-            () -> {
-              String question = inputField.getAndClearText();
-              processQuery(question, getState().getSelectedAction());
-            });
+    submitPrompt(null);
   }
 
-  private void processQuery(String question, ActionAIType actionType) {
+  private void processQuery(String question) {
     ChatBoxState state = getState();
     if (!state.promptingAvailable()) return;
 
     AIProfileItem profile = state.getSelectedProfile();
     if (profile == null) return;
 
+    question = nvl(question, inputField.getAndClearText());
+    if (Strings.isEmptyOrSpaces(question)) return;
+
     state.set(QUERYING, true);
     inputField.setReadonly(true);
     ProviderModel model = profile.getModel();
+
+    ActionAIType actionType = state.getSelectedAction();
 
     ChatMessageContext context = new ChatMessageContext(profile.getName(), model, actionType);
     PersistentChatMessage inputChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, question, AuthorType.USER, context);
