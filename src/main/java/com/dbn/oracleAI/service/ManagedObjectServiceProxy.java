@@ -21,6 +21,7 @@ import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.oracleAI.config.AttributeInput;
 import com.intellij.openapi.project.Project;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -63,8 +64,7 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> extends Managed
 
       // internally capture the result upon completion
       future.thenCompose(list -> {
-        this.items = list;
-
+        this.items = new ArrayList<>(list);
         return null;
       });
 

@@ -91,6 +91,7 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
 
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
         ConnectionId connectionId = contextManager.getConnectionId(file);
+        if (connectionId == null) return; // do not switch away from last selected connection
 
         DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
         assistantManager.switchToConnection(connectionId);

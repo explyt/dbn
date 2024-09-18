@@ -17,9 +17,11 @@ package com.dbn.oracleAI;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
@@ -28,6 +30,7 @@ import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.oracleAI.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.oracleAI.config.Profile;
 import com.dbn.oracleAI.config.ui.AssistantSettingsDialog;
 import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.model.ChatMessageContext;
@@ -54,6 +57,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -64,6 +68,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.CardLayouts.*;
+import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 /**
@@ -89,6 +94,66 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   public static DatabaseAssistantManager getInstance(@NotNull Project project) {
     return projectService(project, DatabaseAssistantManager.class);
+  }
+
+  public void showToolWindow(@Nullable ConnectionId connectionId) {
+    ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
+    ToolWindow toolWindow = Failsafe.nn(toolWindowManager.getToolWindow(TOOL_WINDOW_ID));
+    toolWindow.show(null);
+    switchToConnection(connectionId);
+  }
+
+  public String getAssistantName(@Nullable ConnectionId connectionId) {
+    String defaultName = txt("app.assistant.title.DatabaseAssistantName_GENERIC");
+    if (connectionId == null) return defaultName;
+
+    ChatBoxState chatBoxState =getChatBoxState(connectionId);
+    return chatBoxState.getAssistantName();
+  }
+
+  public List<Profile> getAssistantProfiles(@Nullable ConnectionId connectionId) {
+    if (connectionId == null) return Collections.emptyList();
+
+    AIProfileService profileService = getProfileService(connectionId);
+    return profileService.list().join();
+  }
+
+
+  public void initializeAssistant(Project project, ConnectionId connectionId, Consumer<AIProfileItem> callback) {
+    AIProfileItem defaultProfile = getDefaultProfile(connectionId);
+    if (defaultProfile != null)  {
+      // assistant initialized -> invoke the callback
+      callback.accept(defaultProfile);
+      return;
+    }
+
+    ChatBoxState chatBoxState = getChatBoxState(connectionId);
+    if (!chatBoxState.isAcknowledged()) {
+      // assistant not yet acknowledged -> show acknowledgment popup
+      acknowledgeAssistant(project, connectionId);
+      return;
+    }
+
+    ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+    Progress.modal(project, connection, true, "Initializing DB Assistant", "Initializing database assistant", progress -> {
+      List<Profile> profiles = getAssistantProfiles(connectionId);
+      // no profiles created yet -> prompt profile creation
+      if (profiles.isEmpty()) {
+        Messages.showQuestionDialog(project,
+                getAssistantName(connectionId),
+                txt("msg.assistant.question.AcknowledgeAndCreateProfile"),
+                options("Create Profile", "Cancel"), 0,
+                option -> Conditional.when(option == 0, () -> ProfileEditionWizard.showWizard(connection, null, Collections.emptySet(), null)));
+      }
+    });
+  }
+
+  private void acknowledgeAssistant(Project project, ConnectionId connectionId) {
+    Messages.showQuestionDialog(project,
+            getAssistantName(connectionId),
+            txt("msg.assistant.question.AcknowledgeAndConfigure"),
+            Messages.OPTIONS_CONTINUE_CANCEL, 0,
+            option -> Conditional.when(option == 0, () -> showToolWindow(connectionId)));
   }
 
   /**
@@ -169,7 +234,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     Project project = getProject();
 
     Progress.modal(project, connection, true,
-            "Database Assistant",
+            getAssistantName(connectionId),
             getPromptText(context.getAction(), text), p -> {
       try {
 

@@ -15,10 +15,10 @@
 package com.dbn.oracleAI.editor;
 
 import com.dbn.common.thread.Command;
+import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Documents;
 import com.dbn.connection.ConnectionId;
 import com.dbn.language.sql.SQLLanguage;
-import com.dbn.oracleAI.AIProfileItem;
 import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.model.ChatMessageContext;
@@ -43,30 +43,30 @@ public class AssistantEditorAdapter {
   public static void submitQuery(Project project, Editor editor, ConnectionId connectionId, String prompt, ActionAIType action) {
     DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
 
-    AIProfileItem defaultProfile = manager.getDefaultProfile(connectionId);
-    if (defaultProfile == null) {
-      // TODO prompt profile creation wizard
-      return;
-    }
-    ChatMessageContext context = new ChatMessageContext(defaultProfile.getName(), defaultProfile.getModel(), action);
-    manager.generate(connectionId, prompt, context, message -> appendMessage(project, editor, message));
+    manager.initializeAssistant(project, connectionId, profile -> {
+      ChatMessageContext context = new ChatMessageContext(profile.getName(), profile.getModel(), action);
+      manager.generate(connectionId, prompt, context, message -> Dispatch.run(editor.getComponent(), () -> appendMessage(project, editor, message)));
+    });
   }
 
+
+
   private static void appendMessage(Project project, Editor editor, ChatMessage message) {
-    Command.run(project, "Database Assistant Response", () -> {
-      Document document = editor.getDocument();
-      PsiFile psiFile = Documents.getPsiFile(editor);
-      if (psiFile == null) return;
+    Dispatch.run(editor.getComponent(), () ->
+            Command.run(project, "Database Assistant Response", () -> {
+              Document document = editor.getDocument();
+              PsiFile psiFile = Documents.getPsiFile(editor);
+              if (psiFile == null) return;
 
-      PsiElement psiElement = psiFile.findElementAt(editor.getCaretModel().getOffset());
-      if (psiElement == null) return;
+              PsiElement psiElement = psiFile.findElementAt(editor.getCaretModel().getOffset());
+              if (psiElement == null) return;
 
-      String prefix = psiElement.getText().endsWith("\n") ? "" : "\n";
+              String prefix = psiElement.getText().endsWith("\n") ? "" : "\n";
 
-      int offset = psiElement.getTextRange().getEndOffset();
-      String content = message.outputForLanguage(SQLLanguage.INSTANCE);
-      document.insertString(offset, prefix + content + "\n");
-    });
+              int offset = psiElement.getTextRange().getEndOffset();
+              String content = message.outputForLanguage(SQLLanguage.INSTANCE);
+              document.insertString(offset, prefix + content + "\n");
+            }));
   }
 
 

@@ -27,6 +27,7 @@ public class Messages {
     public static final String[] OPTIONS_OK = options("OK");
     public static final String[] OPTIONS_YES_NO = options(txt("app.shared.button.Yes"), txt("app.shared.button.No"));
     public static final String[] OPTIONS_YES_CANCEL = options(txt("app.shared.button.Yes"), txt("app.shared.button.No"), txt("app.shared.button.Cancel"));
+    public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("app.shared.button.Continue"), txt("app.shared.button.Cancel"));
 
     public static void showErrorDialog(@Nullable Project project, String title, MessageBundle messages) {
         StringBuilder buffer = new StringBuilder();
