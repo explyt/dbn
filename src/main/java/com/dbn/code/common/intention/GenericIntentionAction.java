@@ -4,7 +4,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.intellij.codeInsight.intention.IntentionAction;
 import com.intellij.codeInsight.intention.PriorityAction;
-import com.intellij.codeInsight.intention.PsiElementBaseIntentionAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.DumbAware;
 import com.intellij.openapi.util.Iconable;
@@ -16,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.isAssistantSupported;
 import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.resolvePromptText;
 
-public abstract class GenericIntentionAction extends PsiElementBaseIntentionAction implements IntentionAction, PriorityAction, Iconable, DumbAware, Comparable {
+public abstract class GenericIntentionAction extends PsiElementIntentionAction implements IntentionAction, PriorityAction, Iconable, DumbAware, Comparable {
 
     @Override
     @NotNull

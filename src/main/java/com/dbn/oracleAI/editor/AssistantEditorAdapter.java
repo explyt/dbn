@@ -59,6 +59,7 @@ public class AssistantEditorAdapter {
               if (psiFile == null) return;
 
               PsiElement psiElement = psiFile.findElementAt(editor.getCaretModel().getOffset());
+              if (psiElement == null) psiElement = psiFile.getLastChild();
               if (psiElement == null) return;
 
               String prefix = psiElement.getText().endsWith("\n") ? "" : "\n";
