@@ -15,7 +15,6 @@ package com.dbn.oracleAI.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.exception.Exceptions;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
@@ -42,7 +41,6 @@ import com.dbn.oracleAI.types.AuthorType;
 import com.dbn.oracleAI.types.ProviderModel;
 import com.dbn.oracleAI.utils.RollingJPanelWrapper;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.extern.slf4j.Slf4j;
@@ -268,7 +266,8 @@ public class ChatBoxForm extends DBNFormBase {
           state.set(QUERYING, false);
           inputField.setReadonly(false);
           log.warn("Error processing query", e);
-          PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, Exceptions.causeMessage(e), AuthorType.SYSTEM, context);
+          String message = manager.getPresentableMessage(getConnectionId(), e);
+          PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, context);
           appendMessageToChat(errorMessage);
           return null;
         })

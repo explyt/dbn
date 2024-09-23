@@ -16,6 +16,7 @@ package com.dbn.oracleAI.ui;
 
 import com.dbn.common.message.MessageType;
 import com.dbn.oracleAI.model.ChatMessage;
+import com.intellij.openapi.actionSystem.AnAction;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -49,6 +50,11 @@ public class SystemChatMessageForm extends ChatMessageForm {
     @Override
     protected @Nullable JLabel getTitleLabel() {
         return titleLabel;
+    }
+
+    @Override
+    protected AnAction[] createActions() {
+        return new AnAction[]{new HelpAction()};
     }
 
     @Override

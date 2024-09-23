@@ -18,6 +18,7 @@ import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.exception.Exceptions;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
@@ -31,6 +32,8 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.oracleAI.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.oracleAI.config.Profile;
+import com.dbn.oracleAI.config.ProviderConfiguration;
+import com.dbn.oracleAI.config.ui.AssistantPrerequisitesDialog;
 import com.dbn.oracleAI.config.ui.AssistantSettingsDialog;
 import com.dbn.oracleAI.model.ChatMessage;
 import com.dbn.oracleAI.model.ChatMessageContext;
@@ -40,6 +43,7 @@ import com.dbn.oracleAI.service.mock.FakeAIProfileService;
 import com.dbn.oracleAI.service.mock.FakeDatabaseService;
 import com.dbn.oracleAI.types.ActionAIType;
 import com.dbn.oracleAI.types.AuthorType;
+import com.dbn.oracleAI.types.ProviderType;
 import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.dbn.oracleAI.ui.ChatBoxState;
 import com.intellij.openapi.components.State;
@@ -255,9 +259,46 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         throw e;
       } catch (Exception e) {
         conditionallyLog(e);
-        Messages.showErrorDialog(project, "Database Assistant Error", "Failed to generate AI Assistant response", e);
+        handleGenerateException(project, connectionId, e);
       }
     });
+  }
+
+  private void handleGenerateException(Project project, ConnectionId connectionId, Exception e) {
+    String assistantName = getAssistantName(connectionId);
+    String title = assistantName + " Error";
+
+    String message = getPresentableMessage(connectionId, e);
+
+    Messages.showErrorDialog(project, title,
+            message, options("Help", "Cancel"), 0,
+            option -> Conditional.when(option == 0, () -> showPrerequisitesDialog(connectionId)));
+  }
+
+  public String getPresentableMessage(ConnectionId connectionId, Throwable e) {
+    // todo move logic to OracleMessageParserInterface
+
+    e = Exceptions.rootCauseOf(e);
+    String assistantName = getAssistantName(connectionId);
+    String errorMessage = e.getMessage();
+    boolean networkAccessDenied = errorMessage != null && errorMessage.contains("ORA-24247");
+
+    if (networkAccessDenied) {
+      AIProfileItem profile = getDefaultProfile(connectionId);
+      if (profile != null) {
+        ProviderType selectedProvider = profile.getProvider();
+        String accessPoint = ProviderConfiguration.getAccessPoint(selectedProvider);
+
+        return txt("msg.assistant.error.NetworkAccessDenied", accessPoint, errorMessage);
+      }
+    }
+
+    return txt("msg.assistant.error.AssistantInvocationFailure", assistantName, errorMessage);
+  }
+
+  public void showPrerequisitesDialog(ConnectionId connectionId) {
+    ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+    Dialogs.show(() -> new AssistantPrerequisitesDialog(connection));
   }
 
   private String getPromptText(ActionAIType action, String prompt) {

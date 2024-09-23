@@ -57,6 +57,13 @@ public class Exceptions {
         return Commons.nvl(e.getCause(), e);
     }
 
+    public static Throwable rootCauseOf(Throwable e) {
+        while (e != null && e.getCause() != null && e.getCause() != e) {
+            e = e.getCause();
+        }
+        return e;
+    }
+
     public static String causeMessage(Throwable e) {
         return causeOf(e).getMessage();
     }
