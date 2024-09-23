@@ -78,8 +78,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 /**
  * Main database AI-Assistance management component
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Slf4j
 @State(

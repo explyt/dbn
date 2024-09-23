@@ -26,7 +26,7 @@ import java.sql.SQLException;
 
 /**
  * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in disabling entities of type {@link DBCredential}
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class CredentialDisableAdapter extends ObjectManagementAdapterBase<DBCredential> {
 

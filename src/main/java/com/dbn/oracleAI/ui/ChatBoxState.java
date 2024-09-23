@@ -47,8 +47,8 @@ import static com.dbn.common.util.Lists.*;
  * a history of questions, the AI answers, and the current connection.
  *
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Setter
 @Getter

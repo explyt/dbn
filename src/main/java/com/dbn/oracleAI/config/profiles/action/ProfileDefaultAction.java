@@ -29,7 +29,7 @@ import org.jetbrains.annotations.NotNull;
  * Profile management action - mark profile as default
  * (default profiles are used in the editor AI interactions)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ProfileDefaultAction extends ProfileManagementAction {
     @Override

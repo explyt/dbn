@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Action for selecting one individual AI-assistant model
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ModelSelectAction extends AbstractChatBoxAction {
     private final ProviderModel model;

@@ -53,8 +53,8 @@ import static com.dbn.nls.NlsResources.txt;
 /**
  * AI profile edition wizard class
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
+ * @author Ayoub Aarrasse (Oracle)
  */
 @Slf4j
 public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel> implements Disposable {

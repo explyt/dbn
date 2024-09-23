@@ -19,7 +19,7 @@ import lombok.experimental.UtilityClass;
 /**
  * Utility class allowing creation of different types of {@link Outcome}
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @UtilityClass
 public class Outcomes {

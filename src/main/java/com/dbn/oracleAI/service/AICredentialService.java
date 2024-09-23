@@ -30,7 +30,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * AI profile credential service
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 public interface AICredentialService extends ManagedObjectService<Credential>{
   /**

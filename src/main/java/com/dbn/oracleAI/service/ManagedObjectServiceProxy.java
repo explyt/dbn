@@ -37,7 +37,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
  * This proxy fetch remotely a soon as a destruptive operation has been
  * performed
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  * @param <E>
  */
 public class ManagedObjectServiceProxy<E extends AttributeInput> extends ManagedObjectServiceDelegate<E> {

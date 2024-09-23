@@ -43,7 +43,7 @@ import java.awt.*;
 /**
  * Input field used for the chat-box user prompt
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ChatBoxInputField extends JPanel {
     private final EditorEx editor;

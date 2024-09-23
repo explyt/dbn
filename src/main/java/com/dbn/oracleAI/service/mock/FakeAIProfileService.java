@@ -30,7 +30,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Mock profile maintenance service
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 public class FakeAIProfileService implements AIProfileService {
 

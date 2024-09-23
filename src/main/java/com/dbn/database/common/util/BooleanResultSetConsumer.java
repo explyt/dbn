@@ -23,7 +23,7 @@ import java.sql.SQLException;
  * Single value result set consumer, expecting the first column in the result set to be a boolean representation (Y, N, YES, NO, 1, 0)
  * See {@link Data#asBoolean(Object)}
  *
- *  * @author Dan Cioca (dan.cioca@oracle.com)
+ *  * @author Dan Cioca (Oracle)
  */
 public class BooleanResultSetConsumer extends ResultSetConsumer<Boolean> {
     public static final BooleanResultSetConsumer INSTANCE = new BooleanResultSetConsumer();

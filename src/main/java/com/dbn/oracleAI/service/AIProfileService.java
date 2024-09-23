@@ -29,7 +29,7 @@ import java.util.concurrent.CompletionStage;
  * Profile management service
  * Features load, create, update and delete utilities for Database AI-Profiles
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 public interface AIProfileService extends ManagedObjectService<Profile> {
 

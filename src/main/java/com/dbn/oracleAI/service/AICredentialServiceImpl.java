@@ -30,7 +30,7 @@ import java.util.concurrent.CompletionException;
  * Service class responsible for managing AI credentials.
  * Provides functionality to asynchronously list detailed information about credentials stored in the database.
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Slf4j
 public class AICredentialServiceImpl extends AIAssistantComponent implements AICredentialService {

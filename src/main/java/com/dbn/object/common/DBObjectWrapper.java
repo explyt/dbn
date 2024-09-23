@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * It holds a weak reference to the object and exposes context utilities like project, connection, and owner information
  * @param <T> the type of the wrapped object
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class DBObjectWrapper<T extends DBObject> {
     private final DBObjectRef<T> object;

@@ -38,8 +38,8 @@ import static com.dbn.common.util.Commons.nvl;
  * A custom auto-wrapped text pane component with an integrated copy button.
  * It visually differentiates messages from the user and AI and provides functionality to copy text to the clipboard.
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Dan Cioca (Oracle)
  * @deprecated broken down in {@link UserChatMessageForm}, {@link AgentChatMessageForm}, {@link SystemChatMessageForm}
  */
 public class ChatMessagePanel extends JPanel {

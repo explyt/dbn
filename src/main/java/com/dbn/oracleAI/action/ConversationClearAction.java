@@ -28,7 +28,7 @@ import static com.dbn.common.util.Conditional.when;
 /**
  * Action for clearing the AI Assistant conversation history
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ConversationClearAction extends AbstractChatBoxAction {
     @Override

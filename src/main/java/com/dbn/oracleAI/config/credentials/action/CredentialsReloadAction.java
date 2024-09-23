@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * Credential management reload action
  * (invokes the reload of credentials from the database and refreshes the list)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class CredentialsReloadAction extends CredentialManagementAction {
     @Override

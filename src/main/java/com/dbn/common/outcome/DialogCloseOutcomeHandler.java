@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
  * Generic implementation of an {@link OutcomeHandler} that closes a given dialog with exit code 0
  * (holds a soft reference to the dialog to avoid memory leaks if not disposed properly)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class DialogCloseOutcomeHandler implements OutcomeHandler {
     private final WeakRef<DBNDialog<?>> dialog;

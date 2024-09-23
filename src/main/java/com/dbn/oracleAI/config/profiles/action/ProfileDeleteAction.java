@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * Profile management deletion action
  * (allows deleting a profile from the database by prompting the intention)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ProfileDeleteAction extends ProfileManagementAction {
     @Override

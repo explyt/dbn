@@ -42,7 +42,7 @@ import java.util.concurrent.CompletionStage;
  *  fake.services.schema.dump
  *  fake.services.dbitems.dump
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Slf4j
 public class FakeDatabaseService implements DatabaseService {

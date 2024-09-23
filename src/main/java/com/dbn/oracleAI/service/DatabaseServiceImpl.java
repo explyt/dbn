@@ -30,7 +30,7 @@ import java.util.concurrent.CompletionException;
 /**
  * Service to handle DB objects and operations
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Slf4j
 public class DatabaseServiceImpl extends AIAssistantComponent implements DatabaseService {

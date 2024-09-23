@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Action for refreshing (reloading) the AI-assistant profiles
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ProfilesRefreshAction extends AbstractChatBoxAction {
     @Override

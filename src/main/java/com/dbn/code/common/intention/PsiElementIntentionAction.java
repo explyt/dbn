@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * Alternative implementation of {@link com.intellij.codeInsight.intention.PsiElementBaseIntentionAction}
  * Fixes element lookup when caret is at the end of file
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public abstract class PsiElementIntentionAction extends BaseIntentionAction {
 

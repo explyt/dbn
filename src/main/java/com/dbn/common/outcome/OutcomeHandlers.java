@@ -22,7 +22,7 @@ import com.intellij.openapi.project.Project;
  * The handlers are internally sorted by {@link com.dbn.common.Priority} and handled in the
  * priority sequence when the {@link #handle(Outcome)} method is invoked
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public interface OutcomeHandlers {
 

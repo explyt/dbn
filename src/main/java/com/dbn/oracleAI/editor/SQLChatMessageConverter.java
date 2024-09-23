@@ -19,7 +19,7 @@ import com.dbn.language.sql.SQLLanguage;
 /**
  * SQL implementation of the {@link ChatMessageConverter} adjusting the AI message content to match the SQL language editor
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class SQLChatMessageConverter extends GenericChatMessageConverter {
     public static final SQLChatMessageConverter INSTANCE = new SQLChatMessageConverter();

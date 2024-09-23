@@ -18,7 +18,7 @@ package com.dbn.object.type;
 /**
  * This enum is for listing the possible ways of creating a new credential
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 public enum DBCredentialType {
   /**

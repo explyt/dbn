@@ -27,7 +27,7 @@ import static com.dbn.common.options.setting.Settings.*;
 /**
  * Chat message context - preserving profile, model and action selection against an AI response message
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @Getter
 @Setter

@@ -58,8 +58,8 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 /**
  * Profile management bindings
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Emmanuel Jannetti (Oracle)
  */
 public class ProfileManagementForm extends DBNFormBase {
 

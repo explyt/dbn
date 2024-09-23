@@ -30,7 +30,7 @@ import java.util.TreeSet;
  * Holds a sorted container for each type of outcome, where the different {@link OutcomeHandler} entities can be registered
  * the {@link #handle(Outcome)} method is invoking all registered handlers matching the {@link OutcomeType} in their defined priority sequence
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @Slf4j
 public final class OutcomeHandlersImpl implements OutcomeHandlers {

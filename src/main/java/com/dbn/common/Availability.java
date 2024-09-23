@@ -17,7 +17,7 @@ package com.dbn.common;
 /**
  * Common purpose Availability enumeration
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public enum Availability {
     AVAILABLE,   // feature is available

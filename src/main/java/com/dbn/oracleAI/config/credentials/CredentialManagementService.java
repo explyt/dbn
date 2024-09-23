@@ -39,7 +39,7 @@ import static com.dbn.common.component.Components.projectService;
  * Internally instantiates the specialized {@link com.dbn.object.management.ObjectManagementAdapter}
  * component and invokes the MODAL invocation option of the adapter (TODO - should ask the caller to specify the invocation mode)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @Slf4j
 @State(

@@ -41,7 +41,7 @@ import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
  * Database assistant utility class for editor actions
  * Features fast context lookup utilities like connection, chat-box state and prompt text candidate
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @UtilityClass
 public class AssistantEditorActionUtil {

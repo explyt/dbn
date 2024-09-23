@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nls;
 /**
  * Editor menu action to invoke AI-Assistant with "Explain SQL" instruction
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 public class AssistantExplainSqlAction extends AssistantBaseEditorAction {
 

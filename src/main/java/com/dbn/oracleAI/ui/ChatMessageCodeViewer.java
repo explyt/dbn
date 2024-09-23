@@ -48,7 +48,7 @@ import static javax.swing.JLayeredPane.DRAG_LAYER;
 /**
  * Specialized viewer for AI responses containing qualified code sections
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @Getter
 public class ChatMessageCodeViewer extends JPanel {

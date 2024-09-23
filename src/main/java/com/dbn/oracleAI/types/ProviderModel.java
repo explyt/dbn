@@ -17,7 +17,7 @@ package com.dbn.oracleAI.types;
 /**
  * AI models
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 public enum ProviderModel {
   GPT_4("gpt-4"),

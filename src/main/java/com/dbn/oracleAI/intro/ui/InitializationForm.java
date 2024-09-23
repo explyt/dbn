@@ -45,7 +45,7 @@ import static com.dbn.common.util.Conditional.when;
  * This form is presented to the user on top of the chat-box before the availability of the AI-Assistant is evaluated.
  * Evaluation of availability may fail due to connectivity and other reasons. This form allows recovery from those situations.
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class InitializationForm extends DBNFormBase {
     private JPanel initializingIconPanel;

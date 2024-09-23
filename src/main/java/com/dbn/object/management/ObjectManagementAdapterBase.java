@@ -41,7 +41,7 @@ import static com.dbn.common.Priority.HIGHEST;
  * as well as the various titles and captions to be displayed in the progress elements and outcome confirmation messages
  * @param <T> the type of the database object being handled by the adapter
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @Getter
 @Setter

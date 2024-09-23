@@ -20,7 +20,7 @@ import com.dbn.common.util.Prioritized;
  * Common purpose outcome handling component acting on a given {@link Outcome}
  * THe handler is naturally prioritized allowing to control the sequence of handlers when invoked for same outcome
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public interface OutcomeHandler extends Prioritized {
 

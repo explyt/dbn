@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
  * (prompts a profile detail dialog populated with the details of the selected profile)
  * TODO assess if create / update can be performed in the management form directly
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ProfileEditAction extends ProfileManagementAction {
     @Override

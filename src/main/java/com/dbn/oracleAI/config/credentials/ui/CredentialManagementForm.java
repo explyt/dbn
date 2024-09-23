@@ -66,8 +66,8 @@ import static com.intellij.ui.SimpleTextAttributes.*;
  * The panel dynamically populates with credential information retrieved from the AI credential service,
  * leveraging the {@link ConnectionHandler} to fetch and manage credentials for a given project connection.
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Emmanuel Jannetti (Oracle)
  */
 public class CredentialManagementForm extends DBNFormBase {
 

@@ -26,7 +26,7 @@ import java.awt.*;
  * Message for implementation for AI agent responses.
  * Features code viewers for the code-qualified sections of the message
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class AgentChatMessageForm extends ChatMessageForm {
 

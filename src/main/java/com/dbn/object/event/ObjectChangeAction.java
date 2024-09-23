@@ -17,7 +17,7 @@ package com.dbn.object.event;
 /**
  * CRUD-like enumeration with actions that can be performed on a {@link com.dbn.object.common.DBObject}
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public enum ObjectChangeAction {
     CREATE,

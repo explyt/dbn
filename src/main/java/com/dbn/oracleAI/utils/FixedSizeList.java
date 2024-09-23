@@ -24,7 +24,7 @@ import java.util.Collection;
  * During insertion of new elements, if extra free space is needed, FIFO will be applied.
  * @param <E> type of list element
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 public class FixedSizeList<E> extends ArrayList<E> {
     private final int maxCapacity;

@@ -37,8 +37,8 @@ import java.util.List;
 /**
  * Oracle specialized database interface responsible for interactions related to AI-Assistance
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Slf4j
 public class OracleAssistantInterface extends DatabaseInterfaceBase implements DatabaseAssistantInterface {

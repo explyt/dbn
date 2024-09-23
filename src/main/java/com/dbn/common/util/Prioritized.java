@@ -22,7 +22,7 @@ import com.dbn.common.Priority;
  * The interface extends and implements an inverted {@link Comparable}, ensuring higher priorities are favored over lower
  *
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public interface Prioritized extends Comparable<Prioritized> {
     Priority getPriority();

@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Action for selecting the current AI-assistant profile
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ProfileSelectDropdownAction extends DBNComboBoxAction implements DumbAware {
 

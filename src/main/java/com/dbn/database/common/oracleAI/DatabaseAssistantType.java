@@ -19,7 +19,7 @@ package com.dbn.database.common.oracleAI;
  *  - GENERIC - custom AI implementation (direct interface to AI provider pre-prompting with the data model as ddl statements) TBD
  *  - ORACLE_AI - Oracle Autonomous Database Select AI
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public enum DatabaseAssistantType {
     GENERIC,

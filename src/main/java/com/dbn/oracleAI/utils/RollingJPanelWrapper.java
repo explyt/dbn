@@ -33,7 +33,7 @@ import java.util.List;
  * Wrapper class around a JPanel that will display <code>ChatMessage</code>
  * This class will maintain a fixed capacity using FIFO principle
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Slf4j
 public class RollingJPanelWrapper {
@@ -49,7 +49,7 @@ public class RollingJPanelWrapper {
    * @param maxCapacity max capacity
    * @param panel       the panel to display the chat message
    *
-   * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+   * @author Emmanuel Jannetti (Oracle)
    */
   public RollingJPanelWrapper(ConnectionHandler connection, int maxCapacity, JPanel panel) {
     this.connection = ConnectionRef.of(connection);

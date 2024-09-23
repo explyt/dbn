@@ -20,7 +20,7 @@ import lombok.Getter;
  * Common purpose Availability information holder
  * Holds a {@link Availability} attribute as well as a String message to further disambiguate or explain the availability
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @Getter
 public class AvailabilityInfo {

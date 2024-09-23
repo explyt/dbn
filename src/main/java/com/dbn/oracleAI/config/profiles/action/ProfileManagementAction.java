@@ -25,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
  * Generic stub for actions related to management of profiles
  * (features the lookup of the profile management form from the context)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public abstract class ProfileManagementAction extends ProjectAction {
     protected static @Nullable ProfileManagementForm getManagementForm(@NotNull AnActionEvent e) {

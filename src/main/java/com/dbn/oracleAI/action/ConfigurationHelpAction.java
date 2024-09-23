@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Action for opening configuration and prerequisites help dialog
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ConfigurationHelpAction extends AbstractChatBoxAction {
     @Override

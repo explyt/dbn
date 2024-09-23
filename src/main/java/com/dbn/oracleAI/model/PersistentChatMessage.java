@@ -27,7 +27,7 @@ import static com.dbn.common.options.setting.Settings.*;
 /**
  * This class is for message elements that will be in the chat
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 @Getter
 @Setter

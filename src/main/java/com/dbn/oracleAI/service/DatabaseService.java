@@ -27,7 +27,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Database information service
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 public interface DatabaseService {
     /**

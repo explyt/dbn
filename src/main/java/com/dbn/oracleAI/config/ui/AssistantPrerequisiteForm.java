@@ -41,8 +41,8 @@ import static com.dbn.common.util.Conditional.when;
  * Also provisions actions to grant such privileges
  * TODO FEATURE proposal: "Grant for colleague" allowing the user to select another user for the grant operation
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Dan Cioca (Oracle)
  */
 public class AssistantPrerequisiteForm extends DBNFormBase {
 

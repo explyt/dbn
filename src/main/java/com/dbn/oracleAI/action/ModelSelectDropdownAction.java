@@ -36,7 +36,7 @@ import java.util.List;
 /**
  * Action for selecting the current AI-assistant model
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ModelSelectDropdownAction extends DBNComboBoxAction implements DumbAware {
     @Override

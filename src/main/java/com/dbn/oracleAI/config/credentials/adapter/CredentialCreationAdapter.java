@@ -28,7 +28,7 @@ import java.sql.SQLException;
 
 /**
  * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in creating entities of type {@link DBCredential}
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class CredentialCreationAdapter extends ObjectManagementAdapterBase<DBCredential> {
 

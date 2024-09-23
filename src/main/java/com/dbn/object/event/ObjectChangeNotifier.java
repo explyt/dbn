@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Generic implementation of an {@link OutcomeHandler} that sends out a project notification of type {@link ObjectChangeListener}
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ObjectChangeNotifier extends ConnectionComponent implements OutcomeHandler {
     private final SchemaId ownerId;

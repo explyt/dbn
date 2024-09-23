@@ -38,7 +38,7 @@ import java.awt.*;
  * This form is presented to the user on top of the chat-box after the availability of the AI-Assistant is evaluated.
  * It contains basic information about the functionality and acts as an acknowledgement step.
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class IntroductionForm extends DBNFormBase {
     private JPanel mainPanel;

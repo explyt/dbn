@@ -27,7 +27,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Action for opening the AI-assistant profile setup wizard for creating a new profile
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ProfileCreateAction extends AbstractChatBoxAction {
     @Override

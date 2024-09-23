@@ -20,7 +20,7 @@ import com.intellij.codeInsight.intention.HighPriorityAction;
 /**
  * Editor intention action for invoking AI-Assistant module from within the editor
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 public class AssistantShowIntentionAction extends AssistantBaseIntentionAction implements HighPriorityAction {
 

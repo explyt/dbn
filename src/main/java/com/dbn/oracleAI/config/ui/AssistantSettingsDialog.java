@@ -30,7 +30,7 @@ import java.awt.event.ActionEvent;
  * Main Database Assistant settings dialog
  * Features profiles and credential visualisation and management
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class AssistantSettingsDialog extends DBNDialog<AssistantSettingsForm> {
 

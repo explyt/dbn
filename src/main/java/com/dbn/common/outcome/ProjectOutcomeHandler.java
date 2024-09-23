@@ -22,7 +22,7 @@ import org.jetbrains.annotations.NotNull;
  * Stub implementation for an {@link OutcomeHandler} that heeds the Project context
  * (holds a weak reference to the project to avoid memory leaks if not disposed properly)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public abstract class ProjectOutcomeHandler implements OutcomeHandler {
     private final ProjectRef project;

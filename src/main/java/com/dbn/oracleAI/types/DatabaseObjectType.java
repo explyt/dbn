@@ -19,7 +19,7 @@ import lombok.Getter;
 /**
  * Enumeration for database object types relevant for the AI profile context
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Getter
 public enum DatabaseObjectType {

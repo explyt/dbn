@@ -33,8 +33,8 @@ import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.resolvePromptTex
 /**
  * Intention action stub for DB-Assistant editor intentions
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Dan Cioca (Oracle)
  */
 public abstract class AssistantBaseIntentionAction extends GenericIntentionAction {
     @Override

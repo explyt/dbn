@@ -31,7 +31,7 @@ import java.util.concurrent.CompletionStage;
 /**
  * Profile maintenance service implementation
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Slf4j
 public class AIProfileServiceImpl extends AIAssistantComponent implements AIProfileService {

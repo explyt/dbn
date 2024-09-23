@@ -25,7 +25,7 @@ import javax.swing.*;
  * Validator for Credential editors
  * (code isolated from {@link CredentialEditForm})
  *
- * @author @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author @author Ayoub Aarrasse (Oracle)
  */
 public class CredentialEditFormValidator implements NlsSupport {
 

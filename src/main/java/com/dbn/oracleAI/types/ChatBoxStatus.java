@@ -19,7 +19,7 @@ import com.dbn.common.property.Property;
 /**
  * Transient status of the Chat Box
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public enum ChatBoxStatus implements Property.IntBase {
     INITIALIZING, // the profiles and models are being loaded

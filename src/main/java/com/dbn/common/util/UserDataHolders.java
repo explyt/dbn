@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 /**
  * Utility class for {@link UserDataHolder} routines
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @UtilityClass
 public class UserDataHolders {

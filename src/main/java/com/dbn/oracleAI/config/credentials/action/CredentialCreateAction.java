@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * Credential management creation action
  * (prompts an empty credential detail dialog)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class CredentialCreateAction extends CredentialManagementAction {
     @Override

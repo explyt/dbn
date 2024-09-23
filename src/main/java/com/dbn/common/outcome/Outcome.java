@@ -21,7 +21,7 @@ import lombok.Getter;
  * Used in the {@link OutcomeHandler} framework to capture success or failure
  * information about a given process, and allow multiple handlers to act on the outcome
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @Getter
 public class Outcome {

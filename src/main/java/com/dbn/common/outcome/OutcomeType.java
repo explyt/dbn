@@ -18,7 +18,7 @@ package com.dbn.common.outcome;
  * Definition of possible types of outcomes for a given process or routine
  * Used to qualify {@link Outcome} entities with the execution status of a process
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public enum OutcomeType {
     SUCCESS,

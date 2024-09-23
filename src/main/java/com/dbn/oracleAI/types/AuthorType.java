@@ -19,7 +19,7 @@ import com.dbn.common.constant.Constant;
 /**
  * This is for the possible authors that can send a message in the chat
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 public enum AuthorType implements Constant<AuthorType> {
   USER,   // user prompt

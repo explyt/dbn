@@ -26,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
  * Credential management deletion action
  * (allows deleting a credential from the database by prompting the intention)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class CredentialDeleteAction extends CredentialManagementAction {
     @Override

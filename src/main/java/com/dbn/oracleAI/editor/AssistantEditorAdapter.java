@@ -35,7 +35,7 @@ import lombok.experimental.UtilityClass;
 /**
  * This is the class that handles processing the prompt from the console and displaying the results to it.
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 @UtilityClass
 public class AssistantEditorAdapter {

@@ -40,7 +40,7 @@ import static com.dbn.oracleAI.DatabaseAssistantManager.TOOL_WINDOW_ID;
 /**
  * Tool window factory for the Database AI-Assistant chat box
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
 

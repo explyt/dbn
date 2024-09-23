@@ -26,7 +26,7 @@ import static com.dbn.common.util.Commons.nvl;
 /**
  * Coding language utility class, providing mapping between AI language identifiers and the ones provided by the IDE
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @UtilityClass
 public class ChatMessageLanguages {

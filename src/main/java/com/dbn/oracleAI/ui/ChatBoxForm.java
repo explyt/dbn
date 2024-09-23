@@ -62,9 +62,9 @@ import static com.dbn.oracleAI.types.ChatBoxStatus.*;
 /**
  * Database Assistant ChatBox component
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Emmanuel Jannetti (Oracle)
+ * @author Dan Cioca (Oracle)
  */
 @Slf4j
 public class ChatBoxForm extends DBNFormBase {

@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * Profile management reload action
  * (invokes the reload of profiles from the database and refreshes the list)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ProfilesReloadAction extends ProfileManagementAction {
     @Override

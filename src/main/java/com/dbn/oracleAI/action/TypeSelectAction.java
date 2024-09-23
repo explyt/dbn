@@ -24,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Action for selecting the type of interaction with the AI-assistant engine
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class TypeSelectAction extends ToggleAction {
     private final ActionAIType type;

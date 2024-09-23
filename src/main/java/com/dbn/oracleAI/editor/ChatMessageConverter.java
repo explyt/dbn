@@ -21,7 +21,7 @@ import com.intellij.lang.Language;
  * Converter for AI generated {@link ChatMessage} into plain string to be plotted in an editor
  * The content of the chat message is expected to be adjusted to not break the syntax of the target editor (language)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public interface ChatMessageConverter {
 

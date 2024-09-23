@@ -28,7 +28,7 @@ import static com.dbn.common.options.setting.Settings.*;
 /**
  * Holder class for profile select items
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 @Data
 @NoArgsConstructor

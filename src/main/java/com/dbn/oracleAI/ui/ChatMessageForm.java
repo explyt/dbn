@@ -37,7 +37,7 @@ import java.awt.*;
  * Stub implementation for chat message forms
  * Exposes logic shared by all different chat message types (USER, AGENT, SYSTEM)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @Getter
 public abstract class ChatMessageForm extends DBNFormBase {

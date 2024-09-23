@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
  * Location can be overided by following system properties
  *  fake.services.credential.dump
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 public class FakeAICredentialService implements AICredentialService {
 

@@ -20,7 +20,7 @@ import javax.swing.*;
  * A simple subclass of JProgressBar
  * to show endless progression bar
  *
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  */
 public class ActivityNotifier extends JProgressBar {
 

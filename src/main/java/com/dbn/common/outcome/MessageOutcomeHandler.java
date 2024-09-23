@@ -25,7 +25,7 @@ import static com.dbn.common.util.Messages.*;
  * Generic implementation of an {@link OutcomeHandler} that produces message dialogs for the handled outcomes
  * (invokes utilities from {@link com.dbn.common.util.Messages} in accordance with the {@link OutcomeType} of the handled {@link Outcome})
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public final class MessageOutcomeHandler extends ProjectOutcomeHandler {
     private MessageOutcomeHandler(Project project) {

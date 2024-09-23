@@ -27,7 +27,7 @@ import static com.intellij.icons.AllIcons.Diff.GutterCheckBoxSelected;
 
 /**
  * Toggle action for the credential management dialogs, allowing to quickly enable or disable a Credential
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class CredentialStatusAction extends CredentialManagementAction {
 

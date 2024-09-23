@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * Generic stub for actions related to management of credentials
  * (features the lookup of the credential management form from the context)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public abstract class CredentialManagementAction extends ProjectAction {
 

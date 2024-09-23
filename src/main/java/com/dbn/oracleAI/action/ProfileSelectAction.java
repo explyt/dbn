@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Action for selecting one individual AI-assistant profile
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ProfileSelectAction extends AbstractChatBoxAction {
     private final AIProfileItem profile;

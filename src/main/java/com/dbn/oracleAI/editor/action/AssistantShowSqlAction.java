@@ -22,7 +22,7 @@ import org.jetbrains.annotations.Nls;
  * This action runs when we select a text in the console and hit right click and chose "Show Sql".
  * It displays the sql result right under the selected text.
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 public class AssistantShowSqlAction extends AssistantBaseEditorAction {
 

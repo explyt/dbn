@@ -28,7 +28,7 @@ import java.sql.Types;
  * Callable statement output for reading a clob parameter
  * (POC on streamable AI responses to produce gradual output effect - unsuccessful so far)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 @Getter
 public class AssistantQueryResponse implements CallableStatementOutput {

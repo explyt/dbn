@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * Abstract basic implementation for actions presented in the ChatBox
  * Features lookup utilities for the chat box component as well as the state of the assistant interface
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public abstract class AbstractChatBoxAction extends ProjectAction {
 

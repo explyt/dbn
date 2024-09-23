@@ -30,7 +30,7 @@ import java.sql.SQLException;
  * Component stub for database assistant services
  * Exposes utilities from {@link ConnectionComponent} as well as connectivity and interface access
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public abstract class AIAssistantComponent extends ConnectionComponent {
     public AIAssistantComponent(@NotNull ConnectionHandler connection) {

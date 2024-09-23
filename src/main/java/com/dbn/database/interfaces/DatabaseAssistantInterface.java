@@ -32,7 +32,7 @@ import java.util.List;
  * This includes creating, updating, and deleting credentials and profiles,
  * executing AI-related queries, and listing database tables, views, credentials, and profiles.
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
  */
 public interface DatabaseAssistantInterface extends DatabaseInterface {
 

@@ -29,7 +29,7 @@ import static com.dbn.common.notification.NotificationSupport.*;
  * Generic implementation of an {@link OutcomeHandler} that produces IDE notifications using {@link com.intellij.notification.Notification} framework
  * (invokes utilities from {@link com.dbn.common.notification.NotificationSupport} in accordance with the {@link OutcomeType} of the handled {@link Outcome})
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public final class NotificationOutcomeHandler extends ProjectOutcomeHandler  {
     private final NotificationGroup group;

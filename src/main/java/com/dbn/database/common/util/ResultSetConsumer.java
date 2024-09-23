@@ -27,7 +27,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
  * Manages the lifecycle of the ResultSet by closing it irrespective if the read was successful or not
  *
  * @param <T> the type of the resulting element
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public abstract class ResultSetConsumer<T> {
 

@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
  * Profile management creation action
  * (prompts an empty profile detail dialog)
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class ProfileCreateAction extends ProfileManagementAction {
     @Override

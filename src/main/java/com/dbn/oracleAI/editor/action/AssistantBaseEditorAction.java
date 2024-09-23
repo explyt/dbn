@@ -34,8 +34,8 @@ import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.*;
 /**
  * Action stub for DB-Assistant editor context menu
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Dan Cioca (Oracle)
  */
 public abstract class AssistantBaseEditorAction extends ProjectAction {
 

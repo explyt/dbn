@@ -25,7 +25,7 @@ import org.jetbrains.annotations.NotNull;
 /**
  * Action for sending the user prompt content to the AI-assistant engine
  *
- * @author Dan Cioca (dan.cioca@oracle.com)
+ * @author Dan Cioca (Oracle)
  */
 public class PromptSubmitAction extends AbstractChatBoxAction {
     @Override

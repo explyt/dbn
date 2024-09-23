@@ -24,7 +24,7 @@ import java.util.concurrent.CompletionStage;
 
 /**
  * Skeleton for a CRUD service
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Emmanuel Jannetti (Oracle)
  * @param <E>
  */
 public interface ManagedObjectService<E extends AttributeInput> {

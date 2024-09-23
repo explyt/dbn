@@ -22,8 +22,8 @@ import java.util.List;
  * This enum is for listing the possible credential providers we have
  * And the associated list of AI module they support
  *
- * @author Ayoub Aarrasse (ayoub.aarrasse@oracle.com)
- * @author Emmanuel Jannetti (emmanuel.jannetti@oracle.com)
+ * @author Ayoub Aarrasse (Oracle)
+ * @author Emmanuel Jannetti (Oracle)
  */
 @Getter
 public enum ProviderType {
