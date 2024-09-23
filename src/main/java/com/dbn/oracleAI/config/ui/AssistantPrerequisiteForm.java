@@ -56,7 +56,6 @@ public class AssistantPrerequisiteForm extends DBNFormBase {
   private JButton copyACLButton;
   private JButton applyACLButton;
   private JButton copyPrivilegeButton;
-  private JButton applyPrivilegeButton;
   private JPanel headerPanel;
   private HyperlinkLabel docuLink;
   private final String SELECT_AI_DOCS = "https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/sql-generation-ai-autonomous.html";
@@ -111,13 +110,7 @@ public class AssistantPrerequisiteForm extends DBNFormBase {
     copyPrivilegeButton.addActionListener(e -> copyTextToClipboard(grantTextArea.getText()));
     copyACLButton.addActionListener(e -> copyTextToClipboard(aclTextArea.getText()));
 
-    applyPrivilegeButton.setToolTipText(txt("privilege.apply.disabled"));
-    applyACLButton.setToolTipText(txt("privilege.apply.disabled"));
-
-    applyPrivilegeButton.addActionListener(e -> grantExecutionPrivileges());
     applyACLButton.addActionListener(e -> grantNetworkAccess());
-
-    isUserAdmin();
   }
 
   private void grantNetworkAccess() {
@@ -151,18 +144,5 @@ public class AssistantPrerequisiteForm extends DBNFormBase {
     StringSelection selection = new StringSelection(text);
     Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
     clipboard.setContents(selection, null);
-  }
-
-  private void isUserAdmin() {
-    databaseSvc.isUserAdmin()
-        .thenAccept(a -> {
-          SwingUtilities.invokeLater(() -> {
-            applyACLButton.setEnabled(true);
-            applyPrivilegeButton.setEnabled(true);
-
-            applyPrivilegeButton.setToolTipText(txt("privilege.apply.enabled"));
-            applyACLButton.setToolTipText(txt("privilege.apply.enabled"));
-          });
-        });
   }
 }
