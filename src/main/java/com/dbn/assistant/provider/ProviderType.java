@@ -54,7 +54,7 @@ public enum ProviderType {
   private final ProviderApi api;
   private final List<ProviderModel> models;
 
-  ProviderType(ProviderApi api, ProviderModel defaultModel, ProviderModel... models) {
+  ProviderType(ProviderApi api, ProviderModel... models) {
     this.api = api;
     this.models = List.of(models);
   }
