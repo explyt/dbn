@@ -1,5 +1,6 @@
 package com.dbn.object.impl;
 
+import com.dbn.assistant.credential.remote.CredentialManagementService;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBCredentialMetadata;
@@ -11,7 +12,6 @@ import com.dbn.object.common.operation.DBOperationExecutor;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.type.DBCredentialType;
 import com.dbn.object.type.DBObjectType;
-import com.dbn.oracleAI.config.credentials.CredentialManagementService;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 

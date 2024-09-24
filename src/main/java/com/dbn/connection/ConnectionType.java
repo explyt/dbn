@@ -10,8 +10,8 @@ public enum ConnectionType{
     SESSION("Session", 2),
     DEBUG("Debug", 3),
     DEBUGGER("Debugger", 4),
+    ASSISTANT("Assistant", 6),
     TEST("Test", 5),
-    ORACLE_AI("OracleAI", 6),
     ;
 
     private final String name;

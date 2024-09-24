@@ -14,20 +14,21 @@
 
 package com.dbn.database.oracle;
 
+import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.entity.Credential;
+import com.dbn.assistant.entity.DBObjectItem;
+import com.dbn.assistant.entity.DatabaseObjectType;
+import com.dbn.assistant.entity.Profile;
+import com.dbn.assistant.service.exception.CredentialManagementException;
+import com.dbn.assistant.service.exception.DatabaseOperationException;
+import com.dbn.assistant.service.exception.ProfileManagementException;
+import com.dbn.assistant.service.exception.QueryExecutionException;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
-import com.dbn.database.common.oracleAI.*;
+import com.dbn.database.common.assistant.*;
 import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
-import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.config.DBObjectItem;
-import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
-import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
-import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
-import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
-import com.dbn.oracleAI.types.DatabaseObjectType;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.SQLException;

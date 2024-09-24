@@ -1,5 +1,6 @@
 package com.dbn.options;
 
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
 import com.dbn.code.common.style.options.ProjectCodeStyleSettings;
@@ -19,7 +20,6 @@ import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.navigation.options.NavigationSettings;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.dbn.options.ui.ProjectSettingsForm;
-import com.dbn.oracleAI.config.providers.AIProviderSettings;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
@@ -50,8 +50,8 @@ public class ProjectSettings
     private final @Getter(lazy = true) ExecutionEngineSettings executionEngineSettings  = new ExecutionEngineSettings(this);
     private final @Getter(lazy = true) OperationSettings operationSettings              = new OperationSettings(this);
     private final @Getter(lazy = true) DDLFileSettings ddlFileSettings                  = new DDLFileSettings(this);
+    private final @Getter(lazy = true) AssistantSettings assistantSettings              = new AssistantSettings(this);
     private final @Getter(lazy = true) ConnectionBundleSettings connectionSettings      = new ConnectionBundleSettings(this);
-    private final @Getter(lazy = true) AIProviderSettings aiProviderSettings = new AIProviderSettings(this);
 
     public ProjectSettings(Project project) {
         super(project);
@@ -147,8 +147,8 @@ public class ProjectSettings
                 getExecutionEngineSettings(),
                 getOperationSettings(),
                 getDdlFileSettings(),
-                getGeneralSettings(),
-                getAiProviderSettings()};
+                getAssistantSettings(),
+                getGeneralSettings()};
     }
 
     /*********************************************************

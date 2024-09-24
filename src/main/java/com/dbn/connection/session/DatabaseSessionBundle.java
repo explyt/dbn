@@ -7,7 +7,6 @@ import com.dbn.common.util.CollectionUtil;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.connection.ConnectionType;
-import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SessionId;
 import com.dbn.database.DatabaseFeature;
 import com.intellij.openapi.Disposable;
@@ -15,11 +14,7 @@ import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Disposer.replace;
@@ -35,7 +30,7 @@ public class DatabaseSessionBundle extends StatefulDisposableBase implements Dis
     private final DatabaseSession mainSession;
     private DatabaseSession debugSession;
     private DatabaseSession debuggerSession;
-    private DatabaseSession oracleAISession;
+    private DatabaseSession assistantSession;
     private DatabaseSession poolSession;
 
     private List<DatabaseSession> sessions = CollectionUtil.createConcurrentList();
@@ -59,8 +54,8 @@ public class DatabaseSessionBundle extends StatefulDisposableBase implements Dis
 
 
         if (DatabaseFeature.AI_ASSISTANT.isSupported(connection)){
-            oracleAISession = new DatabaseSession(SessionId.ORACLE_AI, "OracleAI", ConnectionType.ORACLE_AI, connection);
-            sessions.add(oracleAISession);
+            assistantSession = new DatabaseSession(SessionId.ASSISTANT, "Assistant", ConnectionType.ASSISTANT, connection);
+            sessions.add(assistantSession);
         }
 
         poolSession = new DatabaseSession(SessionId.POOL, "Pool", ConnectionType.POOL, connection);
@@ -99,7 +94,7 @@ public class DatabaseSessionBundle extends StatefulDisposableBase implements Dis
     }
 
     @NotNull
-    public DatabaseSession getOracleAISession(){ return nn(oracleAISession);};
+    public DatabaseSession getAssistantSession(){ return nn(assistantSession);};
 
     @Nullable
     public DatabaseSession getSession(String name) {

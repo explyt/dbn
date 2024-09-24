@@ -14,15 +14,19 @@
 
 package com.dbn.database.interfaces;
 
+import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.entity.Credential;
+import com.dbn.assistant.entity.DBObjectItem;
+import com.dbn.assistant.entity.Profile;
+import com.dbn.assistant.service.exception.CredentialManagementException;
+import com.dbn.assistant.service.exception.DatabaseOperationException;
+import com.dbn.assistant.service.exception.ProfileManagementException;
+import com.dbn.assistant.service.exception.QueryExecutionException;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.database.common.oracleAI.*;
-import com.dbn.oracleAI.config.Credential;
-import com.dbn.oracleAI.config.DBObjectItem;
-import com.dbn.oracleAI.config.Profile;
-import com.dbn.oracleAI.config.exceptions.CredentialManagementException;
-import com.dbn.oracleAI.config.exceptions.DatabaseOperationException;
-import com.dbn.oracleAI.config.exceptions.ProfileManagementException;
-import com.dbn.oracleAI.config.exceptions.QueryExecutionException;
+import com.dbn.database.common.assistant.AssistantQueryResponse;
+import com.dbn.database.common.assistant.OracleQueryOutput;
+import com.dbn.database.common.assistant.OracleTablesList;
+import com.dbn.database.common.assistant.OracleViewsList;
 
 import java.sql.SQLException;
 import java.util.List;

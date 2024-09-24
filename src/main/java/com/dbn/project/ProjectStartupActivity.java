@@ -14,10 +14,10 @@
 
 package com.dbn.project;
 
+import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.connection.config.ConnectionBundleSettings;
 import com.dbn.debugger.ExecutionConfigManager;
-import com.dbn.oracleAI.DatabaseAssistantManager;
 import com.dbn.plugin.PluginConflictManager;
 import com.dbn.plugin.PluginStatusManager;
 import com.dbn.vfs.DatabaseFileManager;

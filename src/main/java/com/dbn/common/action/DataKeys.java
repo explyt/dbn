@@ -1,5 +1,8 @@
 package com.dbn.common.action;
 
+import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.credential.remote.ui.CredentialManagementForm;
+import com.dbn.assistant.profile.ui.ProfileManagementForm;
 import com.dbn.connection.config.ui.ConnectionBundleSettingsForm;
 import com.dbn.data.editor.ui.array.ArrayEditorPopupProviderForm;
 import com.dbn.data.editor.ui.calendar.CalendarPopupProviderForm;
@@ -13,9 +16,6 @@ import com.dbn.execution.method.result.MethodExecutionResult;
 import com.dbn.execution.method.result.ui.MethodExecutionCursorResultForm;
 import com.dbn.execution.statement.result.StatementExecutionCursorResult;
 import com.dbn.object.DBArgument;
-import com.dbn.oracleAI.config.credentials.ui.CredentialManagementForm;
-import com.dbn.oracleAI.config.profiles.ui.ProfileManagementForm;
-import com.dbn.oracleAI.ui.ChatBoxForm;
 import com.intellij.openapi.actionSystem.DataKey;
 
 public interface DataKeys {

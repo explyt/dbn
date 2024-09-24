@@ -131,8 +131,8 @@ tasks {
         // systemProperties["fake.services.profiles.dump"] = "/var/tmp/profiles.json"
         // systemProperties["fake.services.schemas.dump"] = "/var/tmp/schemas.json"
         //systemProperties["fake.services.dbitems.dump"] = "/var/tmp/dbitems.json"
-        systemProperties["idea.log.debug.categories"] = "com.dbn.oracleAI, com.dbn.oracleAI.config, com.dbn.oracleAI.ui, com.dbn.database.oracle"
-        systemProperties["idea.log.trace.categories"] = "com.dbn.oracleAI, com.dbn.oracleAI.config, com.dbn.oracleAI.ui, com.dbn.database.oracle"
+        systemProperties["idea.log.debug.categories"] = "com.dbn.assistant, com.dbn.database.oracle"
+        systemProperties["idea.log.trace.categories"] = "com.dbn.assistant, com.dbn.database.oracle"
 
         jvmArgs = listOf(
                 "-Xms512m",

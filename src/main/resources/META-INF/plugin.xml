@@ -387,9 +387,9 @@
         <projectService serviceImplementation="com.dbn.data.export.DataExportManager"/>
         <projectService serviceImplementation="com.dbn.debugger.DatabaseDebuggerManager"/>
         <projectService serviceImplementation="com.dbn.debugger.ExecutionConfigManager"/>
-        <projectService serviceImplementation="com.dbn.oracleAI.DatabaseAssistantManager"/>
-        <projectService serviceImplementation="com.dbn.oracleAI.DatabaseAssistantPrerequisiteManager"/>
-        <projectService serviceImplementation="com.dbn.oracleAI.config.credentials.CredentialManagementService"/>
+        <projectService serviceImplementation="com.dbn.assistant.DatabaseAssistantManager"/>
+        <projectService serviceImplementation="com.dbn.assistant.DatabaseAssistantPrerequisiteManager"/>
+        <projectService serviceImplementation="com.dbn.assistant.credential.remote.CredentialManagementService"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
@@ -422,16 +422,16 @@
             <!--<add-to-group group-id="ProjectViewPopupMenu" relative-to-action="WeighingNewGroup" anchor="before"/>-->
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
         </action>
-        <action id="DBNavigator.Actions.Assistant.ExplainSQL" class="com.dbn.oracleAI.editor.action.AssistantExplainSqlAction" text="DB Assistant - Generate SQL With Explanation">
+        <action id="DBNavigator.Actions.Assistant.ExplainSQL" class="com.dbn.assistant.editor.action.AssistantExplainSqlAction" text="DB Assistant - Generate SQL With Explanation">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
         </action>
-        <action id="DBNavigator.Actions.Assistant.ShowSQL" class="com.dbn.oracleAI.editor.action.AssistantShowSqlAction" text="DB Assistant - Generate SQL">
+        <action id="DBNavigator.Actions.Assistant.ShowSQL" class="com.dbn.assistant.editor.action.AssistantShowSqlAction" text="DB Assistant - Generate SQL">
             <add-to-group group-id="EditorPopupMenu" anchor="after" relative-to-action="DBNavigator.Actions.Editor.ExecuteScript"/>
         </action>
         <group id="DBNavigator.ActionGroup.FileEditorGenerate">
             <add-to-group group-id="GenerateGroup" anchor="last" />
-            <action id="DBNavigator.Actions.Assistant.GenerateSQL" class="com.dbn.oracleAI.editor.action.AssistantShowSqlAction" text="Generate SQL"/>
-            <action id="DBNavigator.Actions.Assistant.GenerateAndExplainSQL" class="com.dbn.oracleAI.editor.action.AssistantExplainSqlAction" text="Generate and Explain SQL"/>
+            <action id="DBNavigator.Actions.Assistant.GenerateSQL" class="com.dbn.assistant.editor.action.AssistantShowSqlAction" text="Generate SQL"/>
+            <action id="DBNavigator.Actions.Assistant.GenerateAndExplainSQL" class="com.dbn.assistant.editor.action.AssistantExplainSqlAction" text="Generate and Explain SQL"/>
         </group>
         <group id="DBNavigator.ActionGroup.ProjectViewContext">
             <group id="DBNavigator.ActionGroup.ProjectViewPopup" text="DB Navigator" popup="true" keep-content="true">
@@ -476,45 +476,45 @@
             <action id="DBNavigator.Actions.EditorSettings" class="com.dbn.language.editor.action.EditorSettingsOpenAction" text="Script Editor - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantChatBoxProfiles" text="Assistant Chat-Box Profiles">
-            <action class="com.dbn.oracleAI.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
-            <action class="com.dbn.oracleAI.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
-            <action class="com.dbn.oracleAI.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
-            <action class="com.dbn.oracleAI.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
-            <action class="com.dbn.oracleAI.action.ProfilesSetupAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ProfileSettings" icon="AllIcons.General.GearPlain"/>
+            <action class="com.dbn.assistant.chat.window.action.ProfileSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectProfile"/>
+            <action class="com.dbn.assistant.chat.window.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
+            <action class="com.dbn.assistant.chat.window.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
+            <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
+            <action class="com.dbn.assistant.chat.window.action.ProfilesSetupAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ProfileSettings" icon="AllIcons.General.GearPlain"/>
             <separator/>
-            <action class="com.dbn.oracleAI.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
+            <action class="com.dbn.assistant.chat.window.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
         </group>
 <!--
         <group id="DBNavigator.ActionGroup.AssistantChatBoxHelp" text="Assistant Chat-Box Help">
-            <action class="com.dbn.oracleAI.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
+            <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
         </group>
 -->
         <group id="DBNavigator.ActionGroup.AssistantChatBoxTypes" text="Assistant Chat-Box Types">
-            <action class="com.dbn.oracleAI.action.TypeSelectAction$ShowSQL" text="Show SQL" id="DBNavigator.Actions.Assistant.TypeShow"/>
-            <action class="com.dbn.oracleAI.action.TypeSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>
-            <action class="com.dbn.oracleAI.action.TypeSelectAction$Narrate" id="DBNavigator.Actions.Assistant.TypeNarrate"/>
-            <action class="com.dbn.oracleAI.action.TypeSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
+            <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$ShowSQL" text="Show SQL" id="DBNavigator.Actions.Assistant.TypeShow"/>
+            <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$ExplainSQL" id="DBNavigator.Actions.Assistant.TypeExplain"/>
+            <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$Narrate" id="DBNavigator.Actions.Assistant.TypeNarrate"/>
+            <action class="com.dbn.assistant.chat.window.action.TypeSelectAction$Chat" id="DBNavigator.Actions.Assistant.TypeChat"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantChatBoxPrompt" text="Assistant Chat-Box Prompt">
-            <action class="com.dbn.oracleAI.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">
+            <action class="com.dbn.assistant.chat.window.action.PromptSubmitAction" text="Submit Prompt" id="DBNavigator.Actions.Assistant.SubmitPrompt" icon="AllIcons.Actions.Execute">
                 <keyboard-shortcut keymap="$default" first-keystroke="ENTER"/>
             </action>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantCredentialManagement" text="Credential Management">
-            <action class="com.dbn.oracleAI.config.credentials.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>
-            <action class="com.dbn.oracleAI.config.credentials.action.CredentialDeleteAction" id="DBNavigator.Actions.Assistant.DeleteCredential"/>
-            <action class="com.dbn.oracleAI.config.credentials.action.CredentialEditAction" id="DBNavigator.Actions.Assistant.EditCredential"/>
-            <action class="com.dbn.oracleAI.config.credentials.action.CredentialStatusAction" id="DBNavigator.Actions.Assistant.EnableDisableCredential"/>
+            <action class="com.dbn.assistant.credential.remote.action.CredentialCreateAction" id="DBNavigator.Actions.Assistant.CreateCredential"/>
+            <action class="com.dbn.assistant.credential.remote.action.CredentialDeleteAction" id="DBNavigator.Actions.Assistant.DeleteCredential"/>
+            <action class="com.dbn.assistant.credential.remote.action.CredentialEditAction" id="DBNavigator.Actions.Assistant.EditCredential"/>
+            <action class="com.dbn.assistant.credential.remote.action.CredentialStatusAction" id="DBNavigator.Actions.Assistant.EnableDisableCredential"/>
             <separator/>
-            <action class="com.dbn.oracleAI.config.credentials.action.CredentialsReloadAction" id="DBNavigator.Assistant.Assistant.ReloadCredentials"/>
+            <action class="com.dbn.assistant.credential.remote.action.CredentialsReloadAction" id="DBNavigator.Assistant.Assistant.ReloadCredentials"/>
         </group>
         <group id="DBNavigator.ActionGroup.AssistantProfileManagement" text="Profile Management">
-            <action class="com.dbn.oracleAI.config.profiles.action.ProfileCreateAction" id="DBNavigator.Actions.Assistant.CreateProfile"/>
-            <action class="com.dbn.oracleAI.config.profiles.action.ProfileDeleteAction" id="DBNavigator.Actions.Assistant.DeleteProfile"/>
-            <action class="com.dbn.oracleAI.config.profiles.action.ProfileDefaultAction" id="DBNavigator.Actions.Assistant.MarkProfileDefault"/>
-            <action class="com.dbn.oracleAI.config.profiles.action.ProfileEditAction" id="DBNavigator.Actions.Assistant.EditProfile"/>
+            <action class="com.dbn.assistant.profile.action.ProfileCreateAction" id="DBNavigator.Actions.Assistant.CreateProfile"/>
+            <action class="com.dbn.assistant.profile.action.ProfileDeleteAction" id="DBNavigator.Actions.Assistant.DeleteProfile"/>
+            <action class="com.dbn.assistant.profile.action.ProfileDefaultAction" id="DBNavigator.Actions.Assistant.MarkProfileDefault"/>
+            <action class="com.dbn.assistant.profile.action.ProfileEditAction" id="DBNavigator.Actions.Assistant.EditProfile"/>
             <separator/>
-            <action class="com.dbn.oracleAI.config.profiles.action.ProfilesReloadAction" id="DBNavigator.Actions.Assistant.ReloadProfiles"/>
+            <action class="com.dbn.assistant.profile.action.ProfilesReloadAction" id="DBNavigator.Actions.Assistant.ReloadProfiles"/>
         </group>
 
         <group id="DBNavigator.Actions.MainMenu" text="_DB Navigator" popup="true">
@@ -791,7 +791,7 @@
         <toolWindow id="DB Browser" anchor="left" factoryClass="com.dbn.browser.DatabaseBrowserToolWindowFactory"/>
         <toolWindow id="DB Diagnostics" anchor="bottom" factoryClass="com.dbn.diagnostics.DiagnosticsToolWindowFactory" canCloseContents="true"/>
         <toolWindow id="DB Execution Console" anchor="bottom" factoryClass="com.dbn.execution.ExecutionConsoleToolWindowFactory" />
-        <toolWindow id="DB Assistant" anchor="right" factoryClass="com.dbn.oracleAI.DatabaseAssistantToolWindowFactory"/>
+        <toolWindow id="DB Assistant" anchor="right" factoryClass="com.dbn.assistant.DatabaseAssistantToolWindowFactory"/>
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>
@@ -962,11 +962,11 @@
         <!--<intentionAction><className>com.dbn.code.common.intention.SetupCodeCompletionIntentionAction</className><category>Database</category></intentionAction>-->
 
         <intentionAction>
-            <className>com.dbn.oracleAI.editor.intention.AssistantShowIntentionAction</className>
+            <className>com.dbn.assistant.editor.intention.AssistantShowIntentionAction</className>
             <category>Database/Assistant</category>
         </intentionAction>
         <intentionAction>
-            <className>com.dbn.oracleAI.editor.intention.AssistantExplainIntentionAction</className>
+            <className>com.dbn.assistant.editor.intention.AssistantExplainIntentionAction</className>
             <category>Database/Assistant</category>
         </intentionAction>
         <fileDocumentManagerListener implementation="com.dbn.connection.console.DatabaseConsoleFileInitializer"/>

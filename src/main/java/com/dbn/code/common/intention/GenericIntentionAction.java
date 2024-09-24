@@ -12,8 +12,8 @@ import com.intellij.psi.PsiFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.isAssistantSupported;
-import static com.dbn.oracleAI.editor.AssistantEditorActionUtil.resolvePromptText;
+import static com.dbn.assistant.editor.AssistantEditorActionUtil.isAssistantSupported;
+import static com.dbn.assistant.editor.AssistantEditorActionUtil.resolvePromptText;
 
 public abstract class GenericIntentionAction extends PsiElementIntentionAction implements IntentionAction, PriorityAction, Iconable, DumbAware, Comparable {
 

@@ -71,7 +71,7 @@ public class DatabaseSession implements Comparable<DatabaseSession>, Presentable
     }
 
     public boolean isCustom() {
-        return !id.isOneOf(MAIN, TEST, POOL, DEBUG, DEBUGGER, ORACLE_AI);
+        return !id.isOneOf(MAIN, TEST, POOL, DEBUG, DEBUGGER, ASSISTANT);
     }
 
     @NotNull

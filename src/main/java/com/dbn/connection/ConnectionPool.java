@@ -58,8 +58,8 @@ public final class ConnectionPool extends StatefulDisposableBase implements Noti
     }
 
     @NotNull
-    DBNConnection ensureOracleAIConnection() throws SQLException {
-        return ensureConnection(SessionId.ORACLE_AI);
+    DBNConnection ensureAssistantConnection() throws SQLException {
+        return ensureConnection(SessionId.ASSISTANT);
     }
     @Nullable
     public DBNConnection getMainConnection() {
