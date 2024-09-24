@@ -35,7 +35,8 @@ public class InterceptorBundle {
 
     private final Map<InterceptorType<?>, List<Interceptor<?>>> entries = new ConcurrentHashMap<>();
 
-    public void register(InterceptorType<?> type, Interceptor<?> interceptor) {
+    public void register(Interceptor<?> interceptor) {
+        InterceptorType<?> type = interceptor.getType();
         List<Interceptor<?>> interceptors = this.entries.computeIfAbsent(type, t -> new ArrayList<>());
 
         interceptors.add(interceptor);

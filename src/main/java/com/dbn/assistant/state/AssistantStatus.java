@@ -25,6 +25,7 @@ public enum AssistantStatus implements Property.IntBase {
     INITIALIZING, // the profiles and models are being loaded
     UNAVAILABLE,  // the chat-box is unavailable due to connectivity, privilege issues or alike
     QUERYING,     // the chat-box is waiting for response from backend
+    ACKNOWLEDGED, // the assistant has been acknowledged by the user
     ;
 
     public static final AssistantStatus[] VALUES = values();

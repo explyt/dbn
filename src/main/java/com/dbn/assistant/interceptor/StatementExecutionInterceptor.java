@@ -17,7 +17,9 @@ package com.dbn.assistant.interceptor;
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.common.interceptor.Interceptor;
+import com.dbn.common.interceptor.InterceptorType;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.interceptor.DatabaseInterceptorType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.execution.statement.StatementExecutionContext;
 import com.dbn.execution.statement.StatementExecutionInput;
@@ -31,6 +33,11 @@ public class StatementExecutionInterceptor implements Interceptor<StatementExecu
     public static final StatementExecutionInterceptor INSTANCE = new StatementExecutionInterceptor();
 
     private StatementExecutionInterceptor() {}
+
+    @Override
+    public InterceptorType<?> getType() {
+        return DatabaseInterceptorType.STATEMENT_EXECUTION;
+    }
 
     @Override
     public boolean supports(StatementExecutionContext context) {

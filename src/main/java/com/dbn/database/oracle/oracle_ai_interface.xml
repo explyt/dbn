@@ -255,7 +255,7 @@
     <statement-execution-processor id="set-current-profile" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD.SET_PROFILE(
+                DBMS_CLOUD_AI.SET_PROFILE(
                         profile_name => '{0}');
             end;
         </statement>

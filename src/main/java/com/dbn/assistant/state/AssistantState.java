@@ -18,10 +18,13 @@ import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.entity.AIProfileItem;
+import com.dbn.assistant.interceptor.StatementExecutionInterceptor;
 import com.dbn.common.Availability;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.interceptor.DatabaseInterceptorBundle;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -61,7 +64,6 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   private PromptAction selectedAction = PromptAction.SHOW_SQL;
   private Availability availability = Availability.UNCERTAIN;
   private String defaultProfileName;
-  private boolean acknowledged = false;
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
 
@@ -80,6 +82,28 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
       case GENERIC:
       default: return txt("app.assistant.title.DatabaseAssistantName_GENERIC");
     }
+  }
+
+  public boolean isAcknowledged() {
+    return is(AssistantStatus.ACKNOWLEDGED);
+  }
+
+  public void setAcknowledged(boolean acknowledged) {
+    set(AssistantStatus.ACKNOWLEDGED, acknowledged);
+    initConnection();
+  }
+
+  /**
+   * TODO connection initialization should happen in the manager, this should remain a POJO
+   */
+  private void initConnection() {
+      if (!isAcknowledged()) return;
+
+      ConnectionHandler connection = ConnectionHandler.get(connectionId);
+      if (connection == null) return;
+
+    DatabaseInterceptorBundle interceptorBundle = connection.getInterceptorBundle();
+    interceptorBundle.register(StatementExecutionInterceptor.INSTANCE);
   }
 
   /**
@@ -156,11 +180,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   @Override
   public void readState(Element element) {
     connectionId = connectionIdAttribute(element, "connection-id");
+    defaultProfileName = stringAttribute(element, "default-profile-name");
     assistantType = enumAttribute(element, "assistant-type", assistantType);
-    acknowledged = booleanAttribute(element, "acknowledged", acknowledged);
     selectedAction = enumAttribute(element, "selected-action", selectedAction);
     availability = enumAttribute(element, "availability", availability);
-    defaultProfileName = stringAttribute(element, "default-profile-name");
+    boolean acknowledged = booleanAttribute(element, "acknowledged", isAcknowledged());
+    setAcknowledged(acknowledged);
 
     List<AIProfileItem> profiles = new ArrayList<>();
     Element profilesElement = element.getChild("profiles");
@@ -184,11 +209,11 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   @Override
   public void writeState(Element element) {
     setStringAttribute(element, "connection-id", connectionId.id());
-    setEnumAttribute(element, "assistant-type", assistantType);
     setStringAttribute(element, "default-profile-name", defaultProfileName);
-    setBooleanAttribute(element, "acknowledged", acknowledged);
+    setEnumAttribute(element, "assistant-type", assistantType);
     setEnumAttribute(element, "selected-action", selectedAction);
     setEnumAttribute(element, "availability", availability);
+    setBooleanAttribute(element, "acknowledged", isAcknowledged());
 
     Element profilesElement = newElement(element, "profiles");
     for (AIProfileItem profile : profiles) {

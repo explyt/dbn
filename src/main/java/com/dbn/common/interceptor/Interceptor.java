@@ -24,6 +24,8 @@ import com.dbn.common.util.Prioritized;
 public interface Interceptor<C extends InterceptorContext> extends Prioritized {
     boolean supports(C context);
 
+    InterceptorType<?> getType();
+
     default Priority getPriority() {
         return Priority.MEDIUM;
     }
