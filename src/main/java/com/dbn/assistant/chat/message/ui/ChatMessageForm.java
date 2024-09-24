@@ -30,6 +30,7 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.JBUI;
 import lombok.Getter;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
@@ -56,14 +57,14 @@ public abstract class ChatMessageForm extends DBNFormBase {
         this.message = message;
     }
 
-    @Nullable
+    @NotNull
     public static ChatMessageForm create(ChatBoxForm parent, ChatMessage message) {
         AuthorType author = message.getAuthor();
         switch (author) {
             case USER: return new UserChatMessageForm(parent, message);
             case AGENT: return new AgentChatMessageForm(parent, message);
             case SYSTEM: return new SystemChatMessageForm(parent, message);
-            default: return null;
+            default: throw new IllegalArgumentException("Unknown author: " + author);
         }
     }
 

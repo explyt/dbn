@@ -16,17 +16,17 @@ package com.dbn.assistant.chat.window.util;
 
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.message.ui.ChatMessageForm;
-import com.dbn.assistant.chat.message.ui.ChatMessagePanel;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ui.util.UserInterface;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionRef;
+import com.intellij.openapi.Disposable;
 import lombok.extern.slf4j.Slf4j;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -36,12 +36,12 @@ import java.util.List;
  * @author Emmanuel Jannetti (Oracle)
  */
 @Slf4j
-public class RollingJPanelWrapper {
+public class RollingMessageContainer implements Disposable {
 
-  private final ConnectionRef connection;
-  private final FixedSizeList<PersistentChatMessage> items;
+  private final int maxCapacity;
   private final JPanel messageContainer;
-  private int maxCapacity = -1;
+
+  private List<ChatMessageForm> messageForms = new ArrayList<>();
 
   /**
    * Creates a new RollingJPanelWrapper
@@ -51,25 +51,19 @@ public class RollingJPanelWrapper {
    *
    * @author Emmanuel Jannetti (Oracle)
    */
-  public RollingJPanelWrapper(ConnectionHandler connection, int maxCapacity, JPanel panel) {
-    this.connection = ConnectionRef.of(connection);
+  public RollingMessageContainer(int maxCapacity, JPanel panel) {
     this.maxCapacity = maxCapacity;
     this.messageContainer = panel;
-    this.items = new FixedSizeList<>(maxCapacity);
     this.messageContainer.setLayout(new MigLayout("fillx"));
   }
 
-
-  private ConnectionHandler getConnection() {
-    return connection.ensure();
-  }
-
   private void ensureFreeSlot(int howMany) {
-    int currentSize = items.size();
+    int currentSize = messageForms.size();
     int s = maxCapacity - currentSize - howMany;
     while (s++ < 0) {
-      this.items.remove(0);
       this.messageContainer.remove(0);
+      ChatMessageForm form = this.messageForms.remove(0);
+      Disposer.dispose(form);
     }
   }
 
@@ -86,8 +80,9 @@ public class RollingJPanelWrapper {
   }
 
   public void clear() {
+    this.messageForms = Disposer.replace(this.messageForms, new ArrayList<>());
     this.messageContainer.removeAll();
-    this.items.clear();
+
     UserInterface.repaint(messageContainer);
   }
 
@@ -96,19 +91,16 @@ public class RollingJPanelWrapper {
     ensureFreeSlot(chatMessages.size());
 
     for (PersistentChatMessage message : chatMessages) {
-      this.items.add(message);
-      JComponent messagePane;
       ChatMessageForm form = ChatMessageForm.create(parent, message);
-
-      // TODO remove fallback on old CHatMessagePanel when all author types are handled
-      messagePane = form == null ? new ChatMessagePanel(getConnection(), message) : form.getComponent();
-
-      this.messageContainer.add(messagePane, "growx, wrap, w ::93%"); // TODO try to occupy the entire width (100% breaks the wrapping for some reason)
+      messageForms.add(form);
+      this.messageContainer.add(form.getComponent(), "growx, wrap, w ::93%"); // TODO try to occupy the entire width (100% breaks the wrapping for some reason)
     }
     UserInterface.repaint(messageContainer);
   }
 
-  public List<PersistentChatMessage> getMessages() {
-    return new ArrayList<>(this.items);
+  @Override
+  public void dispose() {
+    this.messageForms = Disposer.replace(this.messageForms, Collections.emptyList());
   }
+
 }

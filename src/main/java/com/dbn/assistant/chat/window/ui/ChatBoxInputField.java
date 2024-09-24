@@ -15,11 +15,13 @@
 package com.dbn.assistant.chat.window.ui;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.event.DocumentEvent;
@@ -45,7 +47,7 @@ import java.awt.*;
  *
  * @author Dan Cioca (Oracle)
  */
-public class ChatBoxInputField extends JPanel {
+public class ChatBoxInputField extends JPanel implements Disposable {
     private final EditorEx editor;
     private final WeakRef<ChatBoxForm> chatBox;
 
@@ -55,6 +57,7 @@ public class ChatBoxInputField extends JPanel {
         this.chatBox = WeakRef.of(chatBox);
         this.editor = createEditor();
         add(editor.getComponent(), BorderLayout.CENTER);
+        Disposer.register(chatBox, this);
     }
 
     @Override
@@ -141,5 +144,10 @@ public class ChatBoxInputField extends JPanel {
                 }
             }
         }
+    }
+
+    @Override
+    public void dispose() {
+        Editors.releaseEditor(editor);
     }
 }

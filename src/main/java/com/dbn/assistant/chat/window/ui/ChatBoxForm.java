@@ -18,7 +18,7 @@ import com.dbn.assistant.chat.message.AuthorType;
 import com.dbn.assistant.chat.message.ChatMessageContext;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
-import com.dbn.assistant.chat.window.util.RollingJPanelWrapper;
+import com.dbn.assistant.chat.window.util.RollingMessageContainer;
 import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.init.ui.AssistantIntroductionForm;
@@ -71,7 +71,6 @@ import static com.dbn.common.util.Commons.nvl;
 public class ChatBoxForm extends DBNFormBase {
   private JPanel mainPanel;
   private JPanel chatPanel;
-  private RollingJPanelWrapper conversationPanelWrapper;
   private JScrollPane chatScrollPane;
   private JPanel profileActionsPanel;
   private JPanel headerPanel;
@@ -84,6 +83,7 @@ public class ChatBoxForm extends DBNFormBase {
   private JPanel initializingPanel;
   private JPanel helpActionPanel;
 
+  private RollingMessageContainer messageContainer;
   private final ConnectionRef connection;
   private ChatBoxInputField inputField;
 
@@ -177,7 +177,7 @@ public class ChatBoxForm extends DBNFormBase {
 
   private void restoreMessages() {
     List<PersistentChatMessage> messages = getAssistantState().getMessages();
-    conversationPanelWrapper.addAll(messages, this);
+    messageContainer.addAll(messages, this);
     Dispatch.run(() -> scrollConversationDown());
   }
 
@@ -213,7 +213,7 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public void clearConversation() {
-    conversationPanelWrapper.clear();
+    messageContainer.clear();
     getAssistantState().clearMessages();
   }
 
@@ -222,7 +222,7 @@ public class ChatBoxForm extends DBNFormBase {
    */
   private void configureConversationPanel() {
     chatScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-    conversationPanelWrapper = new RollingJPanelWrapper(getConnection(), AssistantState.MAX_CHAR_MESSAGE_COUNT, chatPanel);
+    messageContainer = new RollingMessageContainer(AssistantState.MAX_CHAR_MESSAGE_COUNT, chatPanel);
   }
 
   public void submitPrompt(String question) {
@@ -353,7 +353,7 @@ public class ChatBoxForm extends DBNFormBase {
   private void appendMessageToChat(PersistentChatMessage message) {
     List<PersistentChatMessage> messages = List.of(message);
     getAssistantState().addMessages(messages);
-    Dispatch.run(() -> conversationPanelWrapper.addAll(messages, this));
+    Dispatch.run(() -> messageContainer.addAll(messages, this));
     Dispatch.run(() -> scrollConversationDown());
   }
 

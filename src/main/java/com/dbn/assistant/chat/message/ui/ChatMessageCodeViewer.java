@@ -21,10 +21,12 @@ import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Documents;
+import com.dbn.common.util.Editors;
 import com.dbn.common.util.Viewers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.lang.Language;
+import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -52,7 +54,7 @@ import static javax.swing.JLayeredPane.DRAG_LAYER;
  * @author Dan Cioca (Oracle)
  */
 @Getter
-public class ChatMessageCodeViewer extends JPanel {
+public class ChatMessageCodeViewer extends JPanel implements Disposable {
     private final EditorEx viewer;
 
     private ChatMessageCodeViewer(EditorEx viewer) {
@@ -128,5 +130,10 @@ public class ChatMessageCodeViewer extends JPanel {
         settings.setAdditionalLinesCount(0);
 
         return viewer;
+    }
+
+    @Override
+    public void dispose() {
+        Editors.releaseEditor(viewer);
     }
 }

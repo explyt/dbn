@@ -17,6 +17,7 @@ package com.dbn.assistant.chat.message.ui;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ChatMessageSection;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.util.ui.JBUI;
 
@@ -95,6 +96,8 @@ public class AgentChatMessageForm extends ChatMessageForm {
             createTextPane(section);
             return;
         }
+        Disposer.register(this, codePanel);
+
         JPanel actionsPanel = new JPanel(new BorderLayout());
         actionsPanel.setBackground(codePanel.getViewer().getBackgroundColor());
 
