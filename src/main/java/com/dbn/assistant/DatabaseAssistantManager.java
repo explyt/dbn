@@ -125,22 +125,23 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   }
 
 
-  public void initializeAssistant(Project project, ConnectionId connectionId, Consumer<AIProfileItem> callback) {
+  public void initializeAssistant(ConnectionId connectionId) {
     AIProfileItem defaultProfile = getDefaultProfile(connectionId);
-    if (defaultProfile != null)  {
-      // assistant initialized -> invoke the callback
-      callback.accept(defaultProfile);
-      return;
-    }
+    if (defaultProfile != null) return;
 
     AssistantState state = getAssistantState(connectionId);
-    if (!state.isAcknowledged()) {
+    if (state.isAcknowledged()) {
+      // assistant not yet configured -> prompt modal initialization
+      promptMissingProfiles(connectionId);
+    } else {
       // assistant not yet acknowledged -> show acknowledgment popup
-      acknowledgeAssistant(project, connectionId);
-      return;
+      promptAcknowledgement(connectionId);
     }
+  }
 
+  public void promptMissingProfiles(ConnectionId connectionId) {
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+    Project project = getProject();
     Progress.modal(project, connection, true, "Initializing DB Assistant", "Initializing database assistant", progress -> {
       List<Profile> profiles = getAssistantProfiles(connectionId);
       // no profiles created yet -> prompt profile creation
@@ -154,7 +155,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     });
   }
 
-  private void acknowledgeAssistant(Project project, ConnectionId connectionId) {
+  private void promptAcknowledgement(ConnectionId connectionId) {
+    Project project = getProject();
     Messages.showQuestionDialog(project,
             getAssistantName(connectionId),
             txt("msg.assistant.question.AcknowledgeAndConfigure"),

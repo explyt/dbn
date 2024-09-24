@@ -18,6 +18,7 @@ import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ChatMessageContext;
 import com.dbn.assistant.chat.window.PromptAction;
+import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.common.thread.Command;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Documents;
@@ -42,11 +43,15 @@ public class AssistantEditorAdapter {
 
   public static void submitQuery(Project project, Editor editor, ConnectionId connectionId, String prompt, PromptAction action) {
     DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+    AIProfileItem profile = manager.getDefaultProfile(connectionId);
 
-    manager.initializeAssistant(project, connectionId, profile -> {
-      ChatMessageContext context = new ChatMessageContext(profile.getName(), profile.getModel(), action);
-      manager.generate(connectionId, prompt, context, message -> Dispatch.run(editor.getComponent(), () -> appendMessage(project, editor, message)));
-    });
+    if (profile == null) {
+      manager.initializeAssistant(connectionId);
+      return;
+    }
+
+    ChatMessageContext context = new ChatMessageContext(profile.getName(), profile.getModel(), action);
+    manager.generate(connectionId, prompt, context, message -> Dispatch.run(editor.getComponent(), () -> appendMessage(project, editor, message)));
   }
 
 

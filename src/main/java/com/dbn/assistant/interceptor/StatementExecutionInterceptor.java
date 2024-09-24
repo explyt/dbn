@@ -16,9 +16,12 @@ package com.dbn.assistant.interceptor;
 
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.entity.AIProfileItem;
+import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.interceptor.Interceptor;
 import com.dbn.common.interceptor.InterceptorType;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.interceptor.DatabaseInterceptorType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.execution.statement.StatementExecutionContext;
@@ -28,6 +31,8 @@ import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.intellij.openapi.project.Project;
 import lombok.SneakyThrows;
+
+import static com.dbn.database.DatabaseFeature.AI_ASSISTANT;
 
 public class StatementExecutionInterceptor implements Interceptor<StatementExecutionContext> {
     public static final StatementExecutionInterceptor INSTANCE = new StatementExecutionInterceptor();
@@ -42,6 +47,10 @@ public class StatementExecutionInterceptor implements Interceptor<StatementExecu
     @Override
     public boolean supports(StatementExecutionContext context) {
         StatementExecutionInput input = context.getInput();
+        ConnectionHandler connection = input.getConnection();
+        if (connection == null) return false;
+        if (AI_ASSISTANT.isNotSupported(connection)) return false;
+
         ExecutablePsiElement element = input.getExecutablePsiElement();
         if (element == null) return false;
 
@@ -61,8 +70,15 @@ public class StatementExecutionInterceptor implements Interceptor<StatementExecu
 
         Project project = context.getProject();
         DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
-        AIProfileItem profile = assistantManager.getDefaultProfile(connection.getConnectionId());
-        if (profile == null) return;
+
+        ConnectionId connectionId = connection.getConnectionId();
+        AssistantState assistantState = assistantManager.getAssistantState(connectionId);
+        AIProfileItem profile = assistantState.getDefaultProfile();
+
+        if (profile == null) {
+            assistantManager.initializeAssistant(connectionId);
+            throw new ProcessDeferredException("Assistant not initialized");
+        }
 
         connection.getAssistantInterface().setCurrentProfile(conn, profile.getName());
     }

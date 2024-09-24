@@ -18,13 +18,10 @@ import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.interceptor.StatementExecutionInterceptor;
 import com.dbn.common.Availability;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.interceptor.DatabaseInterceptorBundle;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -90,20 +87,6 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
   public void setAcknowledged(boolean acknowledged) {
     set(AssistantStatus.ACKNOWLEDGED, acknowledged);
-    initConnection();
-  }
-
-  /**
-   * TODO connection initialization should happen in the manager, this should remain a POJO
-   */
-  private void initConnection() {
-      if (!isAcknowledged()) return;
-
-      ConnectionHandler connection = ConnectionHandler.get(connectionId);
-      if (connection == null) return;
-
-    DatabaseInterceptorBundle interceptorBundle = connection.getInterceptorBundle();
-    interceptorBundle.register(StatementExecutionInterceptor.INSTANCE);
   }
 
   /**

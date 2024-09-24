@@ -1,5 +1,6 @@
 package com.dbn.connection;
 
+import com.dbn.assistant.interceptor.StatementExecutionInterceptor;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.cache.Cache;
 import com.dbn.common.database.AuthenticationInfo;
@@ -125,6 +126,15 @@ public class ConnectionHandlerImpl extends StatefulDisposableBase implements Con
         this.connectionSettings = connectionSettings;
         this.enabled = connectionSettings.isActive();
         ref = ConnectionRef.of(this);
+
+        initInterceptors();
+    }
+
+    private void initInterceptors() {
+        // TODO define interceptors as application services and self inject on "connection created" event
+        if (DatabaseFeature.AI_ASSISTANT.isSupported(this)) {
+            getInterceptorBundle().register(StatementExecutionInterceptor.INSTANCE);
+        }
     }
 
     @NotNull
