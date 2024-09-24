@@ -620,7 +620,7 @@
             <group id="DBNavigator.Actions.DataEditor.Options" class="com.dbn.editor.data.action.DatasetEditorOptionsAction" text="Data Editor - Options"/>
         </group>
         <group id="DBNavigator.ActionGroup.StatementExecutionResult">
-            <action id="DBNavigator.Actions.ExecutionResult.Close" class="com.dbn.execution.statement.result.action.ExecutionResultCloseAction" text="Execution Result - Close" icon="AllIcons.Actions.Close"/>
+            <action id="DBNavigator.Actions.ExecutionResult.Close" class="com.dbn.execution.statement.result.action.ExecutionResultCloseAction" text="Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
             <action id="DBNavigator.Actions.ExecutionResult.ViewStatement" class="com.dbn.execution.statement.result.action.ExecutionResultViewStatementAction" text="Execution Result - View Statement" icon="AllIcons.Actions.Preview"/>
             <action id="DBNavigator.Actions.ExecutionResult.ViewRecord" class="com.dbn.execution.statement.result.action.ExecutionResultViewRecordAction" text="Execution Result - View Record" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_RECORD"/>
             <separator/>
@@ -636,7 +636,7 @@
             <action id="DBNavigator.Actions.ExecutionResult.Settings" class="com.dbn.execution.statement.result.action.ExecutionResultSettingsAction" text="Execution Result - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.MethodExecutionResult">
-            <action id="DBNavigator.Actions.MethodExecutionResult.Close" class="com.dbn.execution.method.result.action.ExecutionResultCloseAction" text="Method Execution Result - Close" icon="AllIcons.Actions.Close"/>
+            <action id="DBNavigator.Actions.MethodExecutionResult.Close" class="com.dbn.execution.method.result.action.ExecutionResultCloseAction" text="Method Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
             <action id="DBNavigator.Actions.MethodExecutionResult.EditMethod" class="com.dbn.execution.method.result.action.MethodEditAction" text="Method Execution Result - Edit Method" icon="com.dbn.common.icon.Icons.OBJECT_EDIT_SOURCE"/>
             <action id="DBNavigator.Actions.MethodExecutionResult.OpenExecutionDialog" class="com.dbn.execution.method.result.action.MethodExecutionPromptAction" text="Method Execution Result - Open Execution Dialog" icon="com.dbn.common.icon.Icons.METHOD_EXECUTION_DIALOG"/>
             <action id="DBNavigator.Actions.MethodExecutionResult.ExecuteAgain" class="com.dbn.execution.method.result.action.MethodExecutionStartAction" text="Method Execution Result - Execute Again" icon="AllIcons.Actions.Rerun"/>
@@ -656,7 +656,7 @@
 
 
         <group id="DBNavigator.ActionGroup.ExplainPlanResult">
-            <action id="DBNavigator.Actions.ExplainPlanResult.Close" class="com.dbn.execution.explain.result.action.ExplainPlanResultCloseAction" text="Explain Plan Result - Close" icon="AllIcons.Actions.Close"/>
+            <action id="DBNavigator.Actions.ExplainPlanResult.Close" class="com.dbn.execution.explain.result.action.ExplainPlanResultCloseAction" text="Explain Plan Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
             <action id="DBNavigator.Actions.ExplainPlanResult.ViewStatement" class="com.dbn.execution.explain.result.action.ExplainPlanResultViewStatementAction" text="Explain Plan Result - View Statement" icon="AllIcons.Actions.Preview"/>
             <separator/>
             <action id="DBNavigator.Actions.ExplainPlanResult.ExpandAll" class="com.dbn.execution.explain.result.action.ExplainPlanResultExpandAllAction" text="Explain Plan Result - Expand All"  icon="AllIcons.Actions.Expandall"/>
@@ -665,15 +665,15 @@
             <action id="DBNavigator.Actions.ExplainPlanResult.Settings" class="com.dbn.execution.explain.result.action.ExplainPlanResultSettingsAction" text="Explain Plan - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.DatabaseLogOutput">
-            <action id="DBNavigator.Actions.DatabaseLogOutput.Close" class="com.dbn.execution.logging.action.DatabaseLogOutputCloseAction" text="Database Log Output - Close" icon="AllIcons.Actions.Close"/>
+            <action id="DBNavigator.Actions.DatabaseLogOutput.Close" class="com.dbn.execution.logging.action.DatabaseLogOutputCloseAction" text="Database Log Output - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
             <action id="DBNavigator.Actions.DatabaseLogOutput.RerunProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputRerunAction" text="Database Log Output - Rerun Process" icon="AllIcons.Actions.Rerun"/>
             <action id="DBNavigator.Actions.DatabaseLogOutput.KillProcess" class="com.dbn.execution.logging.action.DatabaseLogOutputKillAction" text="Database Log Output - Kill Process" icon="AllIcons.Debugger.KillProcess"/>
             <action id="DBNavigator.Actions.DatabaseLogOutput.Settings" class="com.dbn.execution.logging.action.DatabaseLogOutputSettingsAction" text="Database Log Output - Settings"/>
         </group>
         <group id="DBNavigator.ActionGroup.ParserDiagnostics">
-            <action id="DBNavigator.Actions.ParserDiagnostics.Close" class="com.dbn.diagnostics.action.ParserDiagnosticsCloseAction" text="Parser Diagnostics - Close" icon="AllIcons.Actions.Close"/>
+            <action id="DBNavigator.Actions.ParserDiagnostics.Close" class="com.dbn.diagnostics.action.ParserDiagnosticsCloseAction" text="Parser Diagnostics - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
             <action id="DBNavigator.Actions.ParserDiagnostics.Run" class="com.dbn.diagnostics.action.ParserDiagnosticsRunAction" text="Parser Diagnostics - Run" icon="AllIcons.Actions.Execute"/>
-            <action id="DBNavigator.Actions.ParserDiagnostics.Save" class="com.dbn.diagnostics.action.ParserDiagnosticsSaveAction" text="Parser Diagnostics - Save" icon="AllIcons.Actions.Menu_saveall"/>
+            <action id="DBNavigator.Actions.ParserDiagnostics.Save" class="com.dbn.diagnostics.action.ParserDiagnosticsSaveAction" text="Parser Diagnostics - Save" icon="com.dbn.common.icon.Icons.ACTION_SAVE"/>
             <action id="DBNavigator.Actions.ParserDiagnostics.Delete" class="com.dbn.diagnostics.action.ParserDiagnosticsDeleteAction" text="Parser Diagnostics - Delete" icon="AllIcons.Actions.GC"/>
         </group>
         <action id="DBNavigator.Actions.Navigation.GotoDatabaseObject" class="com.dbn.navigation.action.GoToDatabaseObjectAction" text="Navigate to Database Object...">
