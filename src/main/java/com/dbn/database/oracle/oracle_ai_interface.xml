@@ -238,22 +238,29 @@
     </statement-execution-processor>
     <statement-execution-processor id="disable-credential" timeout="20">
         <statement>
-            BEGIN
-            DBMS_CLOUD.DISABLE_CREDENTIAL(
-            credential_name => '{0}'
-            );
-            END;
+            begin
+                DBMS_CLOUD.DISABLE_CREDENTIAL(
+                        credential_name => '{0}');
+            end;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="enable-credential" timeout="20">
         <statement>
-            BEGIN
-            DBMS_CLOUD.ENABLE_CREDENTIAL(
-            credential_name => '{0}'
-            );
-            END;
+            begin
+                DBMS_CLOUD.ENABLE_CREDENTIAL(
+                        credential_name => '{0}');
+            end;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="set-current-profile" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD.SET_PROFILE(
+                        profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="check-admin" timeout="20">
         <statement>
             SELECT username FROM dba_users

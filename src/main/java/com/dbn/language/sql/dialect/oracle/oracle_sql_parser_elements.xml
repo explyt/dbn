@@ -7388,7 +7388,7 @@
         <element optional="true" ref-id="group_by_clause" />
         <element optional="true" ref-id="model_clause" />
     </element-def>
-    <element-def id="select_ai_block" description="SELECT AI block" branch="br_select_ai">
+    <element-def id="select_ai_block" description="SELECT AI block" branch="br_select_ai"  attributes="DB_ASSISTANT, SPECIFIC_OVERRIDE">
         <token type-id="KW_AI" id="04147" />
         <one-of optional="true" id="04148">
             <token type-id="KW_SHOWPROMPT" id="04149" />

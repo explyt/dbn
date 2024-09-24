@@ -280,5 +280,10 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   public void deleteCredential(DBNConnection connection, String credentialName) throws SQLException {
     executeUpdate(connection, "drop-credential", credentialName);
   }
+
+  @Override
+  public void setCurrentProfile(DBNConnection connection, String profileName) throws SQLException {
+    executeUpdate(connection, "set-current-profile", profileName);
+  }
 }
 

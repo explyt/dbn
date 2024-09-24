@@ -220,6 +220,7 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   void deleteCredential(DBNConnection connection, String credentialName) throws SQLException;
 
+  void setCurrentProfile(DBNConnection connection, String profileName) throws SQLException;
 
   default DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
     return DatabaseAssistantType.GENERIC;
