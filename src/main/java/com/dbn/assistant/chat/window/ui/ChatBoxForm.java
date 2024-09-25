@@ -346,7 +346,8 @@ public class ChatBoxForm extends DBNFormBase {
   private void applyProfiles(Map<String, Profile> profiles) {
     AssistantState state = getAssistantState();
     List<AIProfileItem> profileItems = new ArrayList<>();
-    profiles.forEach((pn, p) -> profileItems.add(new AIProfileItem(pn, p.getProvider(), p.getModel(), p.isEnabled())));
+    String selectedProfile = state.getSelectedProfileName();
+    profiles.forEach((pn, p) -> profileItems.add(new AIProfileItem(p, p.getProfileName().equalsIgnoreCase(selectedProfile))));
     state.setProfiles(profileItems);
   }
 

@@ -181,7 +181,7 @@ public class ProfileManagementForm extends DBNFormBase {
   }
 
   public void markProfileAsDefault(@NotNull Profile profile) {
-    manager.setDefaultProfile(getConnectionId(), new AIProfileItem(profile));
+    manager.setDefaultProfile(getConnectionId(), new AIProfileItem(profile, false));
   }
 
   @Nullable

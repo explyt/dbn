@@ -41,20 +41,15 @@ public final class AIProfileItem implements PersistentStateElement {
   private boolean enabled = true;
   private boolean selected = false;
 
-  public AIProfileItem(Profile profile) {
-    this(profile.getProfileName(), profile.getProvider(), profile.getModel(), profile.isEnabled());
-  }
-
   /**
-   * Creates a new combo item
-   *
-   * @param name the label to be displayed in the combo
+   * Creates a new profile selection item from a {@link Profile} entity
    */
-  public AIProfileItem(String name, ProviderType provider, ProviderModel model, boolean enabled) {
-    this.name = name;
-    this.provider = provider;
-    this.model = model;
-    this.enabled = enabled;
+  public AIProfileItem(Profile profile, boolean selected) {
+    this.name = profile.getProfileName();
+    this.provider = profile.getProvider();
+    this.model = profile.getModel();
+    this.enabled = profile.isEnabled();
+    this.selected = selected;
   }
 
   /**

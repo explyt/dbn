@@ -36,7 +36,6 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.options.setting.Settings.*;
 import static com.dbn.common.util.Commons.coalesce;
-import static com.dbn.common.util.Commons.nvln;
 import static com.dbn.common.util.Lists.*;
 
 /**
@@ -115,6 +114,12 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   }
 
   @Nullable
+  public String getSelectedProfileName() {
+    AIProfileItem selectedProfile = getSelectedProfile();
+    return selectedProfile == null ? null : selectedProfile.getName();
+  }
+
+  @Nullable
   public AIProfileItem getSelectedProfile() {
     return first(profiles, p -> p.isSelected());
   }
@@ -129,9 +134,10 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
    * @param profiles
    */
   public void setProfiles(List<AIProfileItem> profiles) {
-    AIProfileItem selectedProfile = nvln(getSelectedProfile(), firstElement(profiles));
     this.profiles = profiles;
-    setSelectedProfile(selectedProfile);
+    AIProfileItem selectedProfile = getSelectedProfile();
+
+    if (selectedProfile == null) setSelectedProfile(firstElement(profiles));
   }
 
   public Set<String> getProfileNames() {
