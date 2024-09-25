@@ -128,7 +128,7 @@ public class ChatMessage {
 
     private static void createMessageSection(@Nullable String content, @Nullable String languageId, List<ChatMessageSection> container) {
         if (content == null || content.isBlank()) return;
-        container.add(new ChatMessageSection(content.trim(), languageId));
+        container.add(new ChatMessageSection(content, languageId));
     }
 
     public String outputForLanguage(Language language) {

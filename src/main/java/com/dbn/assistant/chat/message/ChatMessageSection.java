@@ -32,7 +32,7 @@ public class ChatMessageSection {
     private final String languageId;
 
     public ChatMessageSection(String content, @Nullable String languageId) {
-        this.content = content;
+        this.content = content.trim();
         this.languageId = languageId;
     }
 
