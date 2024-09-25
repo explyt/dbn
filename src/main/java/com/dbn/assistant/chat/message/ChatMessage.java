@@ -21,6 +21,7 @@ import com.dbn.common.message.MessageType;
 import com.dbn.common.util.UUIDs;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.lang.Language;
+import com.intellij.openapi.util.text.StringUtil;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -60,7 +61,7 @@ public class ChatMessage {
      */
     public ChatMessage(MessageType type, String content, AuthorType author, ChatMessageContext context) {
         this.type = type;
-        this.content = content;
+        this.content = content.trim();
         this.author = author;
         this.context = context;
     }
@@ -77,15 +78,14 @@ public class ChatMessage {
      * @return a list of {@link ChatMessageSection} with the different sections
      */
     private List<ChatMessageSection> buildSections() {
-        if (author == AuthorType.AGENT && context.getAction() == PromptAction.SHOW_SQL && !content.contains("```")) {
-            // output is already expected to be SQL code based on the action
-            // TODO not always true (workaround -> enhance the prompt with "(please use code demarcation with language identifier in the output)")
-            return new ChatMessageSection(content.trim(), "sql").asList();
+        if (isSqlCodeContent()) {
+            // output is expected to be SQL code based on the author, action and content
+            return new ChatMessageSection(content, "sql").asList();
         }
 
         if (author.isOneOf(AuthorType.USER, AuthorType.SYSTEM)) {
             // output is already expected to be plain text
-            return new ChatMessageSection(content.trim(), null).asList();
+            return new ChatMessageSection(content, null).asList();
         }
 
         Matcher matcher = SECTIONS_REGEX_PATTERN.matcher(content);
@@ -105,6 +105,26 @@ public class ChatMessage {
         return sections;
     }
 
+    private boolean hasCodeSections() {
+        return content.contains("```");
+    }
+
+    private boolean isSelectStatement() {
+        return
+            StringUtil.startsWithIgnoreCase(content, "select") ||
+            StringUtil.startsWithIgnoreCase(content, "with");
+    }
+
+    private boolean isSqlCodeContent() {
+        // special case of SHOW_SQL agent responses in plain text which are actually sql blocks
+
+        if (author != AuthorType.AGENT) return false;
+        if (context.getAction() != PromptAction.SHOW_SQL) return false;
+        if (hasCodeSections()) return false;
+        if (!isSelectStatement()) return false;
+
+        return true;
+    }
 
     private static void createMessageSection(@Nullable String content, @Nullable String languageId, List<ChatMessageSection> container) {
         if (content == null || content.isBlank()) return;
