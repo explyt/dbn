@@ -21,7 +21,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Commons.coalesce;
+import static com.dbn.common.util.Lists.first;
+import static com.intellij.lang.Language.findLanguageByID;
 
 /**
  * Coding language utility class, providing mapping between AI language identifiers and the ones provided by the IDE
@@ -34,6 +36,7 @@ public class ChatMessageLanguages {
     static {
         // mappings between language ids from llm outputs to IntelliJ language identifiers
         LANGUAGE_MAPPINGS.put("sql", "DBN-SQL");
+        LANGUAGE_MAPPINGS.put("oracle", "DBN-SQL");
         LANGUAGE_MAPPINGS.put("jql", "JQL");
         LANGUAGE_MAPPINGS.put("js", "JavaScript");
         LANGUAGE_MAPPINGS.put("javascript", "JavaScript");
@@ -60,8 +63,16 @@ public class ChatMessageLanguages {
     @Nullable
     public static Language resolveLanguage(@Nullable String identifier) {
         if (identifier == null) return null;
-        String languageId = LANGUAGE_MAPPINGS.get(identifier.trim().toLowerCase());
-        Language language = Language.findLanguageByID(languageId);
-        return nvl(language, () -> Language.findLanguageByID("TEXT"));
+        identifier = identifier.trim().toLowerCase();
+
+        String languageId = rezolveLanguageId(identifier);
+        return findLanguageByID(languageId);
+    }
+
+    private static String rezolveLanguageId(String identifier) {
+        return coalesce(
+                () -> LANGUAGE_MAPPINGS.get(identifier),                              // strong match
+                () -> first(LANGUAGE_MAPPINGS.keySet(), k -> identifier.contains(k)), // soft match (e.g. "oracle sql" -> "sql")
+                () -> "TEXT");                                                        // last resort
     }
 }

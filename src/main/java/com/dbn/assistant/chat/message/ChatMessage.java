@@ -18,6 +18,8 @@ import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.editor.SQLChatMessageConverter;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.util.Lists;
+import com.dbn.common.util.Strings;
 import com.dbn.common.util.UUIDs;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.lang.Language;
@@ -36,7 +38,7 @@ import java.util.regex.Pattern;
 @Setter
 @NoArgsConstructor
 public class ChatMessage {
-    private static final Pattern SECTIONS_REGEX_PATTERN = Pattern.compile("(?s)(?:(.*?)```(\\w+)?\\n(.*?)```|(.+?)(?=\\n?```|\\z))");
+    private static final Pattern SECTIONS_REGEX_PATTERN = Pattern.compile("(```(?<LANG>[\\w ]+)?\\n(?<CODE>((\"[^\"]*\")|('[^']')|[^`])+)(```)?)|(?<TEXT>.+)");
 
     /**
      * Unique identifier of the chat message to establish causality relations and chaining of messages
@@ -88,18 +90,17 @@ public class ChatMessage {
             return new ChatMessageSection(content, null).asList();
         }
 
+        //TODO given the format of the responses is for the most part markdown, consider using an MD viewer for the "plain text" blocks
         Matcher matcher = SECTIONS_REGEX_PATTERN.matcher(content);
-
         List<ChatMessageSection> sections = new ArrayList<>();
         while (matcher.find()) {
-            String leadingText = matcher.group(1);
-            String languageId = matcher.group(2);
-            String codeContent = matcher.group(3);
-            String tailingText = matcher.group(4);
+            String text = matcher.group("TEXT");
+            String lang = matcher.group("LANG");
+            String code = matcher.group("CODE");
+            if (Strings.isNotEmpty(code) && Strings.isEmpty(lang)) lang = "text";
 
-            createMessageSection(leadingText, null, sections);
-            createMessageSection(codeContent, languageId, sections);
-            createMessageSection(tailingText, null, sections);
+            createMessageSection(text, null, sections);
+            createMessageSection(code, lang, sections);
         }
 
         return sections;
@@ -128,7 +129,14 @@ public class ChatMessage {
 
     private static void createMessageSection(@Nullable String content, @Nullable String languageId, List<ChatMessageSection> container) {
         if (content == null || content.isBlank()) return;
-        container.add(new ChatMessageSection(content, languageId));
+        ChatMessageSection lastSection = Lists.lastElement(container);
+        if (lastSection != null && lastSection.getLanguage() == null && languageId == null) {
+            // attach content to last plain text section
+            lastSection.append(content);
+        } else {
+            container.add(new ChatMessageSection(content, languageId));
+        }
+
     }
 
     public String outputForLanguage(Language language) {

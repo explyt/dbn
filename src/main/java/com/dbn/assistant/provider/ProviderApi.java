@@ -25,6 +25,7 @@ import lombok.Getter;
 public enum ProviderApi {
     OPENAI("api.openai.com"),
     COHERE("api.cohere.ai"),
+    GOOGLE("generativelanguage.googleapis.com"),
     OCI("api.oci.com");
 
   private final String host;

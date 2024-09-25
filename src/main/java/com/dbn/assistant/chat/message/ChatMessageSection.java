@@ -28,7 +28,7 @@ import static com.dbn.assistant.chat.message.ChatMessageLanguages.resolveLanguag
 @Getter
 public class ChatMessageSection {
 
-    private final String content;
+    private String content;
     private final String languageId;
 
     public ChatMessageSection(String content, @Nullable String languageId) {
@@ -39,6 +39,10 @@ public class ChatMessageSection {
     @Nullable
     public Language getLanguage() {
         return resolveLanguage(languageId);
+    }
+
+    public void append(String content) {
+        this.content = this.content + "\n" + content;
     }
 
     public List<ChatMessageSection> asList() {

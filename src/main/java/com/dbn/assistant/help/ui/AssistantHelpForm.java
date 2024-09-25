@@ -93,6 +93,7 @@ public class AssistantHelpForm extends DBNFormBase {
   private void initializeWindow() {
     providerComboBox.addItem(ProviderType.OPENAI);
     providerComboBox.addItem(ProviderType.COHERE);
+    providerComboBox.addItem(ProviderType.GOOGLE);
     providerComboBox.addItem(ProviderType.OCI);
 
     docuLink.addHyperlinkListener(e -> when(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED, () -> BrowserUtil.browse(SELECT_AI_DOCS)));
