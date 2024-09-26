@@ -66,9 +66,4 @@ public class SelectSchemaIntentionAction extends EditorIntentionAction  {
             contextManager.promptSchemaSelector(dbLanguageFile.getVirtualFile(), dataContext, null);
         }
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

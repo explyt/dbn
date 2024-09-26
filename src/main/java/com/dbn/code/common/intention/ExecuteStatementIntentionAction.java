@@ -92,9 +92,4 @@ public class ExecuteStatementIntentionAction extends EditorIntentionAction {
         DataContext dataContext = Context.getDataContext(editor);
         executionManager.executeStatement(executionProcessor, dataContext);
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

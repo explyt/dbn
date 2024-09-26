@@ -47,9 +47,4 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
             executionManager.startMethodDebugger(method);
         }
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

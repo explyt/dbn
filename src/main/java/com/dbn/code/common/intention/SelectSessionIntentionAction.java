@@ -69,9 +69,4 @@ public class SelectSessionIntentionAction extends EditorIntentionAction  {
             contextManager.promptSessionSelector(dbLanguageFile.getVirtualFile(), dataContext, null);
         }
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

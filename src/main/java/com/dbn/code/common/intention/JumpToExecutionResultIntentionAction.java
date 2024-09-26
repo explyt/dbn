@@ -90,9 +90,4 @@ public class JumpToExecutionResultIntentionAction extends EditorIntentionAction 
             }
         }
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

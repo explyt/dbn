@@ -70,9 +70,4 @@ public class DatabaseConnectIntentionAction extends EditorIntentionAction {
             }
         }
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

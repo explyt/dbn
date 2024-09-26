@@ -67,9 +67,4 @@ public class ExecuteScriptIntentionAction extends EditorIntentionAction  {
         ScriptExecutionManager scriptExecutionManager = ScriptExecutionManager.getInstance(project);
         scriptExecutionManager.executeScript(psiFile.getVirtualFile());
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

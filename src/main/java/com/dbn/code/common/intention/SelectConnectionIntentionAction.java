@@ -67,10 +67,4 @@ public class SelectConnectionIntentionAction extends EditorIntentionAction {
             contextManager.promptConnectionSelector(psiFile.getVirtualFile(), dataContext, options, null);
         }
     }
-
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

@@ -104,10 +104,4 @@ public class ToggleDatabaseLoggingIntentionAction extends EditorIntentionAction 
             connection.setLoggingEnabled(!connection.isLoggingEnabled());
         }
     }
-
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

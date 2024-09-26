@@ -50,9 +50,4 @@ public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAc
             executionManager.startMethodExecution(method, DBDebuggerType.NONE);
         }
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

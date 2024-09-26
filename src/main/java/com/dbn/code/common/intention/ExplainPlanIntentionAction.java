@@ -79,9 +79,4 @@ public class ExplainPlanIntentionAction extends EditorIntentionAction {
             explainPlanManager.executeExplainPlan(executable, dataContext, null);
         }
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

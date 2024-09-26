@@ -42,6 +42,13 @@ public abstract class EditorIntentionAction extends EditorIntentionActionBase im
     }
 
     @Override
+    public boolean startInWriteAction() {
+        // most (if not all) DBN intentions are non-write intentions
+        // to be overridden by intentions that change editor content
+        return false;
+    }
+
+    @Override
     public int compareTo(@NotNull Object o) {
         if (o instanceof EditorIntentionAction) {
             EditorIntentionAction a = (EditorIntentionAction) o;

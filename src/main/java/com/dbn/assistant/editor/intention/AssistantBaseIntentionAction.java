@@ -58,11 +58,6 @@ public abstract class AssistantBaseIntentionAction extends EditorIntentionAction
 
     protected abstract String getActionName();
 
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
-
     @NotNull
     @Override
     public final String getText() {

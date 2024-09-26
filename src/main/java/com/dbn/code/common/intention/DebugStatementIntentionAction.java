@@ -99,9 +99,4 @@ public class DebugStatementIntentionAction extends EditorIntentionAction {
                             }
                         }));
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }

@@ -45,9 +45,4 @@ public class SetupCodeCompletionIntentionAction extends EditorIntentionAction {
         ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
         settingsManager.openProjectSettings(ConfigId.CODE_COMPLETION);
     }
-
-    @Override
-    public boolean startInWriteAction() {
-        return false;
-    }
 }
