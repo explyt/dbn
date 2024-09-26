@@ -962,6 +962,10 @@
         <!--<intentionAction><className>com.dbn.code.common.intention.SetupCodeCompletionIntentionAction</className><category>Database</category></intentionAction>-->
 
         <intentionAction>
+            <className>com.dbn.assistant.editor.intention.ProfileSwitchIntentionAction</className>
+            <category>Database/Assistant</category>
+        </intentionAction>
+        <intentionAction>
             <className>com.dbn.assistant.editor.intention.AssistantShowIntentionAction</className>
             <category>Database/Assistant</category>
         </intentionAction>

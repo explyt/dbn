@@ -8,7 +8,6 @@ import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
-import com.intellij.codeInsight.intention.HighPriorityAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.project.Project;
@@ -19,8 +18,14 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
-public class JumpToExecutionResultIntentionAction extends GenericIntentionAction implements HighPriorityAction {
+public class JumpToExecutionResultIntentionAction extends EditorIntentionAction  {
+
     private WeakRef<StatementExecutionProcessor> cachedExecutionProcessor;
+
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.EXECUTION_RESULT;
+    }
 
     @Override
     @NotNull
@@ -55,9 +60,7 @@ public class JumpToExecutionResultIntentionAction extends GenericIntentionAction
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
-
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile instanceof DBLanguagePsiFile) {
             ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(editor, true);
@@ -76,7 +79,7 @@ public class JumpToExecutionResultIntentionAction extends GenericIntentionAction
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(editor, true);
         FileEditor fileEditor = Editors.getFileEditor(editor);
         if (executable != null && fileEditor != null) {
@@ -91,10 +94,5 @@ public class JumpToExecutionResultIntentionAction extends GenericIntentionAction
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return super.getGroupPriority();
     }
 }

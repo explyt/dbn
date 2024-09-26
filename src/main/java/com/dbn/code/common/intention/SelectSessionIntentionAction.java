@@ -5,7 +5,6 @@ import com.dbn.common.util.Context;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.intellij.codeInsight.intention.LowPriorityAction;
 import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
@@ -18,10 +17,16 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
 import static com.dbn.common.util.Editors.isMainEditor;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 
-public class SelectSessionIntentionAction extends GenericIntentionAction implements LowPriorityAction {
+public class SelectSessionIntentionAction extends EditorIntentionAction  {
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.SELECT_SESSION;
+    }
+
     @Override
     @NotNull
     public String getText() {
@@ -34,8 +39,8 @@ public class SelectSessionIntentionAction extends GenericIntentionAction impleme
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
+        if (isDatabaseAssistantPrompt(editor, psiElement, COMMENT)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
         if (!isDbLanguagePsiFile(psiFile)) return false;
@@ -55,7 +60,7 @@ public class SelectSessionIntentionAction extends GenericIntentionAction impleme
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile instanceof DBLanguagePsiFile) {
             DBLanguagePsiFile dbLanguageFile = (DBLanguagePsiFile) psiFile;
@@ -68,10 +73,5 @@ public class SelectSessionIntentionAction extends GenericIntentionAction impleme
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 1;
     }
 }

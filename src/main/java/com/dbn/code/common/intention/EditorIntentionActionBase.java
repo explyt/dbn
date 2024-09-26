@@ -14,15 +14,20 @@
 
 package com.dbn.code.common.intention;
 
-import com.intellij.codeInsight.intention.impl.BaseIntentionAction;
 import com.intellij.openapi.editor.CaretModel;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.impl.ImaginaryEditor;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.text.StringUtil;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
+import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Alternative implementation of {@link com.intellij.codeInsight.intention.PsiElementBaseIntentionAction}
@@ -30,19 +35,42 @@ import org.jetbrains.annotations.Nullable;
  *
  * @author Dan Cioca (Oracle)
  */
-public abstract class PsiElementIntentionAction extends BaseIntentionAction {
+public abstract class EditorIntentionActionBase extends com.intellij.codeInsight.intention.impl.BaseIntentionAction {
+    private static final Map<EditorIntentionType, EditorIntentionActionBase> REGISTRY = new HashMap<>();
+
+    protected EditorIntentionActionBase() {
+        register(this);
+    }
+
+    /**
+     * Assert unique type and priority
+     */
+    private static void register(EditorIntentionActionBase action) {
+        EditorIntentionType type = action.getType();
+        EditorIntentionActionBase intentionAction = REGISTRY.get(type);
+        if (intentionAction != null) throw new IllegalStateException("Editor intention already registered for type " + type);
+
+/*
+        int priority = type.getPriority();
+        boolean priorityClash = REGISTRY.values().stream().anyMatch(a -> a.getType().getPriority() == priority);
+        if (priorityClash) throw new IllegalStateException("Editor intention already registered for priority " + priority);
+*/
+
+        REGISTRY.put(type, action);
+    }
+
+    public abstract EditorIntentionType getType();
 
     public final void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
         if (editor == null) return;
-        if (!this.checkFile(file)) return;
+        if (editor instanceof ImaginaryEditor) return;
+        if (!checkFile(file)) return;
 
         PsiElement element = getElement(editor, file);
-        if (element == null) return;
-
         this.invoke(project, editor, element);
     }
 
-    public boolean checkFile(@Nullable PsiFile file) {
+    public static boolean checkFile(@Nullable PsiFile file) {
         return file != null && canModify(file);
     }
 
@@ -50,24 +78,34 @@ public abstract class PsiElementIntentionAction extends BaseIntentionAction {
 
     public final boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
         if (editor == null) return false;
-        if (!this.checkFile(file)) return false;
+        if (!checkFile(file)) return false;
 
         PsiElement element = getElement(editor, file);
-        if (element == null) return false;
-
         return isAvailable(project, editor, element);
     }
 
     public abstract boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement);
 
-    @Nullable
     private static PsiElement getElement(@NotNull Editor editor, @NotNull PsiFile file) {
         CaretModel caretModel = editor.getCaretModel();
         int position = caretModel.getOffset();
-        PsiElement psiElement = file.findElementAt(position);
-        if (psiElement != null) return psiElement;
 
-        // null element at this stage is either empty file or caret at end-of-file
-        return file.getLastChild();
+        PsiElement psiElement = file.findElementAt(position);
+        if (psiElement == null) psiElement = file.getLastChild();
+        if (psiElement == null) return file;
+
+        // find relevant element before the white space
+        if (psiElement instanceof PsiWhiteSpace) {
+            PsiElement prevSibling = psiElement.getPrevSibling();
+            if (prevSibling == null) return psiElement;
+
+            int relativeOffset = position - psiElement.getTextOffset();
+            if (relativeOffset == 0) return prevSibling;
+
+            // return the white space if the previous element is not in the same line
+            if (StringUtil.indexOf(psiElement.getText(), '\n', 0, relativeOffset) > -1) return psiElement; // new line
+            return prevSibling;
+        }
+        return psiElement;
     }
 }

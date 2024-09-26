@@ -15,14 +15,18 @@
 package com.dbn.assistant.editor.intention;
 
 import com.dbn.assistant.chat.window.PromptAction;
-import com.intellij.codeInsight.intention.HighPriorityAction;
+import com.dbn.code.common.intention.EditorIntentionType;
 
 /**
  * Editor intention action for invoking AI-Assistant module from within the editor
  *
  * @author Ayoub Aarrasse (Oracle)
  */
-public class AssistantShowIntentionAction extends AssistantBaseIntentionAction implements HighPriorityAction {
+public class AssistantShowIntentionAction extends AssistantBaseIntentionAction {
+  @Override
+  public EditorIntentionType getType() {
+    return EditorIntentionType.ASSISTANT_GENERATE;
+  }
 
   @Override
   protected String getActionName() {

@@ -5,7 +5,6 @@ import com.dbn.common.util.Context;
 import com.dbn.connection.ConnectionSelectorOptions;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.intellij.codeInsight.intention.LowPriorityAction;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -17,13 +16,19 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
 import static com.dbn.common.util.Editors.isMainEditor;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 import static com.dbn.connection.ConnectionSelectorOptions.Option.SHOW_CREATE_CONNECTION;
 import static com.dbn.connection.ConnectionSelectorOptions.Option.SHOW_VIRTUAL_CONNECTIONS;
 import static com.dbn.connection.ConnectionSelectorOptions.options;
 
-public class SelectConnectionIntentionAction extends GenericIntentionAction implements LowPriorityAction {
+public class SelectConnectionIntentionAction extends EditorIntentionAction {
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.SELECT_CONNECTION;
+    }
+
     @Override
     @NotNull
     public String getText() {
@@ -36,8 +41,8 @@ public class SelectConnectionIntentionAction extends GenericIntentionAction impl
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
+        if (isDatabaseAssistantPrompt(editor, psiElement, COMMENT)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
         if (!isDbLanguagePsiFile(psiFile)) return false;
@@ -49,7 +54,7 @@ public class SelectConnectionIntentionAction extends GenericIntentionAction impl
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile instanceof DBLanguagePsiFile) {
             FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
@@ -67,10 +72,5 @@ public class SelectConnectionIntentionAction extends GenericIntentionAction impl
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 2;
     }
 }

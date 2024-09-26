@@ -15,9 +15,10 @@
 package com.dbn.assistant.editor.intention;
 
 import com.dbn.assistant.chat.window.PromptAction;
-import com.dbn.assistant.editor.AssistantEditorActionUtil;
 import com.dbn.assistant.editor.AssistantEditorAdapter;
-import com.dbn.code.common.intention.GenericIntentionAction;
+import com.dbn.assistant.editor.AssistantEditorUtil;
+import com.dbn.assistant.editor.AssistantPrompt;
+import com.dbn.code.common.intention.EditorIntentionAction;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
@@ -25,9 +26,9 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-
-import static com.dbn.assistant.editor.AssistantEditorActionUtil.resolvePromptText;
+import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantSupported;
+import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
+import static com.dbn.assistant.editor.AssistantPromptUtil.resolveAssistantPrompt;
 import static com.dbn.common.dispose.Checks.isNotValid;
 
 /**
@@ -36,21 +37,21 @@ import static com.dbn.common.dispose.Checks.isNotValid;
  * @author Ayoub Aarrasse (Oracle)
  * @author Dan Cioca (Oracle)
  */
-public abstract class AssistantBaseIntentionAction extends GenericIntentionAction {
+public abstract class AssistantBaseIntentionAction extends EditorIntentionAction {
     @Override
     public final boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-        return AssistantEditorActionUtil.isAssistantSupported(editor) && resolvePromptText(editor, element) != null;
+        return isAssistantSupported(editor) && isAssistantPromptAvailable(editor, element);
     }
 
     @Override
     public final void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement element) throws IncorrectOperationException {
-        ConnectionHandler connection = AssistantEditorActionUtil.getConnection(editor);
+        ConnectionHandler connection = AssistantEditorUtil.getConnection(editor);
         if (isNotValid(connection)) return;
 
-        String promptText = resolvePromptText(editor, element);
-        if (promptText == null) return;
+        AssistantPrompt prompt = resolveAssistantPrompt(editor, element);
+        if (prompt == null) return;
 
-        AssistantEditorAdapter.submitQuery(project, editor, connection.getConnectionId(), promptText, getAction());
+        AssistantEditorAdapter.submitQuery(project, editor, connection.getConnectionId(), prompt.getText(), getAction());
     }
 
     protected abstract PromptAction getAction();
@@ -60,11 +61,6 @@ public abstract class AssistantBaseIntentionAction extends GenericIntentionActio
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    public Icon getIcon(int flags) {
-        return null;
     }
 
     @NotNull

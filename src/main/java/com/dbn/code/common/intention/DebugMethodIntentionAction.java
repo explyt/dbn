@@ -13,6 +13,10 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 
 public class DebugMethodIntentionAction extends AbstractMethodExecutionIntentionAction {
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.DEBUG_METHOD;
+    }
 
     @Override
     protected String getActionName() {
@@ -25,9 +29,7 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
-
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile != null) {
             DBMethod method = resolveMethod(editor, psiFile);
@@ -37,7 +39,7 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
         DBMethod method = resolveMethod(editor, psiFile);
         if (method != null) {
@@ -49,10 +51,5 @@ public class DebugMethodIntentionAction extends AbstractMethodExecutionIntention
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 1;
     }
 }

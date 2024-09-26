@@ -3,7 +3,6 @@ package com.dbn.code.common.intention;
 import com.dbn.common.icon.Icons;
 import com.dbn.execution.script.ScriptExecutionManager;
 import com.dbn.vfs.file.DBSourceCodeVirtualFile;
-import com.intellij.codeInsight.intention.HighPriorityAction;
 import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileDocumentManager;
@@ -22,7 +21,12 @@ import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 import static com.dbn.connection.mapping.FileConnectionContextManager.hasConnectivityContext;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
 
-public class ExecuteScriptIntentionAction extends GenericIntentionAction implements HighPriorityAction {
+public class ExecuteScriptIntentionAction extends EditorIntentionAction  {
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.EXECUTE_SCRIPT;
+    }
+
     @Override
     @NotNull
     public String getText() {
@@ -36,7 +40,7 @@ public class ExecuteScriptIntentionAction extends GenericIntentionAction impleme
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
         if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
@@ -53,7 +57,7 @@ public class ExecuteScriptIntentionAction extends GenericIntentionAction impleme
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
         if (!allValid(project, editor, psiFile)) return;
         if (!isDbLanguagePsiFile(psiFile)) return;
@@ -67,11 +71,5 @@ public class ExecuteScriptIntentionAction extends GenericIntentionAction impleme
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 3;
     }
 }

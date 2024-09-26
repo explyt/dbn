@@ -20,6 +20,7 @@ import com.dbn.assistant.chat.message.ChatMessage;
 import com.dbn.assistant.chat.message.ChatMessageContext;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
+import com.dbn.assistant.editor.action.ProfileSelectAction;
 import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.help.ui.AssistantHelpDialog;
@@ -32,6 +33,7 @@ import com.dbn.assistant.service.mock.FakeAIProfileService;
 import com.dbn.assistant.service.mock.FakeDatabaseService;
 import com.dbn.assistant.settings.ui.AssistantDatabaseConfigDialog;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.action.Selectable;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
@@ -39,6 +41,7 @@ import com.dbn.common.exception.Exceptions;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
@@ -50,6 +53,7 @@ import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -74,6 +78,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.CardLayouts.*;
+import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -320,6 +325,14 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     Dialogs.show(() -> new AssistantDatabaseConfigDialog(connection));
   }
 
+  public void promptProfileSelector(Editor editor, ConnectionId connectionId) {
+    AssistantState state = getAssistantState(connectionId);
+    AIProfileItem defaultProfile = getDefaultProfile(connectionId);
+    List<ProfileSelectAction> actions = convert(state.getProfiles(), p -> new ProfileSelectAction(connectionId, p, defaultProfile));
+
+    Popups.showActionsPopup("Select Profile", editor, actions, Selectable.selector());
+  }
+
   /*********************************************
    *            PersistentStateComponent       *
    *********************************************/
@@ -389,8 +402,6 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     return Boolean.parseBoolean(System.getProperty("fake.services"));
   }
 
-
-  @Nullable
   public AIProfileItem getDefaultProfile(ConnectionId connectionId) {
     return getAssistantState(connectionId).getDefaultProfile();
   }

@@ -9,7 +9,6 @@ import com.dbn.execution.explain.ExplainPlanManager;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
-import com.intellij.codeInsight.intention.HighPriorityAction;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -26,7 +25,12 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
 
-public class ExplainPlanIntentionAction extends GenericIntentionAction implements HighPriorityAction {
+public class ExplainPlanIntentionAction extends EditorIntentionAction {
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.EXPLAIN_STATEMENT;
+    }
+
     @Override
     @NotNull
     public String getText() {
@@ -40,7 +44,7 @@ public class ExplainPlanIntentionAction extends GenericIntentionAction implement
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
         if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
@@ -79,10 +83,5 @@ public class ExplainPlanIntentionAction extends GenericIntentionAction implement
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 2;
     }
 }

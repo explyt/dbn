@@ -17,6 +17,11 @@ import javax.swing.*;
 public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAction{
 
     @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.EXECUTE_METHOD;
+    }
+
+    @Override
     protected String getActionName() {
         return "Run method";
     }
@@ -27,9 +32,7 @@ public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAc
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
-
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile != null) {
             DBMethod method = resolveMethod(editor, psiFile);
@@ -39,7 +42,7 @@ public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAc
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
         DBMethod method = resolveMethod(editor, psiFile);
         if (method != null) {
@@ -51,10 +54,5 @@ public class RunMethodIntentionAction extends AbstractMethodExecutionIntentionAc
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 0;
     }
 }

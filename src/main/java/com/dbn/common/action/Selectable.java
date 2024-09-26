@@ -12,31 +12,20 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.assistant.editor.intention;
+package com.dbn.common.action;
 
-import com.dbn.assistant.chat.window.PromptAction;
-import com.dbn.code.common.intention.EditorIntentionType;
+import com.intellij.openapi.actionSystem.AnAction;
+
+import java.util.function.Predicate;
 
 /**
- * Editor intention action for invoking AI-Assistant module from within the editor
+ * Marker interface for selectable actions
  *
- * @author Ayoub Aarrasse (Oracle)
  */
-public class AssistantExplainIntentionAction extends AssistantBaseIntentionAction {
-  @Override
-  public EditorIntentionType getType() {
-    return EditorIntentionType.ASSISTANT_EXPLAIN;
-  }
+public interface Selectable {
+    boolean isSelected();
 
-  @Override
-  protected String getActionName() {
-    return "Generate and Explain SQL";
-  }
-
-  @Override
-  protected PromptAction getAction() {
-    return PromptAction.EXPLAIN_SQL;
-  }
-
-
+    static Predicate<AnAction> selector() {
+        return action -> action instanceof Selectable && ((Selectable) action).isSelected();
+    }
 }

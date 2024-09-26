@@ -7,7 +7,6 @@ import com.dbn.execution.statement.StatementExecutionManager;
 import com.dbn.execution.statement.processor.StatementExecutionProcessor;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
-import com.intellij.codeInsight.intention.HighPriorityAction;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -20,13 +19,20 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
+import static com.dbn.assistant.editor.AssistantPrompt.Flavor.SELECTION;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Editors.isMainEditor;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.connection.mapping.FileConnectionContextManager.hasConnectivityContext;
 import static com.dbn.debugger.DatabaseDebuggerManager.isDebugConsole;
 
-public class ExecuteStatementIntentionAction extends GenericIntentionAction implements HighPriorityAction {
+public class ExecuteStatementIntentionAction extends EditorIntentionAction {
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.EXECUTE_STATEMENT;
+    }
+
     @Override
     @NotNull
     public String getText() {
@@ -40,8 +46,9 @@ public class ExecuteStatementIntentionAction extends GenericIntentionAction impl
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
+        // do not show the intention for a db-assistant context of type COMMENT or SELECTION
+        if (isDatabaseAssistantPrompt(editor, psiElement, COMMENT, SELECTION)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
         if (isNotValid(psiFile)) return false;
@@ -71,7 +78,7 @@ public class ExecuteStatementIntentionAction extends GenericIntentionAction impl
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         ExecutablePsiElement executable = PsiUtil.lookupExecutableAtCaret(editor, true);
         if (isNotValid(executable)) return;
 
@@ -89,10 +96,5 @@ public class ExecuteStatementIntentionAction extends GenericIntentionAction impl
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 0;
     }
 }

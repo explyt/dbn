@@ -4,7 +4,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.connection.*;
 import com.dbn.connection.session.DatabaseSession;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.intellij.codeInsight.intention.LowPriorityAction;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
@@ -14,9 +13,16 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+import static com.dbn.assistant.editor.AssistantPrompt.Flavor.COMMENT;
+import static com.dbn.assistant.editor.AssistantPrompt.Flavor.SELECTION;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
-public class DatabaseConnectIntentionAction extends GenericIntentionAction implements LowPriorityAction{
+public class DatabaseConnectIntentionAction extends EditorIntentionAction {
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.CONNECT;
+    }
+
     @Override
     @NotNull
     public String getText() {
@@ -31,7 +37,8 @@ public class DatabaseConnectIntentionAction extends GenericIntentionAction imple
 
     @Override
     public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
-        if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
+        // do not show the intention in a db-assistant context of type COMMENT or SELECTION
+        if (isDatabaseAssistantPrompt(editor, psiElement, COMMENT, SELECTION)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile instanceof DBLanguagePsiFile) {
@@ -45,7 +52,7 @@ public class DatabaseConnectIntentionAction extends GenericIntentionAction imple
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
         if (psiFile instanceof DBLanguagePsiFile) {
             DBLanguagePsiFile dbLanguagePsiFile = (DBLanguagePsiFile) psiFile;
@@ -67,10 +74,5 @@ public class DatabaseConnectIntentionAction extends GenericIntentionAction imple
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return super.getGroupPriority();
     }
 }

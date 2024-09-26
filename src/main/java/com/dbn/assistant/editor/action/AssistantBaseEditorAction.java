@@ -16,6 +16,8 @@ package com.dbn.assistant.editor.action;
 
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.editor.AssistantEditorAdapter;
+import com.dbn.assistant.editor.AssistantPrompt;
+import com.dbn.assistant.editor.AssistantPromptUtil;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.util.Strings;
@@ -27,7 +29,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.assistant.editor.AssistantEditorActionUtil.*;
+import static com.dbn.assistant.editor.AssistantEditorUtil.*;
+import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
 import static com.dbn.common.action.Lookups.getEditor;
 import static com.dbn.common.dispose.Checks.isNotValid;
 
@@ -47,17 +50,17 @@ public abstract class AssistantBaseEditorAction extends ProjectAction {
         ConnectionHandler connection = getConnection(e);
         if (isNotValid(connection)) return;
 
-        String promptText = resolvePromptText(e, null);
-        if (promptText == null) return;
+        AssistantPrompt prompt = AssistantPromptUtil.resolveAssistantPrompt(editor, null);
+        if (prompt == null) return;
 
-        AssistantEditorAdapter.submitQuery(project, editor, connection.getConnectionId(), promptText, getAction());
+        AssistantEditorAdapter.submitQuery(project, editor, connection.getConnectionId(), prompt.getText(), getAction());
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        String promptText = resolvePromptText(e, null);
+        Editor editor = getEditor(e);
         boolean visible = isAssistantSupported(e);
-        boolean enabled = promptText != null;
+        boolean enabled = isAssistantPromptAvailable(editor, null);
 
         ActionPlace actionPlace = getActionPlace(e);
         String actionText = getActionGroupName(e) + getActionName(actionPlace);

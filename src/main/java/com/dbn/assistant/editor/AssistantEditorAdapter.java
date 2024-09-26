@@ -23,6 +23,9 @@ import com.dbn.common.thread.Command;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Documents;
 import com.dbn.connection.ConnectionId;
+import com.dbn.language.common.element.util.ElementTypeAttribute;
+import com.dbn.language.common.psi.BasePsiElement;
+import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.sql.SQLLanguage;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.WriteCommandAction;
@@ -32,6 +35,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import lombok.experimental.UtilityClass;
+
+import static com.intellij.util.ObjectUtils.coalesce;
 
 /**
  * This is the class that handles processing the prompt from the console and displaying the results to it.
@@ -59,7 +64,6 @@ public class AssistantEditorAdapter {
   private static void appendMessage(Project project, Editor editor, ChatMessage message) {
     Dispatch.run(editor.getComponent(), () ->
             Command.run(project, "Database Assistant Response", () -> {
-              Document document = editor.getDocument();
               PsiFile psiFile = Documents.getPsiFile(editor);
               if (psiFile == null) return;
 
@@ -67,10 +71,17 @@ public class AssistantEditorAdapter {
               if (psiElement == null) psiElement = psiFile.getLastChild();
               if (psiElement == null) return;
 
-              String prefix = psiElement.getText().endsWith("\n") ? "" : "\n";
+              BasePsiElement<?> basePsiElement = PsiUtil.getBasePsiElement(psiElement);
+              if (basePsiElement != null) {
+                BasePsiElement<?> scopeElement = basePsiElement.findEnclosingElement(ElementTypeAttribute.SCOPE_DEMARCATION);
+                psiElement = coalesce(scopeElement, basePsiElement, psiElement);
+              }
 
               int offset = psiElement.getTextRange().getEndOffset();
+              String prefix = psiElement.getText().endsWith("\n") ? "" : "\n";
               String content = message.outputForLanguage(SQLLanguage.INSTANCE);
+
+              Document document = editor.getDocument();
               document.insertString(offset, prefix + content + "\n");
             }));
   }

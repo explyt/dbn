@@ -12,7 +12,6 @@ import com.dbn.language.common.DBLanguagePsiFile;
 import com.dbn.language.common.element.util.ElementTypeAttribute;
 import com.dbn.language.common.psi.ExecutablePsiElement;
 import com.dbn.language.common.psi.PsiUtil;
-import com.intellij.codeInsight.intention.HighPriorityAction;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.fileEditor.FileEditor;
@@ -29,7 +28,12 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.common.util.Files.isDbLanguagePsiFile;
 
-public class DebugStatementIntentionAction extends GenericIntentionAction implements HighPriorityAction {
+public class DebugStatementIntentionAction extends EditorIntentionAction {
+    @Override
+    public EditorIntentionType getType() {
+        return EditorIntentionType.DEBUG_STATEMENT;
+    }
+
     @Override
     @NotNull
     public String getText() {
@@ -43,7 +47,8 @@ public class DebugStatementIntentionAction extends GenericIntentionAction implem
     }
 
     @Override
-    public boolean isAvailable(@NotNull Project project, Editor editor, PsiElement psiElement) {
+    public boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) {
+        // do not show the intention for a db-assistant context (comment, selection or select-ai-statement)
         if (isDatabaseAssistantPrompt(editor, psiElement)) return false;
 
         PsiFile psiFile = psiElement.getContainingFile();
@@ -64,7 +69,7 @@ public class DebugStatementIntentionAction extends GenericIntentionAction implem
     }
 
     @Override
-    public void invoke(@NotNull Project project, Editor editor, PsiElement psiElement) throws IncorrectOperationException {
+    public void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException {
         PsiFile psiFile = psiElement.getContainingFile();
         if (isNotValid(project)) return;
         if (isNotValid(editor)) return;
@@ -98,10 +103,5 @@ public class DebugStatementIntentionAction extends GenericIntentionAction implem
     @Override
     public boolean startInWriteAction() {
         return false;
-    }
-
-    @Override
-    protected Integer getGroupPriority() {
-        return 1;
     }
 }
