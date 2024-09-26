@@ -58,6 +58,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.dbn.assistant.state.AssistantStatus.*;
+import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.util.Commons.nvl;
 
 /**
@@ -126,15 +127,15 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void initIntroForm() {
-    if (isAcknowledged()) return;
+    if (hasUserEngaged()) return;
 
     AssistantIntroductionForm introductionForm = new AssistantIntroductionForm(this);
     introPanel.add(introductionForm.getComponent(), BorderLayout.CENTER);
-    introPanel.setVisible(!isAcknowledged());
+    introPanel.setVisible(true);
   }
 
   private void initChatBoxForm() {
-    if (!isAcknowledged()) return;
+    if (!hasUserEngaged()) return;
     chatBoxPanel.setVisible(true);
 
     createActionPanels();
@@ -144,8 +145,8 @@ public class ChatBoxForm extends DBNFormBase {
     restoreMessages();
   }
 
-  private boolean isAcknowledged() {
-    return getAssistantState().isAcknowledged();
+  private boolean hasUserEngaged() {
+    return getAssistantState().getAcknowledgement() == ENGAGED;
   }
 
   private void initHeaderForm() {
@@ -191,7 +192,7 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public void acknowledgeIntro() {
-    getAssistantState().setAcknowledged(true);
+    getAssistantState().setAcknowledgement(ENGAGED);
     initChatBoxForm();
     introPanel.setVisible(false);
     chatBoxPanel.setVisible(true);
@@ -235,7 +236,7 @@ public class ChatBoxForm extends DBNFormBase {
 
   private void processQuery(String question) {
     AssistantState state = getAssistantState();
-    if (!state.promptingAvailable()) return;
+    if (!state.isPromptingAvailable()) return;
 
     AIProfileItem profile = state.getSelectedProfile();
     if (profile == null) return;
@@ -322,6 +323,7 @@ public class ChatBoxForm extends DBNFormBase {
     AssistantState state = getAssistantState();
     state.set(INITIALIZING, true);
     state.set(UNAVAILABLE, false);
+    notifyStateListeners();
   }
 
   private void afterProfileLoad(@Nullable Throwable e) {
@@ -332,11 +334,11 @@ public class ChatBoxForm extends DBNFormBase {
       state.set(UNAVAILABLE, true);
       showErrorHeader(e);
     }
+    notifyStateListeners();
 
-    inputField.setReadonly(!state.promptingAvailable());
+    inputField.setReadonly(!state.isPromptingAvailable());
     inputField.requestFocus();
     UserInterface.visitRecursively(chatBoxPanel,  c -> UserInterface.repaint(c));
-
   }
 
   private void showErrorHeader(Throwable cause) {
@@ -349,6 +351,7 @@ public class ChatBoxForm extends DBNFormBase {
     String selectedProfile = state.getSelectedProfileName();
     profiles.forEach((pn, p) -> profileItems.add(new AIProfileItem(p, p.getProfileName().equalsIgnoreCase(selectedProfile))));
     state.setProfiles(profileItems);
+    notifyStateListeners();
   }
 
   private void appendMessageToChat(PersistentChatMessage message) {
@@ -362,6 +365,10 @@ public class ChatBoxForm extends DBNFormBase {
     chatScrollPane.validate();
     JScrollBar verticalBar = chatScrollPane.getVerticalScrollBar();
     verticalBar.setValue(verticalBar.getMaximum());
+  }
+
+  private void notifyStateListeners() {
+    getManager().notifyStateListeners(getConnectionId());
   }
 
   private ConnectionId getConnectionId() {

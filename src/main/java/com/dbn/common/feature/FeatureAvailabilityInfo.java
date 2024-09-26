@@ -12,15 +12,23 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.common;
+package com.dbn.common.feature;
+
+import lombok.Getter;
 
 /**
- * Common purpose Availability enumeration
+ * Common purpose Availability information holder
+ * Holds a {@link FeatureAvailability} attribute as well as a String message to further disambiguate or explain the availability
  *
  * @author Dan Cioca (Oracle)
  */
-public enum Availability {
-    AVAILABLE,   // feature is available
-    UNAVAILABLE, // feature is unavailable
-    UNCERTAIN    // availability of the feature is not yet known and needs reevaluation
+@Getter
+public class FeatureAvailabilityInfo {
+    private final FeatureAvailability availability;
+    private final String message;
+
+    public FeatureAvailabilityInfo(FeatureAvailability availability, String message) {
+        this.availability = availability;
+        this.message = message;
+    }
 }

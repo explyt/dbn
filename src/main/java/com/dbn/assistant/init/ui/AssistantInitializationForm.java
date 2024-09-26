@@ -17,9 +17,9 @@ package com.dbn.assistant.init.ui;
 import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
-import com.dbn.common.Availability;
-import com.dbn.common.AvailabilityInfo;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.feature.FeatureAvailability;
+import com.dbn.common.feature.FeatureAvailabilityInfo;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
@@ -38,6 +38,7 @@ import java.awt.*;
 import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.common.feature.FeatureAvailability.*;
 import static com.dbn.common.util.Conditional.when;
 
 /**
@@ -70,10 +71,10 @@ public class AssistantInitializationForm extends DBNFormBase {
     }
 
     private boolean isAvailable() {
-        return getCurrentAvailability() == Availability.AVAILABLE;
+        return getCurrentAvailability() == AVAILABLE;
     }
 
-    private Availability getCurrentAvailability() {
+    private FeatureAvailability getCurrentAvailability() {
         ChatBoxForm chatBox = getChatBox();
         AssistantState assistantState = chatBox.getAssistantState();
         return assistantState.getAvailability();
@@ -95,18 +96,18 @@ public class AssistantInitializationForm extends DBNFormBase {
 
     /**
      * Updates UI components after availability evaluation
-     * @param availabilityInfo the {@link AvailabilityInfo} resulted from the evaluation
+     * @param availabilityInfo the {@link FeatureAvailabilityInfo} resulted from the evaluation
      */
-    private void updateComponents(AvailabilityInfo availabilityInfo) {
+    private void updateComponents(FeatureAvailabilityInfo availabilityInfo) {
         initializingPanel.setVisible(false);
         unsupportedPanel.setVisible(false);
         reinitializePanel.setVisible(false);
         messagePanel.removeAll();
 
-        Availability availability = availabilityInfo.getAvailability();
-        if (availability == Availability.UNAVAILABLE) {
+        FeatureAvailability availability = availabilityInfo.getAvailability();
+        if (availability == UNAVAILABLE) {
             unsupportedPanel.setVisible(true);
-        } else if (availability == Availability.UNCERTAIN) {
+        } else if (availability == UNCERTAIN) {
             reinitializePanel.setVisible(true);
             String messageContent = "Could not initialize Database Assistant\n\n" + availabilityInfo.getMessage();
             TextContent message = TextContent.plain(messageContent);
@@ -119,28 +120,28 @@ public class AssistantInitializationForm extends DBNFormBase {
 
     /**
      * Verifies the availability of the AI Assistant if not already known and captured in the {@link AssistantState}
-     * @return an {@link AvailabilityInfo} object
+     * @return an {@link FeatureAvailabilityInfo} object
      */
-    private AvailabilityInfo doCheckAvailability() {
+    private FeatureAvailabilityInfo doCheckAvailability() {
         DatabaseAssistantType assistantType = getChatBox().getAssistantState().getAssistantType();
-        Availability availability = getCurrentAvailability();
+        FeatureAvailability availability = getCurrentAvailability();
         String availabilityMessage = null;
 
         ChatBoxForm chatBox = getChatBox();
         AssistantState assistantState = chatBox.getAssistantState();
 
-        if (availability == Availability.UNCERTAIN) {
+        if (availability == UNCERTAIN) {
             ConnectionHandler connection = chatBox.getConnection();
             if (!DatabaseFeature.AI_ASSISTANT.isSupported(connection)) {
                 // known already to bot be supported by the given database type
-                availability = Availability.UNAVAILABLE;
+                availability = UNAVAILABLE;
             } else {
                 // perform deep verification by accessing the database
                 try {
                     boolean available = checkAvailability(connection);
                     assistantType = resolveAssistantType(connection);
 
-                    availability = available ? Availability.AVAILABLE : Availability.UNAVAILABLE;
+                    availability = available ? AVAILABLE : UNAVAILABLE;
                 } catch (Throwable e) {
                     // availability remains uncertain at this stage as it could bot be verified against the database
                     Diagnostics.conditionallyLog(e);
@@ -151,7 +152,7 @@ public class AssistantInitializationForm extends DBNFormBase {
 
         assistantState.setAvailability(availability);
         assistantState.setAssistantType(assistantType);
-        return new AvailabilityInfo(availability, availabilityMessage);
+        return new FeatureAvailabilityInfo(availability, availabilityMessage);
     }
 
     private static boolean checkAvailability(ConnectionHandler connection) throws SQLException {

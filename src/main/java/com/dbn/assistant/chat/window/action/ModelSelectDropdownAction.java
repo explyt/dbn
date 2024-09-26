@@ -65,7 +65,7 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
     @Override
     public void update(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        boolean enabled = chatBox != null && chatBox.getAssistantState().promptingAvailable();
+        boolean enabled = chatBox != null && chatBox.getAssistantState().isPromptingAvailable();
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));

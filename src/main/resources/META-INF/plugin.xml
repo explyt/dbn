@@ -886,6 +886,7 @@
         <editorNotificationProvider implementation="com.dbn.editor.data.DatasetEditorNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.editor.session.SessionBrowserNotificationProvider"/>
         <editorNotificationProvider implementation="com.dbn.connection.mapping.FileConnectionContextNotificationProvider"/>
+        <editorNotificationProvider implementation="com.dbn.assistant.editor.notification.AssistantEditorNotificationProvider"/>
 
         <additionalTextAttributes scheme="Default" file="textAttributes/DBNDefaultColors.xml" id="DBN-Default"/>
         <additionalTextAttributes scheme="Darcula" file="textAttributes/DBNDarculaColors.xml" id="DBN-Darcula"/>

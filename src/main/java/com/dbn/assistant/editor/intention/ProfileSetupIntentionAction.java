@@ -25,7 +25,7 @@ import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantSupported;
+import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantAvailable;
 import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
 import static com.dbn.common.dispose.Checks.isNotValid;
 
@@ -46,7 +46,7 @@ public class ProfileSetupIntentionAction extends EditorIntentionAction {
 
   @Override
   public final boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-    return isAssistantSupported(editor) &&
+    return isAssistantAvailable(editor) &&
             isAssistantPromptAvailable(editor, element);
   }
 
@@ -56,6 +56,6 @@ public class ProfileSetupIntentionAction extends EditorIntentionAction {
     if (isNotValid(connection)) return;
 
     DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-    manager.openProfileConfiguration(connection);
+    manager.openProfileConfiguration(connection.getConnectionId());
   }
 }

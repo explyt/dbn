@@ -17,7 +17,7 @@ package com.dbn.assistant.init.ui;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.help.ui.AssistantHelpDialog;
 import com.dbn.assistant.state.AssistantState;
-import com.dbn.common.Availability;
+import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.text.TextContent;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
@@ -57,14 +57,14 @@ public class AssistantIntroductionForm extends DBNFormBase {
         evaluateAvailability();
     }
 
-    private Availability getAvailability() {
+    private FeatureAvailability getAvailability() {
         AssistantState assistantState = getChatBox().getAssistantState();
         return assistantState.getAvailability();
     }
 
     public void evaluateAvailability() {
-        Availability availability = getAvailability();
-        boolean available = availability == Availability.AVAILABLE;
+        FeatureAvailability availability = getAvailability();
+        boolean available = availability == FeatureAvailability.AVAILABLE;
         initPanel.setVisible(!available);
         introPanel.setVisible(available);
     }
@@ -84,7 +84,7 @@ public class AssistantIntroductionForm extends DBNFormBase {
         selectAiHyperlink.setHyperlinkText("Oracle Select AI");
         selectAiHyperlink.addHyperlinkListener(e -> {
             if (e.getEventType() == HyperlinkEvent.EventType.ACTIVATED) {
-                BrowserUtil.browse("https://www.oracle.com/autonomous-database/select-ai/");;
+                BrowserUtil.browse("https://www.oracle.com/autonomous-database/select-ai/");
             }
         });
     }

@@ -55,22 +55,22 @@ public class AssistantEditorUtil {
         return assistantManager.getAssistantState(connection.getConnectionId());
     }
 
-    public static boolean isAssistantSupported(@NotNull AnActionEvent e) {
+    public static boolean isAssistantAvailable(@NotNull AnActionEvent e) {
         AssistantState state = getAssistantState(e);
         if (state == null) return false;
 
-        return state.available();
+        return state.isAvailable();
     }
 
 
-    public static boolean isAssistantSupported(@Nullable Editor editor) {
+    public static boolean isAssistantAvailable(@Nullable Editor editor) {
         if (isNotValid(editor)) return false;
 
         ConnectionHandler connection = getConnection(editor);
         AssistantState state = getAssistantState(connection);
         if (isNotValid(state)) return false;
 
-        return state.available();
+        return state.isAvailable();
     }
 
     @Nullable

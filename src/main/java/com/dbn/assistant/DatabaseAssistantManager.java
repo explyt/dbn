@@ -33,11 +33,14 @@ import com.dbn.assistant.service.mock.FakeAIProfileService;
 import com.dbn.assistant.service.mock.FakeDatabaseService;
 import com.dbn.assistant.settings.ui.AssistantDatabaseConfigDialog;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.action.Selectable;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
@@ -76,6 +79,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.CardLayouts.*;
 import static com.dbn.common.util.Lists.convert;
@@ -134,8 +138,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     AIProfileItem defaultProfile = getDefaultProfile(connectionId);
     if (defaultProfile != null) return;
 
-    AssistantState state = getAssistantState(connectionId);
-    if (state.isAcknowledged()) {
+    AssistantState assistantState = getAssistantState(connectionId);
+    if (assistantState.getAcknowledgement() == ENGAGED) {
       // assistant not yet configured -> prompt modal initialization
       promptMissingProfiles(connectionId);
     } else {
@@ -201,6 +205,13 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   public AssistantState getAssistantState(ConnectionId connectionId) {
     return assistantStates.computeIfAbsent(connectionId, c -> new AssistantState(c));
+  }
+
+  public void changeAssistantAcknowledgement(ConnectionId connectionId, FeatureAcknowledgement acknowledgement) {
+    AssistantState assistantState = getAssistantState(connectionId);
+    assistantState.setAcknowledgement(acknowledgement);
+
+    notifyStateListeners(connectionId);
   }
 
   public ToolWindow getToolWindow() {
@@ -321,14 +332,15 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
   }
 
-  public void openProfileConfiguration(ConnectionHandler connection) {
+  public void openProfileConfiguration(ConnectionId connectionId) {
+    ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
     Dialogs.show(() -> new AssistantDatabaseConfigDialog(connection));
   }
 
   public void promptProfileSelector(Editor editor, ConnectionId connectionId) {
-    AssistantState state = getAssistantState(connectionId);
+    AssistantState assistantState = getAssistantState(connectionId);
     AIProfileItem defaultProfile = getDefaultProfile(connectionId);
-    List<ProfileSelectAction> actions = convert(state.getProfiles(), p -> new ProfileSelectAction(connectionId, p, defaultProfile));
+    List<ProfileSelectAction> actions = convert(assistantState.getProfiles(), p -> new ProfileSelectAction(connectionId, p, defaultProfile));
 
     Popups.showActionsPopup("Select Profile", editor, actions, Selectable.selector());
   }
@@ -408,7 +420,12 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   public void setDefaultProfile(ConnectionId connectionId, AIProfileItem profile) {
     getAssistantState(connectionId).setDefaultProfile(profile);
+    notifyStateListeners(connectionId);
   }
 
+  public void notifyStateListeners(ConnectionId connectionId) {
+    Project project = getProject();
+    ProjectEvents.notify(project, AssistantStateListener.TOPIC, l -> l.stateChanged(project, connectionId));
+  }
 
 }

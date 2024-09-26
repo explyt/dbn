@@ -39,7 +39,7 @@ public class PromptSubmitAction extends AbstractChatBoxAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         AssistantState state = getAssistantState(e);
-        boolean enabled = state != null && state.promptingAvailable();
+        boolean enabled = state != null && state.isPromptingAvailable();
 
         Presentation presentation = e.getPresentation();
         presentation.setIcon(Icons.ACTION_EXECUTE);

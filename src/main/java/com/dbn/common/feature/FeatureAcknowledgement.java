@@ -12,23 +12,19 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.common;
+package com.dbn.common.feature;
 
-import lombok.Getter;
+import com.dbn.common.constant.Constant;
 
 /**
- * Common purpose Availability information holder
- * Holds a {@link Availability} attribute as well as a String message to further disambiguate or explain the availability
+ * Common purpose feature acknowledgement enumeration
  *
  * @author Dan Cioca (Oracle)
  */
-@Getter
-public class AvailabilityInfo {
-    private final Availability availability;
-    private final String message;
-
-    public AvailabilityInfo(Availability availability, String message) {
-        this.availability = availability;
-        this.message = message;
-    }
+public enum FeatureAcknowledgement implements Constant<FeatureAcknowledgement> {
+    NONE,         // feature has not yet been acknowledged by the user
+    NOTICED,      // feature was made visible for the user
+    ENGAGED,      // user has seen and already engaged with the feature
+    DISMISSED,     // user has seen and dismissed the feature
+    DISABLED       // user has seen and disabled the feature
 }

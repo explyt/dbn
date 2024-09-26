@@ -15,7 +15,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 
-import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantSupported;
+import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantAvailable;
 import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
 
 public abstract class EditorIntentionAction extends EditorIntentionActionBase implements IntentionAction, HighPriorityAction, Iconable, DumbAware, Comparable<Object> {
@@ -69,6 +69,6 @@ public abstract class EditorIntentionAction extends EditorIntentionActionBase im
      * @return true if the element is an AI-Assistant comment (starting with three dashes), false otherwise
      */
     protected boolean isDatabaseAssistantPrompt(Editor editor, PsiElement element, AssistantPrompt.Flavor ... flavors) {
-        return isAssistantSupported(editor) && isAssistantPromptAvailable(editor, element, flavors);
+        return isAssistantAvailable(editor) && isAssistantPromptAvailable(editor, element, flavors);
     }
 }

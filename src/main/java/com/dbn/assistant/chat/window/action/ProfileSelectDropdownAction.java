@@ -57,7 +57,7 @@ public class ProfileSelectDropdownAction extends DBNComboBoxAction implements Du
     @Override
     public void update(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        boolean enabled = chatBox != null && chatBox.getAssistantState().available();
+        boolean enabled = chatBox != null && chatBox.getAssistantState().isAvailable();
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));

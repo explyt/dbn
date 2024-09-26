@@ -136,7 +136,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
             CharSequence newFragment = event.getNewFragment();
             if (!newFragment.isEmpty() && newFragment.charAt(0) == '\n') {
                 ChatBoxForm chatBox = getChatBox();
-                if (chatBox.getAssistantState().promptingAvailable()) {
+                if (chatBox.getAssistantState().isPromptingAvailable()) {
                     chatBox.submitPrompt();
                 } else {
                     String text = document.getText();

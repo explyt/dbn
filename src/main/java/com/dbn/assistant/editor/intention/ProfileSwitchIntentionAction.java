@@ -31,7 +31,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 
-import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantSupported;
+import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantAvailable;
 import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
 import static com.dbn.common.dispose.Checks.isNotValid;
 
@@ -52,7 +52,7 @@ public class ProfileSwitchIntentionAction extends EditorIntentionAction {
 
   @Override
   public final boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
-    return isAssistantSupported(editor) &&
+    return isAssistantAvailable(editor) &&
             getProfiles(editor).size() > 1 &&
             isAssistantPromptAvailable(editor, element);
   }

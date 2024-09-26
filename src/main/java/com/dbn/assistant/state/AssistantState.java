@@ -18,7 +18,8 @@ import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.common.Availability;
+import com.dbn.common.feature.FeatureAcknowledgement;
+import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.connection.ConnectionId;
@@ -53,12 +54,15 @@ import static com.dbn.common.util.Lists.*;
 @NoArgsConstructor
 public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus> implements PersistentStateElement {
 
+  private FeatureAvailability availability = FeatureAvailability.UNCERTAIN;
+  private FeatureAcknowledgement acknowledgement = FeatureAcknowledgement.NONE;
+
   private ConnectionId connectionId;
   private DatabaseAssistantType assistantType = DatabaseAssistantType.SELECT_AI;
   private List<AIProfileItem> profiles = new ArrayList<>();
   private List<PersistentChatMessage> messages = new ArrayList<>();
+
   private PromptAction selectedAction = PromptAction.SHOW_SQL;
-  private Availability availability = Availability.UNCERTAIN;
   private String defaultProfileName;
 
   public static final short MAX_CHAR_MESSAGE_COUNT = 100;
@@ -80,31 +84,28 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     }
   }
 
-  public boolean isAcknowledged() {
-    return is(AssistantStatus.ACKNOWLEDGED);
-  }
-
-  public void setAcknowledged(boolean acknowledged) {
-    set(AssistantStatus.ACKNOWLEDGED, acknowledged);
+  public boolean isSupported() {
+    return availability == FeatureAvailability.AVAILABLE;
   }
 
   /**
    * State utility indicating the feature is initialized and ready to use
    * @return true if the chat box is properly initialized and can be interacted with
    */
-  public boolean available() {
-    return isNot(AssistantStatus.INITIALIZING) &&
+  public boolean isAvailable() {
+    return isSupported() &&
+            isNot(AssistantStatus.INITIALIZING) &&
             isNot(AssistantStatus.UNAVAILABLE) &&
             isNot(AssistantStatus.QUERYING);
   }
 
   /**
    * State utility indicating the prompting is available.
-   * It internally checks if the feature is ready to use by calling {@link #available()} but also checks if a valid profile is selected
+   * It internally checks if the feature is ready to use by calling {@link #isAvailable()} but also checks if a valid profile is selected
    * @return true if prompting is allowed
    */
-  public boolean promptingAvailable() {
-    if (!available()) return false;
+  public boolean isPromptingAvailable() {
+    if (!isAvailable()) return false;
 
     AIProfileItem profile = getSelectedProfile();
     if (profile == null) return false;
@@ -173,8 +174,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     assistantType = enumAttribute(element, "assistant-type", assistantType);
     selectedAction = enumAttribute(element, "selected-action", selectedAction);
     availability = enumAttribute(element, "availability", availability);
-    boolean acknowledged = booleanAttribute(element, "acknowledged", isAcknowledged());
-    setAcknowledged(acknowledged);
+    acknowledgement = enumAttribute(element, "acknowledgement", acknowledgement);
 
     List<AIProfileItem> profiles = new ArrayList<>();
     Element profilesElement = element.getChild("profiles");
@@ -202,7 +202,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     setEnumAttribute(element, "assistant-type", assistantType);
     setEnumAttribute(element, "selected-action", selectedAction);
     setEnumAttribute(element, "availability", availability);
-    setBooleanAttribute(element, "acknowledged", isAcknowledged());
+    setEnumAttribute(element, "acknowledgement", acknowledgement);
 
     Element profilesElement = newElement(element, "profiles");
     for (AIProfileItem profile : profiles) {

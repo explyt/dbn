@@ -59,7 +59,7 @@ public abstract class AssistantBaseEditorAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Editor editor = getEditor(e);
-        boolean visible = isAssistantSupported(e);
+        boolean visible = isAssistantAvailable(e);
         boolean enabled = isAssistantPromptAvailable(editor, null);
 
         ActionPlace actionPlace = getActionPlace(e);
