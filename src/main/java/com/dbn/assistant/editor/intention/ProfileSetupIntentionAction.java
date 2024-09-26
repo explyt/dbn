@@ -16,20 +16,14 @@ package com.dbn.assistant.editor.intention;
 
 import com.dbn.assistant.DatabaseAssistantManager;
 import com.dbn.assistant.editor.AssistantEditorUtil;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.code.common.intention.EditorIntentionAction;
 import com.dbn.code.common.intention.EditorIntentionType;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Collections;
-import java.util.List;
 
 import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantSupported;
 import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
@@ -40,20 +34,19 @@ import static com.dbn.common.dispose.Checks.isNotValid;
  *
  * @author Dan Cioca(Oracle)
  */
-public class ProfileSwitchIntentionAction extends EditorIntentionAction {
+public class ProfileSetupIntentionAction extends EditorIntentionAction {
   @Override
   public EditorIntentionType getType() {
-    return EditorIntentionType.ASSISTANT_PROFILE_SELECT;
+    return EditorIntentionType.ASSISTANT_PROFILE_SETUP;
   }
 
   public final String getText() {
-    return "Select AI - Switch Profile";
+    return "Select AI - Configure Profiles...";
   }
 
   @Override
   public final boolean isAvailable(@NotNull Project project, Editor editor, @NotNull PsiElement element) {
     return isAssistantSupported(editor) &&
-            getProfiles(editor).size() > 1 &&
             isAssistantPromptAvailable(editor, element);
   }
 
@@ -63,19 +56,6 @@ public class ProfileSwitchIntentionAction extends EditorIntentionAction {
     if (isNotValid(connection)) return;
 
     DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-    ConnectionId connectionId = connection.getConnectionId();
-    manager.promptProfileSelector(editor, connectionId);
+    manager.openProfileConfiguration(connection);
   }
-
-  private static List<AIProfileItem> getProfiles(Editor editor) {
-    ConnectionHandler connection = AssistantEditorUtil.getConnection(editor);
-    if (isNotValid(connection)) return Collections.emptyList();
-
-    Project project = connection.getProject();
-
-    DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-    AssistantState assistantState = manager.getAssistantState(connection.getConnectionId());
-    return assistantState.getProfiles();
-  }
-
 }

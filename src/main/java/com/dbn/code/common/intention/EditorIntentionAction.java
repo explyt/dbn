@@ -24,6 +24,7 @@ public abstract class EditorIntentionAction extends EditorIntentionActionBase im
     @NotNull
     public String getFamilyName() {
         return getText();
+        // DBN intentions cannot be grouped by family as system would hide the granularity behind the group name
     }
 
     @Nullable

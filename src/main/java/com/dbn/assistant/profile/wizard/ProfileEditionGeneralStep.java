@@ -31,7 +31,6 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.wizard.WizardNavigationState;
@@ -70,8 +69,7 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
 
   public ProfileEditionGeneralStep(ConnectionHandler connection, Profile profile, Set<String> existingProfileNames, boolean isUpdate) {
     super(txt("profile.mgmt.general_step.title"),
-            txt("profile.mgmt.general_step.explaination"),
-            AllIcons.General.Settings);
+            txt("profile.mgmt.general_step.explaination"));
     this.connection = ConnectionRef.of(connection);
     this.profile = profile;
     this.existingProfileNames = existingProfileNames;

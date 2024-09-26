@@ -108,8 +108,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
 
   public ProfileEditionObjectListStep(ConnectionHandler connection, Profile profile, boolean isUpdate) {
     super(txt("profile.mgmt.object_list_step.title"),
-        null,//txt("profile.mgmt.object_list_step.explaination"),
-        null/*Icons.DB_GENERIC*/);
+        txt("profile.mgmt.object_list_step.explaination"));
 
     this.connection = connection.ref();
     this.databaseSvc = DatabaseService.getInstance(connection);

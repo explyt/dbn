@@ -321,7 +321,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
   }
 
-  public void openSettings(ConnectionHandler connection) {
+  public void openProfileConfiguration(ConnectionHandler connection) {
     Dialogs.show(() -> new AssistantDatabaseConfigDialog(connection));
   }
 

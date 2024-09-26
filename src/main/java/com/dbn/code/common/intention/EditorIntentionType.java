@@ -38,7 +38,8 @@ public enum EditorIntentionType {
     // assistant
     ASSISTANT_GENERATE,
     ASSISTANT_EXPLAIN,
-    ASSISTANT_SELECT_PROFILE,
+    ASSISTANT_PROFILE_SELECT,
+    ASSISTANT_PROFILE_SETUP,
 
     // misc
     CONNECT,

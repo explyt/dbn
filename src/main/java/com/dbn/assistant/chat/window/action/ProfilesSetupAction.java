@@ -33,12 +33,12 @@ public class ProfilesSetupAction extends AbstractChatBoxAction {
         if (chatBox == null) return;
 
         DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
-        manager.openSettings(chatBox.getConnection());
+        manager.openProfileConfiguration(chatBox.getConnection());
     }
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Edit Profiles...");
+        presentation.setText("Profiles Settings...");
     }
 }

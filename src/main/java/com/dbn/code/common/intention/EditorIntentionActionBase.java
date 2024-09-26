@@ -50,12 +50,6 @@ public abstract class EditorIntentionActionBase extends com.intellij.codeInsight
         EditorIntentionActionBase intentionAction = REGISTRY.get(type);
         if (intentionAction != null) throw new IllegalStateException("Editor intention already registered for type " + type);
 
-/*
-        int priority = type.getPriority();
-        boolean priorityClash = REGISTRY.values().stream().anyMatch(a -> a.getType().getPriority() == priority);
-        if (priorityClash) throw new IllegalStateException("Editor intention already registered for priority " + priority);
-*/
-
         REGISTRY.put(type, action);
     }
 

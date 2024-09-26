@@ -38,7 +38,7 @@ public class AssistantDatabaseConfigDialog extends DBNDialog<AssistantDatabaseCo
   private final ConnectionRef connection;
 
   public AssistantDatabaseConfigDialog(ConnectionHandler connection) {
-    super(connection.getProject(), getAssistantName(connection) + " Settings", true);
+    super(connection.getProject(), getAssistantName(connection) + " Profiles and Credentials", true);
     this.connection = ConnectionRef.of(connection);
     renameAction(getCancelAction(), "Close");
 

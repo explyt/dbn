@@ -20,7 +20,6 @@ import com.dbn.assistant.provider.ProviderType;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
-import com.intellij.icons.AllIcons;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.wizard.WizardNavigationState;
 import com.intellij.ui.wizard.WizardStep;
@@ -57,8 +56,7 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
 
   public ProfileEditionProviderStep(ConnectionHandler connection, Profile profile, boolean isUpdate) {
     super(txt("profile.mgmt.provider_step.title"),
-            txt("profile.mgmt.provider_step.explaination"),
-            AllIcons.General.Settings);
+            txt("profile.mgmt.provider_step.explaination"));
     this.profile = profile;
     configureTemperatureSlider();
     populateCombos();

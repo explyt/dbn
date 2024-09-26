@@ -480,7 +480,11 @@
             <action class="com.dbn.assistant.chat.window.action.ModelSelectDropdownAction" text="Select Profile" id="DBNavigator.Actions.Assistant.SelectModel"/>
             <action class="com.dbn.assistant.chat.window.action.ProfilesRefreshAction" text="Reload Profiles" id="DBNavigator.Actions.Assistant.RefreshProfiles" icon="AllIcons.Actions.Refresh"/>
             <action class="com.dbn.assistant.chat.window.action.ConfigurationHelpAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ConfigurationHelp" icon="AllIcons.Actions.Help"/>
-            <action class="com.dbn.assistant.chat.window.action.ProfilesSetupAction" text="Profile Settings" id="DBNavigator.Actions.Assistant.ProfileSettings" icon="AllIcons.General.GearPlain"/>
+            <group id="DBNavigator.Actions.Assistant.OpenSettings" text="Options" icon="AllIcons.General.GearPlain" popup="true">
+                <action class="com.dbn.assistant.chat.window.action.AssistantSettingsAction" text="Settings..." id="DBNavigator.Actions.Assistant.AssistantSettings"/>
+                <action class="com.dbn.assistant.chat.window.action.ProfilesSetupAction" text="Profiles Setup..." id="DBNavigator.Actions.Assistant.ProfileSetup"/>
+            </group>
+
             <separator/>
             <action class="com.dbn.assistant.chat.window.action.ConversationClearAction" text="Clear Conversation" id="DBNavigator.Actions.Assistant.ClearConversation" icon="AllIcons.Actions.GC"/>
         </group>
@@ -962,10 +966,6 @@
         <!--<intentionAction><className>com.dbn.code.common.intention.SetupCodeCompletionIntentionAction</className><category>Database</category></intentionAction>-->
 
         <intentionAction>
-            <className>com.dbn.assistant.editor.intention.ProfileSwitchIntentionAction</className>
-            <category>Database/Assistant</category>
-        </intentionAction>
-        <intentionAction>
             <className>com.dbn.assistant.editor.intention.AssistantShowIntentionAction</className>
             <category>Database/Assistant</category>
         </intentionAction>
@@ -973,6 +973,15 @@
             <className>com.dbn.assistant.editor.intention.AssistantExplainIntentionAction</className>
             <category>Database/Assistant</category>
         </intentionAction>
+        <intentionAction>
+            <className>com.dbn.assistant.editor.intention.ProfileSwitchIntentionAction</className>
+            <category>Database/Assistant</category>
+        </intentionAction>
+        <intentionAction>
+            <className>com.dbn.assistant.editor.intention.ProfileSetupIntentionAction</className>
+            <category>Database/Assistant</category>
+        </intentionAction>
+
         <fileDocumentManagerListener implementation="com.dbn.connection.console.DatabaseConsoleFileInitializer"/>
 
     </extensions>
