@@ -14,10 +14,11 @@
 
 package com.dbn.assistant.help.ui;
 
-import com.dbn.assistant.DatabaseAssistantPrerequisiteManager;
+import com.dbn.assistant.AssistantPrerequisiteManager;
 import com.dbn.assistant.provider.ProviderApi;
 import com.dbn.assistant.provider.ProviderType;
 import com.dbn.assistant.service.DatabaseService;
+import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.connection.ConnectionHandler;
@@ -99,12 +100,16 @@ public class AssistantHelpForm extends DBNFormBase {
     docuLink.addHyperlinkListener(e -> when(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED, () -> BrowserUtil.browse(SELECT_AI_DOCS)));
     docuLink.setHyperlinkText("Select AI Docs");
 
+    Color background = Colors.lafBrighter(Colors.getEditorBackground(), 5);
+
     String userName = getConnection().getUserName();
     grantTextField.setText(txt("permissions3.message", userName));
     grantTextArea.setText(txt("permissions4.message", userName));
+    grantTextArea.setBackground(background);
 
     networkAllow.setText(txt("permissions5.message"));
     aclTextArea.setText(txt("permissions6.message", getAccessPoint(), userName));
+    aclTextArea.setBackground(background);
 
     providerComboBox.addActionListener(e -> aclTextArea.setText(txt("permissions6.message", getAccessPoint(), userName)));
 
@@ -116,19 +121,19 @@ public class AssistantHelpForm extends DBNFormBase {
 
   private void grantNetworkAccess() {
     ConnectionHandler connection = getConnection();
-    DatabaseAssistantPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
+    AssistantPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
     prerequisiteManager.grantNetworkAccess(connection, getSelectedProvider(), aclTextArea.getText());
   }
 
   private void grantExecutionPrivileges() {
-    DatabaseAssistantPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
+    AssistantPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
     ConnectionHandler connection = getConnection();
     prerequisiteManager.grantExecutionPrivileges(connection, connection.getUserName());
   }
 
   @NotNull
-  private DatabaseAssistantPrerequisiteManager getPrerequisiteManager() {
-    return DatabaseAssistantPrerequisiteManager.getInstance(ensureProject());
+  private AssistantPrerequisiteManager getPrerequisiteManager() {
+    return AssistantPrerequisiteManager.getInstance(ensureProject());
   }
 
   private String getAccessPoint() {

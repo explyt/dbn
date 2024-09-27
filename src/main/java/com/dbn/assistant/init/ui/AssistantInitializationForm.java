@@ -14,7 +14,7 @@
 
 package com.dbn.assistant.init.ui;
 
-import com.dbn.assistant.DatabaseAssistantType;
+import com.dbn.assistant.AssistantInitializationManager;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.event.ProjectEvents;
@@ -25,19 +25,14 @@ import com.dbn.common.text.TextContent;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHintForm;
-import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
-import com.dbn.database.DatabaseFeature;
-import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.diagnostics.Diagnostics;
 import com.intellij.util.ui.AsyncProcessIcon;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.sql.SQLException;
 
-import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.feature.FeatureAvailability.*;
 import static com.dbn.common.util.Conditional.when;
 
@@ -64,7 +59,6 @@ public class AssistantInitializationForm extends DBNFormBase {
 
         checkAvailability();
 
-        //
         ProjectEvents.subscribe(ensureProject(), this,
                 ConnectionConfigListener.TOPIC,
                 ConnectionConfigListener.whenSetupChanged(() -> when(!isAvailable(), () -> checkAvailability())));
@@ -90,8 +84,14 @@ public class AssistantInitializationForm extends DBNFormBase {
         initializingPanel.setVisible(true);
 
         Dispatch.async(getProject(), mainPanel,
-                () -> doCheckAvailability(),
+                () -> checkAssistantAvailability(),
                 a -> updateComponents(a));
+    }
+
+    private FeatureAvailabilityInfo checkAssistantAvailability() {
+        ConnectionId connectionId = getChatBox().getConnection().getConnectionId();
+        AssistantInitializationManager initializationManager = AssistantInitializationManager.getInstance(ensureProject());
+        return initializationManager.verifyAssistantAvailability(connectionId);
     }
 
     /**
@@ -117,61 +117,6 @@ public class AssistantInitializationForm extends DBNFormBase {
         getIntroductionForm().evaluateAvailability();
     }
 
-
-    /**
-     * Verifies the availability of the AI Assistant if not already known and captured in the {@link AssistantState}
-     * @return an {@link FeatureAvailabilityInfo} object
-     */
-    private FeatureAvailabilityInfo doCheckAvailability() {
-        DatabaseAssistantType assistantType = getChatBox().getAssistantState().getAssistantType();
-        FeatureAvailability availability = getCurrentAvailability();
-        String availabilityMessage = null;
-
-        ChatBoxForm chatBox = getChatBox();
-        AssistantState assistantState = chatBox.getAssistantState();
-
-        if (availability == UNCERTAIN) {
-            ConnectionHandler connection = chatBox.getConnection();
-            if (!DatabaseFeature.AI_ASSISTANT.isSupported(connection)) {
-                // known already to bot be supported by the given database type
-                availability = UNAVAILABLE;
-            } else {
-                // perform deep verification by accessing the database
-                try {
-                    boolean available = checkAvailability(connection);
-                    assistantType = resolveAssistantType(connection);
-
-                    availability = available ? AVAILABLE : UNAVAILABLE;
-                } catch (Throwable e) {
-                    // availability remains uncertain at this stage as it could bot be verified against the database
-                    Diagnostics.conditionallyLog(e);
-                    availabilityMessage = e.getMessage();
-                }
-            }
-        }
-
-        assistantState.setAvailability(availability);
-        assistantState.setAssistantType(assistantType);
-        return new FeatureAvailabilityInfo(availability, availabilityMessage);
-    }
-
-    private static boolean checkAvailability(ConnectionHandler connection) throws SQLException {
-        return DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading metadata",
-                "Verifying database assistant feature support",
-                connection.getProject(),
-                connection.getConnectionId(),
-                conn -> connection.getAssistantInterface().isAssistantFeatureSupported(conn));
-    }
-
-    private static DatabaseAssistantType resolveAssistantType(ConnectionHandler connection) throws SQLException {
-        return DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading metadata",
-                "Resolving database assistant type",
-                connection.getProject(),
-                connection.getConnectionId(),
-                conn -> connection.getAssistantInterface().getAssistantType(conn));
-    }
 
     private ChatBoxForm getChatBox() {
         return getIntroductionForm().getChatBox();

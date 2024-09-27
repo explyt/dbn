@@ -388,7 +388,8 @@
         <projectService serviceImplementation="com.dbn.debugger.DatabaseDebuggerManager"/>
         <projectService serviceImplementation="com.dbn.debugger.ExecutionConfigManager"/>
         <projectService serviceImplementation="com.dbn.assistant.DatabaseAssistantManager"/>
-        <projectService serviceImplementation="com.dbn.assistant.DatabaseAssistantPrerequisiteManager"/>
+        <projectService serviceImplementation="com.dbn.assistant.AssistantPrerequisiteManager"/>
+        <projectService serviceImplementation="com.dbn.assistant.AssistantInitializationManager"/>
         <projectService serviceImplementation="com.dbn.assistant.credential.remote.CredentialManagementService"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>

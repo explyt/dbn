@@ -37,17 +37,17 @@ import static com.dbn.common.util.Messages.showInfoDialog;
 
 @Slf4j
 @State(
-        name = DatabaseAssistantPrerequisiteManager.COMPONENT_NAME,
+        name = AssistantPrerequisiteManager.COMPONENT_NAME,
         storages = @Storage(DatabaseNavigator.STORAGE_FILE))
-public class DatabaseAssistantPrerequisiteManager extends ProjectComponentBase implements PersistentState {
-    public static final String COMPONENT_NAME = "DBNavigator.Project.DatabaseAssistantPrerequisiteManager";
+public class AssistantPrerequisiteManager extends ProjectComponentBase implements PersistentState {
+    public static final String COMPONENT_NAME = "DBNavigator.Project.AssistantPrerequisiteManager";
 
-    private DatabaseAssistantPrerequisiteManager(Project project) {
+    private AssistantPrerequisiteManager(Project project) {
         super(project, COMPONENT_NAME);
     }
 
-    public static DatabaseAssistantPrerequisiteManager getInstance(@NotNull Project project) {
-        return projectService(project, DatabaseAssistantPrerequisiteManager.class);
+    public static AssistantPrerequisiteManager getInstance(@NotNull Project project) {
+        return projectService(project, AssistantPrerequisiteManager.class);
     }
 
     public void grantNetworkAccess(ConnectionHandler connection, ProviderType providerType, String command) {

@@ -58,7 +58,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   private FeatureAcknowledgement acknowledgement = FeatureAcknowledgement.NONE;
 
   private ConnectionId connectionId;
-  private DatabaseAssistantType assistantType = DatabaseAssistantType.SELECT_AI;
+  private DatabaseAssistantType assistantType = DatabaseAssistantType.GENERIC;
   private List<AIProfileItem> profiles = new ArrayList<>();
   private List<PersistentChatMessage> messages = new ArrayList<>();
 

@@ -128,6 +128,7 @@ public class ChatMessageCodeViewer extends JPanel implements Disposable {
         settings.setCaretRowShown(false);
         settings.setUseSoftWraps(true);
         settings.setAdditionalLinesCount(0);
+        settings.setAutoCodeFoldingEnabled(false);
 
         return viewer;
     }

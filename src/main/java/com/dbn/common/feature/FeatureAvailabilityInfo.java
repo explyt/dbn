@@ -27,6 +27,9 @@ public class FeatureAvailabilityInfo {
     private final FeatureAvailability availability;
     private final String message;
 
+    public FeatureAvailabilityInfo(FeatureAvailability availability) {
+        this(availability, null);
+    }
     public FeatureAvailabilityInfo(FeatureAvailability availability, String message) {
         this.availability = availability;
         this.message = message;

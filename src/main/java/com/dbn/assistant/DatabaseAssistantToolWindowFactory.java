@@ -18,8 +18,10 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.window.DBNToolWindowFactory;
 import com.dbn.common.util.Editors;
+import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConsoleChangeListener;
+import com.dbn.connection.mapping.FileConnectionContextListener;
 import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -49,7 +51,6 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
     toolWindow.setTitle(txt("companion.window.title"));
     toolWindow.setStripeTitle(txt("companion.window.title"));
     toolWindow.setIcon(WINDOW_DATABASE_ASSISTANT.get());
-
   }
 
   @Override
@@ -62,6 +63,10 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
     ProjectEvents.subscribe(project, manager,
             ConsoleChangeListener.TOPIC,
             connectionId -> manager.switchToConnection(connectionId));
+
+    ProjectEvents.subscribe(project, manager,
+            FileConnectionContextListener.TOPIC,
+            createConnectionContextListener());
 
     ProjectEvents.subscribe(project, manager,
             ToolWindowManagerListener.TOPIC,
@@ -77,7 +82,20 @@ public class DatabaseAssistantToolWindowFactory extends DBNToolWindowFactory {
     contentManager.addContent(content);
   }
 
-  private @NotNull ToolWindowManagerListener createToolWindowListener(Project project) {
+  private static @NotNull FileConnectionContextListener createConnectionContextListener() {
+    return new FileConnectionContextListener() {
+      @Override
+      public void connectionChanged(Project project, VirtualFile file, ConnectionHandler connection) {
+        if (!file.isInLocalFileSystem()) return; // changing connection in surrogate (LightVirtualFiles) should not cause connection switch
+
+        ConnectionId connectionId = connection == null ? null : connection.getConnectionId();
+        DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+        manager.switchToConnection(connectionId);
+      }
+    };
+  }
+
+  private static ToolWindowManagerListener createToolWindowListener(Project project) {
     return new ToolWindowManagerListener() {
 
       @Override
