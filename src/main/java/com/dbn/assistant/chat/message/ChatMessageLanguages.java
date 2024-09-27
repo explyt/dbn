@@ -15,6 +15,7 @@
 package com.dbn.assistant.chat.message;
 
 import com.intellij.lang.Language;
+import com.intellij.openapi.fileTypes.PlainTextLanguage;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static com.dbn.common.util.Commons.coalesce;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.first;
 import static com.intellij.lang.Language.findLanguageByID;
 
@@ -66,7 +68,9 @@ public class ChatMessageLanguages {
         identifier = identifier.trim().toLowerCase();
 
         String languageId = rezolveLanguageId(identifier);
-        return findLanguageByID(languageId);
+        Language language = findLanguageByID(languageId);
+
+        return nvl(language, PlainTextLanguage.INSTANCE);
     }
 
     private static String rezolveLanguageId(String identifier) {

@@ -256,6 +256,9 @@ public class ChatBoxForm extends DBNFormBase {
     appendMessageToChat(inputChatMessage);
 
     DatabaseAssistantManager manager = getManager();
+    if (actionType == PromptAction.CHAT) {
+      question = question + " (please triple-quote all code-contents in your output, and qualify them with the programming-language identifier)";
+    }
     manager.queryAssistant(getConnectionId(), question, actionType.getId(), profile.getName(), model.getApiName())
         .thenAccept((output) -> {
           state.set(QUERYING, false);

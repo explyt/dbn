@@ -31,6 +31,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
 import com.intellij.openapi.editor.ex.EditorEx;
+import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.FileViewProvider;
@@ -94,7 +95,9 @@ public class ChatMessageCodeViewer extends JPanel implements Disposable {
         Language language = section.getLanguage();
         if (language == null) return null;
 
-        VirtualFile file = new LightVirtualFile("ai_preview_file", language, section.getContent());
+        LanguageFileType fileType = language.getAssociatedFileType();
+        String fileName = "ai_preview_file." + (fileType == null ? "txt" : fileType.getDefaultExtension());
+        VirtualFile file = new LightVirtualFile(fileName, language, section.getContent());
 
         Project project = connection.getProject();
         FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(project);
@@ -104,6 +107,8 @@ public class ChatMessageCodeViewer extends JPanel implements Disposable {
         FileManager fileManager = psiManager.getFileManager();
         FileViewProvider viewProvider = fileManager.createFileViewProvider(file, true);
         PsiFile psiFile = viewProvider.getPsi(language);
+        if (psiFile == null) return null;
+
         Document document = Documents.getDocument(psiFile);
         if (document == null) return null;
 

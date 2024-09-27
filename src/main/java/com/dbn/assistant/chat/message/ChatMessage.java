@@ -130,7 +130,7 @@ public class ChatMessage {
     private static void createMessageSection(@Nullable String content, @Nullable String languageId, List<ChatMessageSection> container) {
         if (content == null || content.isBlank()) return;
         ChatMessageSection lastSection = Lists.lastElement(container);
-        if (lastSection != null && lastSection.getLanguage() == null && languageId == null) {
+        if (lastSection != null && lastSection.getLanguageId() == null && languageId == null) {
             // attach content to last plain text section
             lastSection.append(content);
         } else {
