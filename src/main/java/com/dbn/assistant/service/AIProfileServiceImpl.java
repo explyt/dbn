@@ -22,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.FileWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -69,7 +70,9 @@ public class AIProfileServiceImpl extends AIServiceBase implements AIProfileServ
 
         if (log.isDebugEnabled())
           log.debug("fetched profiles:" + profileList);
-          return new ArrayList<>(profileList);
+          ArrayList<Profile> profiles = new ArrayList<>(profileList);
+          profiles.sort(Comparator.comparing(p -> p.getProfileName(), String.CASE_INSENSITIVE_ORDER));
+          return profiles;
       } catch (SQLException e) {
         log.warn("error getting profiles", e);
         throw new CompletionException("Cannot get profiles", e);

@@ -1,6 +1,7 @@
 package com.dbn.assistant.editor.notification;
 
 import com.dbn.assistant.DatabaseAssistantManager;
+import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.editor.EditorNotificationPanel;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.icon.Icons;
@@ -36,14 +37,16 @@ public class AssistantEditorNotificationPanel extends EditorNotificationPanel {
     private void chat() {
         ConnectionId connectionId = getConnectionId();
         DatabaseAssistantManager assistantManager = getAssistantManager();
-        assistantManager.changeAssistantAcknowledgement(connectionId, FeatureAcknowledgement.NOTICED);
+        AssistantState assistantState = assistantManager.getAssistantState(connectionId);
+        assistantState.setAcknowledgement(FeatureAcknowledgement.NOTICED);
         assistantManager.showToolWindow(connectionId);
     }
 
     private void dismiss() {
         ConnectionId connectionId = getConnectionId();
         DatabaseAssistantManager assistantManager = getAssistantManager();
-        assistantManager.changeAssistantAcknowledgement(connectionId, FeatureAcknowledgement.DISMISSED);
+        AssistantState assistantState = assistantManager.getAssistantState(connectionId);
+        assistantState.setAcknowledgement(FeatureAcknowledgement.DISMISSED);
     }
 
     private @NotNull DatabaseAssistantManager getAssistantManager() {

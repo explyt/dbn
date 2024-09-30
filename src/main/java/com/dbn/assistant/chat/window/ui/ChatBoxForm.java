@@ -26,7 +26,6 @@ import com.dbn.assistant.provider.ProviderModel;
 import com.dbn.assistant.service.AIProfileService;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
@@ -38,9 +37,6 @@ import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.connection.ConnectionStatusListener;
-import com.dbn.object.event.ObjectChangeListener;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -50,12 +46,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import static com.dbn.assistant.state.AssistantStatus.*;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
@@ -101,30 +92,8 @@ public class ChatBoxForm extends DBNFormBase {
     initHeaderForm();
     initIntroForm();
     initChatBoxForm();
-
-    initChangeListener();
-    initConnectivityListener();
   }
 
-  private void initChangeListener() {
-    ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
-      if (connectionId != getConnectionId()) return;
-      if (objectType != DBObjectType.PROFILE) return;
-      reloadProfiles();
-    });
-  }
-
-  /**
-   * Attempts to load the profiles when connectivity is restored if the connection was down on first initialization attempt
-   */
-  private void initConnectivityListener() {
-    ProjectEvents.subscribe(ensureProject(), this, ConnectionStatusListener.TOPIC, (connectionId, sessionId) -> {
-      if (connectionId != this.getConnectionId()) return;
-      if (getAssistantState().isNot(UNAVAILABLE)) return;
-
-      loadProfiles();
-    });
-  }
 
   private void initIntroForm() {
     if (hasUserEngaged()) return;
@@ -245,7 +214,6 @@ public class ChatBoxForm extends DBNFormBase {
     if (Strings.isEmptyOrSpaces(question)) return;
 
     state.set(QUERYING, true);
-    inputField.setReadonly(true);
     ProviderModel model = profile.getModel();
 
     PromptAction actionType = state.getSelectedAction();
@@ -262,14 +230,12 @@ public class ChatBoxForm extends DBNFormBase {
     manager.queryAssistant(getConnectionId(), question, actionType.getId(), profile.getName(), model.getApiName())
         .thenAccept((output) -> {
           state.set(QUERYING, false);
-          inputField.setReadonly(false);
           PersistentChatMessage outPutChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, output, AuthorType.AGENT, context);
           appendMessageToChat(outPutChatMessage);
           log.debug("Query processed successfully.");
         })
         .exceptionally(e -> {
           state.set(QUERYING, false);
-          inputField.setReadonly(false);
           log.warn("Error processing query", e);
           String message = manager.getPresentableMessage(getConnectionId(), e);
           PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, context);
@@ -279,18 +245,6 @@ public class ChatBoxForm extends DBNFormBase {
         .thenRun(() -> {
           //promptTextArea.setEnabled(true);
         });
-  }
-
-
-  /**
-   * Updates profile combobox box model by fetching
-   * list of available profiles for the current connection
-   */
-  public CompletableFuture<Map<String, Profile>> updateProfiles() {
-    return getProfileService().list().thenApply(pl -> pl.stream()
-        .collect(Collectors.toMap(Profile::getProfileName,
-            Function.identity(),
-            (existing, replacement) -> existing)));
   }
 
 
@@ -305,7 +259,7 @@ public class ChatBoxForm extends DBNFormBase {
   public void loadProfiles() {
     if (getAssistantState().is(INITIALIZING)) return;
     beforeProfileLoad();
-    updateProfiles().thenAccept(profiles -> {
+    getProfileService().list().thenAccept(profiles -> {
       try {
         applyProfiles(profiles);
         afterProfileLoad(null);
@@ -322,11 +276,9 @@ public class ChatBoxForm extends DBNFormBase {
 
   private void beforeProfileLoad() {
     initializingPanel.setVisible(true);
-    inputField.setReadonly(true);
     AssistantState state = getAssistantState();
     state.set(INITIALIZING, true);
     state.set(UNAVAILABLE, false);
-    notifyStateListeners();
   }
 
   private void afterProfileLoad(@Nullable Throwable e) {
@@ -337,9 +289,7 @@ public class ChatBoxForm extends DBNFormBase {
       state.set(UNAVAILABLE, true);
       showErrorHeader(e);
     }
-    notifyStateListeners();
 
-    inputField.setReadonly(!state.isPromptingAvailable());
     inputField.requestFocus();
     UserInterface.visitRecursively(chatBoxPanel,  c -> UserInterface.repaint(c));
   }
@@ -348,13 +298,9 @@ public class ChatBoxForm extends DBNFormBase {
     // TODO show error bar (similar to editor error headers)
   }
 
-  private void applyProfiles(Map<String, Profile> profiles) {
-    AssistantState state = getAssistantState();
-    List<AIProfileItem> profileItems = new ArrayList<>();
-    String selectedProfile = state.getSelectedProfileName();
-    profiles.forEach((pn, p) -> profileItems.add(new AIProfileItem(p, p.getProfileName().equalsIgnoreCase(selectedProfile))));
-    state.setProfiles(profileItems);
-    notifyStateListeners();
+  private void applyProfiles(List<Profile> profiles) {
+    AssistantState assistantState = getAssistantState();
+    assistantState.importProfiles(profiles);
   }
 
   private void appendMessageToChat(PersistentChatMessage message) {
@@ -368,10 +314,6 @@ public class ChatBoxForm extends DBNFormBase {
     chatScrollPane.validate();
     JScrollBar verticalBar = chatScrollPane.getVerticalScrollBar();
     verticalBar.setValue(verticalBar.getMaximum());
-  }
-
-  private void notifyStateListeners() {
-    getManager().notifyStateListeners(getConnectionId());
   }
 
   private ConnectionId getConnectionId() {

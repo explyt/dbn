@@ -18,10 +18,12 @@ import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.assistant.chat.message.PersistentChatMessage;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.entity.AIProfileItem;
+import com.dbn.assistant.entity.Profile;
 import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
+import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionId;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -130,7 +132,13 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
     forEach(profiles, p -> p.setSelected(Objects.equals(p.getName(), profileName)));
   }
 
+  public void importProfiles(List<Profile> profiles) {
+    String selectedProfile = getSelectedProfileName();
+    this.profiles = Lists.convert(profiles, p -> new AIProfileItem(p, p.getProfileName().equalsIgnoreCase(selectedProfile)));
+  }
+
   /**
+   *
    * Replaces the list of profiles by preserving the profile and model selection (as far as possible)
    * @param profiles
    */
@@ -155,7 +163,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
   }
 
   public void setDefaultProfile(@Nullable AIProfileItem profile) {
-    defaultProfileName = profile == null? null : profile.getName();
+    defaultProfileName = profile == null ? null : profile.getName();
   }
 
   public void addMessages(List<PersistentChatMessage> messages) {

@@ -14,13 +14,18 @@
 
 package com.dbn.assistant.chat.window.ui;
 
+import com.dbn.assistant.DatabaseAssistantManager;
+import com.dbn.assistant.state.AssistantState;
+import com.dbn.assistant.state.AssistantStateListener;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Documents;
 import com.dbn.common.util.Editors;
+import com.dbn.connection.ConnectionId;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.EditorSettings;
@@ -41,6 +46,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.Objects;
 
 /**
  * Input field used for the chat-box user prompt
@@ -58,6 +64,31 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         this.editor = createEditor();
         add(editor.getComponent(), BorderLayout.CENTER);
         Disposer.register(chatBox, this);
+
+        ProjectEvents.subscribe(getProject(), this, AssistantStateListener.TOPIC, createStateListener());
+    }
+
+    /**
+     * Creates an {@link AssistantStateListener} that block / unblock input field based on
+     * the current state of the assistant
+     */
+    private AssistantStateListener createStateListener() {
+        return (project, connectionId) -> {
+            if (!Objects.equals(getConnectionId(), connectionId)) return;
+
+            DatabaseAssistantManager manager = DatabaseAssistantManager.getInstance(project);
+            AssistantState assistantState = manager.getAssistantState(connectionId);
+
+            setReadonly(!assistantState.isPromptingAvailable());
+        };
+    }
+
+    private Project getProject() {
+        return getChatBox().getProject();
+    }
+
+    private ConnectionId getConnectionId() {
+        return getChatBox().getConnection().getConnectionId();
     }
 
     @Override
@@ -84,7 +115,7 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         return text;
     }
 
-    public void setReadonly(boolean readonly) {
+    private void setReadonly(boolean readonly) {
         Editors.setEditorReadonly(editor, readonly);
         UserInterface.repaint(this);
     }
@@ -131,18 +162,21 @@ public class ChatBoxInputField extends JPanel implements Disposable {
         @Override
         public void beforeDocumentChange(@NotNull DocumentEvent event) {
             Document document = event.getDocument();
-            int textLength = document.getTextLength();
-            if (event.getOffset() != textLength) return;
 
             CharSequence newFragment = event.getNewFragment();
-            if (!newFragment.isEmpty() && newFragment.charAt(0) == '\n') {
-                ChatBoxForm chatBox = getChatBox();
-                if (chatBox.getAssistantState().isPromptingAvailable()) {
-                    chatBox.submitPrompt();
-                } else {
-                    String text = document.getText();
-                    Documents.setText(document, text.trim());
-                }
+            if (newFragment.length() == 0) return;
+            if (newFragment.charAt(0) != '\n') return;
+
+            CharSequence text = document.getImmutableCharSequence();
+            for (int i = event.getOffset(); i < text.length(); i++) {
+                if (!Character.isWhitespace(text.charAt(i))) return;
+            }
+
+            ChatBoxForm chatBox = getChatBox();
+            if (chatBox.getAssistantState().isPromptingAvailable()) {
+                chatBox.submitPrompt();
+            } else {
+                Documents.setText(document, text.toString().trim());
             }
         }
     }

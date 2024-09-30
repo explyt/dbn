@@ -140,12 +140,9 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
                 availabilityMessage = e.getMessage();
             }
         }
+
         assistantState.setAssistantType(assistantType);
         assistantState.setAvailability(availability);
-
-        // notify listeners about availability changes
-        DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(getProject());
-        assistantManager.notifyStateListeners(connectionId);
 
         return new FeatureAvailabilityInfo(availability, availabilityMessage);
     }

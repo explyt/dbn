@@ -33,27 +33,28 @@ import com.dbn.assistant.service.mock.FakeAIProfileService;
 import com.dbn.assistant.service.mock.FakeDatabaseService;
 import com.dbn.assistant.settings.ui.AssistantDatabaseConfigDialog;
 import com.dbn.assistant.state.AssistantState;
-import com.dbn.assistant.state.AssistantStateListener;
+import com.dbn.assistant.state.AssistantStateDelegate;
 import com.dbn.common.action.Selectable;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
-import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
+import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.util.Popups;
-import com.dbn.common.util.Conditional;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
+import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
+import com.dbn.object.event.ObjectChangeListener;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Editor;
@@ -78,10 +79,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.ui.CardLayouts.*;
+import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -105,6 +108,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   private DatabaseAssistantManager(Project project) {
     super(project, COMPONENT_NAME);
+
+    initChangeListener();
+    initConnectivityListener();
   }
 
   public static DatabaseAssistantManager getInstance(@NotNull Project project) {
@@ -159,7 +165,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
                 getAssistantName(connectionId),
                 txt("msg.assistant.question.AcknowledgeAndCreateProfile"),
                 options("Create Profile", "Cancel"), 0,
-                option -> Conditional.when(option == 0, () -> ProfileEditionWizard.showWizard(connection, null, Collections.emptySet(), null)));
+                option -> when(option == 0, () -> ProfileEditionWizard.showWizard(connection, null, Collections.emptySet(), null)));
       }
     });
   }
@@ -170,7 +176,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
             getAssistantName(connectionId),
             txt("msg.assistant.question.AcknowledgeAndConfigure"),
             Messages.OPTIONS_CONTINUE_CANCEL, 0,
-            option -> Conditional.when(option == 0, () -> showToolWindow(connectionId)));
+            option -> when(option == 0, () -> showToolWindow(connectionId)));
   }
 
   /**
@@ -204,14 +210,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   }
 
   public AssistantState getAssistantState(ConnectionId connectionId) {
-    return assistantStates.computeIfAbsent(connectionId, c -> new AssistantState(c));
-  }
-
-  public void changeAssistantAcknowledgement(ConnectionId connectionId, FeatureAcknowledgement acknowledgement) {
-    AssistantState assistantState = getAssistantState(connectionId);
-    assistantState.setAcknowledgement(acknowledgement);
-
-    notifyStateListeners(connectionId);
+    return assistantStates.computeIfAbsent(connectionId, c -> new AssistantStateDelegate(getProject(), c));
   }
 
   public ToolWindow getToolWindow() {
@@ -292,7 +291,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     Messages.showErrorDialog(project, title,
             message, options("Help", "Cancel"), 0,
-            option -> Conditional.when(option == 0, () -> showPrerequisitesDialog(connectionId)));
+            option -> when(option == 0, () -> showPrerequisitesDialog(connectionId)));
   }
 
   public String getPresentableMessage(ConnectionId connectionId, Throwable e) {
@@ -367,7 +366,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     if (statesElement != null) {
       List<Element> stateElements = statesElement.getChildren();
       for (Element stateElement : stateElements) {
-        AssistantState state = new AssistantState();
+        AssistantState state = new AssistantStateDelegate(getProject(), null);
         state.readState(stateElement);
         assistantStates.put(state.getConnectionId(), state);
       }
@@ -420,12 +419,28 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   public void setDefaultProfile(ConnectionId connectionId, AIProfileItem profile) {
     getAssistantState(connectionId).setDefaultProfile(profile);
-    notifyStateListeners(connectionId);
   }
 
-  public void notifyStateListeners(ConnectionId connectionId) {
-    Project project = getProject();
-    ProjectEvents.notify(project, AssistantStateListener.TOPIC, l -> l.stateChanged(project, connectionId));
+  private void initChangeListener() {
+    ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
+      AssistantState assistantState = assistantStates.get(connectionId);
+      refreshStateProfiles(connectionId, assistantState);
+    });
+  }
+
+  /**
+   * Attempts to load the profiles when connectivity is restored if the connection was down on first initialization attempt
+   */
+  private void initConnectivityListener() {
+    ProjectEvents.subscribe(ensureProject(), this, ConnectionStatusListener.TOPIC, (connectionId, sessionId) -> {
+      AssistantState assistantState = getAssistantState(connectionId);
+      if (assistantState.isNot(UNAVAILABLE)) return;
+      refreshStateProfiles(connectionId, assistantState);
+    });
+  }
+
+  private void refreshStateProfiles(ConnectionId connectionId, AssistantState assistantState) {
+    Background.run(getProject(), () -> assistantState.importProfiles(getAssistantProfiles(connectionId)));
   }
 
 }
