@@ -1,8 +1,6 @@
 package com.dbn.connection;
 
-import com.dbn.browser.DatabaseBrowserManager;
 import com.dbn.browser.model.BrowserTreeNode;
-import com.dbn.browser.ui.DatabaseBrowserTree;
 import com.dbn.common.dispose.Disposed;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposableBase;
