@@ -29,7 +29,7 @@ dependencies {
   implementation("org.apache.poi:poi-ooxml-lite:5.3.0")
 
   // poi library dependencies
-  implementation("commons-io:commons-io:2.17.1")
+  implementation("commons-io:commons-io:2.17.0")
   implementation("org.apache.commons:commons-compress:1.27.1")
   implementation("org.apache.commons:commons-collections4:4.4")
   implementation("org.apache.commons:commons-lang3:3.17.0")
