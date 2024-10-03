@@ -920,13 +920,13 @@ VARIABLE_IDENTIFIER={IDENTIFIER}"&""&"?({IDENTIFIER}|{INTEGER})|"<"{IDENTIFIER}(
 "xml" {return tt.ktt(697);}
 "xmlnamespaces" {return tt.ktt(698);}
 "xmlschema" {return tt.ktt(699);}
-"xmltype" {return tt.getKeywordTokenType(700);}
-"year" {return tt.getKeywordTokenType(701);}
-"years" {return tt.getKeywordTokenType(702);}
-"yes" {return tt.getKeywordTokenType(703);}
-"zone" {return tt.getKeywordTokenType(704);}
-"false" {return tt.getKeywordTokenType(705);}
-"true" {return tt.getKeywordTokenType(706);}
+"xmltype" {return tt.ktt(700);}
+"year" {return tt.ktt(701);}
+"years" {return tt.ktt(702);}
+"yes" {return tt.ktt(703);}
+"zone" {return tt.ktt(704);}
+"false" {return tt.ktt(705);}
+"true" {return tt.ktt(706);}
 
 
 
