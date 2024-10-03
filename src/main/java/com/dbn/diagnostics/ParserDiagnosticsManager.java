@@ -28,17 +28,18 @@ import com.intellij.openapi.fileTypes.FileNameMatcher;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,7 +127,9 @@ public class ParserDiagnosticsManager extends ProjectComponentBase implements Pe
                 String newFileName = scrambler.scrambleName(file);
                 File scrambledFile = new File(rootDir, newFileName);
                 try {
-                    FileUtils.write(scrambledFile, scrambled, file.getCharset());
+                    Charset charset = file.getCharset();
+                    byte[] bytes = scrambled.getBytes(charset);
+                    FileUtil.writeToFile(scrambledFile, bytes);
                 } catch (IOException e) {
                     conditionallyLog(e);
                     NotificationSupport.sendWarningNotification(getProject(), DEVELOPER,

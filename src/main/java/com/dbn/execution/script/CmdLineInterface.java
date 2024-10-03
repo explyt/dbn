@@ -7,9 +7,9 @@ import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseType;
 import com.dbn.nls.NlsResources;
+import com.intellij.openapi.util.SystemInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import org.jdesktop.swingx.util.OS;
 import org.jdom.Element;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
     private String description;
 
     public interface Defaults {
-        String extension = OS.isWindows() ? ".exe" : "";
+        String extension = SystemInfo.isWindows ? ".exe" : "";
         CmdLineInterface ORACLE = new CmdLineInterface(DEFAULT_ID, DatabaseType.ORACLE, "sqlplus", NlsResources.txt("app.execution.const.CmdLineInterface_ORACLE"), "sqlplus" + extension);
         CmdLineInterface MYSQL = new CmdLineInterface(DEFAULT_ID, DatabaseType.MYSQL, "mysql", NlsResources.txt("app.execution.const.CmdLineInterface_MYSQL"), "mysql" + extension);
         CmdLineInterface POSTGRES = new CmdLineInterface(DEFAULT_ID, DatabaseType.POSTGRES, "psql ", NlsResources.txt("app.execution.const.CmdLineInterface_POSTGRES"), "psql" + extension);

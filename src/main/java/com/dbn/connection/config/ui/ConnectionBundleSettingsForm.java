@@ -31,7 +31,6 @@ import com.intellij.ui.ListUtil;
 import com.intellij.ui.components.JBList;
 import com.intellij.ui.components.JBScrollPane;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.jdom.Document;
 import org.jdom.Element;
 import org.jdom.output.Format;
@@ -310,7 +309,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
                 }
 
                 if (configurationsFound) {
-                    int[] indices = ArrayUtils.toPrimitive(selectedIndices.toArray(new Integer[0]));
+                    int[] indices = selectedIndices.stream().mapToInt(i -> i).toArray();
                     connectionsList.setSelectedIndices(indices);
                 }
 
@@ -362,7 +361,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             connectionBundleSettings.setModified(true);
             index++;
         }
-        connectionsList.setSelectedIndices(ArrayUtils.toPrimitive(selectedIndexes.toArray(new Integer[0])));
+        connectionsList.setSelectedIndices(selectedIndexes.stream().mapToInt(i -> i).toArray());
     }
 
     private static void importTnsData(DatabaseInfo databaseInfo, TnsProfile tnsName, TnsNames tnsNames, TnsImportType importType) {

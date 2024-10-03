@@ -9,7 +9,7 @@
     <depends optional="true" config-file="dbn-debugger-support.xml">com.intellij.modules.xdebugger</depends>
     <depends optional="true" config-file="dbn-copyright-support.xml">com.intellij.copyright</depends>
     <vendor email="dancioca@bluewin.ch">Dan Cioca</vendor>
-    <idea-version since-build="201.6668.113" until-build="242.*"/>
+    <idea-version since-build="201.6668.113" until-build="243.*"/>
     <resource-bundle>messages.DBNResources</resource-bundle>
     <description><![CDATA[
             <b>Database development, scripting and navigation tool</b><br>
