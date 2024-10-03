@@ -58,7 +58,7 @@ public abstract class DataExportProcessor {
         } catch (DataExportException e) {
             conditionallyLog(e);
             throw e;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             conditionallyLog(e);
             throw new DataExportException(e.getMessage());
         }

@@ -55,7 +55,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
             tabbedPane.addTab(txt("cfg.connection.title.Ssl"), new JBScrollPane(sslSettings.createComponent()));
 
             ConnectionSshTunnelSettings sshTunnelSettings = connectionSettings.getSshTunnelSettings();
-            tabbedPane.addTab(txt("cfg.connection.title.SslTunnel"), new JBScrollPane(sshTunnelSettings.createComponent()));
+            tabbedPane.addTab(txt("cfg.connection.title.SshTunnel"), new JBScrollPane(sshTunnelSettings.createComponent()));
         }
 
         ConnectionPropertiesSettings propertiesSettings = connectionSettings.getPropertiesSettings();
