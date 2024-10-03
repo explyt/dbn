@@ -67,14 +67,13 @@ public class StatementExecutionProcessor {
 
     private void readStatements(String statementText, String prefixes) {
         if (prefixes == null) {
-            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, prepared, false);
+            StatementDefinition statementDefinition = new StatementDefinition(statementText, null, prepared);
             statementDefinitions.add(statementDefinition);
         } else {
             StringTokenizer tokenizer = new StringTokenizer(prefixes, ",");
             while (tokenizer.hasMoreTokens()) {
                 String prefix = tokenizer.nextToken().trim();
-                boolean hasFallback = tokenizer.hasMoreTokens();
-                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, prepared, hasFallback);
+                StatementDefinition statementDefinition = new StatementDefinition(statementText, prefix, prepared);
                 statementDefinitions.add(statementDefinition);
             }
         }
@@ -82,24 +81,20 @@ public class StatementExecutionProcessor {
 
     public ResultSet executeQuery(DBNConnection connection, boolean forceExecution, Object... arguments) throws SQLException {
         StatementExecutorContext context = createContext(connection);
-        if (statementDefinitions.size() == 1) {
-            return executeQuery(statementDefinitions.get(0), context, forceExecution, arguments);
-        } else {
-            SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
-            for (StatementDefinition statementDefinition : statementDefinitions) {
-                try {
-                    return executeQuery(statementDefinition, context, forceExecution, arguments);
-                } catch (SQLRecoverableException e){
-                    conditionallyLog(e);
-                    exception = e;
-                    break;
-                } catch (SQLException e){
-                    conditionallyLog(e);
-                    exception = e;
-                }
+        SQLException exception = NO_STATEMENT_DEFINITION_EXCEPTION;
+        for (StatementDefinition statementDefinition : statementDefinitions) {
+            try {
+                return executeQuery(statementDefinition, context, forceExecution, arguments);
+            } catch (SQLRecoverableException e){
+                conditionallyLog(e);
+                exception = e;
+                break;
+            } catch (SQLException e){
+                conditionallyLog(e);
+                exception = e;
             }
-            throw exception;
         }
+        throw exception;
     }
 
     private ResultSet executeQuery(
@@ -108,11 +103,10 @@ public class StatementExecutionProcessor {
             boolean force,
             Object... arguments) throws SQLException {
 
-        boolean hasFallback = definition.hasFallback();
         DatabaseCompatibility compatibility = ConnectionHandler.local().getCompatibility();
         DatabaseActivityTrace activityTrace = compatibility.getActivityTrace(definition.getId());
 
-        if (force || activityTrace.canExecute(hasFallback)) {
+        if (force || activityTrace.canExecute()) {
             return StatementExecutor.execute(context,
                     () -> {
                         DBNStatement statement = null;
@@ -164,13 +158,14 @@ public class StatementExecutionProcessor {
                             String message = e.getMessage();
                             if (isDatabaseAccessDebug()) log.warn("[DBN] Error executing statement: " + statementText + "\nCause: " + message);
 
-                            boolean isModelException = interfaces.getMessageParserInterface().isModelException(e);
-                            SQLException traceException =
-                                    isModelException ?
-                                            new SQLException("Model exception received while executing query '" + id +"'. " + message) :
-                                            new SQLException("Too many failed attempts of executing query '" + id +"'. " + message);
+                            boolean unsupported = interfaces.getMessageParserInterface().isModelException(e);
+                            String traceMessage = unsupported ?
+                                    "Model exception received while executing query '" + id +"'. " + message :
+                                    "Too many failed attempts of executing query '" + id +"'. " + message;
 
-                            activityTrace.fail(traceException, isModelException);
+                            SQLException traceException = new SQLException(traceMessage, e.getSQLState(), e.getErrorCode(), e);
+
+                            activityTrace.fail(traceException, unsupported);
                             throw e;
                         } finally {
                             activityTrace.release();

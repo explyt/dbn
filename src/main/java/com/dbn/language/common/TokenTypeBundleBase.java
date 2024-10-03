@@ -194,6 +194,31 @@ public abstract class TokenTypeBundleBase {
         return operators[index];
     }
 
+    /** Shorter equivalent of {@link #getKeywordTokenType(int)} to reduce the size of the generated java lexer */
+    public SimpleTokenType ktt(int index) {
+        return getKeywordTokenType(index);
+    }
+
+    /** Shorter equivalent of {@link #getFunctionTokenType(int)} to reduce the size of the generated java lexer */
+    public SimpleTokenType ftt(int index) {
+        return functions[index];
+    }
+
+    /** Shorter equivalent of {@link #getParameterTokenType(int)} to reduce the size of the generated java lexer */
+    public SimpleTokenType ptt(int index) {
+        return parameters[index];
+    }
+
+    /** Shorter equivalent of {@link #getDataTypeTokenType(int)} to reduce the size of the generated java lexer */
+    public SimpleTokenType dtt(int index) {
+        return dataTypes[index];
+    }
+
+    /** Shorter equivalent of {@link #getOperatorTokenType(int)} to reduce the size of the generated java lexer */
+    public SimpleTokenType ott(int index) {
+        return operators[index];
+    }
+
     private Map<String, Set<String>> parseTokenSets(Element tokenSetDefs) {
         Map<String, Set<String>> tokenSetDef = new THashMap<>();
         for (Element o : tokenSetDefs.getChildren()) {

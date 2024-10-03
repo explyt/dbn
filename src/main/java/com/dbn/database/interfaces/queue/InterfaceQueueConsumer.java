@@ -59,7 +59,10 @@ public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
     }
 
     private static boolean isModalDialogOpen() {
-        return Arrays.stream(Window.getWindows()).filter(w -> w  instanceof Dialog).map(w -> (Dialog) w).anyMatch(d -> d.isModal());
+        // BACKGROUND:
+        // progress tasks do not start when application is blocked by a modal dialog (preventing database interaction from modal dialogs)
+        // TODO check if there is a way to circumvent this (currently routing to Background thread pool)
+        return Arrays.stream(Window.getWindows()).filter(w -> w  instanceof Dialog).map(w -> (Dialog) w).anyMatch(d -> d.isModal() && d.isShowing());
     }
 
     private static boolean isProgressModalOrExhausted() {

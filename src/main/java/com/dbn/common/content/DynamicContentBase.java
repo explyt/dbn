@@ -286,6 +286,7 @@ public abstract class DynamicContentBase<T extends DynamicContentElement>
             conditionallyLog(e);
             // unsupported feature: log in notification area
             elements = Unsafe.cast(EMPTY_CONTENT);
+            set(DynamicContentProperty.DIRTY, false);
             set(DynamicContentProperty.LOADED, true);
             set(DynamicContentProperty.ERROR, true);
             sendWarningNotification(METADATA,

@@ -114,7 +114,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
         //lazy load
         Dispatch.async(
                 getProject(),
-                loadingArgumentsPanel,
+                mainPanel,
                 () -> getMethodArguments(),
                 a -> initArgumentsPanel(a));
     }

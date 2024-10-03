@@ -62,9 +62,9 @@ public final class Dispatch {
     }
 
     private static <T> void background(Project project, JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
+        ModalityState modalityState = ModalityState.stateForComponent(component);
         Background.run(project, () -> {
             T value = supplier.get();
-            ModalityState modalityState = ModalityState.stateForComponent(component);
             run(modalityState, () -> consumer.accept(value));
         });
     }

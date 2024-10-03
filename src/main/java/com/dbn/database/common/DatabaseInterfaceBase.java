@@ -48,7 +48,7 @@ public abstract class DatabaseInterfaceBase implements DatabaseInterface{
     }
 
     protected ResultSet executeQuery(@NotNull DBNConnection connection, String loaderId, @Nullable Object... arguments) throws SQLException {
-        return executeQuery(connection, true, loaderId, arguments);
+        return executeQuery(connection, false, loaderId, arguments);
     }
 
     protected ResultSet executeQuery(@NotNull DBNConnection connection, boolean forceExecution, String loaderId, @Nullable Object... arguments) throws SQLException {
