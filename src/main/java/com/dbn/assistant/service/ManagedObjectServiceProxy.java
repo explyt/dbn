@@ -59,12 +59,12 @@ public class ManagedObjectServiceProxy<E extends AttributeInput> extends Managed
   public CompletableFuture<List<E>> list() {
       if (isValid()) return completedFuture(unmodifiableList(this.items));
 
-      dirty = false;
       CompletableFuture<List<E>> future = delegate.list();
 
       // internally capture the result upon completion
       future.thenCompose(list -> {
         this.items = new ArrayList<>(list);
+        this.dirty = false;
         return null;
       });
 

@@ -154,21 +154,22 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     String title = isUpdate ? "Updating AI-Profile" : "Creating AI-Profile";
     String description = (isUpdate ? "Updating AI-profile \"" : "Creating AI-profile \"") + profileName + "\"";
 
-    Progress.modal(project, getConnection(), false, title, description, progress -> {
+    ConnectionHandler connection = getConnection();
+    Progress.modal(project, connection, false, title, description, progress -> {
         try {
-          ConnectionId connectionId = getConnection().getConnectionId();
+          ConnectionId connectionId = connection.getConnectionId();
           DatabaseInterfaceInvoker.execute(HIGHEST,
                     title,
                     description,
                     project,
                   connectionId,
                     conn -> {
-                      DatabaseAssistantInterface assistantInterface = getConnection().getAssistantInterface();
+                      DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
                       String attributes = editedProfile.getAttributeJson();
                       if (isUpdate)
                           assistantInterface.updateProfile(conn, profileName, attributes); else
                           assistantInterface.createProfile(conn, profileName, attributes, editedProfile.getDescription());
-
+                      AIProfileService.getInstance(connection).reset();
                       ProjectEvents.notify(project, ObjectChangeListener.TOPIC, l -> l.objectsChanged(connectionId, null, DBObjectType.PROFILE));
                     });
           Dispatch.run(getContentPanel(), () -> super.doOKAction());

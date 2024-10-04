@@ -88,6 +88,7 @@ public class ChatBoxForm extends DBNFormBase {
     // hide all panels until availability status is known
     this.introPanel.setVisible(false);
     this.chatBoxPanel.setVisible(false);
+    this.initializingPanel.setVisible(false);
 
     initHeaderForm();
     initIntroForm();

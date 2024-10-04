@@ -55,6 +55,7 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Editor;
@@ -423,6 +424,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   private void initChangeListener() {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
+      if (objectType != DBObjectType.PROFILE) return;
+
+      // it is assumed that DB assistant is supported if a change listener on PROFILE object type was fired
       AssistantState assistantState = assistantStates.get(connectionId);
       refreshStateProfiles(connectionId, assistantState);
     });

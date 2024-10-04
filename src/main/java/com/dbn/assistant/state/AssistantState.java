@@ -23,7 +23,6 @@ import com.dbn.common.feature.FeatureAcknowledgement;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.property.PropertyHolderBase;
 import com.dbn.common.state.PersistentStateElement;
-import com.dbn.common.util.Lists;
 import com.dbn.connection.ConnectionId;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -134,7 +133,7 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
 
   public void importProfiles(List<Profile> profiles) {
     String selectedProfile = getSelectedProfileName();
-    this.profiles = Lists.convert(profiles, p -> new AIProfileItem(p, p.getProfileName().equalsIgnoreCase(selectedProfile)));
+    setProfiles(convert(profiles, p -> new AIProfileItem(p, p.getProfileName().equalsIgnoreCase(selectedProfile))));
   }
 
   /**
@@ -144,8 +143,8 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
    */
   public void setProfiles(List<AIProfileItem> profiles) {
     this.profiles = profiles;
-    AIProfileItem selectedProfile = getSelectedProfile();
 
+    AIProfileItem selectedProfile = getSelectedProfile();
     if (selectedProfile == null) setSelectedProfile(firstElement(profiles));
   }
 
