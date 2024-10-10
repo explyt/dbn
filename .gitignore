@@ -8,3 +8,5 @@
 /out/
 /lib/
 /src/main/resources/lib/
+/modules/dbn-api/build/
+/modules/dbn-spi/build/
