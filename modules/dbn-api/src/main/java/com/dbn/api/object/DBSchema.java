@@ -12,8 +12,13 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.api.database.object;
+package com.dbn.api.object;
 
-public interface DBUser extends DBObject{
-    DBSchema getSchema();
+import java.util.List;
+
+public interface DBSchema extends DBObject {
+    List<? extends DBTable> getTables();
+    List<? extends DBView> getViews();
+
+    //List<? extends DBJavaClass> getJavaClasses();
 }

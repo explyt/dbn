@@ -14,11 +14,10 @@
 
 package com.dbn.api.database;
 
-import com.dbn.api.database.object.DBSchema;
+import com.dbn.api.object.DBSchema;
 
 import java.util.List;
 
 public interface DatabaseMetadata {
-    List<DBSchema> getSchemas();
-    DBSchema getUserSchema();
+    List<? extends DBSchema> getSchemas();
 }

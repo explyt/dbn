@@ -12,7 +12,10 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.api.database.object;
+package com.dbn.api.object;
 
-public interface DBJavaClass extends DBObject {
+import java.util.List;
+
+public interface DBDataset extends DBObject {
+    List<? extends DBColumn> getColumns();
 }
