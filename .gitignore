@@ -10,3 +10,5 @@
 /src/main/resources/lib/
 /modules/dbn-api/build/
 /modules/dbn-spi/build/
+/modules/dbn-api/.gradle/
+/modules/dbn-spi/.gradle/
