@@ -87,11 +87,11 @@ public class OracleProfilesAttributesInfo implements CallableStatementOutput {
           if (Objects.equals(attributeName, "temperature"))
             currProfile.setTemperature(Float.parseFloat(attribute));
           else if (Objects.equals(attributeName, "provider"))
-            currProfile.setProvider(ProviderType.valueOf(attribute.toUpperCase()));
+            currProfile.setProvider(ProviderType.forId(attribute.toUpperCase()));
           else if (Objects.equals(attributeName, "credential_name")) currProfile.setCredentialName(attribute);
           else if (Objects.equals(attributeName, "model")) {
             try {
-              currProfile.setModel(ProviderModel.getByName(attribute));
+              currProfile.setModel(ProviderModel.forApiName(attribute));
             } catch (IllegalArgumentException e) {
               log.error("malformed model name  [" + attribute + "], dropping profile");
               faultyProfilesNames.add(profileName);

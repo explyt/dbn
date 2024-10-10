@@ -46,14 +46,14 @@ public class ChatMessageContext implements PersistentStateElement {
     @Override
     public void readState(Element element) {
         profile = stringAttribute(element, "profile");
-        model = enumAttribute(element, "model", ProviderModel.class);
+        model = ProviderModel.forId(stringAttribute(element, "model"));
         action = enumAttribute(element, "action", PromptAction.class);
     }
 
     @Override
     public void writeState(Element element) {
         setStringAttribute(element, "profile", profile);
-        setEnumAttribute(element, "model", model);
+        setStringAttribute(element, "model", model.getId());
         setEnumAttribute(element, "action", action);
     }
 }

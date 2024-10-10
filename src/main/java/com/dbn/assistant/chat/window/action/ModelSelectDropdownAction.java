@@ -97,7 +97,7 @@ public class ModelSelectDropdownAction extends DBNComboBoxAction implements Dumb
         ProviderModel model = profile.getModel();
         if (model == null) return null;
 
-        return Actions.adjustActionName(model.name());
+        return Actions.adjustActionName(model.getId());
     }
 
     @Override

@@ -40,6 +40,6 @@ public enum ProviderApi {
    */
   public static String getAccessPoint(ProviderType providerType) {
     if (providerType == null) return "";
-    return providerType.getApi().getHost();
+    return providerType.getHost();
   }
 }
