@@ -24,13 +24,6 @@ public class DatasetFiltersSelectAction extends DBNComboBoxAction {
         presentation.setIcon(Icons.DATASET_FILTER_EMPTY);
     }
 
-    @NotNull
-    @Override
-    public JComponent createCustomComponent(@NotNull Presentation presentation) {
-        return super.createCustomComponent(presentation);
-    }
-
-
 
     @Override
     @NotNull
