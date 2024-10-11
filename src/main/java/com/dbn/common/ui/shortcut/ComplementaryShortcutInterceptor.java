@@ -1,10 +1,9 @@
 package com.dbn.common.ui.shortcut;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.actionSystem.AnActionResult;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -17,18 +16,8 @@ public abstract class ComplementaryShortcutInterceptor extends ShortcutIntercept
         super(delegateActionId);
     }
 
-/*
-    // TODO alternative invocation as of 212.* IDE builds
     @Override
-    @Compatibility
     public void afterActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event, @NotNull AnActionResult result) {
-        attemptDelegation(action, event);
-    }
-*/
-
-    @Override
-    @Compatibility
-    public void afterActionPerformed(@NotNull AnAction action, @NotNull DataContext dataContext, @NotNull AnActionEvent event) {
         attemptDelegation(action, event);
     }
 

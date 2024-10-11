@@ -4,7 +4,6 @@ import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -19,12 +18,6 @@ public abstract class OverridingShortcutInterceptor extends ShortcutInterceptor 
     //@Override
     @Compatibility
     public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
-        attemptDelegation(action, event);
-    }
-
-    //@Override
-    @Compatibility
-    public void beforeActionPerformed(@NotNull AnAction action, @NotNull DataContext dataContext, @NotNull AnActionEvent event) {
         attemptDelegation(action, event);
     }
 
