@@ -1,6 +1,5 @@
 package com.dbn.common.ui.shortcut;
 
-import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -15,8 +14,7 @@ public abstract class OverridingShortcutInterceptor extends ShortcutInterceptor 
         super(delegateActionId);
     }
 
-    //@Override
-    @Compatibility
+    @Override
     public void beforeActionPerformed(@NotNull AnAction action, @NotNull AnActionEvent event) {
         attemptDelegation(action, event);
     }
