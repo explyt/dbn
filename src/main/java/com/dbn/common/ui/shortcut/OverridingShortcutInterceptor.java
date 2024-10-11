@@ -9,6 +9,10 @@ import java.util.Objects;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 
+/**
+ * Overriding implementation of a {@link ShortcutInterceptor}
+ * Invokes an action if the given shortcut is intercepted and prevents the original action from being invoked by throwing {@link ProcessDeferredException}
+ */
 public abstract class OverridingShortcutInterceptor extends ShortcutInterceptor {
     public OverridingShortcutInterceptor(String delegateActionId) {
         super(delegateActionId);

@@ -10,6 +10,10 @@ import java.util.Objects;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
 
+/**
+ * Complementary implementation of a {@link ShortcutInterceptor}
+ * Invokes an additional action if the given shortcut is intercepted. Does not prevent the original action from being invoked
+ */
 public abstract class ComplementaryShortcutInterceptor extends ShortcutInterceptor {
 
     public ComplementaryShortcutInterceptor(String delegateActionId) {
