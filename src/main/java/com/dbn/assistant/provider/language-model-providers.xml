@@ -13,7 +13,7 @@
   -->
 
 <!-- https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-3721296F-14A1-428A-B464-7FA25E9EC8F3 -->
-<language-model-provider>
+<language-model-provider version="1.0">
     <provider id="OPENAI" name="OpenAI" host="api.openai.com">
         <urls>
             <url type="OFFICIAL">https://openai.com</url>

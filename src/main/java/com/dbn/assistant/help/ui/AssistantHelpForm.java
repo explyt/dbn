@@ -15,7 +15,6 @@
 package com.dbn.assistant.help.ui;
 
 import com.dbn.assistant.AssistantPrerequisiteManager;
-import com.dbn.assistant.provider.ProviderApi;
 import com.dbn.assistant.provider.ProviderType;
 import com.dbn.assistant.service.DatabaseService;
 import com.dbn.common.color.Colors;
@@ -135,7 +134,7 @@ public class AssistantHelpForm extends DBNFormBase {
 
   private String getAccessPoint() {
     ProviderType selectedProvider = getSelectedProvider();
-    return ProviderApi.getAccessPoint(selectedProvider);
+    return selectedProvider == null ? "" : selectedProvider.getHost();
   }
 
   @Nullable

@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This enum is for listing the possible credential providers we have
@@ -39,6 +40,7 @@ public final class ProviderType implements Presentable {
   private final boolean experimental;
 
   private List<ProviderModel> models;
+  private Map<ProviderUrlType, String> urls;
 
   ProviderType(String id, String name, String host, boolean main, boolean experimental) {
     this.id = id;
@@ -62,6 +64,10 @@ public final class ProviderType implements Presentable {
 
   public ProviderModel getDefaultModel() {
     return Lists.firstElement(models);
+  }
+
+  public String getUrl(ProviderUrlType type) {
+    return urls.get(type);
   }
 
   @Override
