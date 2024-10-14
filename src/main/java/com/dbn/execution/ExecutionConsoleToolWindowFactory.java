@@ -13,6 +13,7 @@ public class ExecutionConsoleToolWindowFactory extends DBNToolWindowFactory {
         toolWindow.setTitle("DB Execution Console");
         toolWindow.setStripeTitle("DB Execution Console");
         toolWindow.setIcon(WINDOW_EXECUTION_CONSOLE.get());
+
     }
 
     @Override
