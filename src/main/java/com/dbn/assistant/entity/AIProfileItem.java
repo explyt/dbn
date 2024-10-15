@@ -65,8 +65,8 @@ public final class AIProfileItem implements PersistentStateElement {
   @Override
   public void readState(Element element) {
     name = stringAttribute(element, "name");
-    provider = enumAttribute(element, "provider", ProviderType.class);
-    model = enumAttribute(element, "model", ProviderModel.class);
+    provider = ProviderType.forId(stringAttribute(element, "provider"));
+    model = provider.getModel(stringAttribute(element, "model"));
     enabled = booleanAttribute(element, "enabled", enabled);
     selected = booleanAttribute(element, "selected", selected);
   }
@@ -74,8 +74,8 @@ public final class AIProfileItem implements PersistentStateElement {
   @Override
   public void writeState(Element element) {
     setStringAttribute(element, "name", name);
-    setEnumAttribute(element, "provider", provider);
-    setEnumAttribute(element, "model", model);
+    setStringAttribute(element, "provider", provider.getId());
+    setStringAttribute(element, "model", model.getId());
     setBooleanAttribute(element, "enabled", enabled);
     setBooleanAttribute(element, "selected", selected);
   }

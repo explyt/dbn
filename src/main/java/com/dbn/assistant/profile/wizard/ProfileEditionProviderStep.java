@@ -18,6 +18,7 @@ import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.provider.ProviderModel;
 import com.dbn.assistant.provider.ProviderType;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Lists;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.intellij.openapi.Disposable;
@@ -28,7 +29,6 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -82,9 +82,9 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
     captions.add(nvl(profile.getDescription(), ""));
 
     for (ProviderType value : ProviderType.values()) {
-        if (captions.stream().anyMatch(c -> Strings.containsIgnoreCase(c, value.name()))) return value;
+        if (captions.stream().anyMatch(c -> Strings.containsIgnoreCase(c, value.getId()))) return value;
     }
-    return ProviderType.values()[0];
+    return Lists.firstElement(ProviderType.values());
   }
 
   private void populateCombos() {
@@ -142,8 +142,10 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
 
   @Override
   public WizardStep<ProfileEditionWizardModel> onNext(ProfileEditionWizardModel model) {
-    profile.setProvider(ProviderType.valueOf(Objects.requireNonNull(providerNameCombo.getSelectedItem()).toString()));
-    profile.setModel((ProviderModel) providerModelCombo.getSelectedItem());
+    ProviderType providerType = (ProviderType) providerNameCombo.getSelectedItem();
+    ProviderModel providerModel = (ProviderModel) providerModelCombo.getSelectedItem();
+    profile.setProvider(providerType);
+    profile.setModel(providerModel);
     profile.setTemperature((float) temperatureSlider.getValue() / 10);
     return super.onNext(model);
   }

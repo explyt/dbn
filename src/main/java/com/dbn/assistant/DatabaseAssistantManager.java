@@ -25,7 +25,6 @@ import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.help.ui.AssistantHelpDialog;
 import com.dbn.assistant.profile.wizard.ProfileEditionWizard;
-import com.dbn.assistant.provider.ProviderApi;
 import com.dbn.assistant.provider.ProviderType;
 import com.dbn.assistant.service.*;
 import com.dbn.assistant.service.mock.FakeAICredentialService;
@@ -307,7 +306,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
       AIProfileItem profile = getDefaultProfile(connectionId);
       if (profile != null) {
         ProviderType selectedProvider = profile.getProvider();
-        String accessPoint = ProviderApi.getAccessPoint(selectedProvider);
+        String accessPoint = selectedProvider.getHost();
 
         return txt("msg.assistant.error.NetworkAccessDenied", accessPoint, errorMessage);
       }

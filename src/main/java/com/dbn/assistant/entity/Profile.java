@@ -56,20 +56,26 @@ public class Profile implements AttributeInput {
   protected String description;
 
   @Expose
+  @JsonAdapter(ProviderTypeSerializer.class)
   protected ProviderType provider;
+
   @SerializedName("credential_name")
   @Expose
   protected String credentialName;
+
   @Builder.Default
   @SerializedName("object_list")
   @Expose
   protected List<ProfileDBObjectItem> objectList = Collections.emptyList();
   protected Integer maxTokens;
+
   @Builder.Default
   protected List<String> stopTokens = Collections.emptyList();
+
   @Expose
   @JsonAdapter(ProviderModelSerializer.class)
   protected ProviderModel model;
+
   @Builder.Default
   @Expose
   protected Float temperature = 0.0F;
@@ -156,6 +162,14 @@ public class Profile implements AttributeInput {
     @Override
     public JsonElement serialize(ProviderModel src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.getApiName());
+    }
+  }
+
+  // Inner class to handle the JSON serialization
+  public static class ProviderTypeSerializer implements JsonSerializer<ProviderType> {
+    @Override
+    public JsonElement serialize(ProviderType src, Type typeOfSrc, JsonSerializationContext context) {
+      return new JsonPrimitive(src.getId());
     }
   }
 

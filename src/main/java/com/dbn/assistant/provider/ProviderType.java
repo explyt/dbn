@@ -14,9 +14,13 @@
 
 package com.dbn.assistant.provider;
 
+import com.dbn.common.ui.Presentable;
+import com.dbn.common.util.Lists;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * This enum is for listing the possible credential providers we have
@@ -26,46 +30,48 @@ import java.util.List;
  * @author Emmanuel Jannetti (Oracle)
  */
 @Getter
-public enum ProviderType {
-  COHERE(ProviderApi.COHERE,
-          ProviderModel.COMMAND,
-          ProviderModel.COMMAND_NIGHTLY,
-          ProviderModel.COMMAND_LIGHT,
-          ProviderModel.COMMAND_LIGHT_NIGHTLY),
-  GOOGLE(ProviderApi.GOOGLE,
-          ProviderModel.GEMINI_1_5_FLASH,
-          ProviderModel.GEMINI_1_5_PRO,
-          ProviderModel.GEMINI_1_0_PRO),
-  OPENAI(ProviderApi.OPENAI,
-          ProviderModel.GPT_3_5_TURBO,
-          ProviderModel.GPT_3_5_TURBO_0613,
-          ProviderModel.GPT_3_5_TURBO_16K,
-          ProviderModel.GPT_3_5_TURBO_16K_0613,
-          ProviderModel.GPT_4,
-          ProviderModel.GPT_4_0613,
-          ProviderModel.GPT_4_32K,
-          ProviderModel.GPT_4_32K_0613,
-          ProviderModel.GPT_4_O,
-          ProviderModel.GPT_4_O_MINI),
-  OCI(ProviderApi.OCI,
-          ProviderModel.COHERE_COMMAND,
-          ProviderModel.COHERE_COMMAND_LIGHT,
-          ProviderModel.META_LLAMA_2_70B_CHAT,
-          ProviderModel.COHERE_EMBED_ENGLISH_LIGHT_V2_0,
-          ProviderModel.COHERE_EMBED_ENGLISH_V3_0,
-          ProviderModel.COHERE_EMBED_ENGLISH_LIGHT_V3_0,
-          ProviderModel.COHERE_EMBED_MULTILINGUAL_V3_0,
-          ProviderModel.COHERE_EMBED_MULTILINGUAL_LIGHT_V3_0);
+@Setter
+public final class ProviderType implements Presentable {
 
-  private final ProviderApi api;
-  private final List<ProviderModel> models;
+  private final String id;
+  private final String name;
+  private final String host;
+  private final boolean main;
+  private final boolean experimental;
 
-  ProviderType(ProviderApi api, ProviderModel... models) {
-    this.api = api;
-    this.models = List.of(models);
+  private List<ProviderModel> models;
+  private Map<ProviderUrlType, String> urls;
+
+  ProviderType(String id, String name, String host, boolean main, boolean experimental) {
+    this.id = id;
+    this.name = name;
+    this.host = host;
+    this.main = main;
+    this.experimental = experimental;
+  }
+
+  public static List<ProviderType> values() {
+    return LanguageModelDefinition.providers();
+  }
+
+  public static ProviderType forId(String id) {
+      return Lists.first(values(),  p -> p.getId().equals(id));
+  }
+
+  public ProviderModel getModel(String id) {
+    return Lists.first(models, p -> p.getId().equals(id));
   }
 
   public ProviderModel getDefaultModel() {
-    return models.get(0);
+    return Lists.firstElement(models);
+  }
+
+  public String getUrl(ProviderUrlType type) {
+    return urls.get(type);
+  }
+
+  @Override
+  public String toString() {
+    return getName();
   }
 }

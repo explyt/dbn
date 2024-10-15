@@ -48,9 +48,9 @@ public class ProfileDetailsForm extends DBNFormBase {
     private void initializeFields() {
         enabledCheckBox.setSelected(profile.isEnabled());
         profileNameTextField.setText(profile.getProfileName());
-        modelTextField.setText(profile.getModel().name());
+        modelTextField.setText(profile.getModel().getId());
         credentialTextField.setText(profile.getCredentialName());
-        providerTextField.setText(profile.getProvider().name());
+        providerTextField.setText(profile.getProvider().getName());
     }
 
     private void initializeTable() {
