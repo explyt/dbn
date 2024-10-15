@@ -14,14 +14,16 @@ public class DiagnosticsToolWindowFactory extends DBNToolWindowFactory {
         toolWindow.setStripeTitle("DB Diagnostics");
         toolWindow.setIcon(WINDOW_DATABASE_DIAGNOSTICS.get());
 
-        toolWindow.setToHideOnEmptyContent(true);
-        toolWindow.setAutoHide(false);
-        toolWindow.setAvailable(false, null);
     }
 
     @Override
     public void createContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
         // no content by default - will be created on demand
+        // (just set default visibility behavior)
+
+        toolWindow.setToHideOnEmptyContent(true);
+        toolWindow.setAutoHide(false);
+        toolWindow.setAvailable(false, null);
     }
 
     @Override
