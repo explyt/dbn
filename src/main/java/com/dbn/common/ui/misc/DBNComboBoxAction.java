@@ -2,6 +2,7 @@ package com.dbn.common.ui.misc;
 
 import com.dbn.common.action.BackgroundUpdatedAction;
 import com.dbn.common.action.ComboBoxAction;
+import com.dbn.nls.NlsSupport;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
