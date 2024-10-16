@@ -1,12 +1,16 @@
 package com.dbn.common.action;
 
-import com.dbn.common.compatibility.Compatibility;
-import com.intellij.openapi.actionSystem.UpdateInBackground;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
+import com.intellij.openapi.actionSystem.ActionUpdateThreadAware;
+import org.jetbrains.annotations.NotNull;
 
-@Compatibility
-public interface BackgroundUpdatedAction extends UpdateInBackground {
+public interface BackgroundUpdatedAction extends ActionUpdateThreadAware {
 
-    @Compatibility
+    @Override
+    default @NotNull ActionUpdateThread getActionUpdateThread() {
+        return isUpdateInBackground() ? ActionUpdateThread.BGT : ActionUpdateThread.EDT;
+    }
+
     default boolean isUpdateInBackground() {
         return true;
     }
