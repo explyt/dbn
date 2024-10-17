@@ -5,6 +5,7 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -20,6 +21,7 @@ public class Reflection {
     private static final Map<Class, Class> enclosingClasses = new ConcurrentHashMap<>();
     private static final Map<Class, String> classNames = new ConcurrentHashMap<>();
     private static final Map<Class, String> simpleClassNames = new ConcurrentHashMap<>();
+    private static final Map<Class, Map<Class<? extends Annotation>, Boolean>> classAnnotations = new ConcurrentHashMap<>();
 
     public static Class<?> getEnclosingClass(Class clazz) {
         return enclosingClasses.computeIfAbsent(clazz, c -> nvl(c.getEnclosingClass(), c));
@@ -76,6 +78,19 @@ public class Reflection {
             types[i] = fieldValue;
         }
         return adjusted;
+    }
+
+    /**
+     * Verifies if the class is annotated with the given annotation
+     * @param clazz the class to be verified
+     * @param annotation the annotation to be checked for presence
+     * @return true if the class is annotated with the give annotation, false otherwise
+     */
+    public static boolean hasAnnotation(Class<?> clazz, Class<? extends Annotation> annotation) {
+        // avoid boxing / unboxing by using Boolean objects instead of primitives
+        Map<Class<? extends Annotation>, Boolean> annotationMap = classAnnotations.computeIfAbsent(clazz, c -> new ConcurrentHashMap<>());
+        Boolean result = annotationMap.computeIfAbsent(annotation, a -> clazz.getAnnotation(annotation) == null ? Boolean.FALSE : Boolean.TRUE);
+        return result == Boolean.TRUE;
     }
 
 }
