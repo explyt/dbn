@@ -1,5 +1,6 @@
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.BasicActionGroup;
 import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
+@BackgroundUpdate
 public class EditorOptionsAction extends BasicActionGroup {
     @NotNull
     @Override

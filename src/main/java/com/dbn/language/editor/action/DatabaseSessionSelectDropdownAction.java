@@ -1,5 +1,6 @@
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
 import com.dbn.connection.ConnectionHandler;
@@ -23,6 +24,7 @@ import java.util.List;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
+@BackgroundUpdate
 public class DatabaseSessionSelectDropdownAction extends ComboBoxAction implements DumbAware {
     private static final String NAME = "Session";
 

@@ -1,5 +1,6 @@
 package com.dbn.language.editor.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.Lookups;
 import com.dbn.connection.ConnectionHandler;
@@ -19,6 +20,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
+@BackgroundUpdate
 public class ConnectionSelectDropdownAction extends ComboBoxAction implements DumbAware {
     private static final String NAME = "DB Connections";
 
