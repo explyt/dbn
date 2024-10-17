@@ -1,5 +1,7 @@
 package com.dbn.connection;
 
+import com.dbn.api.database.Database;
+import com.dbn.api.database.DatabaseMetadata;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.Referenceable;
 import com.dbn.common.cache.Cache;
@@ -40,7 +42,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.nls.NlsResources.txt;
 
-public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypeProvider, DatabaseContextBase, Presentable, Referenceable<ConnectionRef> {
+public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypeProvider, DatabaseContextBase, Presentable, Referenceable<ConnectionRef>, Database {
 
     @NotNull
     Project getProject();
@@ -250,5 +252,10 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
     @Contract("null -> false")
     static boolean isLiveConnection(@Nullable ConnectionHandler connection) {
         return Checks.isValid(connection) && !connection.isVirtual();
+    }
+
+    @Override
+    default DatabaseMetadata getMetadata() {
+        return getObjectBundle();
     }
 }
