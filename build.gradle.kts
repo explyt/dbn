@@ -18,7 +18,6 @@ dependencies {
 
   implementation("org.projectlombok:lombok:1.18.34")
   implementation("com.github.mwiede:jsch:0.2.20")
-  implementation("net.sf.trove4j:trove4j:3.0.3")
 
   // poi libraries (xls export)
   implementation("org.apache.poi:poi:5.3.0")
