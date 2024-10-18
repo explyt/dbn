@@ -10,10 +10,11 @@ import static com.dbn.nls.NlsResources.txt;
 @Getter
 @AllArgsConstructor
 public enum AuthenticationType implements Constant<AuthenticationType>, Presentable {
-    NONE(txt("cfg.connection.const.AuthenticationType_NONE")),
-    USER(txt("cfg.connection.const.AuthenticationType_USER")),
-    USER_PASSWORD(txt("cfg.connection.const.AuthenticationType_USER_PASSWORD")),
-    OS_CREDENTIALS(txt("cfg.connection.const.AuthenticationType_OS_CREDENTIALS"));
+    NONE("None"),
+    USER("User"),
+    USER_PASSWORD("User / Password"),
+    OS_CREDENTIALS("OS Credentials"),
+    TOKEN_AUTHENTICATION("Token Authentication");
 
     private final String name;
 }

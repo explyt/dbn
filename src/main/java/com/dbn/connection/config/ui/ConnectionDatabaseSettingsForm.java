@@ -240,6 +240,8 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
         String oldUserName = authenticationInfo.getUser();
         String oldPassword = authenticationInfo.getPassword();
+        String oldConfigFile = authenticationInfo.getPathToConfigFile();
+        String oldProfile = authenticationInfo.getProfile();
         authSettingsForm.applyFormChanges(authenticationInfo);
         if (!ConfigurationHandle.isTransitory()) {
             authenticationInfo.updateKeyChain(oldUserName, oldPassword);
@@ -271,8 +273,9 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
                 //!connectionConfig.getProperties().equals(propertiesEditorForm.getProperties()) ||
                 !Commons.match(configuration.getDatabaseType(), selectedDatabaseType) ||
                 !Commons.match(configuration.getDriverLibrary(), driverSettingsForm.getDriverLibrary()) ||
-                !Commons.match(configuration.getAuthenticationInfo().getUser(), authSettingsForm.getUser());
-
+                !Commons.match(configuration.getAuthenticationInfo().getUser(), authSettingsForm.getUser()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getPathToConfigFile(), authSettingsForm.getPathToConfigFile()) ||
+                !Commons.match(configuration.getAuthenticationInfo().getProfile(), authSettingsForm.getProfile());
 
         applyFormChanges(configuration);
 

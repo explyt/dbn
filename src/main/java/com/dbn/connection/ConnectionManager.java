@@ -208,7 +208,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         String connectionName = databaseSettings.getName();
 
-        Progress.modal(project, null, false,
+        Progress.modal(project, null, true,
                 txt("msg.connection.title.ConnectingToDatabase"),
                 txt("msg.connection.info.AttemptingConnectionToDatabase", connectionName),
                 progress -> {
