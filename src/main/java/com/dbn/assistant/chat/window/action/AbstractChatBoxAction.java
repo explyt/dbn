@@ -40,13 +40,4 @@ public abstract class AbstractChatBoxAction extends ProjectAction {
         ChatBoxForm chatBox = getChatBox(e);
         return chatBox == null ? null : chatBox.getAssistantState();
     }
-
-    @Override
-    public boolean isUpdateInBackground() {
-        // action updates are expected to be fast as they don't directly interact with the DB
-        // (allow updating in dispatch thread for responsiveness)
-        // TODO return false (after fixing IDE version range compatibility issues)
-        return true;
-    }
-
 }

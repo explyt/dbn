@@ -17,8 +17,8 @@ package com.dbn.assistant.chat.window.action;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.ui.misc.DBNComboBoxAction;
 import com.dbn.common.util.Actions;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
@@ -35,7 +35,7 @@ import java.util.List;
  *
  * @author Dan Cioca (Oracle)
  */
-public class ProfileSelectDropdownAction extends DBNComboBoxAction implements DumbAware {
+public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbAware {
 
     @Override
     @NotNull
