@@ -53,8 +53,8 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         super(parentComponent);
         
         configFileFieldWithBrowse.addBrowseFolderListener(
-                "Select Wallet Directory",
-                "Folder must contain tnsnames.ora",
+                "Select OCI Configuration File",
+                "Folder must contain an oci config file (usually ~/.oci/config)",
                 null, new FileChooserDescriptor(true, false, false, false, false, false));
         onTextChange(configFileFieldWithBrowse, e -> handleConfigFileChanged(configFileFieldWithBrowse.getText()));
         
