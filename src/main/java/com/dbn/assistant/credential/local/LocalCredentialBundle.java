@@ -28,45 +28,49 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class LocalCredentialBundle implements Iterable<LocalCredential>, Cloneable {
-  private final List<LocalCredential> credentials = new ArrayList<>();
+  private final List<LocalCredential> elements = new ArrayList<>();
 
   public LocalCredentialBundle(LocalCredentialBundle source) {
-    setElements(source.credentials);
+    this(source.getElements());
   }
 
-  private void setElements(List<LocalCredential> credentials) {
-    this.credentials.clear();
-    CollectionUtil.cloneElements(credentials, this.credentials);
+  public LocalCredentialBundle(List<LocalCredential> elements) {
+    setElements(elements);
+  }
+
+  public void setElements(List<LocalCredential> credentials) {
+    this.elements.clear();
+    CollectionUtil.cloneElements(credentials, this.elements);
   }
 
   @Override
   public Iterator<LocalCredential> iterator() {
-    return credentials.iterator();
+    return elements.iterator();
   }
 
   public void clear() {
-    credentials.clear();
+    elements.clear();
   }
 
   public void add(LocalCredential credential) {
-    credentials.add(credential);
+    elements.add(credential);
   }
 
   public void add(int index, LocalCredential credential) {
-    credentials.add(index, credential);
+    elements.add(index, credential);
   }
 
 
   public int size() {
-    return credentials.size();
+    return elements.size();
   }
 
   public LocalCredential get(int index) {
-    return credentials.get(index);
+    return elements.get(index);
   }
 
   public LocalCredential remove(int index) {
-    return credentials.remove(index);
+    return elements.remove(index);
   }
 
   @Override

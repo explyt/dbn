@@ -15,6 +15,7 @@
 package com.dbn.assistant.credential.local.ui;
 
 
+import com.dbn.assistant.credential.local.LocalCredential;
 import com.dbn.assistant.credential.local.LocalCredentialBundle;
 import com.dbn.assistant.credential.local.LocalCredentialSettings;
 import com.dbn.common.action.BasicActionButton;
@@ -29,6 +30,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.*;
 import javax.swing.table.TableCellEditor;
 import java.awt.*;
+import java.util.List;
 
 public class LocalCredentialsSettingsForm extends ConfigurationEditorForm<LocalCredentialSettings> {
   private JPanel mainPanel;
@@ -77,13 +79,14 @@ public class LocalCredentialsSettingsForm extends ConfigurationEditorForm<LocalC
     LocalCredentialSettings configuration = getConfiguration();
     LocalCredentialsTableModel model = credentialsTable.getModel();
     model.validate();
-    LocalCredentialBundle credentials = model.getCredentials();
-    configuration.setCredentials(credentials);
+    List<LocalCredential> credentials = model.getElements();
+    configuration.setCredentials(new LocalCredentialBundle(credentials));
   }
 
   @Override
   public void resetFormChanges() {
     LocalCredentialSettings settings = getConfiguration();
-    credentialsTable.getModel().setCredentials(settings.getCredentials());
+    List<LocalCredential> credentials = settings.getCredentials().getElements();
+    credentialsTable.getModel().setElements(credentials);
   }
 }

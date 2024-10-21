@@ -17,7 +17,6 @@ package com.dbn.assistant.credential.local.ui;
 import com.dbn.assistant.credential.local.LocalCredentialBundle;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEditableTable;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,7 +32,7 @@ import java.awt.event.ComponentEvent;
 public class LocalCredentialsEditorTable extends DBNEditableTable<LocalCredentialsTableModel> {
 
   LocalCredentialsEditorTable(DBNComponent parent, LocalCredentialBundle credentials) {
-    super(parent, createModel(parent.getProject(), credentials), true);
+    super(parent, createModel(credentials), true);
     setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
     setSelectionBackground(UIUtil.getTableBackground());
     setSelectionForeground(UIUtil.getTableForeground());
@@ -53,8 +52,8 @@ public class LocalCredentialsEditorTable extends DBNEditableTable<LocalCredentia
   }
 
   @NotNull
-  private static LocalCredentialsTableModel createModel(Project project, LocalCredentialBundle credentials) {
-    return new LocalCredentialsTableModel(project, credentials);
+  private static LocalCredentialsTableModel createModel(LocalCredentialBundle credentials) {
+    return new LocalCredentialsTableModel(credentials);
   }
 
   private void adjustColumnSizes() {
@@ -77,7 +76,7 @@ public class LocalCredentialsEditorTable extends DBNEditableTable<LocalCredentia
   }
 
   void setCredentials(LocalCredentialBundle credentials) {
-    super.setModel(createModel(getProject(), credentials));
+    super.setModel(createModel(credentials));
     adjustColumnSizes();
   }
 
