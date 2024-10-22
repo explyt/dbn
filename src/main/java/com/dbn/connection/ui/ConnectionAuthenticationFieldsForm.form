@@ -10,9 +10,7 @@
     <children>
       <component id="da74e" class="javax.swing.JLabel" binding="userLabel">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="90" height="-1"/>
-          </grid>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="c246e"/>
@@ -21,7 +19,7 @@
       </component>
       <component id="c246e" class="javax.swing.JTextField" binding="userTextField">
         <constraints>
-          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
@@ -31,9 +29,7 @@
       </component>
       <component id="8b995" class="javax.swing.JLabel" binding="passwordLabel">
         <constraints>
-          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="90" height="-1"/>
-          </grid>
+          <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <labelFor value="4ee9a"/>
@@ -42,7 +38,7 @@
       </component>
       <component id="4ee9a" class="javax.swing.JPasswordField" binding="passwordField">
         <constraints>
-          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+          <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
@@ -53,17 +49,17 @@
       <component id="bd58d" class="javax.swing.JLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false">
-            <preferred-size width="90" height="-1"/>
+            <preferred-size width="120" height="-1"/>
           </grid>
         </constraints>
         <properties>
-          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.AuthenticationType"/>
+          <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Authentication"/>
         </properties>
       </component>
       <component id="bf2ec" class="com.intellij.openapi.ui.ComboBox" binding="authTypeComboBox">
         <constraints>
           <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="180" height="-1"/>
+            <preferred-size width="220" height="-1"/>
           </grid>
         </constraints>
         <properties/>
@@ -98,7 +94,7 @@
       <component id="9e2fc" class="javax.swing.JComboBox" binding="tokenProfileComboBox">
         <constraints>
           <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="0" fill="1" indent="0" use-parent-layout="false">
-            <preferred-size width="180" height="-1"/>
+            <preferred-size width="220" height="-1"/>
           </grid>
         </constraints>
         <properties/>
@@ -108,13 +104,21 @@
           <grid row="6" column="0" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
-      <component id="73951" class="javax.swing.JCheckBox" binding="tokenBrowserAuthCheckBox" default-binding="true">
+      <component id="d39bb" class="javax.swing.JLabel" binding="tokenTypeLabel">
         <constraints>
-          <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <text value="Use Browser To Authenticate"/>
+          <text value="T&amp;oken type"/>
         </properties>
+      </component>
+      <component id="fc76d" class="com.intellij.openapi.ui.ComboBox" binding="tokenTypeComboBox">
+        <constraints>
+          <grid row="1" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="220" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
       </component>
     </children>
   </grid>

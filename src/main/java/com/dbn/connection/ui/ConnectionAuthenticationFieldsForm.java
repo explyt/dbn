@@ -21,6 +21,7 @@ import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.JComponentCategory;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
+import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
@@ -28,7 +29,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -52,6 +52,8 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Lists.firstElement;
+import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
+import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
@@ -62,16 +64,18 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     }
 
     private JComboBox<AuthenticationType> authTypeComboBox;
+    private JComboBox<AuthenticationTokenType> tokenTypeComboBox;
+    private JComboBox<String> tokenProfileComboBox;
+    private TextFieldWithBrowseButton tokenConfigFileTextField;
     private JTextField userTextField;
     private JPasswordField passwordField;
     private JPanel mainPanel;
     private JLabel userLabel;
     private JLabel passwordLabel;
+    private JLabel tokenTypeLabel;
     private JLabel tokenConfigFileLabel;
     private JLabel tokenProfileLabel;
-    private JCheckBox tokenBrowserAuthCheckBox;
-    private TextFieldWithBrowseButton tokenConfigFileTextField;
-    private JComboBox<String> tokenProfileComboBox;
+
 
     public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
         super(parentComponent);
@@ -83,11 +87,11 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onTextChange(tokenConfigFileTextField, e -> refreshTokenProfileOptions());
         
         initComboBox(authTypeComboBox, AuthenticationType.values());
+        initComboBox(tokenTypeComboBox, OCI_API_KEY, OCI_INTERACTIVE); // currently supported token types
 
         ActionListener actionListener = e -> updateAuthenticationFields();
         authTypeComboBox.addActionListener(actionListener);
-        tokenBrowserAuthCheckBox.addActionListener(actionListener);
-        tokenBrowserAuthCheckBox.setVisible(false);
+        tokenTypeComboBox.addActionListener(actionListener);
 
         initFields();
     }
@@ -95,14 +99,31 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private void initFields() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
 
-        // init visibility and accessibility conditions
-        fieldAdapter.initFieldsVisibility(()    -> isUserAuth(),          array(userLabel, userTextField));
-        fieldAdapter.initFieldsVisibility(()    -> isPasswordAuth(),      array(passwordLabel, passwordField));
-        fieldAdapter.initFieldsVisibility(()    -> isTokenAuth(),         array(tokenBrowserAuthCheckBox, tokenConfigFileLabel, tokenConfigFileTextField, tokenProfileLabel, tokenProfileComboBox));
-        fieldAdapter.initFieldsAccessibility(() -> !isBrowserTokenAuth(), array(tokenConfigFileLabel, tokenConfigFileTextField, tokenProfileLabel, tokenProfileComboBox));
+        // init visibility conditions
+        fieldAdapter.initFieldsVisibility(() -> isUserAuth(), array(userLabel, userTextField));
+        fieldAdapter.initFieldsVisibility(() -> isPasswordAuth(), array(passwordLabel, passwordField));
+
+        fieldAdapter.initFieldsVisibility(() -> isTokenAuth(), array(
+                tokenTypeLabel,
+                tokenTypeComboBox,
+                tokenConfigFileLabel,
+                tokenConfigFileTextField,
+                tokenProfileLabel,
+                tokenProfileComboBox));
+
+        fieldAdapter.initFieldsVisibility(() -> isApiKeyTokenAuth(), array(
+                tokenConfigFileLabel,
+                tokenConfigFileTextField,
+                tokenProfileLabel,
+                tokenProfileComboBox));
 
         // init field classification
-        fieldAdapter.classifyFields(CACHEABLE_FIELDS, array(userTextField, passwordField, tokenConfigFileTextField, tokenProfileComboBox));
+        fieldAdapter.classifyFields(CACHEABLE_FIELDS, array(
+                userTextField,
+                passwordField,
+                tokenTypeComboBox,
+                tokenConfigFileTextField,
+                tokenProfileComboBox));
     }
 
     private void updateAuthenticationFields() {
@@ -126,7 +147,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         onTextChange(userTextField, e -> runnable.run());
         onTextChange(passwordField, e -> runnable.run());
         onTextChange(tokenConfigFileTextField.getTextField(), e -> runnable.run());
-        tokenBrowserAuthCheckBox.addActionListener(e -> runnable.run());
+        tokenTypeComboBox.addActionListener(e -> runnable.run());
         tokenProfileComboBox.addActionListener(e -> runnable.run());
         authTypeComboBox.addActionListener(e -> runnable.run());
     }
@@ -138,9 +159,9 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         authenticationInfo.setUser(userTextField.getText());
         authenticationInfo.setPassword(new String(passwordField.getPassword()));
 
-        authenticationInfo.setTokenBrowserAuth(tokenBrowserAuthCheckBox.isSelected());
-        authenticationInfo.setTokenConfigFile(tokenConfigFileTextField.getText());
+        authenticationInfo.setTokenType(getSelection(tokenTypeComboBox));
         authenticationInfo.setTokenProfile(getSelection(tokenProfileComboBox));
+        authenticationInfo.setTokenConfigFile(tokenConfigFileTextField.getText());
     }
 
     public void resetFormChanges(AuthenticationInfo authenticationInfo) {
@@ -150,7 +171,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
 
         tokenConfigFileTextField.setText(authenticationInfo.getTokenConfigFile());
         setSelection(tokenProfileComboBox, authenticationInfo.getTokenProfile());
-        tokenBrowserAuthCheckBox.setSelected(authenticationInfo.isTokenBrowserAuth());
+        setSelection(tokenTypeComboBox, authenticationInfo.getTokenType());
         updateAuthenticationFields();
     }
 
@@ -244,13 +265,18 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         return getAuthenticationType() == AuthenticationType.TOKEN;
     }
 
-    private boolean isBrowserTokenAuth() {
-        return isTokenAuth() && tokenBrowserAuthCheckBox.isSelected();
+    private boolean isApiKeyTokenAuth() {
+        return isTokenAuth() && getTokenAuthenticationType() == OCI_API_KEY;
     }
 
     @Nullable
     private AuthenticationType getAuthenticationType() {
-        return (AuthenticationType) authTypeComboBox.getSelectedItem();
+        return getSelection(authTypeComboBox);
+    }
+
+    @Nullable
+    private AuthenticationTokenType getTokenAuthenticationType() {
+        return getSelection(tokenTypeComboBox);
     }
 
 }

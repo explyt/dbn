@@ -387,7 +387,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
 
                             storedAuthenticationInfo.setTokenConfigFile(newAuthenticationInfo.getTokenConfigFile());
                             storedAuthenticationInfo.setTokenProfile(newAuthenticationInfo.getTokenProfile());
-                            storedAuthenticationInfo.setTokenBrowserAuth(newAuthenticationInfo.isTokenBrowserAuth());
+                            storedAuthenticationInfo.setTokenType(newAuthenticationInfo.getTokenType());
 
                             storedAuthenticationInfo.updateKeyChain(oldUser, oldPassword);
                         } else {

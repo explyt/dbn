@@ -32,6 +32,8 @@ import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.notification.NotificationGroup.CONNECTION;
 import static com.dbn.common.notification.NotificationSupport.sendErrorNotification;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.connection.AuthenticationTokenType.OCI_API_KEY;
+import static com.dbn.connection.AuthenticationTokenType.OCI_INTERACTIVE;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.diagnostics.data.Activity.CONNECT;
 import static com.dbn.nls.NlsResources.txt;
@@ -134,13 +136,16 @@ class Connector {
             // Token Auth
             if (authenticationType == AuthenticationType.TOKEN) {
                 // TODO move this logic to "com.dbn.database.interfaces" - maybe a new DatabaseConnectivityInterface
-                if (authenticationInfo.isTokenBrowserAuth()) {
+                AuthenticationTokenType tokenType = authenticationInfo.getTokenType();
+                if (tokenType == OCI_INTERACTIVE) {
                     properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_INTERACTIVE);
                 }
-                else {
+                else if (tokenType == OCI_API_KEY) {
                     properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_API_KEY);
                     properties.put(Property.ORACLE_JDBC_OCI_CONFIG_FILE, nvl(authenticationInfo.getTokenConfigFile(), ""));
                     properties.put(Property.ORACLE_JDBC_OCI_PROFILE, nvl(authenticationInfo.getTokenProfile(), ""));
+                } else {
+                    //TODO...
                 }
             }
 

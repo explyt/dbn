@@ -6,6 +6,7 @@ import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.TimeAware;
+import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
@@ -18,13 +19,12 @@ import org.jdom.Element;
 
 import static com.dbn.common.database.AuthenticationInfo.Attributes.OLD_PWD_ATTRIBUTE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TEMP_PWD_ATTRIBUTE;
-import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_BROWSER_AUTH;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
-import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Commons.match;
@@ -35,7 +35,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 @EqualsAndHashCode(callSuper = false)
 public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<AuthenticationInfo>, TimeAware {
     interface Attributes {
-        String TOKEN_BROWSER_AUTH = "token-browser-auth";
+        String TOKEN_TYPE = "token-type";
         String TOKEN_CONFIG_FILE = "token-config-file";
         String TOKEN_PROFILE = "token-profile";
 
@@ -54,7 +54,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     private boolean temporary;
     
     // token auth
-    private boolean tokenBrowserAuth;
+    private AuthenticationTokenType tokenType;
     private String tokenConfigFile;
     private String tokenProfile;
 
@@ -64,7 +64,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     }
 
     public ConnectionId getConnectionId() {
-        return getParent().getConnectionId();
+        return ensureParent().getConnectionId();
     }
 
     public void setPassword(String password) {
@@ -77,7 +77,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             case USER: return isNotEmpty(user);
             case USER_PASSWORD: return isNotEmpty(user) && isNotEmpty(password);
             case OS_CREDENTIALS: return true;
-            case TOKEN: return tokenBrowserAuth || isNotEmpty(tokenConfigFile) && isNotEmpty(tokenProfile);
+            case TOKEN: return tokenType == AuthenticationTokenType.OCI_INTERACTIVE ||
+                    (isNotEmpty(tokenConfigFile) && isNotEmpty(tokenProfile));
         }
         return true;
     }
@@ -92,9 +93,9 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     			return match(this.user, authenticationInfo.user) &&
     		           match(this.password, authenticationInfo.password);
     		case TOKEN:
-    			return match(this.tokenConfigFile, authenticationInfo.tokenConfigFile) &&
-    				   match(this.tokenProfile, tokenProfile) &&
-    				   this.tokenBrowserAuth == authenticationInfo.tokenBrowserAuth;
+                return match(this.tokenConfigFile, authenticationInfo.tokenConfigFile) &&
+                       match(this.tokenProfile, authenticationInfo.tokenProfile) &&
+                       match(this.tokenType, authenticationInfo.tokenType);
     		default:
     			return false;
     	}
@@ -110,7 +111,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             password = credentialManager.getPassword(getConnectionId(), user);
         }
 
-        tokenBrowserAuth = getBoolean(element, TOKEN_BROWSER_AUTH, tokenBrowserAuth);
+        tokenType = getEnum(element, TOKEN_TYPE, AuthenticationTokenType.class);
         tokenConfigFile = getString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         tokenProfile = getString(element, TOKEN_PROFILE, tokenProfile);
 
@@ -128,7 +129,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
         type = getEnum(element, "type", type);
 
-        AuthenticationType[] supportedAuthTypes = getParent().getDatabaseType().getAuthTypes();
+        AuthenticationType[] supportedAuthTypes = ensureParent().getDatabaseType().getAuthTypes();
         if (!Constants.isOneOf(type, supportedAuthTypes)) {
             type = supportedAuthTypes[0];
         }
@@ -151,7 +152,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             setString(element, TEMP_PWD_ATTRIBUTE, encodedPassword);
         }
 
-        setBoolean(element, TOKEN_BROWSER_AUTH, tokenBrowserAuth);
+        setEnum(element, TOKEN_TYPE, tokenType);
         setString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
         setString(element, TOKEN_PROFILE, tokenProfile);
     }
@@ -166,7 +167,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         // Token Auth
         authenticationInfo.tokenConfigFile = this.tokenConfigFile;
         authenticationInfo.tokenProfile = this.tokenProfile;
-        authenticationInfo.tokenBrowserAuth = this.tokenBrowserAuth;
+        authenticationInfo.tokenType = this.tokenType;
         
         return authenticationInfo;
     }
