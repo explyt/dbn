@@ -1,16 +1,25 @@
 package com.dbn.connection.config.ui;
 
-import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.common.util.Strings;
+import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
+import com.dbn.common.ui.form.field.JComponentCategory;
+import com.dbn.common.ui.util.TextFields;
+import com.dbn.common.util.Commons;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.intellij.openapi.fileChooser.FileChooserDescriptor;
+import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
-import javax.swing.*;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JPasswordField;
+import javax.swing.JTextField;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,97 +28,80 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
-import static com.dbn.common.ui.util.ComboBoxes.*;
+import static com.dbn.common.ui.form.field.JComponentFilter.accessibleClassifiedAs;
+import static com.dbn.common.ui.form.field.JComponentFilter.array;
+import static com.dbn.common.ui.form.field.JComponentFilter.classifiedAs;
+import static com.dbn.common.ui.form.field.JComponentFilter.inaccessible;
+import static com.dbn.common.ui.util.ComboBoxes.getSelection;
+import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
+import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
-
-import com.dbn.common.ui.util.TextFields.*; 
-import com.intellij.openapi.ui.*;
+import static com.dbn.connection.AuthenticationType.USER;
+import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
+import static com.dbn.connection.config.ui.ConnectionAuthenticationSettingsForm.FieldCategory.CACHEABLE_FIELDS;
 
 public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
+    enum FieldCategory implements JComponentCategory {
+        CACHEABLE_FIELDS,
+    }
+
     private JComboBox<AuthenticationType> authTypeComboBox;
     private JTextField userTextField;
     private JPasswordField passwordField;
     private JPanel mainPanel;
     private JLabel userLabel;
     private JLabel passwordLabel;
-    private JCheckBox useBrowserToAuthenticateCheckBox;
-    private TextFieldWithBrowseButton configFileFieldWithBrowse;
-    private JComboBox<String> profileComboDropDown;
-    private JPanel tokenAuthPanel;
-    private JTextField textField2;
-    private JButton customProviderLIbraryButton;
-    private JLabel tokenAuthLabel;
-
-    private String cachedUser = "";
-    private String cachedPassword = "";
-
-    private final ActionListener actionListener = e -> updateAuthenticationFields();
+    private JLabel tokenConfigFileLabel;
+    private JLabel tokenProfileLabel;
+    private JCheckBox tokenBrowserAuthCheckBox;
+    private TextFieldWithBrowseButton tokenConfigFileTextField;
+    private JComboBox<String> tokenProfileComboBox;
 
     ConnectionAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
         super(parentComponent);
         
-        configFileFieldWithBrowse.addBrowseFolderListener(
+        tokenConfigFileTextField.addBrowseFolderListener(
                 "Select OCI Configuration File",
                 "Folder must contain an oci config file (usually ~/.oci/config)",
                 null, new FileChooserDescriptor(true, false, false, false, false, false));
-        onTextChange(configFileFieldWithBrowse, e -> handleConfigFileChanged(configFileFieldWithBrowse.getText()));
+        onTextChange(tokenConfigFileTextField, e -> refreshTokenProfileOptions());
         
         initComboBox(authTypeComboBox, AuthenticationType.values());
+
+        ActionListener actionListener = e -> updateAuthenticationFields();
         authTypeComboBox.addActionListener(actionListener);
-        useBrowserToAuthenticateCheckBox.addActionListener(actionListener);
-        useBrowserToAuthenticateCheckBox.setVisible(false);
+        tokenBrowserAuthCheckBox.addActionListener(actionListener);
+        tokenBrowserAuthCheckBox.setVisible(false);
+
+        initFields();
     }
+
+    private void initFields() {
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
+
+        // init visibility and accessibility conditions
+        fieldAdapter.initFieldsVisibility(()    -> isUserAuth(),          array(userLabel, userTextField));
+        fieldAdapter.initFieldsVisibility(()    -> isPasswordAuth(),      array(passwordLabel, passwordField));
+        fieldAdapter.initFieldsVisibility(()    -> isTokenAuth(),         array(tokenBrowserAuthCheckBox, tokenConfigFileLabel, tokenConfigFileTextField, tokenProfileLabel, tokenProfileComboBox));
+        fieldAdapter.initFieldsAccessibility(() -> !isBrowserTokenAuth(), array(tokenConfigFileLabel, tokenConfigFileTextField, tokenProfileLabel, tokenProfileComboBox));
+
+        // init field classification
+        fieldAdapter.classifyFields(CACHEABLE_FIELDS, array(userTextField, passwordField, tokenConfigFileTextField, tokenProfileComboBox));
+    }
+
 
     private void updateAuthenticationFields() {
-        AuthenticationType authType = getSelection(authTypeComboBox);
+        DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
 
-        boolean showUser = Constants.isOneOf(authType,
-                AuthenticationType.USER,
-                AuthenticationType.USER_PASSWORD);
-        boolean showPassword = authType == AuthenticationType.USER_PASSWORD;
+        // cache values of fields classified as CACHEABLE
+        fieldAdapter.captureFieldValues(classifiedAs(CACHEABLE_FIELDS));
+        fieldAdapter.updateFieldsVisibility();
+        fieldAdapter.updateFieldsAccessibility();
+        fieldAdapter.resetFieldValues(inaccessible());
 
-        boolean showTokenAuthentication = (authType == AuthenticationType.TOKEN_AUTHENTICATION);
-        boolean useBrowserAuth = this.useBrowserToAuthenticateCheckBox.isSelected();
-
-        userLabel.setVisible(showUser);
-        userTextField.setVisible(showUser);
-
-        passwordLabel.setVisible(showPassword);
-        passwordField.setVisible(showPassword);
-        //passwordField.setBackground(showPasswordField ? UIUtil.getTextFieldBackground() : UIUtil.getPanelBackground());
-
-        String user = userTextField.getText();
-        String password = new String(passwordField.getPassword());
-        if (Strings.isNotEmpty(user)) cachedUser = user;
-        if (Strings.isNotEmpty(password)) cachedPassword = password;
-
-        userTextField.setText(showUser ? cachedUser : "");
-        passwordField.setText(showPassword ? cachedPassword : "");
-
-        tokenAuthPanel.setVisible(showTokenAuthentication);
-        configFileFieldWithBrowse.setEnabled(!useBrowserAuth);
-        profileComboDropDown.setEnabled(!useBrowserAuth);
-
-        String configFilePath = configFileFieldWithBrowse.getText();
-        Optional<String> selectedItem = Optional.ofNullable((String)profileComboDropDown.getSelectedItem());
-		String profileName = selectedItem.orElse(null);
-        boolean isUseBrowser = useBrowserToAuthenticateCheckBox.isSelected();
-
-        if (authType == AuthenticationType.TOKEN_AUTHENTICATION) {
-            useBrowserToAuthenticateCheckBox.setSelected(isUseBrowser);
-            if (!isUseBrowser) {
-                configFileFieldWithBrowse.setText(configFilePath);
-                profileComboDropDown.setSelectedItem(profileName);
-            }
-        }
-    }
-
-    public JTextField getUserTextField() {
-        return userTextField;
+        // restore values of fields classified as CACHEABLE which are visible and enabled
+        fieldAdapter.restoreFieldValues(accessibleClassifiedAs(CACHEABLE_FIELDS));
     }
 
     public String getUser() {
@@ -117,16 +109,15 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     }
 
     public void applyFormChanges(AuthenticationInfo authenticationInfo){
+        // irrelevant fields are all supposed to be emptied at this stage by resetFieldValues(), if disabled or hidden
+        // no auth type check needed here
         authenticationInfo.setType(getSelection(authTypeComboBox));
-        if (authenticationInfo.getType() != AuthenticationType.TOKEN_AUTHENTICATION) {
-	        authenticationInfo.setUser(userTextField.getText());
-	        authenticationInfo.setPassword(new String(passwordField.getPassword()));
-        }
-        else {
-        	authenticationInfo.setUseBrowserForTokenAuth(useBrowserToAuthenticateCheckBox.isSelected());
-        	authenticationInfo.setPathToConfigFile(configFileFieldWithBrowse.getText());
-        	authenticationInfo.setProfile(getSelection(profileComboDropDown));
-        }
+        authenticationInfo.setUser(userTextField.getText());
+        authenticationInfo.setPassword(new String(passwordField.getPassword()));
+
+        authenticationInfo.setTokenBrowserAuth(tokenBrowserAuthCheckBox.isSelected());
+        authenticationInfo.setTokenConfigFile(tokenConfigFileTextField.getText());
+        authenticationInfo.setTokenProfile(getSelection(tokenProfileComboBox));
     }
 
     public void resetFormChanges() {
@@ -134,51 +125,38 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
         ConnectionDatabaseSettings configuration = parent.getConfiguration();
         AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
 
-
-        String user = authenticationInfo.getUser();
-        String password = authenticationInfo.getPassword();
-        if (Strings.isNotEmpty(user)) cachedUser = user;
-        if (Strings.isNotEmpty(password)) cachedPassword = password;
-
         userTextField.setText(authenticationInfo.getUser());
         passwordField.setText(authenticationInfo.getPassword());
         setSelection(authTypeComboBox, authenticationInfo.getType());
-        String pathToConfigFile = authenticationInfo.getPathToConfigFile();
-        // populate the combo if possible
-        if (pathToConfigFile != null) {
-        	configFileFieldWithBrowse.setText(pathToConfigFile);
-            handleConfigFileChanged(pathToConfigFile);
-        }
-        setSelection(profileComboDropDown, authenticationInfo.getProfile());
-        useBrowserToAuthenticateCheckBox.setSelected(authenticationInfo.isUseBrowserForTokenAuth());
+
+        tokenConfigFileTextField.setText(authenticationInfo.getTokenConfigFile());
+        setSelection(tokenProfileComboBox, authenticationInfo.getTokenProfile());
+        tokenBrowserAuthCheckBox.setSelected(authenticationInfo.isTokenBrowserAuth());
         updateAuthenticationFields();
     }
 
-    @NotNull
-    @Override
-    public JPanel getMainComponent() {
-        return mainPanel;
+    private void refreshTokenProfileOptions() {
+        JTextField textField = tokenConfigFileTextField.getTextField();
+        String configFilePath = textField.getText();
+        List<String> profiles = Collections.emptyList();
+        try {
+            // TODO this may take time to load if file is located on a remote location - consider showing a spinner next to the profile dropdown
+            //  (is remote config a valid use case anyways?)
+            profiles = loadTokenProfiles(configFilePath);
+            TextFields.updateFieldError(textField, null);
+        } catch (Exception e) {
+            TextFields.updateFieldError(textField, e.getMessage());
+        }
+    	tokenProfileComboBox.setModel(new DefaultComboBoxModel<>(profiles.toArray(new String[0])));
     }
 
-    public @Nullable String getPathToConfigFile() {
-        return configFileFieldWithBrowse.getText();
-    }
+	private List<String> loadTokenProfiles(String configFilePath) {
+        if (configFilePath == null) return Collections.emptyList();
 
-    public @Nullable String getProfile() {
-        return Optional.ofNullable((String)profileComboDropDown.getSelectedItem()).orElse(null);
-    }
-    
-    private void handleConfigFileChanged(@NotNull String text) {
-    	profileComboDropDown.setModel(new DefaultComboBoxModel<String>(new String[0]));
-        File configFile = new File(text);
-        if (!configFile.isFile()) return;
-        if (!configFile.exists()) return;
+        File configFile = new File(configFilePath);
+        if (!configFile.exists()) throw new IllegalArgumentException("File does not exist");
+        if (!configFile.isFile()) throw new IllegalArgumentException("Path is expected to be a config file");
 
-        List<String> profiles = getProfileEntries(configFile);
-        profileComboDropDown.setModel(new DefaultComboBoxModel<String>(profiles.toArray(new String[0])));
-    }
-
-	private List<String> getProfileEntries(File configFile) {
 		List<String> profileEntries = new ArrayList<>();
 		try (FileReader fileReader =  new FileReader(configFile);
 			    BufferedReader configReader = new BufferedReader(fileReader);)
@@ -186,6 +164,7 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
 			String nextLine;
 			while ((nextLine = configReader.readLine()) != null) {
 				nextLine = nextLine.trim();
+                // TODO maybe use regex "\[[a-zA-Z0-9-]+\]"
 				if (nextLine.length() > 2) {  // must be '[' and  ']' plus at least on char
 					char firstChar = nextLine.charAt(0);
 					if (firstChar == '[') {
@@ -199,11 +178,52 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
 					}
 				}
 			}
+            if (profileEntries.isEmpty()) throw new IllegalArgumentException("No profile entries found in the given file");
 		}
 		catch (IOException ioe) {
-			// TODO: what logging to use?
-			ioe.printStackTrace();
+            throw new IllegalArgumentException("Failed to load config file. Cause: " + ioe.getMessage());
 		}
-		return profileEntries;
+
+        return profileEntries;
 	}
+
+    /***********************************************************************
+     *                          LOOKUP UTILITIES                           *
+     ***********************************************************************/
+
+    @NotNull
+    @Override
+    public JPanel getMainComponent() {
+        return mainPanel;
+    }
+
+    public @Nullable String getTokenConfigFile() {
+        return tokenConfigFileTextField.getText();
+    }
+
+    public @Nullable String getTokenProfile() {
+        return (String) tokenProfileComboBox.getSelectedItem();
+    }
+
+    private boolean isUserAuth() {
+        return Commons.isOneOf(getAuthenticationType(), USER, USER_PASSWORD);
+    }
+
+    private boolean isPasswordAuth() {
+        return getAuthenticationType() == USER_PASSWORD;
+    }
+
+    private boolean isTokenAuth() {
+        return getAuthenticationType() == AuthenticationType.TOKEN;
+    }
+
+    private boolean isBrowserTokenAuth() {
+        return isTokenAuth() && tokenBrowserAuthCheckBox.isSelected();
+    }
+
+    @Nullable
+    private AuthenticationType getAuthenticationType() {
+        return (AuthenticationType) authTypeComboBox.getSelectedItem();
+    }
+
 }

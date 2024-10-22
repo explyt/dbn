@@ -17,19 +17,33 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.OLD_PWD_ATTRIBUTE;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.TEMP_PWD_ATTRIBUTE;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_BROWSER_AUTH;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
+import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
+import static com.dbn.common.options.setting.Settings.getBoolean;
+import static com.dbn.common.options.setting.Settings.getEnum;
+import static com.dbn.common.options.setting.Settings.getString;
+import static com.dbn.common.options.setting.Settings.setBoolean;
+import static com.dbn.common.options.setting.Settings.setEnum;
+import static com.dbn.common.options.setting.Settings.setString;
 
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
 public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<AuthenticationInfo>, TimeAware {
-    private static final String USE_BROWSER_FOR_TOKEN_ATTRIBUTE = "useBrowserForToken";
-	private static final String PROFILE_ATTRIBUTE = "profile";
-	private static final String CONFIG_FILE_PATH_ATTRIBUTE = "configFilePath";
-	@Deprecated // TODO move to keychain
-    private static final String OLD_PWD_ATTRIBUTE = "password";
-    @Deprecated // TODO move to keychain
-    private static final String TEMP_PWD_ATTRIBUTE = "deprecated-pwd";
+    interface Attributes {
+        String TOKEN_BROWSER_AUTH = "token-browser-auth";
+        String TOKEN_CONFIG_FILE = "token-config-file";
+        String TOKEN_PROFILE = "token-profile";
+
+
+        @Deprecated // TODO move to keychain
+        String OLD_PWD_ATTRIBUTE = "password";
+        @Deprecated // TODO move to keychain
+        String TEMP_PWD_ATTRIBUTE = "deprecated-pwd";
+    }
 
     private final long timestamp = System.currentTimeMillis();
 
@@ -39,9 +53,9 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     private boolean temporary;
     
     // token auth
-    private boolean useBrowserForTokenAuth;
-    private String pathToConfigFile;
-    private String profile;
+    private boolean tokenBrowserAuth;
+    private String tokenConfigFile;
+    private String tokenProfile;
 
     public AuthenticationInfo(ConnectionDatabaseSettings parent, boolean temporary) {
         super(parent);
@@ -52,24 +66,9 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         return getParent().getConnectionId();
     }
 
-    public String getPassword() {
-    	return this.password;
-    }
     public void setPassword(String password) {
         this.password = Strings.isEmpty(password) ? null : password;
     }
-
-    public String getProfile() {
-        return profile;
-    }
-
-    public String getPathToConfigFile() {
-        return pathToConfigFile;
-    }
-
-    public boolean isUseBrowserForTokenAuth() {
-		return useBrowserForTokenAuth;
-	}
 
 	public boolean isProvided() {
         switch (type) {
@@ -77,9 +76,9 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             case USER: return Strings.isNotEmpty(user);
             case USER_PASSWORD: return Strings.isNotEmpty(user) && Strings.isNotEmpty(password);
             case OS_CREDENTIALS: return true;
-//            case TOKEN_AUTHENTICATION: return useBrowserForTokenAuth || 
-//            		Strings.isNotEmpty(pathToConfigFile) && 
-//            		Strings.isNotEmpty(profile);
+//            case TOKEN: return tokenBrowserAuth ||
+//            		Strings.isNotEmpty(tokenConfigFile) &&
+//            		Strings.isNotEmpty(tokenProfile);
         }
         return true;
     }
@@ -92,11 +91,11 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     		case USER_PASSWORD:
     		case OS_CREDENTIALS:
     			return Commons.match(this.user, authenticationInfo.user) &&
-    		           Commons.match(this.getPassword(), authenticationInfo.getPassword());
-    		case TOKEN_AUTHENTICATION:
-    			return Commons.match(this.pathToConfigFile, authenticationInfo.pathToConfigFile) &&
-    				   Commons.match(this.profile, profile) &&
-    				   this.useBrowserForTokenAuth == authenticationInfo.useBrowserForTokenAuth;
+    		           Commons.match(this.password, authenticationInfo.password);
+    		case TOKEN:
+    			return Commons.match(this.tokenConfigFile, authenticationInfo.tokenConfigFile) &&
+    				   Commons.match(this.tokenProfile, tokenProfile) &&
+    				   this.tokenBrowserAuth == authenticationInfo.tokenBrowserAuth;
     		default:
     			return false;
     	}
@@ -112,9 +111,9 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             password = credentialManager.getPassword(getConnectionId(), user);
         }
 
-        pathToConfigFile = getString(element, CONFIG_FILE_PATH_ATTRIBUTE, pathToConfigFile);
-        profile = getString(element, PROFILE_ATTRIBUTE, profile);
-        useBrowserForTokenAuth = getBoolean(element, USE_BROWSER_FOR_TOKEN_ATTRIBUTE, false);
+        tokenBrowserAuth = getBoolean(element, TOKEN_BROWSER_AUTH, tokenBrowserAuth);
+        tokenConfigFile = getString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
+        tokenProfile = getString(element, TOKEN_PROFILE, tokenProfile);
 
         // old storage fallback - TODO cleanup
         if (Strings.isEmpty(password)) {
@@ -152,10 +151,10 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         if (!DatabaseCredentialManager.USE){
             setString(element, TEMP_PWD_ATTRIBUTE, encodedPassword);
         }
-        
-        setString(element, CONFIG_FILE_PATH_ATTRIBUTE, pathToConfigFile);
-        setString(element, PROFILE_ATTRIBUTE, profile);
-        setBoolean(element, USE_BROWSER_FOR_TOKEN_ATTRIBUTE, useBrowserForTokenAuth);
+
+        setBoolean(element, TOKEN_BROWSER_AUTH, tokenBrowserAuth);
+        setString(element, TOKEN_CONFIG_FILE, tokenConfigFile);
+        setString(element, TOKEN_PROFILE, tokenProfile);
     }
 
     @Override
@@ -166,9 +165,9 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         authenticationInfo.password = password;
         
         // Token Auth
-        authenticationInfo.pathToConfigFile = this.pathToConfigFile;
-        authenticationInfo.profile = this.profile;
-        authenticationInfo.useBrowserForTokenAuth = this.useBrowserForTokenAuth;
+        authenticationInfo.tokenConfigFile = this.tokenConfigFile;
+        authenticationInfo.tokenProfile = this.tokenProfile;
+        authenticationInfo.tokenBrowserAuth = this.tokenBrowserAuth;
         
         return authenticationInfo;
     }

@@ -2,8 +2,6 @@ package com.dbn.connection;
 
 import com.dbn.common.constant.Constants;
 import com.dbn.common.database.AuthenticationInfo;
-import com.dbn.common.notification.NotificationGroup;
-import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Timeout;
 import com.dbn.common.util.Classes;
 import com.dbn.common.util.Strings;
@@ -16,15 +14,12 @@ import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.ssh.SshTunnelConnector;
 import com.dbn.connection.ssh.SshTunnelManager;
 import com.dbn.connection.ssl.SslConnectionManager;
-import com.dbn.debugger.jdwp.process.tunnel.NSTunnelConnectionProxy;
 import com.dbn.diagnostics.Diagnostics;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
-
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.Driver;
@@ -43,15 +38,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 class Connector {
-	// TODO: can we reference the raw Oracle connection type rather than the
-	// generic JDBC ones to get these constants.
-    private static final String OCI_API_KEY_TOKEN_AUTH_VALUE = "OCI_API_KEY";
-	private static final String OCI_INTERACTIVE_TOKEN_AUTH_VALUE = "OCI_INTERACTIVE";
-	private static final String ORACLE_JDBC_OCI_PROFILE_KEY = "oracle.jdbc.ociProfile";
-	private static final String ORACLE_JDBC_OCI_CONFIG_FILE_KEY = "oracle.jdbc.ociConfigFile";
-	private static final String ORACLE_JDBC_TOKEN_AUTHENTICATION_KEY = "oracle.jdbc.tokenAuthentication";
-
-    //@NonNls
+    @NonNls
     private interface Property {
         String APPLICATION_NAME = "ApplicationName";
         String SESSION_PROGRAM = "v$session.program";
@@ -62,6 +49,18 @@ class Connector {
         String SSL = "ssl";
         String USE_SSL = "useSSL";
         String REQUIRE_SSL = "requireSSL";
+
+        // TODO: can we reference the raw Oracle connection type rather than the
+        //  generic JDBC ones to get these constants.
+        String ORACLE_JDBC_OCI_PROFILE = "oracle.jdbc.ociProfile";
+        String ORACLE_JDBC_OCI_CONFIG_FILE = "oracle.jdbc.ociConfigFile";
+        String ORACLE_JDBC_TOKEN_AUTHENTICATION = "oracle.jdbc.tokenAuthentication";
+        String ORACLE_JDBC_DEBUG_JDWP = "oracle.jdbc.debugJDWP";
+    }
+
+    private interface PropertyValue {
+        String TOKEN_AUTHENTICATION_OCI_API_KEY = "OCI_API_KEY";
+        String TOKEN_AUTHENTICATION_OCI_INTERACTIVE = "OCI_INTERACTIVE";
     }
 
     private final SessionId sessionId;
@@ -133,14 +132,15 @@ class Connector {
             }
             
             // Token Auth
-            if (authenticationType == AuthenticationType.TOKEN_AUTHENTICATION) {
-                if (authenticationInfo.isUseBrowserForTokenAuth()) {
-                    properties.put(ORACLE_JDBC_TOKEN_AUTHENTICATION_KEY, OCI_INTERACTIVE_TOKEN_AUTH_VALUE);
+            if (authenticationType == AuthenticationType.TOKEN) {
+                // TODO move this logic to "com.dbn.database.interfaces" - maybe a new DatabaseConnectivityInterface
+                if (authenticationInfo.isTokenBrowserAuth()) {
+                    properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_INTERACTIVE);
                 }
                 else {
-                    properties.put(ORACLE_JDBC_TOKEN_AUTHENTICATION_KEY, OCI_API_KEY_TOKEN_AUTH_VALUE);
-                    properties.put(ORACLE_JDBC_OCI_CONFIG_FILE_KEY, authenticationInfo.getPathToConfigFile());
-                    properties.put(ORACLE_JDBC_OCI_PROFILE_KEY, authenticationInfo.getProfile());
+                    properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_API_KEY);
+                    properties.put(Property.ORACLE_JDBC_OCI_CONFIG_FILE, authenticationInfo.getTokenConfigFile());
+                    properties.put(Property.ORACLE_JDBC_OCI_PROFILE, authenticationInfo.getTokenProfile());
                 }
             }
 
@@ -159,12 +159,14 @@ class Connector {
             // PROPERTIES
             Map<String, String> configProperties = connectionSettings.getPropertiesSettings().getProperties();
             if (databaseType == DatabaseType.ORACLE) {
+                // TODO move this logic to "com.dbn.database.interfaces" - maybe a new DatabaseConnectivityInterface
+
                 properties.put(Property.SESSION_PROGRAM, appName);
                 // i check if we have got jdwpHostPort if yes i get a connection using CONNECTION_PROPERTY_THIN_DEBUG_JDWP property
                 // TODO jdwpHostPort may remain resident if this stage is not reached for any reason... (maybe add transient properties container to settings)
                 String jdwpHostPort = configProperties.remove("jdwpHostPort");
                 if (Strings.isNotEmpty(jdwpHostPort)) {
-                    properties.put(NSTunnelConnectionProxy.CONNECTION_PROPERTY_THIN_DEBUG_JDWP, jdwpHostPort);
+                    properties.put(Property.ORACLE_JDBC_DEBUG_JDWP, jdwpHostPort);
                 }
             }
             // TODO: if token_auth stop the settings from overriding the OCI properties?
