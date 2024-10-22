@@ -139,8 +139,8 @@ class Connector {
                 }
                 else {
                     properties.put(Property.ORACLE_JDBC_TOKEN_AUTHENTICATION, PropertyValue.TOKEN_AUTHENTICATION_OCI_API_KEY);
-                    properties.put(Property.ORACLE_JDBC_OCI_CONFIG_FILE, authenticationInfo.getTokenConfigFile());
-                    properties.put(Property.ORACLE_JDBC_OCI_PROFILE, authenticationInfo.getTokenProfile());
+                    properties.put(Property.ORACLE_JDBC_OCI_CONFIG_FILE, nvl(authenticationInfo.getTokenConfigFile(), ""));
+                    properties.put(Property.ORACLE_JDBC_OCI_PROFILE, nvl(authenticationInfo.getTokenProfile(), ""));
                 }
             }
 

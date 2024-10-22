@@ -25,7 +25,6 @@ import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
-import com.dbn.connection.ui.ConnectionAuthenticationFieldsForm;
 import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -65,7 +64,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
     private final ConnectionUrlSettingsForm urlSettingsForm;
     private final ConnectionDriverSettingsForm driverSettingsForm;
-    private final ConnectionAuthenticationFieldsForm authSettingsForm;
+    private final ConnectionAuthenticationSettingsForm authSettingsForm;
 
     private DatabaseType selectedDatabaseType;
 
@@ -93,7 +92,7 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
         }
 
         urlSettingsForm = new ConnectionUrlSettingsForm(this, configuration);
-        authSettingsForm = new ConnectionAuthenticationFieldsForm(this);
+        authSettingsForm = new ConnectionAuthenticationSettingsForm(this);
         driverSettingsForm = new ConnectionDriverSettingsForm(this);
 		boolean externalLibrary = configuration.getDriverSource() == DriverSource.EXTERNAL;
 

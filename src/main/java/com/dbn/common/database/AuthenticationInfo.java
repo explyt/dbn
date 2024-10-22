@@ -4,7 +4,6 @@ import com.dbn.common.constant.Constants;
 import com.dbn.common.options.BasicConfiguration;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.util.Cloneable;
-import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.TimeAware;
 import com.dbn.connection.AuthenticationType;
@@ -28,6 +27,8 @@ import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
+import static com.dbn.common.util.Commons.match;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 @Getter
 @Setter
@@ -73,12 +74,10 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 	public boolean isProvided() {
         switch (type) {
             case NONE: return true;
-            case USER: return Strings.isNotEmpty(user);
-            case USER_PASSWORD: return Strings.isNotEmpty(user) && Strings.isNotEmpty(password);
+            case USER: return isNotEmpty(user);
+            case USER_PASSWORD: return isNotEmpty(user) && isNotEmpty(password);
             case OS_CREDENTIALS: return true;
-//            case TOKEN: return tokenBrowserAuth ||
-//            		Strings.isNotEmpty(tokenConfigFile) &&
-//            		Strings.isNotEmpty(tokenProfile);
+            case TOKEN: return tokenBrowserAuth || isNotEmpty(tokenConfigFile) && isNotEmpty(tokenProfile);
         }
         return true;
     }
@@ -90,11 +89,11 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     		case USER:
     		case USER_PASSWORD:
     		case OS_CREDENTIALS:
-    			return Commons.match(this.user, authenticationInfo.user) &&
-    		           Commons.match(this.password, authenticationInfo.password);
+    			return match(this.user, authenticationInfo.user) &&
+    		           match(this.password, authenticationInfo.password);
     		case TOKEN:
-    			return Commons.match(this.tokenConfigFile, authenticationInfo.tokenConfigFile) &&
-    				   Commons.match(this.tokenProfile, tokenProfile) &&
+    			return match(this.tokenConfigFile, authenticationInfo.tokenConfigFile) &&
+    				   match(this.tokenProfile, tokenProfile) &&
     				   this.tokenBrowserAuth == authenticationInfo.tokenBrowserAuth;
     		default:
     			return false;
@@ -122,7 +121,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                 password = Passwords.decodePassword(getString(element, OLD_PWD_ATTRIBUTE, password));
             }
 
-            if (Strings.isNotEmpty(this.password) && DatabaseCredentialManager.USE) {
+            if (isNotEmpty(this.password) && DatabaseCredentialManager.USE) {
                 credentialManager.setPassword(getConnectionId(), user, this.password);
             }
         }
@@ -180,8 +179,8 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             String newUserName = nvl(user);
             String newPassword = nvl(password);
 
-            boolean userNameChanged = !Commons.match(oldUserName, newUserName);
-            boolean passwordChanged = !Commons.match(oldPassword, newPassword);
+            boolean userNameChanged = !match(oldUserName, newUserName);
+            boolean passwordChanged = !match(oldPassword, newPassword);
             if (userNameChanged || passwordChanged) {
                 DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
                 ConnectionId connectionId = getConnectionId();
@@ -189,7 +188,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
                 if (userNameChanged) {
                     credentialManager.removePassword(connectionId, oldUserName);
                 }
-                if (Strings.isNotEmpty(newUserName) && Strings.isNotEmpty(newPassword)) {
+                if (isNotEmpty(newUserName) && isNotEmpty(newPassword)) {
                     credentialManager.setPassword(connectionId, newUserName, newPassword);
                 }
             }

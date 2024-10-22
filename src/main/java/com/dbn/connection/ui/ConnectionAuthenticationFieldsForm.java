@@ -15,14 +15,13 @@
 package com.dbn.connection.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.form.field.JComponentCategory;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.AuthenticationType;
-import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
@@ -52,6 +51,7 @@ import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
 import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
@@ -73,7 +73,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     private TextFieldWithBrowseButton tokenConfigFileTextField;
     private JComboBox<String> tokenProfileComboBox;
 
-    ConnectionAuthenticationFieldsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
+    public ConnectionAuthenticationFieldsForm(@NotNull DBNForm parentComponent) {
         super(parentComponent);
         
         tokenConfigFileTextField.addBrowseFolderListener(
@@ -105,7 +105,6 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         fieldAdapter.classifyFields(CACHEABLE_FIELDS, array(userTextField, passwordField, tokenConfigFileTextField, tokenProfileComboBox));
     }
 
-
     private void updateAuthenticationFields() {
         DBNFormFieldAdapter fieldAdapter = getFieldAdapter();
 
@@ -119,8 +118,17 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         fieldAdapter.restoreFieldValues(accessibleClassifiedAs(CACHEABLE_FIELDS));
     }
 
-    public String getUser() {
-        return userTextField.getText();
+    public void setAuthenticationTypes(AuthenticationType ...  authenticationTypes) {
+        initComboBox(authTypeComboBox, authenticationTypes);
+    }
+
+    public void addChangeListeners(Runnable runnable) {
+        onTextChange(userTextField, e -> runnable.run());
+        onTextChange(passwordField, e -> runnable.run());
+        onTextChange(tokenConfigFileTextField.getTextField(), e -> runnable.run());
+        tokenBrowserAuthCheckBox.addActionListener(e -> runnable.run());
+        tokenProfileComboBox.addActionListener(e -> runnable.run());
+        authTypeComboBox.addActionListener(e -> runnable.run());
     }
 
     public void applyFormChanges(AuthenticationInfo authenticationInfo){
@@ -135,11 +143,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         authenticationInfo.setTokenProfile(getSelection(tokenProfileComboBox));
     }
 
-    public void resetFormChanges() {
-        ConnectionDatabaseSettingsForm parent = ensureParentComponent();
-        ConnectionDatabaseSettings configuration = parent.getConfiguration();
-        AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
-
+    public void resetFormChanges(AuthenticationInfo authenticationInfo) {
         userTextField.setText(authenticationInfo.getUser());
         passwordField.setText(authenticationInfo.getPassword());
         setSelection(authTypeComboBox, authenticationInfo.getType());
@@ -154,6 +158,7 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         JTextField textField = tokenConfigFileTextField.getTextField();
         String configFilePath = textField.getText();
         List<String> profiles = Collections.emptyList();
+        String selectedProfile = getTokenProfile();
         try {
             // TODO this may take time to load if file is located on a remote location - consider showing a spinner next to the profile dropdown
             //  (is remote config a valid use case anyways?)
@@ -162,7 +167,10 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
         } catch (Exception e) {
             TextFields.updateFieldError(textField, e.getMessage());
         }
-    	tokenProfileComboBox.setModel(new DefaultComboBoxModel<>(profiles.toArray(new String[0])));
+
+        selectedProfile = profiles.contains(selectedProfile) ? selectedProfile : firstElement(profiles);
+        tokenProfileComboBox.setModel(new DefaultComboBoxModel<>(profiles.toArray(new String[0])));
+        tokenProfileComboBox.setSelectedItem(selectedProfile);
     }
 
 	private List<String> loadTokenProfiles(String configFilePath) {
@@ -210,6 +218,10 @@ public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
+    }
+
+    public String getUser() {
+        return userTextField.getText();
     }
 
     public @Nullable String getTokenConfigFile() {
