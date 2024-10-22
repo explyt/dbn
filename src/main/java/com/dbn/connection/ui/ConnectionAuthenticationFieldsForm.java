@@ -1,4 +1,18 @@
-package com.dbn.connection.config.ui;
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
+package com.dbn.connection.ui;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -8,6 +22,7 @@ import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ui.ConnectionDatabaseSettingsForm;
 import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import org.jetbrains.annotations.NotNull;
@@ -39,9 +54,9 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
-import static com.dbn.connection.config.ui.ConnectionAuthenticationSettingsForm.FieldCategory.CACHEABLE_FIELDS;
+import static com.dbn.connection.ui.ConnectionAuthenticationFieldsForm.FieldCategory.CACHEABLE_FIELDS;
 
-public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
+public class ConnectionAuthenticationFieldsForm extends DBNFormBase {
     enum FieldCategory implements JComponentCategory {
         CACHEABLE_FIELDS,
     }
@@ -58,7 +73,7 @@ public class ConnectionAuthenticationSettingsForm extends DBNFormBase {
     private TextFieldWithBrowseButton tokenConfigFileTextField;
     private JComboBox<String> tokenProfileComboBox;
 
-    ConnectionAuthenticationSettingsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
+    ConnectionAuthenticationFieldsForm(@NotNull ConnectionDatabaseSettingsForm parentComponent) {
         super(parentComponent);
         
         tokenConfigFileTextField.addBrowseFolderListener(
