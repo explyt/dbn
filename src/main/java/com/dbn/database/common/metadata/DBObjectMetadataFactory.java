@@ -7,6 +7,7 @@ import com.dbn.database.common.metadata.impl.DBClusterMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBConstraintColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBConstraintMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBCredentialMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBDatabaseLinkMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBDimensionMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBFunctionMetadataImpl;
