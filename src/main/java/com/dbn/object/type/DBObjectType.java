@@ -413,6 +413,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TRIGGER.contentType = DBContentType.CODE;
         DATASET_TRIGGER.contentType = DBContentType.CODE;
         DATABASE_TRIGGER.contentType = DBContentType.CODE;
+        JAVA_OBJECT.contentType = DBContentType.CODE;
 
 
         // DDL file types
