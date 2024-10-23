@@ -59,6 +59,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
 import com.intellij.util.text.DateFormatUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -74,11 +75,16 @@ import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.component.ApplicationMonitor.checkAppExitRequested;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
-import static com.dbn.common.navigation.NavigationInstruction.*;
+import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
+import static com.dbn.common.navigation.NavigationInstruction.OPEN;
+import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.notification.NotificationGroup.SOURCE_CODE;
 import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Conditional.when;
-import static com.dbn.common.util.Messages.*;
+import static com.dbn.common.util.Messages.options;
+import static com.dbn.common.util.Messages.showErrorDialog;
+import static com.dbn.common.util.Messages.showQuestionDialog;
+import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
@@ -350,16 +356,27 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             StringBuilder buffer = new StringBuilder();
             while (resultSet != null && resultSet.next()) {
                 String codeLine = resultSet.getString("SOURCE_CODE");
-                if (codeLine != null) buffer.append(codeLine);
+                codeLine = normalizeLine(codeLine);
+                buffer.append(codeLine);
             }
 
             if (buffer.length() == 0 && !optionalContent)
                 throw new SQLException("Source lookup returned empty");
 
-            return Strings.removeCharacter(buffer.toString(), '\r');
+            return buffer.toString();
         } finally {
             Resources.close(resultSet);
         }
+    }
+
+    @NotNull
+    private static String normalizeLine(String codeLine) {
+        if (codeLine == null) return "";
+
+        // normalize line breaks
+        // (background: not all entries in ALL_SOURCE have line breaks)
+        codeLine = StringUtils.stripEnd(codeLine, "[ \n\r\t]") + "\n";
+        return codeLine;
     }
 
     @Nullable
