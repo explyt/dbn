@@ -23,7 +23,11 @@ import java.sql.SQLException;
  * @author rishabh (Oracle)
  */
 public interface DBJavaObjectMetadata extends DBObjectMetadata {
-	String getName() throws SQLException;
+	String getObjectName() throws SQLException;
+
+	String getObjectKind()throws SQLException;;
+
+	String getObjectAccessibility()throws SQLException;;
 
 	boolean isFinal() throws SQLException;;
 
@@ -32,10 +36,4 @@ public interface DBJavaObjectMetadata extends DBObjectMetadata {
 	boolean isStatic()throws SQLException;;
 
 	boolean isInner()throws SQLException;;
-
-	String getKind()throws SQLException;;
-// {CLASS, ENUM, INTERFACE} - "CLASS" , "ENUM", "INTERFACE"
-
-	String getAccessibility()throws SQLException;;
-// { PUBLIC, PRIVATE, PROTECTED, NULL}
 }

@@ -28,7 +28,6 @@ public class DatabaseBrowserEditorSettings extends BasicProjectConfiguration<Dat
     public DatabaseBrowserEditorSettings(DatabaseBrowserSettings parent) {
         super(parent);
         options.add(new DefaultEditorOption(DBObjectType.VIEW, DefaultEditorType.SELECTION));
-        options.add(new DefaultEditorOption(DBObjectType.JAVA_OBJECT, DefaultEditorType.SELECTION));
         options.add(new DefaultEditorOption(DBObjectType.PACKAGE, DefaultEditorType.SELECTION));
         options.add(new DefaultEditorOption(DBObjectType.TYPE, DefaultEditorType.SELECTION));
     }

@@ -36,7 +36,6 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             new ObjectTypeFilterSetting(this, DBObjectType.CHARSET),
             new ObjectTypeFilterSetting(this, DBObjectType.TABLE),
             new ObjectTypeFilterSetting(this, DBObjectType.VIEW),
-            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_OBJECT),
             new ObjectTypeFilterSetting(this, DBObjectType.MATERIALIZED_VIEW),
             new ObjectTypeFilterSetting(this, DBObjectType.NESTED_TABLE),
             new ObjectTypeFilterSetting(this, DBObjectType.COLUMN),
@@ -52,6 +51,7 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             new ObjectTypeFilterSetting(this, DBObjectType.TYPE),
             new ObjectTypeFilterSetting(this, DBObjectType.TYPE_ATTRIBUTE),
             new ObjectTypeFilterSetting(this, DBObjectType.ARGUMENT),
+            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_OBJECT),
             new ObjectTypeFilterSetting(this, DBObjectType.DIMENSION),
             new ObjectTypeFilterSetting(this, DBObjectType.CLUSTER),
             new ObjectTypeFilterSetting(this, DBObjectType.DBLINK));

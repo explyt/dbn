@@ -22,24 +22,31 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
+import com.dbn.object.type.DBJavaObjectAccessibility;
+import com.dbn.object.type.DBJavaObjectKind;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.icons.AllIcons;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import java.sql.SQLException;
 
-import static com.dbn.object.type.DBObjectType.*;
+import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
+import static com.dbn.object.common.property.DBObjectProperty.FINAL;
+import static com.dbn.object.common.property.DBObjectProperty.INNER;
+import static com.dbn.object.common.property.DBObjectProperty.STATIC;
+import static com.dbn.object.type.DBJavaObjectAccessibility.PRIVATE;
+import static com.dbn.object.type.DBJavaObjectKind.ENUM;
+import static com.dbn.object.type.DBJavaObjectKind.INTERFACE;
+import static com.dbn.object.type.DBObjectType.JAVA_OBJECT;
 
+@Getter
 public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> implements DBJavaObject {
 
-	String kind;
-	String accessibility;
-	boolean isAbstract;
-	boolean isFinal;
-	boolean isStatic;
-	boolean isInner;
+	private DBJavaObjectKind kind;
+	private DBJavaObjectAccessibility accessibility;
 
 	DBJavaObjectImpl(DBSchema schema, DBJavaObjectMetadata metadata) throws SQLException {
 		super(schema, metadata);
@@ -52,13 +59,15 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 
 	@Override
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaObjectMetadata metadata) throws SQLException {
-		this.kind = metadata.getKind();
-		this.accessibility = metadata.getAccessibility();
-		this.isFinal = metadata.isFinal();
-		this.isAbstract = metadata.isAbstract();
-		this.isStatic = metadata.isStatic();
-		this.isInner = metadata.isInner();
-		return metadata.getName().replace("/",".");
+		this.kind = DBJavaObjectKind.get(metadata.getObjectKind());
+		this.accessibility = DBJavaObjectAccessibility.get(metadata.getObjectAccessibility());
+
+		set(FINAL, metadata.isFinal());
+		set(ABSTRACT, metadata.isAbstract());
+		set(STATIC, metadata.isStatic());
+		set(INNER, metadata.isInner());
+
+		return metadata.getObjectName().replace("/",".");
 	}
 
 
@@ -74,53 +83,44 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	@Nullable
 	public Icon getIcon() {
+		// TODO cache all these icon variants in Icons (creating composites on every access is resource intensive)
 		Icon baseIcon;
 
-		if(this.kind.equals("ENUM"))
+		if (kind == ENUM)
 			baseIcon = AllIcons.Nodes.Enum;
-		else if(this.kind.equals("INTERFACE"))
+		else if (kind == INTERFACE)
 			baseIcon = AllIcons.Nodes.Interface;
-		else if(this.isAbstract)
+		else if (isAbstract())
 			baseIcon = AllIcons.Nodes.AbstractClass;
 		else
 			baseIcon = AllIcons.Nodes.Class;
 
-		if(this.isFinal)
-			baseIcon = new CompositeIcon(baseIcon,AllIcons.Nodes.FinalMark,-17);
+		if (isFinal() && kind != ENUM)
+			baseIcon = new CompositeIcon(baseIcon, AllIcons.Nodes.FinalMark, -17);
 
-		if(this.accessibility != null && this.accessibility.equals("PRIVATE"))
-			baseIcon = new CompositeIcon(baseIcon, AllIcons.Nodes.Private,-10);
+		if (this.accessibility == PRIVATE)
+			baseIcon = new CompositeIcon(baseIcon, AllIcons.Nodes.Private, -10);
 
-		return baseIcon ;
+		return baseIcon;
 	}
 
 	@Override
 	public boolean isFinal() {
-		return this.isFinal;
+		return is(FINAL);
 	}
 
 	@Override
 	public boolean isAbstract() {
-		return this.isAbstract;
+		return is(ABSTRACT);
 	}
 
 	@Override
 	public boolean isStatic() {
-		return this.isStatic;
+		return is(STATIC);
 	}
 
 	@Override
 	public boolean isInner() {
-		return this.isInner;
-	}
-
-	@Override
-	public String getKind() {
-		return this.kind;
-	}
-
-	@Override
-	public String getAccessibility() {
-		return this.accessibility;
+		return is(INNER);
 	}
 }

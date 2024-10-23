@@ -27,8 +27,18 @@ public class DBJavaObjectMetadataImpl extends DBObjectMetadataBase implements DB
 	}
 
 	@Override
-	public String getName() throws SQLException {
-		return getString("NAME");
+	public String getObjectName() throws SQLException {
+		return getString("OBJECT_NAME");
+	}
+
+	@Override
+	public String getObjectKind() throws SQLException {
+		return getString("OBJECT_KIND");
+	}
+
+	@Override
+	public String getObjectAccessibility() throws SQLException {
+		return getString("OBJECT_ACCESSIBILITY");
 	}
 
 	@Override
@@ -49,15 +59,5 @@ public class DBJavaObjectMetadataImpl extends DBObjectMetadataBase implements DB
 	@Override
 	public boolean isInner() throws SQLException {
 		return isYesFlag("IS_INNER");
-	}
-
-	@Override
-	public String getKind() throws SQLException {
-		return getString("KIND");
-	}
-
-	@Override
-	public String getAccessibility() throws SQLException {
-		return getString("ACCESSIBILITY");
 	}
 }

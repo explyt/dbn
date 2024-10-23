@@ -12,28 +12,28 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.object;
+package com.dbn.object.type;
 
-import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.type.DBJavaObjectAccessibility;
-import com.dbn.object.type.DBJavaObjectKind;
-import org.jetbrains.annotations.NotNull;
+import com.dbn.common.constant.Constant;
+import com.dbn.common.constant.Constants;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
+@Getter
+@AllArgsConstructor
+public enum DBJavaObjectAccessibility implements Constant<DBJavaObjectAccessibility> {
+    PUBLIC("public"),
+    PRIVATE("private"),
+    PROTECTED("protected"),
+    ;
 
-public interface DBJavaObject extends DBSchemaObject {
+    private final String name;
 
-	@NotNull
-	String getName();
+    @Nullable
+    public static DBJavaObjectAccessibility get(String name) {
+        // safe lookup - default to null if not known
+        return Constants.get(values(), name, null);
+    }
 
-	DBJavaObjectKind getKind();
-
-	DBJavaObjectAccessibility getAccessibility();
-
-	boolean isFinal();
-
-	boolean isAbstract();
-
-	boolean isStatic();
-
-	boolean isInner();
 }
