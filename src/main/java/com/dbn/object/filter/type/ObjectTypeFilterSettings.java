@@ -36,6 +36,7 @@ public class ObjectTypeFilterSettings extends BasicProjectConfiguration<ProjectC
             new ObjectTypeFilterSetting(this, DBObjectType.CHARSET),
             new ObjectTypeFilterSetting(this, DBObjectType.TABLE),
             new ObjectTypeFilterSetting(this, DBObjectType.VIEW),
+            new ObjectTypeFilterSetting(this, DBObjectType.JAVA_OBJECT),
             new ObjectTypeFilterSetting(this, DBObjectType.MATERIALIZED_VIEW),
             new ObjectTypeFilterSetting(this, DBObjectType.NESTED_TABLE),
             new ObjectTypeFilterSetting(this, DBObjectType.COLUMN),

@@ -126,6 +126,14 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet loadViews(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
+     * Loads the java objects of the given owner<br>
+     * Column names of the returned ResultSet
+     *  <li> OBJECT_NAME (char)
+     *  <li> OBJECT_TYPE (char)
+     */
+    ResultSet loadJavaObjects(String ownerName, DBNConnection connection) throws SQLException;
+
+    /**
      * Loads the materialized views of the given owner<br>
      * Column names of the returned ResultSet
      *  <li> VIEW_NAME (char)

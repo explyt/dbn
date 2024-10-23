@@ -108,6 +108,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
                     DBObjectType.SCHEMA,
                     DBObjectType.TABLE,
                     DBObjectType.VIEW,
+                    DBObjectType.JAVA_OBJECT,
                     DBObjectType.COLUMN,
                     DBObjectType.CONSTRAINT,
                     DBObjectType.INDEX,

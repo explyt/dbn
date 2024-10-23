@@ -126,6 +126,26 @@ public class GenericMetadataTranslators {
     }
 
     /**
+     * Metadata translation for JAVA OBJECT
+     *  - from {@link java.sql.DatabaseMetaData#getColumns(String, String, String, String)}
+     *  - comply with {@link DBJavaObjectMetadataImpl}
+     */
+    public static class JavaObjectsResultSet extends WrappedCachedResultSet {
+        JavaObjectsResultSet(@Nullable CachedResultSet inner) {
+            super(inner);
+        }
+
+        @Override
+        public String getString(String columnLabel) throws SQLException {
+            switch (columnLabel) {
+                case "OBJ_NAME": return inner.getString("OBJ_NAME");
+                case "OBJ_TYPE": return inner.getString("OBJ_TYPE");
+                default: return null;
+            }
+        }
+    }
+
+    /**
      * Abstract metadata translation for COLUMNS and ARGUMENTS
      *  - from {@link java.sql.DatabaseMetaData#getColumns(String, String, String, String)}
      *  - comply with {@link DBDataTypeMetadataImpl}

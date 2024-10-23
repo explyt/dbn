@@ -64,6 +64,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
 
         childObjects.createObjectList(TABLE,             this);
         childObjects.createObjectList(VIEW,              this);
+        childObjects.createObjectList(JAVA_OBJECT,       this);
         childObjects.createObjectList(MATERIALIZED_VIEW, this);
         childObjects.createObjectList(SYNONYM,           this);
         childObjects.createObjectList(SEQUENCE,          this);
@@ -454,6 +455,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         return DatabaseBrowserUtils.createList(
                 getChildObjectList(TABLE),
                 getChildObjectList(VIEW),
+                getChildObjectList(JAVA_OBJECT),
                 getChildObjectList(MATERIALIZED_VIEW),
                 getChildObjectList(SYNONYM),
                 getChildObjectList(SEQUENCE),
@@ -473,6 +475,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         return
             settings.isVisible(TABLE) ||
             settings.isVisible(VIEW) ||
+            settings.isVisible(JAVA_OBJECT) ||
             settings.isVisible(MATERIALIZED_VIEW) ||
             settings.isVisible(SYNONYM) ||
             settings.isVisible(SEQUENCE) ||

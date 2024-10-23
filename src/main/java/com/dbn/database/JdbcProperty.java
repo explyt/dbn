@@ -12,6 +12,7 @@ public enum JdbcProperty implements Property.IntBase {
     MD_SCHEMAS("Schemas", true),
     MD_TABLES("Tables", true),
     MD_VIEWS("Views", true),
+    MD_JAVA_OBJECTS("Java Objects", true),
     MD_COLUMNS("Columns", true),
     MD_PSEUDO_COLUMNS("Pseudo columns", true),
     MD_INDEXES("Indexes", true),

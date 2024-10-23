@@ -149,6 +149,11 @@ public class DBObjectLoaders {
                 (content, conn, mdi) -> mdi.loadViews(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBViewImpl(content.getParentEntity(), md));
 
+        DynamicContentResultSetLoader.<DBJavaObject, DBJavaObjectMetadata>create(
+                "Java Objects", DBObjectType.SCHEMA, DBObjectType.JAVA_OBJECT, true, true,
+                (content, conn, mdi) -> mdi.loadJavaObjects(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBJavaObjectImpl(content.getParentEntity(), md));
+
         DynamicContentResultSetLoader.<DBMaterializedView, DBMaterializedViewMetadata>create(
                 "MATERIALIZED_VIEWS", DBObjectType.SCHEMA, DBObjectType.MATERIALIZED_VIEW, true, true,
                 (content, conn, mdi) -> mdi.loadMaterializedViews(content.ensureParentEntity().getName(), conn),

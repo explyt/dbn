@@ -26,6 +26,7 @@ import java.util.Objects;
 import static com.dbn.common.cache.CacheKey.key;
 import static com.dbn.database.common.util.CachedResultSet.Condition;
 import static com.dbn.database.generic.GenericMetadataLoaders.*;
+import static com.dbn.database.generic.GenericMetadataLoaders.loadJavaObjectsRaw;
 import static com.dbn.database.generic.GenericMetadataTranslators.*;
 import static com.dbn.database.generic.GenericMetadataTranslators.MetadataSource.FUNCTIONS;
 import static com.dbn.database.generic.GenericMetadataTranslators.MetadataSource.PROCEDURES;
@@ -156,6 +157,12 @@ public class GenericMetadataInterface extends DatabaseMetadataInterfaceImpl {
     public ResultSet loadViews(String ownerName, DBNConnection connection) throws SQLException {
         CachedResultSet viewsRs = loadViewsRaw(ownerName, connection).open();
         return new ViewsResultSet(viewsRs);
+    }
+
+    @Override
+    public ResultSet loadJavaObjects(String ownerName, DBNConnection connection) throws SQLException {
+        CachedResultSet viewsRs = loadJavaObjectsRaw(ownerName, connection).open();
+        return new JavaObjectsResultSet(viewsRs);
     }
 
     @Override

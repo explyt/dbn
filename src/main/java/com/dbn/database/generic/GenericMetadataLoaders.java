@@ -84,6 +84,18 @@ public interface GenericMetadataLoaders {
                 });
     }
 
+    static CachedResultSet loadJavaObjectsRaw(String ownerName, DBNConnection connection) throws SQLException {
+        return attemptCached(
+                JdbcProperty.MD_JAVA_OBJECTS,
+                key("Java Objects", ownerName),
+                () -> {
+                    String[] owner = lookupOwner(ownerName, connection);
+                    DatabaseMetaData metaData = connection.getMetaData();
+                    ResultSet resultSet = metaData.getTables(owner[0], owner[1], null, new String[]{"Object", "SYSTEM Object"});
+                    return CachedResultSet.create(resultSet);
+                });
+    }
+
     static CachedResultSet loadColumnsRaw(String ownerName, String datasetName, DBNConnection connection) throws SQLException {
         return attemptCached(
                 JdbcProperty.MD_COLUMNS,
