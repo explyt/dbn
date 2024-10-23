@@ -21,7 +21,6 @@ import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
-import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.type.DBJavaObjectAccessibility;
 import com.dbn.object.type.DBJavaObjectKind;
 import com.dbn.object.type.DBObjectType;
@@ -40,7 +39,6 @@ import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaObjectAccessibility.PRIVATE;
 import static com.dbn.object.type.DBJavaObjectKind.ENUM;
 import static com.dbn.object.type.DBJavaObjectKind.INTERFACE;
-import static com.dbn.object.type.DBObjectType.JAVA_OBJECT;
 
 @Getter
 public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> implements DBJavaObject {
@@ -74,10 +72,13 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	protected void initLists(ConnectionHandler connection) {
 		super.initLists(connection);
+/*
+		// TODO support inner classes as child objects
 		DBSchema schema = getSchema();
 		DBObjectListContainer childObjects = ensureChildObjects();
 
 		childObjects.createSubcontentObjectList(JAVA_OBJECT, this, schema);
+*/
 	}
 
 	@Override
