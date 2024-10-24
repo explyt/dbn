@@ -19,6 +19,7 @@ import com.dbn.assistant.editor.AssistantEditorAdapter;
 import com.dbn.assistant.editor.AssistantPrompt;
 import com.dbn.assistant.editor.AssistantPromptUtil;
 import com.dbn.assistant.state.AssistantState;
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -29,7 +30,9 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.assistant.editor.AssistantEditorUtil.*;
+import static com.dbn.assistant.editor.AssistantEditorUtil.getAssistantState;
+import static com.dbn.assistant.editor.AssistantEditorUtil.getConnection;
+import static com.dbn.assistant.editor.AssistantEditorUtil.isAssistantAvailable;
 import static com.dbn.assistant.editor.AssistantPromptUtil.isAssistantPromptAvailable;
 import static com.dbn.common.action.Lookups.getEditor;
 import static com.dbn.common.dispose.Checks.isNotValid;
@@ -40,6 +43,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
  * @author Ayoub Aarrasse (Oracle)
  * @author Dan Cioca (Oracle)
  */
+@BackgroundUpdate
 public abstract class AssistantBaseEditorAction extends ProjectAction {
 
     @Override
