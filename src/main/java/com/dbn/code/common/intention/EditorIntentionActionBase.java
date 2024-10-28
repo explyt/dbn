@@ -24,10 +24,11 @@ import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiWhiteSpace;
 import com.intellij.util.IncorrectOperationException;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.dbn.common.dispose.Checks.isNotValid;
 
 /**
  * Alternative implementation of {@link com.intellij.codeInsight.intention.PsiElementBaseIntentionAction}
@@ -56,23 +57,19 @@ public abstract class EditorIntentionActionBase extends com.intellij.codeInsight
     public abstract EditorIntentionType getType();
 
     public final void invoke(@NotNull Project project, Editor editor, PsiFile file) throws IncorrectOperationException {
-        if (editor == null) return;
+        if (isNotValid(editor)) return;
+        if (isNotValid(file)) return;
         if (editor instanceof ImaginaryEditor) return;
-        if (!checkFile(file)) return;
 
         PsiElement element = getElement(editor, file);
         this.invoke(project, editor, element);
     }
 
-    public static boolean checkFile(@Nullable PsiFile file) {
-        return file != null && canModify(file);
-    }
-
     public abstract void invoke(@NotNull Project project, Editor editor, @NotNull PsiElement psiElement) throws IncorrectOperationException;
 
     public final boolean isAvailable(@NotNull Project project, Editor editor, PsiFile file) {
-        if (editor == null) return false;
-        if (!checkFile(file)) return false;
+        if (isNotValid(editor)) return false;
+        if (isNotValid(file)) return false;
 
         PsiElement element = getElement(editor, file);
         return isAvailable(project, editor, element);
