@@ -1,14 +1,14 @@
 package com.dbn.language.common.element.cache;
 
+import com.dbn.common.index.IndexContainer;
+import com.dbn.common.latent.Latent;
 import com.dbn.language.common.SharedTokenTypeBundle;
+import com.dbn.language.common.TokenType;
 import com.dbn.language.common.TokenTypeBundle;
+import com.dbn.language.common.element.ElementType;
 import com.dbn.language.common.element.impl.IdentifierElementType;
 import com.dbn.language.common.element.impl.LeafElementType;
 import com.dbn.language.common.element.impl.WrappingDefinition;
-import com.dbn.common.index.IndexContainer;
-import com.dbn.common.latent.Latent;
-import com.dbn.language.common.TokenType;
-import com.dbn.language.common.element.ElementType;
 
 import java.util.Set;
 
@@ -23,7 +23,7 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementType> exten
     private final IndexContainer<TokenType> allPossibleTokens = new IndexContainer<>();
     private final IndexContainer<TokenType> firstPossibleTokens = new IndexContainer<>();
     private final IndexContainer<TokenType> firstRequiredTokens = new IndexContainer<>();
-    private final Latent<Boolean> startsWithIdentifier = Latent.basic(() -> checkStartsWithIdentifier());
+    private final Latent<Boolean> startsWithIdentifier = Latent.basic(() -> checkStartsWithIdentifier() ? Boolean.TRUE : Boolean.FALSE);
 
     ElementTypeLookupCacheIndexed(T elementType) {
         super(elementType);
@@ -160,7 +160,7 @@ public abstract class ElementTypeLookupCacheIndexed<T extends ElementType> exten
 
     @Override
     public boolean startsWithIdentifier() {
-        return startsWithIdentifier.get();
+        return startsWithIdentifier.get() == Boolean.TRUE;
     }
 
     protected abstract boolean checkStartsWithIdentifier();
