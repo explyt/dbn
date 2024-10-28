@@ -1,3 +1,6 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+
 // import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -61,7 +64,7 @@ sourceSets{
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-  version.set("LATEST-EAP-SNAPSHOT")
+  version.set("242.23339.11")
   type.set("IC") // Target IDE Platform
 
   plugins.set(listOf("java", "copyright"))
@@ -114,6 +117,14 @@ withType<KotlinCompile> {
   }
   runIde {
         systemProperties["idea.auto.reload.plugins"] = true
+        systemProperties["fake.services"] = Files.exists(Paths.get("/tmp/fake_services"))
+        // systemProperties["fake.services.credentials.dump"] = "/var/tmp/credentials.json"
+        // systemProperties["fake.services.profiles.dump"] = "/var/tmp/profiles.json"
+        // systemProperties["fake.services.schemas.dump"] = "/var/tmp/schemas.json"
+        //systemProperties["fake.services.dbitems.dump"] = "/var/tmp/dbitems.json"
+        systemProperties["idea.log.debug.categories"] = "com.dbn.assistant, com.dbn.database.oracle"
+        systemProperties["idea.log.trace.categories"] = "com.dbn.assistant, com.dbn.database.oracle"
+
         jvmArgs = listOf(
             "-Xms512m",
             "-Xmx2048m",
