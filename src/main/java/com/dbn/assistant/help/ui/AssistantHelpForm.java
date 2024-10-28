@@ -15,7 +15,7 @@
 package com.dbn.assistant.help.ui;
 
 import com.dbn.assistant.AssistantPrerequisiteManager;
-import com.dbn.assistant.provider.ProviderType;
+import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.service.DatabaseService;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -27,9 +27,16 @@ import com.intellij.ui.HyperlinkLabel;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.event.HyperlinkEvent;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
@@ -49,7 +56,7 @@ public class AssistantHelpForm extends DBNFormBase {
   private JPanel mainPanel;
   private JLabel intro;
   private JLabel networkAllow;
-  private JComboBox<ProviderType> providerComboBox;
+  private JComboBox<AIProvider> providerComboBox;
   private JTextArea aclTextArea;
   private JTextArea grantTextArea;
   private JLabel grantTextField;
@@ -91,7 +98,7 @@ public class AssistantHelpForm extends DBNFormBase {
   }
 
   private void initializeWindow() {
-    ProviderType.values().forEach(p -> providerComboBox.addItem(p));
+    AIProvider.values().forEach(p -> providerComboBox.addItem(p));
 
     docuLink.addHyperlinkListener(e -> when(e.getEventType() == HyperlinkEvent.EventType.ACTIVATED, () -> BrowserUtil.browse(SELECT_AI_DOCS)));
     docuLink.setHyperlinkText("Select AI Docs");
@@ -133,13 +140,13 @@ public class AssistantHelpForm extends DBNFormBase {
   }
 
   private String getAccessPoint() {
-    ProviderType selectedProvider = getSelectedProvider();
+    AIProvider selectedProvider = getSelectedProvider();
     return selectedProvider == null ? "" : selectedProvider.getHost();
   }
 
   @Nullable
-  private ProviderType getSelectedProvider() {
-    return (ProviderType) providerComboBox.getSelectedItem();
+  private AIProvider getSelectedProvider() {
+    return (AIProvider) providerComboBox.getSelectedItem();
   }
 
   private void copyTextToClipboard(String text) {

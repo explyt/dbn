@@ -16,29 +16,38 @@ package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 
 import java.sql.SQLException;
 
-public interface DBCredentialMetadata extends DBObjectMetadata {
+public interface DBProfileMetadata extends DBObjectMetadata {
+
+    String getProfileName() throws SQLException;
 
     String getCredentialName() throws SQLException;
 
-    String getCredentialType() throws SQLException;
+    String getDescription() throws SQLException;
 
-    String getUserName() throws SQLException;
+    String getProvider() throws SQLException;
 
-    String getComments() throws SQLException;
+    String getModel() throws SQLException;
+
+    double getTemperature() throws SQLException;
+
+    String getObjectList() throws SQLException;
 
     boolean isEnabled() throws SQLException;
 
-    @Getter
+    @Data
     @AllArgsConstructor
-    class Record implements DBCredentialMetadata {
+    class Record implements DBProfileMetadata {
+        private final String profileName;
         private final String credentialName;
-        private final String credentialType;
-        private final String userName;
-        private final String comments;
+        private final String provider;
+        private final String model;
+        private final String description;
+        private final String objectList;
+        private final double temperature;
         private final boolean enabled;
     }
 }

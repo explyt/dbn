@@ -16,7 +16,7 @@ package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.provider.ProviderModel;
+import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
@@ -29,7 +29,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
     @Override
     @NotNull
     protected DefaultActionGroup createPopupActionGroup(JComponent component, DataContext dataContext) {
-        List<ProviderModel> models = getProviderModels(dataContext);
+        List<AIModel> models = getProviderModels(dataContext);
 
         DefaultActionGroup actionGroup = new DefaultActionGroup();
         Lists.forEach(models, m -> actionGroup.add(new ModelSelectAction(m)));
@@ -50,7 +50,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
         return actionGroup;
     }
 
-    private List<ProviderModel> getProviderModels(DataContext dataContext) {
+    private List<AIModel> getProviderModels(DataContext dataContext) {
         ChatBoxForm chatBox = dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return Collections.emptyList();
 
@@ -80,7 +80,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
         String text = getSelectedModelName(e);
         if (text != null) return text;
 
-        List<ProviderModel> models = getProviderModels(e.getDataContext());
+        List<AIModel> models = getProviderModels(e.getDataContext());
         if (!models.isEmpty()) return "Select Model";
 
         return "Model";
@@ -94,7 +94,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
         AIProfileItem profile = state.getSelectedProfile();
         if (profile == null) return null;
 
-        ProviderModel model = profile.getModel();
+        AIModel model = profile.getModel();
         if (model == null) return null;
 
         return Actions.adjustActionName(model.getId());

@@ -14,14 +14,17 @@
 
 package com.dbn.assistant.entity;
 
-import com.dbn.assistant.provider.ProviderModel;
-import com.dbn.assistant.provider.ProviderType;
+import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.state.PersistentStateElement;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.jdom.Element;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.booleanAttribute;
+import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
+import static com.dbn.common.options.setting.Settings.setStringAttribute;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 
 /**
@@ -36,8 +39,8 @@ public final class AIProfileItem implements PersistentStateElement {
    * the label of this combo item
    */
   private String name;
-  private ProviderType provider;
-  private ProviderModel model;
+  private AIProvider provider;
+  private AIModel model;
   private boolean enabled = true;
   private boolean selected = false;
 
@@ -65,7 +68,7 @@ public final class AIProfileItem implements PersistentStateElement {
   @Override
   public void readState(Element element) {
     name = stringAttribute(element, "name");
-    provider = ProviderType.forId(stringAttribute(element, "provider"));
+    provider = AIProvider.forId(stringAttribute(element, "provider"));
     model = provider.getModel(stringAttribute(element, "model"));
     enabled = booleanAttribute(element, "enabled", enabled);
     selected = booleanAttribute(element, "selected", selected);

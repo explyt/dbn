@@ -18,13 +18,19 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBCredential;
-import com.dbn.object.DBCredential.Attribute;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
 import com.dbn.object.type.DBCredentialType;
 import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
+
+import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
+import static com.dbn.object.type.DBAttributeType.PASSWORD;
+import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
+import static com.dbn.object.type.DBAttributeType.USER_NAME;
+import static com.dbn.object.type.DBAttributeType.USER_OCID;
+import static com.dbn.object.type.DBAttributeType.USER_TENANCY_OCID;
 
 /**
  * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in creating entities of type {@link DBCredential}
@@ -69,16 +75,16 @@ public class CredentialCreationAdapter extends ObjectManagementAdapterBase<DBCre
         if (credentialType == DBCredentialType.PASSWORD) {
             assistantInterface.createPwdCredential(conn,
                     credentialName,
-                    credential.getAttribute(Attribute.USER_NAME),
-                    credential.getAttribute(Attribute.PASSWORD));
+                    credential.getAttribute(USER_NAME),
+                    credential.getAttribute(PASSWORD));
 
         } else if (credentialType == DBCredentialType.OCI) {
             assistantInterface.createOciCredential(conn,
                     credentialName,
-                    credential.getAttribute(Attribute.USER_OCID),
-                    credential.getAttribute(Attribute.USER_TENANCY_OCID),
-                    credential.getAttribute(Attribute.PRIVATE_KEY),
-                    credential.getAttribute(Attribute.FINGERPRINT));
+                    credential.getAttribute(USER_OCID),
+                    credential.getAttribute(USER_TENANCY_OCID),
+                    credential.getAttribute(PRIVATE_KEY),
+                    credential.getAttribute(FINGERPRINT));
         }
         // update status
         if (credential.isEnabled())

@@ -14,7 +14,7 @@
 
 package com.dbn.assistant.entity;
 
-import com.dbn.assistant.provider.ProviderModel;
+import com.dbn.assistant.provider.AIModel;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -35,7 +35,7 @@ public class ProfileUpdate extends Profile {
   public String toAttributeMap() throws IllegalArgumentException {
     Gson gson = new GsonBuilder()
         .excludeFieldsWithoutExposeAnnotation()
-        .registerTypeAdapter(ProviderModel.class, new ProviderModelSerializer())
+        .registerTypeAdapter(AIModel.class, new ProviderModelSerializer())
         .create();
 
     String attributesJson = gson.toJson(this).replace("'", "''");

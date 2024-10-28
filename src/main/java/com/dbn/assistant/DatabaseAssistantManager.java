@@ -25,8 +25,13 @@ import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.help.ui.AssistantHelpDialog;
 import com.dbn.assistant.profile.wizard.ProfileEditionWizard;
-import com.dbn.assistant.provider.ProviderType;
-import com.dbn.assistant.service.*;
+import com.dbn.assistant.provider.AIProvider;
+import com.dbn.assistant.service.AICredentialService;
+import com.dbn.assistant.service.AICredentialServiceImpl;
+import com.dbn.assistant.service.AIProfileService;
+import com.dbn.assistant.service.AIProfileServiceImpl;
+import com.dbn.assistant.service.DatabaseService;
+import com.dbn.assistant.service.DatabaseServiceImpl;
 import com.dbn.assistant.service.mock.FakeAICredentialService;
 import com.dbn.assistant.service.mock.FakeAIProfileService;
 import com.dbn.assistant.service.mock.FakeDatabaseService;
@@ -69,7 +74,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
@@ -83,7 +88,11 @@ import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.options.setting.Settings.newElement;
-import static com.dbn.common.ui.CardLayouts.*;
+import static com.dbn.common.ui.CardLayouts.addCard;
+import static com.dbn.common.ui.CardLayouts.isBlankCard;
+import static com.dbn.common.ui.CardLayouts.showBlankCard;
+import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.common.ui.CardLayouts.visibleCardId;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Messages.options;
@@ -305,7 +314,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     if (networkAccessDenied) {
       AIProfileItem profile = getDefaultProfile(connectionId);
       if (profile != null) {
-        ProviderType selectedProvider = profile.getProvider();
+        AIProvider selectedProvider = profile.getProvider();
         String accessPoint = selectedProvider.getHost();
 
         return txt("msg.assistant.error.NetworkAccessDenied", accessPoint, errorMessage);

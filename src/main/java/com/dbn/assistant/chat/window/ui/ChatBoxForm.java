@@ -22,7 +22,7 @@ import com.dbn.assistant.chat.window.util.RollingMessageContainer;
 import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.init.ui.AssistantIntroductionForm;
-import com.dbn.assistant.provider.ProviderModel;
+import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.service.AIProfileService;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.DataKeys;
@@ -44,11 +44,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
+import java.awt.BorderLayout;
 import java.util.List;
 
-import static com.dbn.assistant.state.AssistantStatus.*;
+import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
+import static com.dbn.assistant.state.AssistantStatus.QUERYING;
+import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.util.Commons.nvl;
 
@@ -172,7 +177,7 @@ public class ChatBoxForm extends DBNFormBase {
     getAssistantState().setSelectedProfile(profile);
   }
 
-  public void selectModel(ProviderModel model) {
+  public void selectModel(AIModel model) {
     AIProfileItem profile = getAssistantState().getSelectedProfile();
     if (profile == null) return;
 
@@ -215,7 +220,7 @@ public class ChatBoxForm extends DBNFormBase {
     if (Strings.isEmptyOrSpaces(question)) return;
 
     state.set(QUERYING, true);
-    ProviderModel model = profile.getModel();
+    AIModel model = profile.getModel();
 
     PromptAction actionType = state.getSelectedAction();
 

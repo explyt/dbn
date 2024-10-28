@@ -31,7 +31,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
-public final class ProviderType implements Presentable {
+public final class AIProvider implements Presentable {
 
   private final String id;
   private final String name;
@@ -39,10 +39,10 @@ public final class ProviderType implements Presentable {
   private final boolean main;
   private final boolean experimental;
 
-  private List<ProviderModel> models;
+  private List<AIModel> models;
   private Map<ProviderUrlType, String> urls;
 
-  ProviderType(String id, String name, String host, boolean main, boolean experimental) {
+  AIProvider(String id, String name, String host, boolean main, boolean experimental) {
     this.id = id;
     this.name = name;
     this.host = host;
@@ -50,19 +50,19 @@ public final class ProviderType implements Presentable {
     this.experimental = experimental;
   }
 
-  public static List<ProviderType> values() {
+  public static List<AIProvider> values() {
     return LanguageModelDefinition.providers();
   }
 
-  public static ProviderType forId(String id) {
+  public static AIProvider forId(String id) {
       return Lists.first(values(),  p -> p.getId().equals(id));
   }
 
-  public ProviderModel getModel(String id) {
+  public AIModel getModel(String id) {
     return Lists.first(models, p -> p.getId().equals(id));
   }
 
-  public ProviderModel getDefaultModel() {
+  public AIModel getDefaultModel() {
     return Lists.firstElement(models);
   }
 

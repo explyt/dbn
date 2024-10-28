@@ -21,6 +21,7 @@ import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBCredential;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.type.DBAttributeType;
 import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
@@ -63,14 +64,14 @@ public class CredentialUpdateAdapter extends ObjectManagementAdapterBase<DBCrede
     @Override
     protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, DBCredential credential) throws SQLException {
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-        Map<String, String> attributes = credential.getAttributes();
+        Map<DBAttributeType, String> attributes = credential.getAttributes();
         String credentialName = credential.getName();
 
         // update attributes
-        for (String attribute : attributes.keySet()) {
+        for (DBAttributeType attribute : attributes.keySet()) {
             String value = attributes.get(attribute);
             if (Strings.isEmpty(value)) continue;
-            assistantInterface.updateCredentialAttribute(conn, credentialName, attribute, value);
+            assistantInterface.updateCredentialAttribute(conn, credentialName, attribute.getId(), value);
         }
 
         // update status

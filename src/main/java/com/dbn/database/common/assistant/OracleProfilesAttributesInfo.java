@@ -16,8 +16,8 @@ package com.dbn.database.common.assistant;
 
 import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.entity.ProfileDBObjectItem;
-import com.dbn.assistant.provider.ProviderModel;
-import com.dbn.assistant.provider.ProviderType;
+import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProvider;
 import com.dbn.database.common.statement.CallableStatementOutput;
 import com.google.gson.JsonParseException;
 import lombok.Getter;
@@ -28,7 +28,11 @@ import java.sql.CallableStatement;
 import java.sql.Clob;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Class to fetch profile attributes from profile tables and views
@@ -87,11 +91,11 @@ public class OracleProfilesAttributesInfo implements CallableStatementOutput {
           if (Objects.equals(attributeName, "temperature"))
             currProfile.setTemperature(Float.parseFloat(attribute));
           else if (Objects.equals(attributeName, "provider"))
-            currProfile.setProvider(ProviderType.forId(attribute.toUpperCase()));
+            currProfile.setProvider(AIProvider.forId(attribute.toUpperCase()));
           else if (Objects.equals(attributeName, "credential_name")) currProfile.setCredentialName(attribute);
           else if (Objects.equals(attributeName, "model")) {
             try {
-              currProfile.setModel(ProviderModel.forApiName(attribute));
+              currProfile.setModel(AIModel.forApiName(attribute));
             } catch (IllegalArgumentException e) {
               log.error("malformed model name  [" + attribute + "], dropping profile");
               faultyProfilesNames.add(profileName);

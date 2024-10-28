@@ -14,13 +14,25 @@
 
 package com.dbn.assistant.entity;
 
-import com.dbn.assistant.provider.ProviderModel;
-import com.dbn.assistant.provider.ProviderType;
-import com.google.gson.*;
+import com.dbn.assistant.provider.AIModel;
+import com.dbn.assistant.provider.AIProvider;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +69,7 @@ public class Profile implements AttributeInput {
 
   @Expose
   @JsonAdapter(ProviderTypeSerializer.class)
-  protected ProviderType provider;
+  protected AIProvider provider;
 
   @SerializedName("credential_name")
   @Expose
@@ -74,7 +86,7 @@ public class Profile implements AttributeInput {
 
   @Expose
   @JsonAdapter(ProviderModelSerializer.class)
-  protected ProviderModel model;
+  protected AIModel model;
 
   @Builder.Default
   @Expose
@@ -128,7 +140,7 @@ public class Profile implements AttributeInput {
   public String getAttributeJson() {
     Gson gson = new GsonBuilder()
             .excludeFieldsWithoutExposeAnnotation()
-            .registerTypeAdapter(ProviderModel.class, new ProviderModelSerializer())
+            .registerTypeAdapter(AIModel.class, new ProviderModelSerializer())
             .create();
 
     return gson.toJson(this).replace("'", "''");
@@ -158,17 +170,17 @@ public class Profile implements AttributeInput {
 
 
   // Inner class to handle the JSON serialization
-  public static class ProviderModelSerializer implements JsonSerializer<ProviderModel> {
+  public static class ProviderModelSerializer implements JsonSerializer<AIModel> {
     @Override
-    public JsonElement serialize(ProviderModel src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(AIModel src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.getApiName());
     }
   }
 
   // Inner class to handle the JSON serialization
-  public static class ProviderTypeSerializer implements JsonSerializer<ProviderType> {
+  public static class ProviderTypeSerializer implements JsonSerializer<AIProvider> {
     @Override
-    public JsonElement serialize(ProviderType src, Type typeOfSrc, JsonSerializationContext context) {
+    public JsonElement serialize(AIProvider src, Type typeOfSrc, JsonSerializationContext context) {
       return new JsonPrimitive(src.getId());
     }
   }
@@ -177,7 +189,7 @@ public class Profile implements AttributeInput {
    * When setting the provider we set the default model if it's still null.
    * This is because there could be a chance that the model is not specified in the database server side
    **/
-  public void setProvider(ProviderType type) {
+  public void setProvider(AIProvider type) {
     this.provider = type;
     if (this.model == null) this.model = provider.getDefaultModel();
   }

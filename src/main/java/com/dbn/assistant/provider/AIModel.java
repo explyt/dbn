@@ -29,14 +29,14 @@ import static com.dbn.common.util.Lists.first;
  * @author Emmanuel Jannetti (Oracle)
  */
 @Getter
-public final class ProviderModel implements Presentable {
-    private final ProviderType provider;
+public final class AIModel implements Presentable {
+    private final AIProvider provider;
     private final String id;
 
     //How this is named in profile API
     private final String apiName;
 
-    ProviderModel(ProviderType provider, String id, String apiName) {
+    AIModel(AIProvider provider, String id, String apiName) {
         this.provider = provider;
         this.id = id;
         this.apiName = apiName;
@@ -48,10 +48,10 @@ public final class ProviderModel implements Presentable {
     }
 
     @Nullable
-    public static ProviderModel forId(String id) {
-        List<ProviderType> providers = ProviderType.values();
-        for (ProviderType provider : providers) {
-            ProviderModel model = provider.getModel(id);
+    public static AIModel forId(String id) {
+        List<AIProvider> providers = AIProvider.values();
+        for (AIProvider provider : providers) {
+            AIModel model = provider.getModel(id);
             if (model != null) return model;
         }
 
@@ -59,11 +59,11 @@ public final class ProviderModel implements Presentable {
     }
 
     @Nullable
-    public static ProviderModel forApiName(String apiName) {
-        List<ProviderType> providers = ProviderType.values();
-        for (ProviderType provider : providers) {
-            List<ProviderModel> models = provider.getModels();
-            ProviderModel model = first(models, m -> m.getApiName().equals(apiName));
+    public static AIModel forApiName(String apiName) {
+        List<AIProvider> providers = AIProvider.values();
+        for (AIProvider provider : providers) {
+            List<AIModel> models = provider.getModels();
+            AIModel model = first(models, m -> m.getApiName().equals(apiName));
             if (model != null) return model;
         }
 

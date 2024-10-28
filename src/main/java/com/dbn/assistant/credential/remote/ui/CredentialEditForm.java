@@ -32,7 +32,6 @@ import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
-import com.dbn.object.DBCredential.Attribute;
 import com.dbn.object.DBSchema;
 import com.dbn.object.impl.DBCredentialImpl;
 import com.dbn.object.type.DBCredentialType;
@@ -42,11 +41,23 @@ import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.util.Objects;
 import java.util.Set;
 
 import static com.dbn.common.ui.CardLayouts.showCard;
+import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
+import static com.dbn.object.type.DBAttributeType.PASSWORD;
+import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
+import static com.dbn.object.type.DBAttributeType.USER_NAME;
+import static com.dbn.object.type.DBAttributeType.USER_OCID;
+import static com.dbn.object.type.DBAttributeType.USER_TENANCY_OCID;
 
 /**
  * A dialog window for creating new AI credentials.
@@ -231,14 +242,14 @@ public class CredentialEditForm extends DBNFormBase {
 
     DBCredential credential = new DBCredentialImpl(schema, credentialName, DBCredentialType.PASSWORD, selected);
     if (credentialType == DBCredentialType.PASSWORD) {
-      credential.setAttribute(Attribute.USER_NAME, passwordCredentialUsernameField.getText());
-      credential.setAttribute(Attribute.PASSWORD , passwordCredentialPasswordField.getText());
+      credential.setAttribute(USER_NAME, passwordCredentialUsernameField.getText());
+      credential.setAttribute(PASSWORD , passwordCredentialPasswordField.getText());
 
     } else if (credentialType == DBCredentialType.OCI) {
-      credential.setAttribute(Attribute.USER_OCID,         ociCredentialUserOcidField.getText());
-      credential.setAttribute(Attribute.USER_TENANCY_OCID, ociCredentialUserTenancyOcidField.getText());
-      credential.setAttribute(Attribute.PRIVATE_KEY,       ociCredentialPrivateKeyField.getText());
-      credential.setAttribute(Attribute.FINGERPRINT,       ociCredentialFingerprintField.getText());
+      credential.setAttribute(USER_OCID,         ociCredentialUserOcidField.getText());
+      credential.setAttribute(USER_TENANCY_OCID, ociCredentialUserTenancyOcidField.getText());
+      credential.setAttribute(PRIVATE_KEY,       ociCredentialPrivateKeyField.getText());
+      credential.setAttribute(FINGERPRINT,       ociCredentialFingerprintField.getText());
 
     }
     return credential;
