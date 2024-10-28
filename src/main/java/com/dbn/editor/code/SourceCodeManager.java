@@ -460,13 +460,11 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                         connection);
 
             case JAVA_OBJECT:
-                ResultSet resultSet = metadata.loadObjectSourceCode(
+                return metadata.loadObjectSourceCode(
                     schemaName,
                     objectName.replace(".","/"),
                     "JAVA SOURCE",
                     connection);
-                System.out.println(resultSet.getMetaData());
-                return resultSet;
             default:
                 return null;
         }
