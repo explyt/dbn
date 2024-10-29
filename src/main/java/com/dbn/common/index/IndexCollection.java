@@ -14,6 +14,8 @@
 
 package com.dbn.common.index;
 
+import java.util.Arrays;
+
 /**
  * Small memory footprint collection of primitive int values.
  * The values are held in a sorted int array which gets reconstructed with every insertion
@@ -29,8 +31,12 @@ public class IndexCollection{
     public static final int[] EMPTY_ARRAY = new int[0];
     private int[] values;
 
+    public IndexCollection() {
+        values = EMPTY_ARRAY;
+    }
+
     public IndexCollection(int ... values) {
-        this.values = values;
+        this.values = Arrays.copyOf(values, values.length);
     }
 
     int[] values() {
