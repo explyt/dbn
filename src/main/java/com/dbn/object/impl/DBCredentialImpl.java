@@ -1,6 +1,5 @@
 package com.dbn.object.impl;
 
-import com.dbn.assistant.credential.remote.CredentialManagementService;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBCredentialMetadata;
@@ -8,7 +7,6 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
-import com.dbn.object.common.operation.DBOperationExecutor;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.type.DBAttributeType;
 import com.dbn.object.type.DBCredentialType;
@@ -81,17 +79,6 @@ public class DBCredentialImpl extends DBSchemaObjectImpl<DBCredentialMetadata> i
         ttb.append(true, getObjectType().getName(), true);
         ttb.createEmptyRow();
         super.buildToolTip(ttb);
-    }
-
-    @Override
-    public DBOperationExecutor getOperationExecutor() {
-        return operationType -> {
-            CredentialManagementService managementService = CredentialManagementService.getInstance(getProject());
-            switch (operationType) {
-                case ENABLE:  managementService.enableCredential(this, null); break;
-                case DISABLE: managementService.disableCredential(this, null); break;
-            }
-        };
     }
 
     /*********************************************************

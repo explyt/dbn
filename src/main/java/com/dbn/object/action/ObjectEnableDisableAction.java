@@ -6,6 +6,8 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.operation.DBOperationNotSupportedException;
 import com.dbn.object.common.operation.DBOperationType;
 import com.dbn.object.common.status.DBObjectStatus;
+import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -28,6 +30,19 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
             @NotNull Project project,
             @NotNull DBSchemaObject object) {
 
+        ObjectManagementService<DBSchemaObject> objectManagementService = ObjectManagementService.get(project, object.getObjectType());
+
+        if (objectManagementService == null) {
+            enableDisable(project, object);
+        } else {
+            boolean enabled = object.getStatus().is(DBObjectStatus.ENABLED);
+            ObjectChangeAction action = enabled ? ObjectChangeAction.DISABLE : ObjectChangeAction.ENABLE;
+            objectManagementService.changeObject(object, action,null);
+        }
+    }
+
+    @Deprecated // TODO implement ObjectManagementService
+    private void enableDisable(@NotNull Project project, @NotNull DBSchemaObject object) {
         boolean enabled = object.getStatus().is(DBObjectStatus.ENABLED);
         String title = enabled ?
                 txt("msg.objects.title.DisablingObject") :

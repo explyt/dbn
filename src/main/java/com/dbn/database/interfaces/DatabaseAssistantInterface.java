@@ -222,6 +222,14 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
 
   void setCurrentProfile(DBNConnection connection, String profileName) throws SQLException;
 
+
+  void enableProfile(DBNConnection connection, String ownerName, String profileName) throws SQLException;
+
+  void disableProfile(DBNConnection connection, String ownerName, String profileName) throws SQLException;
+
+  void deleteProfile(DBNConnection connection, String ownerName, String profileName) throws SQLException;
+
+
   default DatabaseAssistantType getAssistantType(DBNConnection connection) throws SQLException {
     return DatabaseAssistantType.GENERIC;
   }

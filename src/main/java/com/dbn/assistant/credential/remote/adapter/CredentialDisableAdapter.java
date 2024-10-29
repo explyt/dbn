@@ -44,19 +44,19 @@ public class CredentialDisableAdapter extends ObjectManagementAdapterBase<DBCred
     @Nls
     @Override
     protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.DisablingCredential", object.getType(), object.getName());
+        return txt("prc.assistant.message.DisablingCredential", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialDisablingSuccess", object.getType(), object.getName());
+        return txt("msg.assistant.info.CredentialDisablingSuccess", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialDisablingFailure", object.getType(), object.getName());
+        return txt("msg.assistant.error.CredentialDisablingFailure", object.getType(), object.getQualifiedName());
     }
 
     @Override

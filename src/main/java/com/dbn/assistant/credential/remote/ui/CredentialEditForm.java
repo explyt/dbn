@@ -194,7 +194,7 @@ public class CredentialEditForm extends DBNFormBase {
   protected void doCreateAction(OutcomeHandler successHandler) {
     credential = inputsToCredential();
     if (credential == null) return;
-    getManagementService().createCredential(credential, successHandler);
+    getManagementService().createObject(credential, successHandler);
 
 /*
     credentialSvc.create(credential)
@@ -209,7 +209,7 @@ public class CredentialEditForm extends DBNFormBase {
   protected void doUpdateAction(OutcomeHandler successHandler) {
     credential = inputsToCredential();
     if (credential == null) return;
-    getManagementService().updateCredential(credential, successHandler);
+    getManagementService().updateObject(credential, successHandler);
 
 /*
     boolean enabled = statusCheckBox.isSelected();

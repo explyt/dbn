@@ -388,6 +388,7 @@
         <projectService serviceImplementation="com.dbn.assistant.AssistantPrerequisiteManager"/>
         <projectService serviceImplementation="com.dbn.assistant.AssistantInitializationManager"/>
         <projectService serviceImplementation="com.dbn.assistant.credential.remote.CredentialManagementService"/>
+        <projectService serviceImplementation="com.dbn.assistant.profile.ProfileManagementService"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>

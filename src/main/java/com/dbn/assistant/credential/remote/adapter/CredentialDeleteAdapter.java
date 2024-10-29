@@ -43,19 +43,19 @@ public class CredentialDeleteAdapter extends ObjectManagementAdapterBase<DBCrede
     @Nls
     @Override
     protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.DeletingCredential", object.getType(), object.getName());
+        return txt("prc.assistant.message.DeletingCredential", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialDeleteSuccess", object.getType(), object.getName());
+        return txt("msg.assistant.info.CredentialDeleteSuccess", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialDeleteFailure", object.getType(), object.getName());
+        return txt("msg.assistant.error.CredentialDeleteFailure", object.getType(), object.getQualifiedName());
     }
 
     @Override

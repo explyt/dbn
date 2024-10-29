@@ -18,6 +18,8 @@ import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.entity.ProfileUpdate;
 import com.dbn.assistant.service.AIProfileService;
 import com.dbn.common.event.ProjectEvents;
+import com.dbn.common.outcome.DialogCloseOutcomeHandler;
+import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.util.Messages;
@@ -39,9 +41,14 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.border.MatteBorder;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.sql.SQLException;
 import java.util.Set;
 
@@ -65,6 +72,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   private final ConnectionRef connection;
   private final AIProfileService profileSvc;
+  //private final DBAIProfile profile;
 
   /**
    * Creates a new wizard
@@ -149,6 +157,14 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
   private void commitWizardView() {
     Project project = getProject();
+/*
+    ProfileManagementService profileManagementService = ProfileManagementService.getInstance(project);
+    if (isUpdate)
+      profileManagementService.updateObject(profile, wizardClose()); else
+      profileManagementService.createObject(profile, wizardClose());
+*/
+
+
     String profileName = editedProfile.getProfileName();
 
     String title = isUpdate ? "Updating AI-Profile" : "Creating AI-Profile";
@@ -203,6 +219,11 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     }
 */
   }
+
+  private OutcomeHandler wizardClose() {
+    return DialogCloseOutcomeHandler.create(this);
+  }
+
 
   /**
    * Show the profile creation/edition wizard

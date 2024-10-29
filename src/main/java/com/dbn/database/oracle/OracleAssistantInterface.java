@@ -25,7 +25,14 @@ import com.dbn.assistant.service.exception.ProfileManagementException;
 import com.dbn.assistant.service.exception.QueryExecutionException;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
-import com.dbn.database.common.assistant.*;
+import com.dbn.database.common.assistant.AssistantQueryResponse;
+import com.dbn.database.common.assistant.OracleCredentialsDetailedInfo;
+import com.dbn.database.common.assistant.OracleProfilesAttributesInfo;
+import com.dbn.database.common.assistant.OracleQueryOutput;
+import com.dbn.database.common.assistant.OracleTablesList;
+import com.dbn.database.common.assistant.OracleViewsList;
+import com.dbn.database.common.assistant.SchemasInfo;
+import com.dbn.database.common.assistant.TableAndViewListInfo;
 import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
@@ -279,6 +286,23 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
   @Override
   public void deleteCredential(DBNConnection connection, String credentialName) throws SQLException {
     executeUpdate(connection, "drop-credential", credentialName);
+  }
+
+  // TODO support foreign profile actions (ownerName)
+
+  @Override
+  public void enableProfile(DBNConnection connection, String ownerName, String profileName) throws SQLException {
+    executeUpdate(connection, "enable-profile", /*ownerName, */profileName);
+  }
+
+  @Override
+  public void disableProfile(DBNConnection connection, String ownerName, String profileName) throws SQLException {
+    executeUpdate(connection, "disable-profile", /*ownerName, */profileName);
+  }
+
+  @Override
+  public void deleteProfile(DBNConnection connection, String ownerName, String profileName) throws SQLException {
+    executeUpdate(connection, "drop-profile", /*ownerName, */profileName);
   }
 
   @Override

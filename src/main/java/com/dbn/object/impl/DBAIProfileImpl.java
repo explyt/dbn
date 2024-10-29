@@ -3,7 +3,6 @@ package com.dbn.object.impl;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
-import com.dbn.common.util.Safe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.database.common.metadata.def.DBProfileMetadata;
@@ -18,9 +17,6 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -30,8 +26,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.common.util.Lists.convert;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 
@@ -87,11 +86,10 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         if (objectList == null || objectList.isEmpty()) return Collections.emptyList();
 
         List<DBObjectRef<?>> objects = new ArrayList<>();
-        JsonArray array = GSON.fromJson(objectList, JsonArray.class);
-        for (JsonElement element : array) {
-            JsonObject object = element.getAsJsonObject();
-            String ownerName  = Safe.call(object.get("owner"), o -> o.getAsString());
-            String objectName  = Safe.call(object.get("name"), o-> o.getAsString());
+        List<Map<String, String>> list = GSON.fromJson(objectList, List.class);
+        for (Map<String, String> map : list) {
+            String ownerName = map.get("owner");
+            String objectName = map.get("name");
             if (ownerName == null) continue;
 
             DBObjectRef<DBSchema> schema = new DBObjectRef<>(connectionId, DBObjectType.SCHEMA, ownerName);
@@ -103,6 +101,21 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
             }
         }
         return objects;
+    }
+
+    public String getAttributesJson() {
+        return GSON.toJson(Map.of(
+                "provider", getProvider().getId(),
+                "model", getModel().getApiName(),
+                "temperature", getTemperature(),
+                "credential_name", nvl(getCredentialName(), ""),
+                "object_list", convert(objects, o -> Map.of(
+                        "owner", nvl(o.getSchemaName(), ""),
+                        "name", nvl(o.getObjectName(), "")))));
+    }
+
+    private String getCredentialName() {
+        return credential == null ? null : credential.getObjectName();
     }
 
 
@@ -147,19 +160,9 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
     protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
         List<DBObjectNavigationList> navigationLists = new LinkedList<>();
         navigationLists.add(DBObjectNavigationList.create("Profile objects", getObjects()));
+        navigationLists.add(DBObjectNavigationList.create("Credential", getCredential()));
         return navigationLists;
     }
-
-    /*    @Override
-    public DBOperationExecutor getOperationExecutor() {
-        return operationType -> {
-            CredentialManagementService managementService = CredentialManagementService.getInstance(getProject());
-            switch (operationType) {
-                case ENABLE:  managementService.enableCredential(this, null); break;
-                case DISABLE: managementService.disableCredential(this, null); break;
-            }
-        };
-    }*/
 
     /*********************************************************
      *                     TreeElement                       *

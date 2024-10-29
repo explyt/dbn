@@ -51,19 +51,19 @@ public class CredentialCreationAdapter extends ObjectManagementAdapterBase<DBCre
     @Nls
     @Override
     protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.CreatingCredential", object.getType(), object.getName());
+        return txt("prc.assistant.message.CreatingCredential", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialCreateSuccess", object.getType(), object.getName());
+        return txt("msg.assistant.info.CredentialCreateSuccess", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialCreateFailure", object.getType(), object.getName());
+        return txt("msg.assistant.error.CredentialCreateFailure", object.getType(), object.getQualifiedName());
     }
 
     @Override

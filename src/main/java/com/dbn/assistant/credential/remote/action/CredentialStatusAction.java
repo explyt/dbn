@@ -38,8 +38,8 @@ public class CredentialStatusAction extends CredentialManagementAction {
 
         CredentialManagementService managementService = CredentialManagementService.getInstance(project);
         if (credential.isEnabled())
-            managementService.disableCredential(credential, null); else
-            managementService.enableCredential(credential, null);
+            managementService.disableObject(credential, null); else
+            managementService.enableObject(credential, null);
     }
 
     @Override

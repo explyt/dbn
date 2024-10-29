@@ -15,14 +15,16 @@
 package com.dbn.assistant.credential.remote;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.assistant.credential.remote.adapter.*;
+import com.dbn.assistant.credential.remote.adapter.CredentialCreationAdapter;
+import com.dbn.assistant.credential.remote.adapter.CredentialDeleteAdapter;
+import com.dbn.assistant.credential.remote.adapter.CredentialDisableAdapter;
+import com.dbn.assistant.credential.remote.adapter.CredentialEnableAdapter;
+import com.dbn.assistant.credential.remote.adapter.CredentialUpdateAdapter;
 import com.dbn.common.component.PersistentState;
-import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.outcome.OutcomeHandler;
-import com.dbn.common.outcome.OutcomeType;
 import com.dbn.object.DBCredential;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.ObjectManagementServiceBase;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -46,7 +48,7 @@ import static com.dbn.common.component.Components.projectService;
     name = CredentialManagementService.COMPONENT_NAME,
     storages = @Storage(DatabaseNavigator.STORAGE_FILE))
 
-public class CredentialManagementService extends ProjectComponentBase implements PersistentState {
+public class CredentialManagementService extends ObjectManagementServiceBase<DBCredential> implements PersistentState {
   public static final String COMPONENT_NAME = "DBNavigator.Project.CredentialManagementService";
 
   private CredentialManagementService(Project project) {
@@ -57,36 +59,8 @@ public class CredentialManagementService extends ProjectComponentBase implements
     return projectService(project, CredentialManagementService.class);
   }
 
-  public void createCredential(DBCredential credential, OutcomeHandler successHandler) {
-    invokeAdapter(credential, ObjectChangeAction.CREATE, successHandler);
-  }
-
-  public void updateCredential(DBCredential credential, OutcomeHandler successHandler) {
-    invokeAdapter(credential, ObjectChangeAction.UPDATE, successHandler);
-  }
-
-  public void deleteCredential(DBCredential credential, OutcomeHandler successHandler) {
-    invokeAdapter(credential, ObjectChangeAction.DELETE, successHandler);
-  }
-
-  public void enableCredential(DBCredential credential, OutcomeHandler successHandler) {
-    invokeAdapter(credential, ObjectChangeAction.ENABLE, successHandler);
-  }
-
-  public void disableCredential(DBCredential credential, OutcomeHandler successHandler) {
-    invokeAdapter(credential, ObjectChangeAction.DISABLE, successHandler);
-  }
-
-  private static void invokeAdapter(DBCredential credential, ObjectChangeAction action, OutcomeHandler successHandler) {
-    ObjectManagementAdapterBase<DBCredential> adapter = createAdapter(credential, action);
-    if (adapter == null) return;
-
-    adapter.addOutcomeHandler(OutcomeType.SUCCESS, successHandler);
-    adapter.invokeModal();
-  }
-
-  @Nullable
-  private static ObjectManagementAdapterBase<DBCredential> createAdapter(DBCredential credential, ObjectChangeAction action) {
+  @Override
+  protected @Nullable ObjectManagementAdapterBase<DBCredential> createAdapter(DBCredential credential, ObjectChangeAction action) {
     switch (action) {
       case CREATE: return new CredentialCreationAdapter(credential);
       case UPDATE: return new CredentialUpdateAdapter(credential);

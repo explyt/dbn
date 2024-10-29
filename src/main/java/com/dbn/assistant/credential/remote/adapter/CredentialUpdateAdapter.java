@@ -46,19 +46,19 @@ public class CredentialUpdateAdapter extends ObjectManagementAdapterBase<DBCrede
     @Nls
     @Override
     protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.UpdatingCredential", object.getType(), object.getName());
+        return txt("prc.assistant.message.UpdatingCredential", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialUpdateSuccess", object.getType(), object.getName());
+        return txt("msg.assistant.info.CredentialUpdateSuccess", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialUpdateFailure", object.getType(), object.getName());
+        return txt("msg.assistant.error.CredentialUpdateFailure", object.getType(), object.getQualifiedName());
     }
 
     @Override

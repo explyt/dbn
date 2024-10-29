@@ -50,6 +50,7 @@
     </statement-execution-processor>
 
 
+<!--
     <statement-execution-processor id="create-credential" timeout="120">
         <statement>
             BEGIN
@@ -57,6 +58,7 @@
             END;
         </statement>
     </statement-execution-processor>
+-->
     <statement-execution-processor id="create-profile" timeout="120">
         <statement>
             BEGIN
@@ -166,7 +168,7 @@
             end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="list-tables" timeout="120">
+<!--    <statement-execution-processor id="list-tables" timeout="120">
         <statement>
             SELECT TABLE_NAME
             FROM all_tables WHERE OWNER = '{0}'
@@ -193,21 +195,7 @@
             SELECT DISTINCT OWNER
             FROM ALL_VIEWS
         </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="drop-profile" timeout="120">
-        <statement>
-            BEGIN
-            DBMS_CLOUD_AI.DROP_PROFILE(profile_name => '{0}');
-            END;
-        </statement>
-    </statement-execution-processor>
-    <statement-execution-processor id="drop-credential" timeout="120">
-        <statement>
-            BEGIN
-            DBMS_CLOUD.DROP_CREDENTIAL(credential_name => '{0}');
-            END;
-        </statement>
-    </statement-execution-processor>
+    </statement-execution-processor>-->
     <statement-execution-processor id="update-profile" timeout="120">
         <statement>
             BEGIN
@@ -239,24 +227,50 @@
     <statement-execution-processor id="disable-credential" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD.DISABLE_CREDENTIAL(
-                        credential_name => '{0}');
+                DBMS_CLOUD.DISABLE_CREDENTIAL(credential_name => '{0}');
             end;
         </statement>
     </statement-execution-processor>
     <statement-execution-processor id="enable-credential" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD.ENABLE_CREDENTIAL(
-                        credential_name => '{0}');
+                DBMS_CLOUD.ENABLE_CREDENTIAL(credential_name => '{0}');
             end;
         </statement>
     </statement-execution-processor>
+    <statement-execution-processor id="drop-credential" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD.DROP_CREDENTIAL(credential_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="disable-profile" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.DISABLE_PROFILE(profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="enable-profile" timeout="20">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.ENABLE_PROFILE(profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+    <statement-execution-processor id="drop-profile" timeout="120">
+        <statement>
+            begin
+                DBMS_CLOUD_AI.DROP_PROFILE(profile_name => '{0}');
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="set-current-profile" timeout="20">
         <statement>
             begin
-                DBMS_CLOUD_AI.SET_PROFILE(
-                        profile_name => '{0}');
+                DBMS_CLOUD_AI.SET_PROFILE(profile_name => '{0}');
             end;
         </statement>
     </statement-execution-processor>
