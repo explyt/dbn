@@ -240,6 +240,7 @@ public class ProfileManagementForm extends DBNFormBase {
     initializingIconPanel.setVisible(false);
     profilesList.setBackground(Colors.getTextFieldBackground());
     profilesList.requestFocus();
+    updateActionToolbars();
   }
 
   /**

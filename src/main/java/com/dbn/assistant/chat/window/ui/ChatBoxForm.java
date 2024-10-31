@@ -28,7 +28,6 @@ import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
-import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -316,7 +315,7 @@ public class ChatBoxForm extends DBNFormBase {
     }
 
     inputField.requestFocus();
-    UserInterface.visitRecursively(chatBoxPanel,  c -> UserInterface.repaint(c));
+    updateActionToolbars();
   }
 
   private void showErrorHeader(Throwable cause) {
@@ -328,6 +327,7 @@ public class ChatBoxForm extends DBNFormBase {
     getAssistantState().addMessages(messages);
     Dispatch.run(() -> messageContainer.addAll(messages, this));
     Dispatch.run(() -> scrollConversationDown());
+    updateActionToolbars();
   }
 
   private void scrollConversationDown() {

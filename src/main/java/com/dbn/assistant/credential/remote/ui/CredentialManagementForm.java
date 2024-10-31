@@ -305,6 +305,7 @@ public class CredentialManagementForm extends DBNFormBase {
     initializingIconPanel.setVisible(false);
     credentialList.setBackground(Colors.getTextFieldBackground());
     credentialList.revalidate();
+    updateActionToolbars();
   }
 
   /**

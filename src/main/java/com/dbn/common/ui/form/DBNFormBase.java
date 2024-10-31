@@ -89,6 +89,10 @@ public abstract class DBNFormBase
 
     }
 
+    protected void updateActionToolbars() {
+        dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));
+    }
+
     protected abstract JComponent getMainComponent();
 
     public EnvironmentSettings getEnvironmentSettings(Project project) {
