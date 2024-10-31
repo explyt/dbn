@@ -37,7 +37,6 @@ import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.event.ObjectChangeListener;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -51,16 +50,18 @@ import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.ListCellRenderer;
 import java.awt.BorderLayout;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
@@ -91,7 +92,7 @@ public class CredentialManagementForm extends DBNFormBase {
    * Keeps a mapping of profile names that used a specific credential name
    * (Assuming that credential names are unique within the DB)
    */
-  private Map<String, List<String>> credentialUsage = new HashMap<>();
+  private Map<String, Set<String>> credentialUsage = new HashMap<>();
   private Map<String, CredentialDetailsForm> credentialDetailForms = new ConcurrentHashMap<>();
   private final ConnectionRef connection;
 
@@ -118,8 +119,8 @@ public class CredentialManagementForm extends DBNFormBase {
   private void initChangeListener() {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
       if (connectionId != getConnectionId()) return;
-      if (objectType != DBObjectType.CREDENTIAL) return;
-      loadCredentials(true);
+      if (objectType == CREDENTIAL) loadCredentials(true);
+      if (objectType == AI_PROFILE) evaluateCredentialUsage();
     });
   }
 
@@ -180,7 +181,7 @@ public class CredentialManagementForm extends DBNFormBase {
     StringBuilder detailedMessage = new StringBuilder(txt("ai.settings.credential.deletion.message.prefix"));
     detailedMessage.append(' ');
     detailedMessage.append(credentialName);
-    List<String> uses = credentialUsage.get(credentialName);
+    Set<String> uses = credentialUsage.get(credentialName);
     if (uses != null && !uses.isEmpty()) {
       detailedMessage.append('\n');
       detailedMessage.append(txt("ai.settings.credential.deletion.message.warning"));
@@ -211,7 +212,7 @@ public class CredentialManagementForm extends DBNFormBase {
   }
 
   private boolean isCredentialUsed(DBCredential credential) {
-    List<String> usage = credentialUsage.get(credential.getName());
+    Set<String> usage = getCredentialUsage(credential.getName());
     return usage != null && !usage.isEmpty();
   }
 
@@ -283,9 +284,11 @@ public class CredentialManagementForm extends DBNFormBase {
     DBSchema userSchema = getUserSchema();
     if (userSchema == null) return;
 
+    credentialUsage.clear();
     List<DBAIProfile> profiles = userSchema.getAIProfiles();
     for (DBAIProfile profile : profiles) {
-      List<String> profileNames = credentialUsage.computeIfAbsent(profile.getCredentialName(), c -> new ArrayList<>());
+      String credentialName = profile.getCredentialName();
+      Set<String> profileNames = getCredentialUsage(credentialName);
       profileNames.add(profile.getName());
     }
   }
@@ -345,7 +348,7 @@ public class CredentialManagementForm extends DBNFormBase {
     return null;
   }
 
-  public List<String> getCredentialUsage(String credentialName) {
-    return credentialUsage.get(credentialName);
+  public Set<String> getCredentialUsage(String credentialName) {
+    return credentialUsage.computeIfAbsent(credentialName, c -> new TreeSet<>());
   }
 }

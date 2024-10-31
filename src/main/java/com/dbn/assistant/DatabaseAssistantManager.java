@@ -24,15 +24,6 @@ import com.dbn.assistant.editor.action.ProfileSelectAction;
 import com.dbn.assistant.help.ui.AssistantHelpDialog;
 import com.dbn.assistant.profile.wizard.ProfileEditionWizard;
 import com.dbn.assistant.provider.AIProvider;
-import com.dbn.assistant.service.AICredentialService;
-import com.dbn.assistant.service.AICredentialServiceImpl;
-import com.dbn.assistant.service.AIProfileService;
-import com.dbn.assistant.service.AIProfileServiceImpl;
-import com.dbn.assistant.service.DatabaseService;
-import com.dbn.assistant.service.DatabaseServiceImpl;
-import com.dbn.assistant.service.mock.FakeAICredentialService;
-import com.dbn.assistant.service.mock.FakeAIProfileService;
-import com.dbn.assistant.service.mock.FakeDatabaseService;
 import com.dbn.assistant.settings.ui.AssistantDatabaseConfigDialog;
 import com.dbn.assistant.state.AssistantState;
 import com.dbn.assistant.state.AssistantStateDelegate;
@@ -352,6 +343,23 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     Popups.showActionsPopup("Select Profile", editor, actions, Selectable.selector());
   }
 
+  public String getDefaultProfileName(ConnectionId connectionId) {
+    return getAssistantState(connectionId).getDefaultProfileName();
+  }
+
+  public void setDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
+    getAssistantState(connectionId).setDefaultProfile(profile);
+  }
+
+  public boolean isDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
+    if (profile == null) return false;
+
+    String defaultProfileName = getDefaultProfileName(connectionId);
+    if (defaultProfileName == null) return false;
+
+    return Objects.equals(defaultProfileName, profile.getName());
+  }
+
   public DBAIProfile getDefaultProfile(ConnectionId connectionId) {
     String profileName = getDefaultProfileName(connectionId);
     List<DBAIProfile> profiles = getProfiles(connectionId);
@@ -408,62 +416,5 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
         assistantStates.put(state.getConnectionId(), state);
       }
     }
-  }
-
-  private final Map<ConnectionId, AIProfileService> profileManagerMap = new ConcurrentHashMap<>();
-
-  private final Map<ConnectionId, AICredentialService> credentialManagerMap = new ConcurrentHashMap<>();
-
-  private final Map<ConnectionId, DatabaseService> databaseManagerMap = new ConcurrentHashMap<>();
-
-
-  /**
-   * Gets a profile manager for the current connection.
-   * Managers are singletons
-   * Ww assume that we always have a current connection
-   *
-   * @return a manager.
-   */
-  public AIProfileService getProfileService(ConnectionId connectionId) {
-    return profileManagerMap.computeIfAbsent(
-            connectionId,
-            id -> new AIProfileService.CachedProxy((isMockEnv() ?
-                    new FakeAIProfileService() :
-                    new AIProfileServiceImpl(ConnectionHandler.ensure(id)))));
-  }
-
-  public AICredentialService getCredentialService(ConnectionId connectionId) {
-    return credentialManagerMap.computeIfAbsent(connectionId,
-            id -> new AICredentialService.CachedProxy(isMockEnv() ?
-                    new FakeAICredentialService() :
-                    new AICredentialServiceImpl(ConnectionHandler.ensure(id))));
-  }
-
-  public DatabaseService getDatabaseService(ConnectionId connectionId) {
-    return databaseManagerMap.computeIfAbsent(connectionId, id ->
-            isMockEnv() ?
-                    new FakeDatabaseService() :
-                    new DatabaseServiceImpl(ConnectionHandler.ensure(id)));
-  }
-
-  private static boolean isMockEnv() {
-    return Boolean.parseBoolean(System.getProperty("fake.services"));
-  }
-
-  public String getDefaultProfileName(ConnectionId connectionId) {
-    return getAssistantState(connectionId).getDefaultProfileName();
-  }
-
-  public void setDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
-    getAssistantState(connectionId).setDefaultProfile(profile);
-  }
-
-  public boolean isDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
-    if (profile == null) return false;
-
-    String defaultProfileName = getDefaultProfileName(connectionId);
-    if (defaultProfileName == null) return false;
-
-    return Objects.equals(defaultProfileName, profile.getName());
   }
 }

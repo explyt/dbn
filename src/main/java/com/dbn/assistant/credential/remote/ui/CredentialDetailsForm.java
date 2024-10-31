@@ -14,11 +14,11 @@
 
 package com.dbn.assistant.credential.remote.ui;
 
-import com.dbn.assistant.service.AIProfileService;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.connection.ConnectionHandler;
 import com.dbn.object.DBCredential;
+import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
@@ -28,9 +28,10 @@ import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import java.util.List;
+import java.util.Set;
+
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 
 public class CredentialDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -39,7 +40,6 @@ public class CredentialDetailsForm extends DBNFormBase {
     private JTextField commentsTextField;
     private JCheckBox enabledCheckBox;
     private JList<String> usageList;
-    private JScrollPane usageScrollPane;
 
     private final DBObjectRef<DBCredential> credential;
 
@@ -48,26 +48,33 @@ public class CredentialDetailsForm extends DBNFormBase {
         this.credential = DBObjectRef.of(credential);
 
         initCredentialFields();
-        initUsageList();
+        initCredentialUsageList();
+        initChangeListener();
+    }
+
+    private void initChangeListener() {
+        ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
+            if (connectionId != credential.getConnectionId()) return;
+            if (objectType != AI_PROFILE) return;
+
+            refreshUsageListData();
+        });
     }
 
     public DBCredential getCredential() {
         return credential.ensure();
     }
 
-    private void initUsageList() {
-        ConnectionHandler connection = getManagementForm().getConnection();
-        AIProfileService profileService = AIProfileService.getInstance(connection);
-        profileService.list().thenAccept(profiles -> updateUsageList());
-    }
-
-    private void updateUsageList() {
-        DBCredential credential = getCredential();
-        String credentialName = credential.getName();
-        List<String> usedByProfiles =  getManagementForm().getCredentialUsage(credentialName);
-        usageList.setListData(usedByProfiles.toArray(new String[0]));
+    private void initCredentialUsageList() {
         usageList.setBorder(Borders.EMPTY_BORDER);
         usageList.setCellRenderer(createListCellRenderer());
+        refreshUsageListData();
+    }
+
+    private void refreshUsageListData() {
+        String credentialName = credential.getObjectName();
+        Set<String> usedByProfiles = getManagementForm().getCredentialUsage(credentialName);
+        usageList.setListData(usedByProfiles.toArray(new String[0]));
     }
 
     private static @NotNull ColoredListCellRenderer<String> createListCellRenderer() {

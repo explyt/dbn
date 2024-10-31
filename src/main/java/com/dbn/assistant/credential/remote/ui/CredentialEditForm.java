@@ -19,8 +19,6 @@ import com.dbn.assistant.credential.local.LocalCredentialSettings;
 import com.dbn.assistant.credential.remote.CredentialManagementService;
 import com.dbn.assistant.entity.OciCredential;
 import com.dbn.assistant.entity.PasswordCredential;
-import com.dbn.assistant.service.AICredentialService;
-import com.dbn.assistant.service.AICredentialServiceImpl;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -62,12 +60,11 @@ import static com.dbn.object.type.DBAttributeType.USER_TENANCY_OCID;
 /**
  * A dialog window for creating new AI credentials.
  * This window allows users to input credential information, supporting different types of credentials.
- * It interacts with {@link AICredentialServiceImpl} to create credentials in the system.
+ * It interacts with {@link CredentialManagementService} to create credentials in the system.
  */
 @Getter
 public class CredentialEditForm extends DBNFormBase {
 
-  private final AICredentialService credentialSvc;
   private JPanel mainPanel;
   private JTextField credentialNameField;
   private JComboBox<DBCredentialType> credentialTypeComboBox;
@@ -101,7 +98,6 @@ public class CredentialEditForm extends DBNFormBase {
   public CredentialEditForm(CredentialEditDialog dialog, @Nullable DBCredential credential, Set<String> usedCredentialNames) {
     super(dialog);
     this.connection = dialog.getConnection().ref();
-    this.credentialSvc = AICredentialService.getInstance(getConnection());
     this.credential = credential;
     this.usedCredentialNames = usedCredentialNames;
 

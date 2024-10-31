@@ -15,7 +15,6 @@
 package com.dbn.assistant.profile.wizard;
 
 import com.dbn.assistant.profile.ProfileManagementService;
-import com.dbn.assistant.service.AIProfileService;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.outcome.DialogCloseOutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -64,8 +63,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private JButton finishButton;
 
   private final ConnectionRef connection;
-  private final AIProfileService profileSvc;
-  //private final DBAIProfile profile;
 
   /**
    * Creates a new wizard
@@ -81,7 +78,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   public ProfileEditionWizard(@NotNull ConnectionHandler connection, DBAIProfile profile, Set<String> existingProfileNames, boolean isUpdate, Class<ProfileEditionObjectListStep> firstStep) {
     super(false, new ProfileEditionWizardModel(
             connection, txt("profiles.settings.window.title"), new ProfileData(profile), existingProfileNames, isUpdate,firstStep));
-    this.profileSvc = AIProfileService.getInstance(connection);
     this.connection = ConnectionRef.of(connection);
     this.initialProfile = new ProfileData(profile);
     this.existingProfileNames = existingProfileNames;

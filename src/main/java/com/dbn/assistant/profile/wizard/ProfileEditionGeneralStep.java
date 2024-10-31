@@ -17,7 +17,6 @@ package com.dbn.assistant.profile.wizard;
 import com.dbn.assistant.credential.remote.ui.CredentialEditDialog;
 import com.dbn.assistant.profile.wizard.validation.ProfileCredentialVerifier;
 import com.dbn.assistant.profile.wizard.validation.ProfileNameVerifier;
-import com.dbn.assistant.service.AICredentialService;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Background;
@@ -63,7 +62,6 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
   private JComboBox<String> credentialComboBox;
   private JTextField descriptionTextField;
   private JButton addCredentialButton;
-  private final AICredentialService credentialSvc;
 
   private final ConnectionRef connection;
   private final ProfileData profile;
@@ -78,7 +76,6 @@ public class ProfileEditionGeneralStep extends WizardStep<ProfileEditionWizardMo
     this.profile = profile;
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
-    this.credentialSvc = AICredentialService.getInstance(connection);
 
     initCredentialAddButton();
     initializeUI();

@@ -16,7 +16,6 @@ package com.dbn.assistant.help.ui;
 
 import com.dbn.assistant.AssistantPrerequisiteManager;
 import com.dbn.assistant.provider.AIProvider;
-import com.dbn.assistant.service.DatabaseService;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
@@ -68,7 +67,6 @@ public class AssistantHelpForm extends DBNFormBase {
   private final String SELECT_AI_DOCS = "https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/sql-generation-ai-autonomous.html";
 
   private final ConnectionRef connection;
-  private final DatabaseService databaseSvc;
 
   // Pass Project object to constructor
   public AssistantHelpForm(AssistantHelpDialog dialog) {
@@ -76,7 +74,6 @@ public class AssistantHelpForm extends DBNFormBase {
 
     ConnectionHandler connection = dialog.getConnection();
     this.connection = ConnectionRef.of(connection);
-    this.databaseSvc = DatabaseService.getInstance(connection);
 
     initHeaderPanel();
     initializeWindow();
@@ -123,9 +120,12 @@ public class AssistantHelpForm extends DBNFormBase {
   }
 
   private void grantNetworkAccess() {
+    AIProvider selectedProvider = getSelectedProvider();
+    if (selectedProvider == null) return;
+
     ConnectionHandler connection = getConnection();
     AssistantPrerequisiteManager prerequisiteManager = getPrerequisiteManager();
-    prerequisiteManager.grantNetworkAccess(connection, getSelectedProvider(), aclTextArea.getText());
+    prerequisiteManager.grantNetworkAccess(connection, selectedProvider, aclTextArea.getText());
   }
 
   private void grantExecutionPrivileges() {
