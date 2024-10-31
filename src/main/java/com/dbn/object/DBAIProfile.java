@@ -24,4 +24,6 @@ public interface DBAIProfile extends DBSchemaObject {
     List<DBObject> getObjects();
 
     String getAttributesJson();
+
+    String getCredentialName();
 }

@@ -14,7 +14,8 @@
 
 package com.dbn.assistant.profile.wizard;
 
-import com.dbn.assistant.entity.ProfileDBObjectItem;
+import com.dbn.object.common.DBObject;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,10 +31,10 @@ import static com.dbn.nls.NlsResources.txt;
  */
 @Slf4j
 @Getter
-public class ProfileObjectsTableModel extends AbstractTableModel {
+public class ObjectsTableModel extends AbstractTableModel {
 
 
-    private List<ProfileDBObjectItem> data;
+    private final List<DBObjectRef<DBObject>> data;
 
     public static final int NAME_COLUMN_IDX = 0;
     public static final int OWNER_COLUMN_IDX = 1;
@@ -46,7 +47,7 @@ public class ProfileObjectsTableModel extends AbstractTableModel {
     /**
      * Creates a new (empty) model
      */
-    public ProfileObjectsTableModel() {
+    public ObjectsTableModel() {
         this.data = new ArrayList<>();
     }
 
@@ -63,104 +64,48 @@ public class ProfileObjectsTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
-        return data.get(rowIndex);
-
-/*
-        ProfileDBObjectItem item = data.get(rowIndex);
-        switch (columnIndex) {
-            case NAME_COLUMN_IDX:
-                return item.getName();
-            case OWNER_COLUMN_IDX:
-                return item.getOwner();
-            default:
-                return null;
-        }
-*/
+        DBObjectRef ref = data.get(rowIndex);
+        return ref.get();
     }
 
     @Override
     public String getColumnName(int column) {
         return "Dataset";
-        //return columnNames[column];
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        return ProfileDBObjectItem.class;
-/*
-        if (columnIndex == 1) {
-            return String.class;
-        }
-        return String.class;
-*/
+        return DBObject.class;
     }
-
 
     /**
      * Adds a list of profile db object to the model
      * @param items the list of objects to be added
      */
-    public void addItems(List<ProfileDBObjectItem> items) {
-        if (log.isDebugEnabled())
-            log.debug("ProfileObjectListTableModel.addItems: " + items);
+    public void addItems(List<DBObject> items) {
         int curRow = data.size();
-        data.addAll(items);
-        log.debug(
-                "ProfileObjectListTableModel.addItems triggered  fireTableRowsInserted on (" +
-                        curRow + "/" + curRow + items.size() + ")");
+        data.addAll(DBObjectRef.from(items));
         fireTableRowsInserted(curRow, curRow + items.size());
-    }
-
-    /**
-     * Removed a  profile db object from the model
-     * @param item the  object to be removed
-     */
-    public void removeItem(ProfileDBObjectItem item) {
-        log.debug("ProfileObjectListTableModel.removeItem: " + item);
-        int index = data.indexOf(item);
-        removeItem(index);
     }
 
     public void removeItem(int index) {
         if (index >= 0) {
             data.remove(index);
-            log.debug(
-                    "ProfileObjectListTableModel.removeItem triggered  fireTableRowsDeleted on (" +
-                            index + "/" + index + ")");
             fireTableRowsDeleted(index, index);
         }
+    }
+
+    public void removeItem(DBObjectRef<DBObject> item) {
+        data.remove(item);
     }
 
     /**
      * Replaces list of object in the model
      * @param items the new item list to be added to the model.
      */
-    public void updateItems(List<ProfileDBObjectItem> items) {
+    public void updateItems(List<DBObjectRef<DBObject>> items) {
         data.clear();
         data.addAll(items);
-        if (log.isDebugEnabled())
-            log.debug("ProfileObjectListTableModel.updateItems: " + items);
         fireTableDataChanged();
-    }
-
-    // Method to get data
-
-    /**
-     * Gets the list of items of that model
-     * @return the list of profile DB object
-     */
-    public List<ProfileDBObjectItem> getData() {
-        return data;
-    }
-
-
-    /**
-     * Gets an item from the model at a given index
-     * @param rowIndex the index within the model
-     * @return the item at given index
-     * @throws IndexOutOfBoundsException if index is not valid
-     */
-    public ProfileDBObjectItem getItemAt(int rowIndex) throws IndexOutOfBoundsException{
-        return data.get(rowIndex);
     }
 }

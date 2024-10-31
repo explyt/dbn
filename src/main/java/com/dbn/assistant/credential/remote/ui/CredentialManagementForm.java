@@ -15,8 +15,6 @@
 package com.dbn.assistant.credential.remote.ui;
 
 import com.dbn.assistant.credential.remote.CredentialManagementService;
-import com.dbn.assistant.service.AICredentialService;
-import com.dbn.assistant.service.AIProfileService;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
@@ -33,11 +31,11 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Lists;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
-import com.dbn.object.common.DBObject;
-import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.event.ObjectChangeListener;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -62,6 +60,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
@@ -86,8 +86,6 @@ public class CredentialManagementForm extends DBNFormBase {
   private JPanel actionsPanel;
   private JPanel initializingIconPanel;
   private JSplitPane contentSplitPane;
-  private final AICredentialService credentialSvc;
-  private final AIProfileService profileSvc;
 
   /**
    * Keeps a mapping of profile names that used a specific credential name
@@ -110,21 +108,18 @@ public class CredentialManagementForm extends DBNFormBase {
     super(parent);
     this.connection = ConnectionRef.of(connection);
 
-    this.credentialSvc = AICredentialService.getInstance(connection);
-    this.profileSvc = AIProfileService.getInstance(connection);
-
     initActionsPanel();
     initDetailsPanel();
     initCredentialList();
     initChangeListener();
 
-    whenShown(() -> loadCredentials());
+    whenShown(() -> loadCredentials(false));
   }
   private void initChangeListener() {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
-      if (connectionId != getConnection().getConnectionId()) return;
+      if (connectionId != getConnectionId()) return;
       if (objectType != DBObjectType.CREDENTIAL) return;
-      reloadCredentials();
+      loadCredentials(true);
     });
   }
 
@@ -210,7 +205,7 @@ public class CredentialManagementForm extends DBNFormBase {
             boolean used = isCredentialUsed(credential);
             append(credentialName, enabled ? used ? REGULAR_BOLD_ATTRIBUTES : REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES);
 
-            setToolTipText(enabled ? used ? null : null : txt("ai.settings.credential.not_enabled"));
+            setToolTipText(enabled ? null : txt("ai.settings.credential.not_enabled"));
         }
     };
   }
@@ -228,28 +223,6 @@ public class CredentialManagementForm extends DBNFormBase {
   private void removeCredential(DBCredential credential) {
     CredentialManagementService managementService = CredentialManagementService.getInstance(ensureProject());
     managementService.deleteObject(credential, null);
-
-/*
-    credentialSvc.delete(credential.getName())
-        .thenAccept((c) -> this.loadCredentials())
-        .exceptionally(
-            e -> {
-              Messages.showErrorDialog(getProject(), e.getCause().getMessage());
-              return null;
-            });
-*/
-
-  }
-
-  public void reloadCredentials() {
-    DBSchema schema = getUserSchema();
-    if (schema == null) return;
-
-    DBObjectList<DBObject> credentialsList = schema.getChildObjectList(DBObjectType.CREDENTIAL);
-    if (credentialsList == null) return;
-
-    credentialsList.markDirty();
-    loadCredentials();
   }
 
   private @Nullable DBSchema getUserSchema() {
@@ -261,44 +234,27 @@ public class CredentialManagementForm extends DBNFormBase {
    * the UI components accordingly. This method retrieves the credentials, updating the credential list
    * and the display information panel based on the available credentials for the connected project.
    */
-  public void loadCredentials() {
-    Background.run(getProject(), () -> doLoadCredentials());
-
-/*
-    beforeLoad();
-    credentialSvc.list().thenAcceptBoth(profileSvc.list(), (credentials, profiles) -> {
-      try {
-        Map<String, List<String>> credentialUsage = new HashMap<>();
-        for (Credential credential : credentials) {
-          String credentialName = credential.getName();
-          List<String> profileNames = profiles
-                  .stream()
-                  .filter(p -> credentialName.equals(p.getCredentialName()))
-                  .map(p -> p.getProfileName())
-                  .collect(Collectors.toList());
-          credentialUsage.put(credentialName, profileNames);
-        }
-        applyCredentials(credentials, credentialUsage);
-        afterLoad();
-      } catch (Exception e) {
-        handleLoadError(e);
-      }
-    }).exceptionally(e -> {
-      handleLoadError(e);
-      return null;
-    });
-  */
+  public void loadCredentials(boolean force) {
+    Background.run(getProject(), () -> doLoadCredentials(force));
   }
 
-  private void doLoadCredentials() {
+  private void doLoadCredentials(boolean force) {
     beforeLoad();
     try {
+      if (force) refreshUserObjects(getConnectionId(), CREDENTIAL);
       DBSchema schema = getUserSchema();
       List<DBCredential> credentials =  schema == null ? Collections.emptyList() : schema.getCredentials();
-      applyCredentials(credentials, Collections.emptyMap());
+      applyCredentials(credentials);
+
+    } catch (Throwable e){
+      handleLoadError(e);
     } finally {
       afterLoad();
     }
+  }
+
+  private ConnectionId getConnectionId() {
+    return getConnection().getConnectionId();
   }
 
   private void handleLoadError(Throwable e) {
@@ -307,16 +263,15 @@ public class CredentialManagementForm extends DBNFormBase {
     afterLoad();
   }
 
-  private void applyCredentials(List<DBCredential> credentials, Map<String, List<String>> credentialUsage) {
+  private void applyCredentials(List<DBCredential> credentials) {
     // capture selection
     DBCredential selectedCredential = getSelectedCredential();
     String selectedCredentialName = selectedCredential == null ? null : selectedCredential.getName();
 
     // apply new credentials
-
     this.credentialDetailForms = Disposer.replace(this.credentialDetailForms, new ConcurrentHashMap<>());
     this.credentialList.setListData(credentials.toArray(new DBCredential[0]));
-    evaluateCredentialUsage(credentials);
+    evaluateCredentialUsage();
 
     // restore selection
     int selectionIndex = Lists.indexOf(credentials, c -> c.getName().equalsIgnoreCase(selectedCredentialName));
@@ -324,20 +279,29 @@ public class CredentialManagementForm extends DBNFormBase {
     if (selectionIndex != -1) this.credentialList.setSelectedIndex(selectionIndex);
   }
 
-  private void evaluateCredentialUsage(List<DBCredential> credentials) {
-    Map<String, List<String>> credentialUsage = new HashMap<>();
-    profileSvc.list().thenAccept(profiles -> profiles.forEach(p -> credentialUsage.computeIfAbsent(p.getCredentialName(), k -> new ArrayList<>()).add(p.getProfileName())));
-    this.credentialUsage = credentialUsage;
+  private void evaluateCredentialUsage() {
+    DBSchema userSchema = getUserSchema();
+    if (userSchema == null) return;
+
+    List<DBAIProfile> profiles = userSchema.getAIProfiles();
+    for (DBAIProfile profile : profiles) {
+      List<String> profileNames = credentialUsage.computeIfAbsent(profile.getCredentialName(), c -> new ArrayList<>());
+      profileNames.add(profile.getName());
+    }
   }
 
   private void beforeLoad() {
     loading = true;
+    freezeForm();
+
     initializingIconPanel.setVisible(true);
     credentialList.setBackground(Colors.getPanelBackground());
   }
 
   private void afterLoad() {
     loading = false;
+    unfreezeForm();
+
     initializingIconPanel.setVisible(false);
     credentialList.setBackground(Colors.getTextFieldBackground());
     credentialList.revalidate();

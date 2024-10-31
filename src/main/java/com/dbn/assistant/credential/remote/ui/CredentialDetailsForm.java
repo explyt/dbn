@@ -14,7 +14,6 @@
 
 package com.dbn.assistant.credential.remote.ui;
 
-import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.service.AIProfileService;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
@@ -25,7 +24,12 @@ import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import java.util.List;
 
 public class CredentialDetailsForm extends DBNFormBase {
@@ -54,10 +58,10 @@ public class CredentialDetailsForm extends DBNFormBase {
     private void initUsageList() {
         ConnectionHandler connection = getManagementForm().getConnection();
         AIProfileService profileService = AIProfileService.getInstance(connection);
-        profileService.list().thenAccept(profiles -> updateUsageList(profiles));
+        profileService.list().thenAccept(profiles -> updateUsageList());
     }
 
-    private void updateUsageList(List<Profile> profiles) {
+    private void updateUsageList() {
         DBCredential credential = getCredential();
         String credentialName = credential.getName();
         List<String> usedByProfiles =  getManagementForm().getCredentialUsage(credentialName);

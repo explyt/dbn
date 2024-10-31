@@ -15,11 +15,10 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.util.Actions;
+import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -27,7 +26,7 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.util.List;
 
 /**
@@ -45,8 +44,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
         ChatBoxForm chatBox = dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return actionGroup;
 
-        AssistantState state = chatBox.getAssistantState();
-        List<AIProfileItem> profiles = state.getProfiles();
+        List<DBAIProfile> profiles = chatBox.getProfiles();
         profiles.forEach(p -> actionGroup.add(new ProfileSelectAction(p)));
         actionGroup.addSeparator();
 
@@ -72,7 +70,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
         String text = getSelectedProfileName(e);
         if (text != null) return text;
 
-        List<AIProfileItem> profiles = chatBox.getAssistantState().getProfiles();
+        List<DBAIProfile> profiles = chatBox.getProfiles();
         if (!profiles.isEmpty()) return "Select Profile";
 
         return "Profile";
@@ -82,8 +80,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return null;
 
-        AssistantState state = chatBox.getAssistantState();
-        AIProfileItem profile = state.getSelectedProfile();
+        DBAIProfile profile = chatBox.getSelectedProfile();
         if (profile == null) return null;
 
         return Actions.adjustActionName(profile.getName());

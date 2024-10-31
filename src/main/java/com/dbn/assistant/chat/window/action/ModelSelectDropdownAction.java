@@ -15,13 +15,12 @@
 package com.dbn.assistant.chat.window.action;
 
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
-import com.dbn.assistant.entity.AIProfileItem;
 import com.dbn.assistant.provider.AIModel;
-import com.dbn.assistant.state.AssistantState;
 import com.dbn.common.action.ComboBoxAction;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Lists;
+import com.dbn.object.DBAIProfile;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
@@ -54,9 +53,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
         ChatBoxForm chatBox = dataContext.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return Collections.emptyList();
 
-        AssistantState state = chatBox.getAssistantState();
-
-        AIProfileItem profile = state.getSelectedProfile();
+        DBAIProfile profile = chatBox.getSelectedProfile();
         if (profile == null) return Collections.emptyList();
 
         return profile.getProvider().getModels();
@@ -65,7 +62,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
     @Override
     public void update(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        boolean enabled = chatBox != null && chatBox.getAssistantState().isPromptingAvailable();
+        boolean enabled = chatBox != null && chatBox.isPromptingAvailable();
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
@@ -90,8 +87,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         if (chatBox == null) return null;
 
-        AssistantState state = chatBox.getAssistantState();
-        AIProfileItem profile = state.getSelectedProfile();
+        DBAIProfile profile = chatBox.getSelectedProfile();
         if (profile == null) return null;
 
         AIModel model = profile.getModel();

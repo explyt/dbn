@@ -21,8 +21,6 @@ import com.dbn.assistant.chat.message.ChatMessageContext;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.editor.action.ProfileSelectAction;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.help.ui.AssistantHelpDialog;
 import com.dbn.assistant.profile.wizard.ProfileEditionWizard;
 import com.dbn.assistant.provider.AIProvider;
@@ -42,24 +40,22 @@ import com.dbn.common.action.Selectable;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
-import com.dbn.common.thread.Background;
 import com.dbn.common.thread.Progress;
 import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConnectionStatusListener;
 import com.dbn.connection.SessionId;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
-import com.dbn.object.event.ObjectChangeListener;
-import com.dbn.object.type.DBObjectType;
+import com.dbn.object.DBAIProfile;
+import com.dbn.object.DBSchema;
+import com.dbn.object.common.DBObjectBundle;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Editor;
@@ -84,7 +80,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.options.setting.Settings.newElement;
@@ -95,8 +90,10 @@ import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.CardLayouts.visibleCardId;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static java.util.Collections.emptyList;
 
 /**
  * Main database AI-Assistance management component
@@ -117,9 +114,6 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   private DatabaseAssistantManager(Project project) {
     super(project, COMPONENT_NAME);
-
-    initChangeListener();
-    initConnectivityListener();
   }
 
   public static DatabaseAssistantManager getInstance(@NotNull Project project) {
@@ -141,16 +135,22 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     return assistantState.getAssistantName();
   }
 
-  public List<Profile> getAssistantProfiles(@Nullable ConnectionId connectionId) {
-    if (connectionId == null) return Collections.emptyList();
+  public List<DBAIProfile> getProfiles(ConnectionId connectionId) {
+    if (connectionId == null) return emptyList();
 
-    AIProfileService profileService = getProfileService(connectionId);
-    return profileService.list().join();
+    ConnectionHandler connection = ConnectionHandler.get(connectionId);
+    if (connection == null) return emptyList();
+
+    DBObjectBundle objectBundle = connection.getObjectBundle();
+    DBSchema userSchema = objectBundle.getUserSchema();
+    if (userSchema == null) return emptyList();
+
+    return userSchema.getAIProfiles();
   }
 
 
   public void initializeAssistant(ConnectionId connectionId) {
-    AIProfileItem defaultProfile = getDefaultProfile(connectionId);
+    DBAIProfile defaultProfile = getDefaultProfile(connectionId);
     if (defaultProfile != null) return;
 
     AssistantState assistantState = getAssistantState(connectionId);
@@ -167,7 +167,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
     Project project = getProject();
     Progress.modal(project, connection, true, "Initializing DB Assistant", "Initializing database assistant", progress -> {
-      List<Profile> profiles = getAssistantProfiles(connectionId);
+      List<DBAIProfile> profiles = getProfiles(connectionId);
       // no profiles created yet -> prompt profile creation
       if (profiles.isEmpty()) {
         Messages.showQuestionDialog(project,
@@ -312,7 +312,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     boolean networkAccessDenied = errorMessage != null && errorMessage.contains("ORA-24247");
 
     if (networkAccessDenied) {
-      AIProfileItem profile = getDefaultProfile(connectionId);
+      DBAIProfile profile = getDefaultProfile(connectionId);
       if (profile != null) {
         AIProvider selectedProvider = profile.getProvider();
         String accessPoint = selectedProvider.getHost();
@@ -346,11 +346,39 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   }
 
   public void promptProfileSelector(Editor editor, ConnectionId connectionId) {
-    AssistantState assistantState = getAssistantState(connectionId);
-    AIProfileItem defaultProfile = getDefaultProfile(connectionId);
-    List<ProfileSelectAction> actions = convert(assistantState.getProfiles(), p -> new ProfileSelectAction(connectionId, p, defaultProfile));
+    DBAIProfile defaultProfile = getDefaultProfile(connectionId);
+    List<ProfileSelectAction> actions = convert(getProfiles(connectionId), p -> new ProfileSelectAction(connectionId, p, defaultProfile));
 
     Popups.showActionsPopup("Select Profile", editor, actions, Selectable.selector());
+  }
+
+  public DBAIProfile getDefaultProfile(ConnectionId connectionId) {
+    String profileName = getDefaultProfileName(connectionId);
+    List<DBAIProfile> profiles = getProfiles(connectionId);
+    return first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
+  }
+
+  public DBAIProfile getSelectedProfile(ConnectionId connectionId) {
+    AssistantState assistantState = getAssistantState(connectionId);
+    String profileName = assistantState.getSelectedProfileName();
+    List<DBAIProfile> profiles = getProfiles(connectionId);
+    return first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
+  }
+
+  public void setSelectedProfile(ConnectionId connectionId, @Nullable DBAIProfile profile) {
+    AssistantState assistantState = getAssistantState(connectionId);
+    assistantState.setSelectedProfileName(profile == null ? null : profile.getName());
+  }
+
+  public boolean isPromptingAvailable(ConnectionId connectionId) {
+    AssistantState assistantState = getAssistantState(connectionId);
+    if (!assistantState.isAvailable()) return false;
+
+    DBAIProfile profile = getSelectedProfile(connectionId);
+    if (profile == null) return false;
+    if (!profile.isEnabled()) return false;
+
+    return true;
   }
 
   /*********************************************
@@ -422,37 +450,20 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     return Boolean.parseBoolean(System.getProperty("fake.services"));
   }
 
-  public AIProfileItem getDefaultProfile(ConnectionId connectionId) {
-    return getAssistantState(connectionId).getDefaultProfile();
+  public String getDefaultProfileName(ConnectionId connectionId) {
+    return getAssistantState(connectionId).getDefaultProfileName();
   }
 
-  public void setDefaultProfile(ConnectionId connectionId, AIProfileItem profile) {
+  public void setDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
     getAssistantState(connectionId).setDefaultProfile(profile);
   }
 
-  private void initChangeListener() {
-    ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
-      if (objectType != DBObjectType.PROFILE) return;
+  public boolean isDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
+    if (profile == null) return false;
 
-      // it is assumed that DB assistant is supported if a change listener on PROFILE object type was fired
-      AssistantState assistantState = assistantStates.get(connectionId);
-      refreshStateProfiles(connectionId, assistantState);
-    });
+    String defaultProfileName = getDefaultProfileName(connectionId);
+    if (defaultProfileName == null) return false;
+
+    return Objects.equals(defaultProfileName, profile.getName());
   }
-
-  /**
-   * Attempts to load the profiles when connectivity is restored if the connection was down on first initialization attempt
-   */
-  private void initConnectivityListener() {
-    ProjectEvents.subscribe(ensureProject(), this, ConnectionStatusListener.TOPIC, (connectionId, sessionId) -> {
-      AssistantState assistantState = getAssistantState(connectionId);
-      if (assistantState.isNot(UNAVAILABLE)) return;
-      refreshStateProfiles(connectionId, assistantState);
-    });
-  }
-
-  private void refreshStateProfiles(ConnectionId connectionId, AssistantState assistantState) {
-    Background.run(getProject(), () -> assistantState.importProfiles(getAssistantProfiles(connectionId)));
-  }
-
 }

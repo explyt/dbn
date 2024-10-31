@@ -33,7 +33,7 @@ public class ProfilesReloadAction extends ProfileManagementAction {
         ProfileManagementForm managementForm = getManagementForm(e);
         if (managementForm == null) return;
 
-        managementForm.reloadProfiles();
+        managementForm.loadProfiles(true);
     }
 
     @Override

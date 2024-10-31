@@ -14,6 +14,7 @@
 
 package com.dbn.assistant.profile.adapter;
 
+import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
@@ -71,8 +72,10 @@ public class ProfileCreationAdapter extends ObjectManagementAdapterBase<DBAIProf
         assistantInterface.createProfile(conn, profileName, attributes, description);
 
         // update status
-        if (profile.isEnabled())
-            assistantInterface.enableProfile(conn, profileOwner, profileName); else
-            assistantInterface.disableProfile(conn, profileOwner, profileName);
+        Unsafe.warned(() -> {
+            if (profile.isEnabled())
+                assistantInterface.enableProfile(conn, profileOwner, profileName); else
+                assistantInterface.disableProfile(conn, profileOwner, profileName);
+        });
     }
 }

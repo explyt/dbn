@@ -15,22 +15,22 @@
 package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.entity.AIProfileItem;
-import com.dbn.assistant.entity.Profile;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.nls.NlsSupport;
+import com.dbn.object.DBAIProfile;
+import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JList;
 
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
-public class ProfileListCellRenderer extends ColoredListCellRenderer<Profile> implements NlsSupport {
+public class ProfileListCellRenderer extends ColoredListCellRenderer<DBObjectRef<DBAIProfile>> implements NlsSupport {
     private final ConnectionRef connection;
 
     public ProfileListCellRenderer(ConnectionHandler connection) {
@@ -42,8 +42,11 @@ public class ProfileListCellRenderer extends ColoredListCellRenderer<Profile> im
     }
 
     @Override
-    protected void customizeCellRenderer(@NotNull JList<? extends Profile> list, Profile profile, int index, boolean selected, boolean hasFocus) {
-        String profileName = profile.getProfileName();
+    protected void customizeCellRenderer(@NotNull JList<? extends DBObjectRef<DBAIProfile>> list, DBObjectRef<DBAIProfile> profileRef, int index, boolean selected, boolean hasFocus) {
+        DBAIProfile profile = DBObjectRef.get(profileRef);
+
+        if (profile == null) return;
+        String profileName = profile.getName();
         boolean enabled = profile.isEnabled();
         SimpleTextAttributes attributes = enabled ? REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES;
         append(profileName, attributes);
@@ -52,10 +55,11 @@ public class ProfileListCellRenderer extends ColoredListCellRenderer<Profile> im
         setToolTipText(enabled ? null : txt("ai.settings.profile.not_enabled"));
     }
 
-    private boolean isDefault(Profile profile) {
+    private boolean isDefault(DBAIProfile profile) {
+        if (profile == null) return false;
+
         Project project = getConnection().getProject();
         DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
-        AIProfileItem defaultProfile = assistantManager.getDefaultProfile(connection.getConnectionId());
-        return defaultProfile != null && defaultProfile.getName().equalsIgnoreCase(profile.getProfileName());
+        return assistantManager.isDefaultProfile(connection.getConnectionId(), profile);
     }
 }

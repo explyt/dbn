@@ -4,7 +4,6 @@ import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.browser.ui.HtmlToolTipBuilder;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConnectionId;
 import com.dbn.database.common.metadata.def.DBProfileMetadata;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCredential;
@@ -22,8 +21,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +28,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.convert;
+import static com.dbn.object.common.DBObjectUtil.jsonToObjectList;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 
@@ -77,30 +75,9 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
         provider = AIProvider.forId(metadata.getProvider());
         model = AIModel.forApiName(metadata.getModel());
         temperature = metadata.getTemperature();
-        objects = unwrapObjectList(connection.getConnectionId(), metadata.getObjectList());
+        objects = jsonToObjectList(connection.getConnectionId(), metadata.getObjectList());
 
         return name;
-    }
-
-    private static List<DBObjectRef<?>> unwrapObjectList(ConnectionId connectionId, String objectList) {
-        if (objectList == null || objectList.isEmpty()) return Collections.emptyList();
-
-        List<DBObjectRef<?>> objects = new ArrayList<>();
-        List<Map<String, String>> list = GSON.fromJson(objectList, List.class);
-        for (Map<String, String> map : list) {
-            String ownerName = map.get("owner");
-            String objectName = map.get("name");
-            if (ownerName == null) continue;
-
-            DBObjectRef<DBSchema> schema = new DBObjectRef<>(connectionId, DBObjectType.SCHEMA, ownerName);
-            if (objectName == null) {
-                objects.add(schema);
-            } else {
-                DBObjectRef<?> schemaObject = new DBObjectRef<>(schema, DBObjectType.ANY, objectName);
-                objects.add(schemaObject);
-            }
-        }
-        return objects;
     }
 
     public String getAttributesJson() {
@@ -114,7 +91,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                         "name", nvl(o.getObjectName(), "")))));
     }
 
-    private String getCredentialName() {
+    public String getCredentialName() {
         return credential == null ? null : credential.getObjectName();
     }
 

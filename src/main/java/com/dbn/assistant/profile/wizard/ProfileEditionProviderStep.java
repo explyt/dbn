@@ -14,7 +14,6 @@
 
 package com.dbn.assistant.profile.wizard;
 
-import com.dbn.assistant.entity.Profile;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.common.ui.util.UserInterface;
@@ -51,14 +50,14 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
   private JLabel providerModelLabel;
   private JComboBox<AIModel> providerModelCombo;
   private JSlider temperatureSlider;
-  private final Profile profile;
+  private final ProfileData profile;
 
   private static final int MIN_TEMPERATURE = 0;
   private static final int MAX_TEMPERATURE = 10;
   private static final int DEFAULT_TEMPERATURE = 5;
 
 
-  public ProfileEditionProviderStep(ConnectionHandler connection, Profile profile, boolean isUpdate) {
+  public ProfileEditionProviderStep(ConnectionHandler connection, ProfileData profile, boolean isUpdate) {
     super(txt("profile.mgmt.provider_step.title"),
             txt("profile.mgmt.provider_step.explaination"));
     this.profile = profile;
@@ -79,9 +78,9 @@ public class ProfileEditionProviderStep extends WizardStep<ProfileEditionWizardM
     }
   }
 
-  private AIProvider guessProviderType(Profile profile) {
+  private AIProvider guessProviderType(ProfileData profile) {
     Set<String> captions = new HashSet<>();
-    captions.add(nvl(profile.getProfileName(), ""));
+    captions.add(nvl(profile.getName(), ""));
     captions.add(nvl(profile.getCredentialName(), ""));
     captions.add(nvl(profile.getDescription(), ""));
 

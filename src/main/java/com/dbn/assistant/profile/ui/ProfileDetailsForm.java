@@ -14,17 +14,22 @@
 
 package com.dbn.assistant.profile.ui;
 
-import com.dbn.assistant.entity.Profile;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.object.DBAIProfile;
 import com.intellij.ui.ColoredTableCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
-import java.awt.*;
+import java.awt.Font;
 
 public class ProfileDetailsForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -35,32 +40,30 @@ public class ProfileDetailsForm extends DBNFormBase {
     private JTextField profileNameTextField;
     private JCheckBox enabledCheckBox;
 
-    private final Profile profile;
-
-    public ProfileDetailsForm(@NotNull ProfileManagementForm parent, Profile profile) {
+    public ProfileDetailsForm(@NotNull ProfileManagementForm parent, DBAIProfile profile) {
         super(parent);
-        this.profile = profile;
 
-        initializeFields();
-        initializeTable();
+        initializeFields(profile);
+        initializeTable(profile);
     }
 
-    private void initializeFields() {
+    private void initializeFields(DBAIProfile profile) {
         enabledCheckBox.setSelected(profile.isEnabled());
-        profileNameTextField.setText(profile.getProfileName());
+        profileNameTextField.setText(profile.getName());
         modelTextField.setText(profile.getModel().getId());
         credentialTextField.setText(profile.getCredentialName());
         providerTextField.setText(profile.getProvider().getName());
     }
 
-    private void initializeTable() {
+    private void initializeTable(DBAIProfile profile) {
         objectsTable.setSelectionModel(new NullSelectionModel());
         objectsTable.setDefaultRenderer(Object.class, createObjectTableRenderer());
         String[] columnNames = {
                 txt("profile.mgmt.obj_table.header.name"),
                 txt("profile.mgmt.obj_table.header.owner")};
-        Object[][] data = profile.getObjectList().stream()
-                .map(obj -> new Object[]{obj.getName(), obj.getOwner()})
+
+        Object[][] data = profile.getObjects().stream()
+                .map(obj -> new Object[]{obj.getName(), obj.getSchemaName()})
                 .toArray(Object[][]::new);
         DefaultTableModel tableModel = new DefaultTableModel(data, columnNames) {
             @Override
@@ -69,10 +72,6 @@ public class ProfileDetailsForm extends DBNFormBase {
             }
         };
         objectsTable.setModel(tableModel);
-    }
-
-    private void populateTable(Profile profile) {
-
     }
 
     private @NotNull TableCellRenderer createObjectTableRenderer() {
