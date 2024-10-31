@@ -23,6 +23,7 @@ import com.dbn.assistant.chat.window.ui.ChatBoxForm;
 import com.dbn.assistant.editor.action.ProfileSelectAction;
 import com.dbn.assistant.help.ui.AssistantHelpDialog;
 import com.dbn.assistant.profile.wizard.ProfileEditionWizard;
+import com.dbn.assistant.provider.AIModel;
 import com.dbn.assistant.provider.AIProvider;
 import com.dbn.assistant.settings.ui.AssistantDatabaseConfigDialog;
 import com.dbn.assistant.state.AssistantState;
@@ -67,8 +68,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
@@ -236,20 +235,20 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     }
   }
 
-  public CompletableFuture<String> queryAssistant(ConnectionId connectionId, String text, String action,
-                                                  String profile, String model) {
-    return CompletableFuture.supplyAsync(() -> {
-//      return "```\nselect something;\n```\n\nTHIS IS a response " + new Random().nextInt();
-      try {
-        ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
-        DBNConnection conn = connection.getConnection(SessionId.ASSISTANT);
-        return connection.getAssistantInterface()
-                .executeQuery(conn, action, profile, text, model)
-                .getQueryOutput();
-      } catch (SQLException e) {
-        throw new CompletionException(e);
-      }
-    });
+  public String query(ConnectionId connectionId, String prompt, ChatMessageContext context) throws SQLException {
+    ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
+
+    String profile = context.getProfile();
+    String action = context.getAction().getId();
+    String attributes = context.getAttributes();
+
+    DBNConnection conn = connection.getConnection(SessionId.ASSISTANT);
+    DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
+
+    AssistantQueryResponse response = assistantInterface.generate(conn, action, profile, attributes, prompt);
+    ProgressMonitor.checkCancelled();
+
+    return response.read();
   }
 
   public void generate(ConnectionId connectionId, String text, ChatMessageContext context, Consumer<ChatMessage> consumer) {
@@ -260,19 +259,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
             getAssistantName(connectionId),
             getPromptText(context.getAction(), text), p -> {
       try {
-
-        String profile = context.getProfile();
-        String action = context.getAction().getId();
-        String model = context.getModel().getApiName();
-
-        DBNConnection conn = connection.getConnection(SessionId.ASSISTANT);
-        DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-        AssistantQueryResponse response = assistantInterface.generate(conn, action, profile, model, text);
-        ProgressMonitor.checkCancelled();
-
-        String content = response.read();
-        consumer.accept(new ChatMessage(MessageType.NEUTRAL, content, AuthorType.AGENT, context));
-
+        String content = query(connectionId, text, context);
+        ChatMessage message = new ChatMessage(MessageType.NEUTRAL, content, AuthorType.AGENT, context);
+        consumer.accept(message);
       } catch (ProcessCanceledException e) {
         conditionallyLog(e);
         throw e;
@@ -371,6 +360,22 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     String profileName = assistantState.getSelectedProfileName();
     List<DBAIProfile> profiles = getProfiles(connectionId);
     return first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
+  }
+
+  @Nullable
+  public AIModel getSelectedModel(ConnectionId connectionId) {
+    DBAIProfile profile = getSelectedProfile(connectionId);
+    if (profile == null) return null;
+
+    AIProvider provider = profile.getProvider();
+    if (provider == null) return null;
+
+    AssistantState assistantState = getAssistantState(connectionId);
+    String modelName = assistantState.getSelectedModelName();
+
+    return modelName == null ?
+            provider.getDefaultModel() :
+            provider.getModel(modelName);
   }
 
   public void setSelectedProfile(ConnectionId connectionId, @Nullable DBAIProfile profile) {

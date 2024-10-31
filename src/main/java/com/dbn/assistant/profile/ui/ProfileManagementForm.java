@@ -37,7 +37,6 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.common.ui.DBObjectListModel;
 import com.dbn.object.event.ObjectChangeListener;
-import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
@@ -70,7 +69,7 @@ import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 public class ProfileManagementForm extends DBNFormBase {
 
   private JPanel mainPanel;
-  private JList<DBObjectRef<DBAIProfile>> profilesList;
+  private JList<DBAIProfile> profilesList;
   private JPanel detailPanel;
   private JPanel actionsPanel;
   private JPanel initializingIconPanel;
@@ -95,14 +94,14 @@ public class ProfileManagementForm extends DBNFormBase {
     initDetailsPanel();
     initChangeListener();
 
-    whenShown(() -> loadProfiles(false));
+    whenShown(() -> loadProfiles());
   }
 
   private void initChangeListener() {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
       if (connectionId != getConnection().getConnectionId()) return;
       if (objectType != AI_PROFILE) return;
-      loadProfiles(true);
+      reloadProfiles();
     });
   }
 
@@ -112,7 +111,7 @@ public class ProfileManagementForm extends DBNFormBase {
   }
 
   private void initProfilesList() {
-    profilesList.setModel(new DBObjectListModel());
+    profilesList.setModel(DBObjectListModel.create(this));
     profilesList.setBackground(Colors.getTextFieldBackground());
     profilesList.setBorder(Borders.EMPTY_BORDER);
 
@@ -173,21 +172,20 @@ public class ProfileManagementForm extends DBNFormBase {
 
   @Nullable
   public DBAIProfile getSelectedProfile() {
-    return DBObjectRef.get(profilesList.getSelectedValue());
-  }
-
-  @Nullable
-  public DBObjectRef<DBAIProfile>  getDefaultProfile() {
     return profilesList.getSelectedValue();
   }
 
   public Set<String> getProfileNames() {
     DBObjectListModel<DBAIProfile> model = cast(profilesList.getModel());
-    return model.getElements().stream().map(p -> p.getObjectName()).collect(Collectors.toSet());
+    return model.getElements().stream().map(p -> p.getName()).collect(Collectors.toSet());
   }
 
-  public void loadProfiles(boolean force) {
-    Background.run(getProject(), () -> doLoadProfiles(force));
+  public void loadProfiles() {
+    Background.run(getProject(), () -> doLoadProfiles(false));
+  }
+
+  public void reloadProfiles() {
+    Background.run(getProject(), () -> doLoadProfiles(true));
   }
 
   private void doLoadProfiles(boolean force) {
@@ -211,12 +209,18 @@ public class ProfileManagementForm extends DBNFormBase {
 
   private void applyProfiles(List<DBAIProfile> profiles) {
     // capture selection
-    DBObjectRef<DBAIProfile> selectedProfile = profilesList.getSelectedValue();
-    String selectedProfileName = selectedProfile == null ? null : selectedProfile.getObjectName();
+    DBAIProfile selectedProfile = profilesList.getSelectedValue();
+    String selectedProfileName = selectedProfile == null ? null : selectedProfile.getName();
 
     // apply new profiles
-    profilesList.setModel(DBObjectListModel.create(profiles));
-    this.profileDetailForms = Disposer.replace(this.profileDetailForms, new ConcurrentHashMap<>());
+    this.profileDetailForms = Disposer.replace(
+            this.profileDetailForms,
+            new ConcurrentHashMap<>());
+    this.profilesList.setModel(Disposer.replace(
+            profilesList.getModel(),
+            DBObjectListModel.create(this, profiles)));
+
+
 
     // restore selection
     int selectionIndex = Lists.indexOf(profiles, c -> c.getName().equalsIgnoreCase(selectedProfileName));

@@ -18,7 +18,6 @@ import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.DatabaseInterfaceBase;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
-import com.dbn.database.common.assistant.OracleQueryOutput;
 import com.dbn.database.common.util.BooleanResultSetConsumer;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.database.interfaces.DatabaseInterfaces;
@@ -39,15 +38,8 @@ public class OracleAssistantInterface extends DatabaseInterfaceBase implements D
     super("oracle_ai_interface.xml", provider);
   }
 
-  @Override
-  public OracleQueryOutput executeQuery(DBNConnection connection, String action, String profile, String text, String model) throws SQLException {
-    return executeCall(connection, new OracleQueryOutput(), "ai-query", profile, action, text.replace("'", "''"), "{\"model\":\"" + model + "\"}");
-  }
-
-  public AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String model, String prompt) throws SQLException {
-    prompt = prompt.replaceAll("'", "''");
-    String attributes = "{\"model\":\"" + model + "\"}";
-    return executeCall(connection, new AssistantQueryResponse(), "ai-generate", profile, action, prompt, attributes);
+  public AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException {
+    return executeCall(connection, new AssistantQueryResponse(), "ai-generate", profile, action, attributes, prompt);
   }
 
   @Override

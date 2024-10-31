@@ -36,6 +36,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.DBObjectListModel;
 import com.dbn.object.event.ObjectChangeListener;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.ui.ColoredListCellRenderer;
@@ -114,12 +115,12 @@ public class CredentialManagementForm extends DBNFormBase {
     initCredentialList();
     initChangeListener();
 
-    whenShown(() -> loadCredentials(false));
+    whenShown(() -> loadCredentials());
   }
   private void initChangeListener() {
     ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
       if (connectionId != getConnectionId()) return;
-      if (objectType == CREDENTIAL) loadCredentials(true);
+      if (objectType == CREDENTIAL) reloadCredentials();
       if (objectType == AI_PROFILE) evaluateCredentialUsage();
     });
   }
@@ -149,6 +150,7 @@ public class CredentialManagementForm extends DBNFormBase {
    * This method is responsible for the initial UI setup and layout of the credential management panel.
    */
   private void initCredentialList() {
+    credentialList.setModel(DBObjectListModel.create(this));
     credentialList.setBackground(Colors.getTextFieldBackground());
     credentialList.setBorder(Borders.EMPTY_BORDER);
 
@@ -202,7 +204,7 @@ public class CredentialManagementForm extends DBNFormBase {
         @Override
         protected void customizeCellRenderer(@NotNull JList<? extends DBCredential> list, DBCredential credential, int index, boolean selected, boolean hasFocus) {
             String credentialName = credential.getName();
-            boolean enabled = credential.isEnabled();
+            boolean enabled = list.isEnabled() && credential.isEnabled();
             boolean used = isCredentialUsed(credential);
             append(credentialName, enabled ? used ? REGULAR_BOLD_ATTRIBUTES : REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES);
 
@@ -235,8 +237,12 @@ public class CredentialManagementForm extends DBNFormBase {
    * the UI components accordingly. This method retrieves the credentials, updating the credential list
    * and the display information panel based on the available credentials for the connected project.
    */
-  public void loadCredentials(boolean force) {
-    Background.run(getProject(), () -> doLoadCredentials(force));
+  public void loadCredentials() {
+    Background.run(getProject(), () -> doLoadCredentials(false));
+  }
+
+  public void reloadCredentials() {
+    Background.run(getProject(), () -> doLoadCredentials(true));
   }
 
   private void doLoadCredentials(boolean force) {
@@ -270,8 +276,14 @@ public class CredentialManagementForm extends DBNFormBase {
     String selectedCredentialName = selectedCredential == null ? null : selectedCredential.getName();
 
     // apply new credentials
-    this.credentialDetailForms = Disposer.replace(this.credentialDetailForms, new ConcurrentHashMap<>());
-    this.credentialList.setListData(credentials.toArray(new DBCredential[0]));
+    this.credentialDetailForms = Disposer.replace(
+            this.credentialDetailForms,
+            new ConcurrentHashMap<>());
+
+    this.credentialList.setModel(Disposer.replace(
+            credentialList.getModel(),
+            DBObjectListModel.create(this, credentials)));
+
     evaluateCredentialUsage();
 
     // restore selection

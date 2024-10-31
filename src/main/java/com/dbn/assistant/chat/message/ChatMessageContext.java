@@ -17,10 +17,14 @@ package com.dbn.assistant.chat.message;
 import com.dbn.assistant.chat.window.PromptAction;
 import com.dbn.assistant.provider.AIModel;
 import com.dbn.common.state.PersistentStateElement;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.jdom.Element;
+
+import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
@@ -36,6 +40,8 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 @Setter
 @NoArgsConstructor
 public class ChatMessageContext implements PersistentStateElement {
+    private static final Gson GSON = new GsonBuilder().create();
+
     private String profile;
     private AIModel model;
     private PromptAction action;
@@ -44,6 +50,11 @@ public class ChatMessageContext implements PersistentStateElement {
         this.profile = profile;
         this.model = model;
         this.action = action;
+    }
+
+    public String getAttributes() {
+        Map<String, String> attributes = Map.of("model", model.getApiName());
+        return GSON.toJson(attributes);
     }
 
     @Override

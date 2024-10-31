@@ -17,8 +17,6 @@ package com.dbn.assistant.credential.remote.ui;
 import com.dbn.assistant.credential.local.LocalCredential;
 import com.dbn.assistant.credential.local.LocalCredentialSettings;
 import com.dbn.assistant.credential.remote.CredentialManagementService;
-import com.dbn.assistant.entity.OciCredential;
-import com.dbn.assistant.entity.PasswordCredential;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -146,20 +144,17 @@ public class CredentialEditForm extends DBNFormBase {
     credentialNameField.setText(credential.getName());
     credentialNameField.setEnabled(false);
     statusCheckBox.setSelected(credential.isEnabled());
-    if (credential instanceof PasswordCredential) {
+    DBCredentialType credentialType = credential.getType();
+    if (credentialType == DBCredentialType.PASSWORD) {
       initPasswordCredentialFields();
-    } else if (credential instanceof OciCredential) {
+    } else if (credentialType == DBCredentialType.OCI) {
       initOciCredentialFields();
     }
   }
 
   private void initOciCredentialFields() {
     credentialTypeComboBox.setSelectedItem(DBCredentialType.OCI);
-    OciCredential ociCredentialProvider = (OciCredential) credential;
-    ociCredentialUserOcidField.setText(ociCredentialProvider.getUserName());
-    ociCredentialUserTenancyOcidField.setText(ociCredentialProvider.getUserTenancyOCID());
-    ociCredentialPrivateKeyField.setText(ociCredentialProvider.getPrivateKey());
-    ociCredentialFingerprintField.setText(ociCredentialProvider.getFingerprint());
+    ociCredentialUserOcidField.setText(credential.getUserName());
   }
 
   private void initPasswordCredentialFields() {
@@ -191,12 +186,6 @@ public class CredentialEditForm extends DBNFormBase {
     credential = inputsToCredential();
     if (credential == null) return;
     getManagementService().createObject(credential, successHandler);
-
-/*
-    credentialSvc.create(credential)
-            .thenAccept(e -> credentialSvc.updateStatus(credential.getName(), statusCheckBox.isSelected()))
-            .exceptionally(this::handleException);
-*/
   }
 
   /**
@@ -206,14 +195,6 @@ public class CredentialEditForm extends DBNFormBase {
     credential = inputsToCredential();
     if (credential == null) return;
     getManagementService().updateObject(credential, successHandler);
-
-/*
-    boolean enabled = statusCheckBox.isSelected();
-    boolean statusChanged = credential.isEnabled() != enabled;
-    credentialSvc.update(editedCredential)
-        .thenAccept(e -> when(statusChanged, () -> credentialSvc.updateStatus(credential.getCredentialName(), enabled)))
-        .exceptionally(this::handleException);
-*/
   }
 
   @NotNull
@@ -236,10 +217,10 @@ public class CredentialEditForm extends DBNFormBase {
     String credentialName = credentialNameField.getText();
     boolean selected = statusCheckBox.isSelected();
 
-    DBCredential credential = new DBCredentialImpl(schema, credentialName, DBCredentialType.PASSWORD, selected);
+    DBCredential credential = new DBCredentialImpl(schema, credentialName, credentialType, selected);
     if (credentialType == DBCredentialType.PASSWORD) {
       credential.setAttribute(USER_NAME, passwordCredentialUsernameField.getText());
-      credential.setAttribute(PASSWORD , passwordCredentialPasswordField.getText());
+      credential.setAttribute(PASSWORD, passwordCredentialPasswordField.getText());
 
     } else if (credentialType == DBCredentialType.OCI) {
       credential.setAttribute(USER_OCID,         ociCredentialUserOcidField.getText());

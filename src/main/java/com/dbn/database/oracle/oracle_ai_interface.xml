@@ -68,32 +68,16 @@
             end;
         </statement>
     </statement-execution-processor>
-    <statement-execution-processor id="ai-query" timeout="60">
-        <statement>
-            declare
-            query_output VARCHAR2(4000);
-            begin
-            SELECT DBMS_CLOUD_AI.GENERATE(
-            prompt => '{2}',
-            profile_name => '{0}',
-            action => '{1}',
-            attributes => '{3}')
-            INTO query_output
-            FROM dual;
-            ? := query_output;
-            end;
-        </statement>
-    </statement-execution-processor>
     <statement-execution-processor id="ai-generate" timeout="60">
         <statement>
             declare
                 v_response CLOB;
             begin
                 v_response := DBMS_CLOUD_AI.GENERATE(
-                                    prompt       => '{2}',
+                                    prompt       => '{3}',
                                     profile_name => '{0}',
                                     action       => '{1}',
-                                    attributes   => '{3}');
+                                    attributes   => '{2}');
                 ? := v_response;
             end;
         </statement>

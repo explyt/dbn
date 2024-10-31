@@ -77,12 +77,19 @@ public class AssistantStateDelegate extends AssistantState {
 
     @Override
     public void setSelectedProfileName(String profileName) {
-        if (Objects.equals(getSelectedModelName(), profileName)) return;
+        if (Objects.equals(getSelectedProfileName(), profileName)) return;
 
         super.setSelectedProfileName(profileName);
         notifyStateListeners();
     }
 
+    @Override
+    public void setSelectedModelName(String modelName) {
+        if (Objects.equals(getSelectedModelName(), modelName)) return;
+
+        super.setSelectedModelName(modelName);
+        notifyStateListeners();
+    }
 
     @Override
     protected void changed(AssistantStatus property, boolean value) {

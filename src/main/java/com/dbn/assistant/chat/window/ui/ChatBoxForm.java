@@ -34,8 +34,6 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
-import com.dbn.object.common.DBObjectUtil;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.AsyncProcessIcon;
@@ -55,6 +53,8 @@ import static com.dbn.assistant.state.AssistantStatus.QUERYING;
 import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 
 /**
  * Database Assistant ChatBox component
@@ -185,6 +185,12 @@ public class ChatBoxForm extends DBNFormBase {
     return manager.getSelectedProfile(connectionId);
   }
 
+  public AIModel getSelectedModel() {
+    DatabaseAssistantManager manager = getManager();
+    ConnectionId connectionId = getConnectionId();
+    return manager.getSelectedModel(connectionId);
+  }
+
   public void selectProfile(DBAIProfile profile) {
     DatabaseAssistantManager manager = getManager();
     ConnectionId connectionId = getConnectionId();
@@ -220,12 +226,12 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
 
-  public void submitPrompt(String question) {
-    Background.run(getProject(), () -> processQuery(question));
-  }
-
   public void submitPrompt() {
     submitPrompt(null);
+  }
+
+  public void submitPrompt(String question) {
+    Background.run(getProject(), () -> processQuery(question));
   }
 
   private void processQuery(String question) {
@@ -233,15 +239,17 @@ public class ChatBoxForm extends DBNFormBase {
 
     ConnectionId connectionId = getConnectionId();
     DatabaseAssistantManager manager = getManager();
+
     DBAIProfile profile = manager.getSelectedProfile(connectionId);
+    AIModel model = manager.getSelectedModel(connectionId);
     if (profile == null) return;
+    if (model == null) return;
 
     question = nvl(question, inputField.getAndClearText());
     if (Strings.isEmptyOrSpaces(question)) return;
 
     AssistantState state = getAssistantState();
     state.set(QUERYING, true);
-    AIModel model = profile.getModel();
 
     PromptAction actionType = state.getSelectedAction();
 
@@ -253,49 +261,46 @@ public class ChatBoxForm extends DBNFormBase {
     if (actionType == PromptAction.CHAT) {
       question = question + " (please triple-quote all code-contents in your output, and qualify them with the programming-language identifier)";
     }
-    manager.queryAssistant(connectionId, question, actionType.getId(), profile.getName(), model.getApiName())
-        .thenAccept((output) -> {
-          state.set(QUERYING, false);
-          PersistentChatMessage outPutChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, output, AuthorType.AGENT, context);
-          appendMessageToChat(outPutChatMessage);
-          log.debug("Query processed successfully.");
-        })
-        .exceptionally(e -> {
-          state.set(QUERYING, false);
-          log.warn("Error processing query", e);
-          String message = manager.getPresentableMessage(connectionId, e);
-          PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, context);
-          appendMessageToChat(errorMessage);
-          return null;
-        })
-        .thenRun(() -> {
-          //promptTextArea.setEnabled(true);
-        });
+
+    try {
+      String response = manager.query(connectionId, question, context);
+      state.set(QUERYING, false);
+      PersistentChatMessage outPutChatMessage = new PersistentChatMessage(MessageType.NEUTRAL, response, AuthorType.AGENT, context);
+      appendMessageToChat(outPutChatMessage);
+      log.debug("Query processed successfully.");
+    } catch (Exception e) {
+      state.set(QUERYING, false);
+      log.warn("Error processing query", e);
+      String message = manager.getPresentableMessage(connectionId, e);
+      PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, context);
+      appendMessageToChat(errorMessage);
+    }
   }
 
 
   public void reloadProfiles() {
-    DBObjectUtil.refreshUserObjects(getConnectionId(), DBObjectType.AI_PROFILE);
-    loadProfiles();
+    Background.run(getProject(), () -> doLoadProfiles(true));
+  }
+  public void loadProfiles() {
+    Background.run(getProject(), () -> doLoadProfiles(false));
   }
 
   /**
    * Initializes the profile dropdowns for the chat box
    */
-  private void loadProfiles() {
+  private void doLoadProfiles(boolean force) {
     if (getAssistantState().is(INITIALIZING)) return;
-    Background.run(getProject(), () -> {
-      try {
-        beforeProfileLoad();
-        DatabaseAssistantManager manager = getManager();
-        // make sure profiles are loaded
-        manager.getProfiles(getConnectionId());
-        afterProfileLoad(null);
-      } catch (Throwable e){
-        log.warn("Failed to fetch profiles", e);
-        afterProfileLoad(e);
-      }
-    });
+    try {
+      if (force) refreshUserObjects(getConnectionId(), AI_PROFILE);
+      beforeProfileLoad();
+      DatabaseAssistantManager manager = getManager();
+      // make sure profiles are loaded
+      manager.getProfiles(getConnectionId());
+      afterProfileLoad(null);
+    } catch (Throwable e){
+      log.warn("Failed to fetch profiles", e);
+      afterProfileLoad(e);
+    }
   }
 
   private void beforeProfileLoad() {

@@ -29,12 +29,13 @@ import java.util.stream.Collectors;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.object.common.DBObjectUtil.jsonToObjectList;
+import static com.dbn.object.common.DBObjectUtil.objectToAttributes;
 import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 
 @Getter
 public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> implements DBAIProfile {
-    public static final Gson GSON = new GsonBuilder().create();
+    private static final Gson GSON = new GsonBuilder().create();
     private String description;
     private DBObjectRef<DBCredential> credential;
     private AIProvider provider;
@@ -86,9 +87,7 @@ public class DBAIProfileImpl extends DBSchemaObjectImpl<DBProfileMetadata> imple
                 "model", getModel().getApiName(),
                 "temperature", getTemperature(),
                 "credential_name", nvl(getCredentialName(), ""),
-                "object_list", convert(objects, o -> Map.of(
-                        "owner", nvl(o.getSchemaName(), ""),
-                        "name", nvl(o.getObjectName(), "")))));
+                "object_list", convert(objects, o -> objectToAttributes(o))));
     }
 
     public String getCredentialName() {

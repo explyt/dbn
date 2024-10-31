@@ -80,10 +80,14 @@ public class ProfileDetailsForm extends DBNFormBase {
             @Override
             protected void customizeCellRenderer(@NotNull JTable table, @Nullable Object value, boolean selected, boolean hasFocus, int row, int column) {
                 if (value != null) {
-                    append(value.toString(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    append(value.toString(), table.isEnabled() ?
+                            SimpleTextAttributes.REGULAR_ATTRIBUTES :
+                            SimpleTextAttributes.GRAY_ATTRIBUTES);
                     setFont(getFont().deriveFont(Font.PLAIN));
                 } else {
-                    append("<all>", SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES);
+                    append("<all>", table.isEnabled() ?
+                            SimpleTextAttributes.REGULAR_ITALIC_ATTRIBUTES :
+                            SimpleTextAttributes.GRAY_ITALIC_ATTRIBUTES);
                 }
 
             }

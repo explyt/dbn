@@ -81,7 +81,9 @@ public class CredentialDetailsForm extends DBNFormBase {
         return new ColoredListCellRenderer<>() {
             @Override
             protected void customizeCellRenderer(@NotNull JList<? extends String> list, String value, int index, boolean selected, boolean hasFocus) {
-                append(value, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(value, list.isEnabled() ?
+                        SimpleTextAttributes.REGULAR_ATTRIBUTES :
+                        SimpleTextAttributes.GRAY_ATTRIBUTES);
             }
         };
     }

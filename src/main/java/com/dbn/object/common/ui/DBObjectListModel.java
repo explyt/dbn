@@ -14,34 +14,39 @@
 
 package com.dbn.object.common.ui;
 
+import com.dbn.common.dispose.Disposer;
+import com.dbn.common.dispose.StatefulDisposableBase;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.Disposable;
 
 import javax.swing.ListModel;
 import javax.swing.event.ListDataEvent;
 import javax.swing.event.ListDataListener;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-public class DBObjectListModel<T extends DBObject> implements ListModel<DBObjectRef<T>> {
-    private final List<DBObjectRef<T>> data = new ArrayList<>();
-    private final Listeners<ListDataListener> listeners = Listeners.create();
+public class DBObjectListModel<T extends DBObject> extends StatefulDisposableBase implements ListModel<T> {
+    private final List<T> data = new ArrayList<>();
+    private final Listeners<ListDataListener> listeners = Listeners.create(this);
 
-    public DBObjectListModel() {
-    }
-
-    public DBObjectListModel(List<T> data) {
+    public DBObjectListModel(Disposable parent, List<T> data) {
         setData(data);
+        Disposer.register(parent, this);
     }
 
-    public static <T extends DBObject> DBObjectListModel<T> create(List<T> data) {
-        return new DBObjectListModel<>(data);
+    public static <T extends DBObject> DBObjectListModel<T> create(Disposable parent) {
+        return create(parent, Collections.emptyList());
+    }
+
+    public static <T extends DBObject> DBObjectListModel<T> create(Disposable parent, List<T> data) {
+        return new DBObjectListModel<>(parent, data);
     }
 
     public void setData(List<T> objects) {
         data.clear();
-        data.addAll(DBObjectRef.from(objects));
+        data.addAll(objects);
         notifyListeners();
     }
 
@@ -56,11 +61,11 @@ public class DBObjectListModel<T extends DBObject> implements ListModel<DBObject
     }
 
     @Override
-    public DBObjectRef<T> getElementAt(int i) {
+    public T getElementAt(int i) {
         return data.get(i);
     }
 
-    public List<DBObjectRef<T>> getElements() {
+    public List<T> getElements() {
         return data;
     }
 
@@ -72,5 +77,10 @@ public class DBObjectListModel<T extends DBObject> implements ListModel<DBObject
     @Override
     public void removeListDataListener(ListDataListener listDataListener) {
         listeners.remove(listDataListener);
+    }
+
+    @Override
+    public void disposeInner() {
+        data.clear();
     }
 }

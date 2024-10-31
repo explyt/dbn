@@ -17,7 +17,6 @@ package com.dbn.database.interfaces;
 import com.dbn.assistant.DatabaseAssistantType;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.assistant.AssistantQueryResponse;
-import com.dbn.database.common.assistant.OracleQueryOutput;
 
 import java.sql.SQLException;
 
@@ -36,13 +35,12 @@ public interface DatabaseAssistantInterface extends DatabaseInterface {
    * @param connection The database connection object.
    * @param action     The AI action to perform, such as translate or analyze.
    * @param profile    The name of the AI profile to use for the query execution.
-   * @param text       The text or query to process using the AI action.
+   * @param attributes The attributes qualifying the request
+   * @param prompt     The text or query to process using the AI action.
    * @return The result of the AI query execution.
    * @throws SQLException If there is an error in executing the AI query.
    */
-  OracleQueryOutput executeQuery(DBNConnection connection, String action, String profile, String text, String model) throws SQLException;
-
-  AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String model, String text) throws SQLException;
+  AssistantQueryResponse generate(DBNConnection connection, String action, String profile, String attributes, String prompt) throws SQLException;
 
   /**
    * Grant a user the necessary privileges to access needed packages (DBMS_CLOUD, DBMS_CLOUD_AI)

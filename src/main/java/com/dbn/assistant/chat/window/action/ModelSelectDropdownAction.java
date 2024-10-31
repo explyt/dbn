@@ -90,7 +90,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
         DBAIProfile profile = chatBox.getSelectedProfile();
         if (profile == null) return null;
 
-        AIModel model = profile.getModel();
+        AIModel model = chatBox.getSelectedModel();
         if (model == null) return null;
 
         return Actions.adjustActionName(model.getId());

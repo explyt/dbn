@@ -27,6 +27,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,10 +64,15 @@ public class DBObjectUtil {
     }
 
 
+    public static Map<String, String> objectToAttributes(DBObjectRef object) {
+        Map<String, String> map = new LinkedHashMap<>();
+        map.put("owner", nvl(object.getSchemaName(), ""));
+        map.put("name", nvl(object.getObjectName(), ""));
+        return map;
+    }
+
     public static String objectListToJson(List<DBObjectRef<DBObject>> objects) {
-        return GSON.toJson(convert(objects, o -> Map.of(
-                "owner", nvl(o.getSchemaName(), ""),
-                "name", nvl(o.getObjectName(), ""))));
+        return GSON.toJson(convert(objects, o -> objectToAttributes(o)));
     }
 
     public static List<DBObjectRef<?>> jsonToObjectList(ConnectionId connectionId, String json) {
