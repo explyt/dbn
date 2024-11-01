@@ -36,10 +36,10 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
+import com.dbn.object.common.ui.DBObjectListCellRenderer;
 import com.dbn.object.common.ui.DBObjectListModel;
 import com.dbn.object.event.ObjectChangeListener;
 import com.intellij.openapi.actionSystem.ActionToolbar;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +49,6 @@ import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.ListCellRenderer;
 import java.awt.BorderLayout;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,9 +63,6 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
-import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
-import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
-import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 
 /**
  * A panel for managing AI credentials within the application, offering functionalities
@@ -162,7 +158,7 @@ public class CredentialManagementForm extends DBNFormBase {
       showDetailForm(selectedCredential);
     });
 
-    credentialList.setCellRenderer(createListCellRenderer());
+    credentialList.setCellRenderer(DBObjectListCellRenderer.create());
   }
 
   public void promptCredentialCreation() {
@@ -197,20 +193,6 @@ public class CredentialManagementForm extends DBNFormBase {
             detailedMessage.toString(),
             Messages.OPTIONS_YES_NO, 1,
             option -> when(option == 0, () -> removeCredential(credential)));
-  }
-
-  private ListCellRenderer<DBCredential> createListCellRenderer() {
-    return new ColoredListCellRenderer<>() {
-        @Override
-        protected void customizeCellRenderer(@NotNull JList<? extends DBCredential> list, DBCredential credential, int index, boolean selected, boolean hasFocus) {
-            String credentialName = credential.getName();
-            boolean enabled = list.isEnabled() && credential.isEnabled();
-            boolean used = isCredentialUsed(credential);
-            append(credentialName, enabled ? used ? REGULAR_BOLD_ATTRIBUTES : REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES);
-
-            setToolTipText(enabled ? null : txt("ai.settings.credential.not_enabled"));
-        }
-    };
   }
 
   private boolean isCredentialUsed(DBCredential credential) {

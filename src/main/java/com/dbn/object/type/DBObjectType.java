@@ -44,7 +44,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     CONTEXT(DatabaseObjectTypeId.CONTEXT, "context", "contexts", null, null, null, false),
     COLUMN(DatabaseObjectTypeId.COLUMN, "column", "columns", Icons.DBO_COLUMN, null, Icons.DBO_COLUMNS, false),
     CONSTRAINT(DatabaseObjectTypeId.CONSTRAINT, "constraint", "constraints", Icons.DBO_CONSTRAINT, Icons.DBO_CONSTRAINT_DISABLED, Icons.DBO_CONSTRAINTS, false),
-    CREDENTIAL(DatabaseObjectTypeId.CREDENTIAL, "credential", "credentials", null, null, null, false),
+    CREDENTIAL(DatabaseObjectTypeId.CREDENTIAL, "credential", "credentials", Icons.DBO_CREDENTIAL, Icons.DBO_CREDENTIAL_DISABLED, Icons.DBO_CREDENTIALS, false),
     DATABASE(DatabaseObjectTypeId.DATABASE, "database", "databases", null, null, null, false),
     DATASET(DatabaseObjectTypeId.DATASET, "dataset", "datasets", null, null, null, true),
     DIRECTORY(DatabaseObjectTypeId.DIRECTORY, "directory", "directories", null, null, null, true),

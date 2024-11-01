@@ -339,6 +339,9 @@ public class Icons {
     public static final Icon DBO_CONSTRAINT                      = load("/img/object/constraint/Constraint.svg");
     public static final Icon DBO_CONSTRAINT_DISABLED             = load("/img/object/constraint/ConstraintDisabled.svg");
     public static final Icon DBO_CONSTRAINTS                     = load("/img/object/constraint/Constraints.svg");
+    public static final Icon DBO_CREDENTIAL                      = load("/img/object/credential/Credential.svg");
+    public static final Icon DBO_CREDENTIAL_DISABLED             = load("/img/object/credential/CredentialDisabled.svg");
+    public static final Icon DBO_CREDENTIALS                     = load("/img/object/credential/Credentials.svg");
     public static final Icon DBO_DATABASE_LINK                   = load("/img/object/DatabaseLink.png");
     public static final Icon DBO_DATABASE_LINKS                  = load("/img/object/DatabaseLinks.png");
     public static final Icon DBO_DIMENSION                       = load("/img/object/Dimension.png");
