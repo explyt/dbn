@@ -100,6 +100,9 @@ public class AssistantState extends PropertyHolderBase.IntStore<AssistantStatus>
             isNot(AssistantStatus.QUERYING);
   }
 
+  public void setSelectedProfile(@Nullable DBAIProfile profile) {
+    selectedProfileName = profile == null ? null : profile.getName();
+  }
   public void setDefaultProfile(@Nullable DBAIProfile profile) {
     defaultProfileName = profile == null ? null : profile.getName();
   }

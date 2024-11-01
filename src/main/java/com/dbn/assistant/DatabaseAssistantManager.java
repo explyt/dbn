@@ -81,6 +81,7 @@ import static com.dbn.common.ui.CardLayouts.visibleCardId;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Lists.first;
+import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.util.Collections.emptyList;
@@ -332,34 +333,51 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     Popups.showActionsPopup("Select Profile", editor, actions, Selectable.selector());
   }
 
-  public String getDefaultProfileName(ConnectionId connectionId) {
-    return getAssistantState(connectionId).getDefaultProfileName();
-  }
-
-  public void setDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
+  public void setDefaultProfile(ConnectionId connectionId, @Nullable DBAIProfile profile) {
     getAssistantState(connectionId).setDefaultProfile(profile);
   }
 
-  public boolean isDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
-    if (profile == null) return false;
-
-    String defaultProfileName = getDefaultProfileName(connectionId);
-    if (defaultProfileName == null) return false;
-
-    return Objects.equals(defaultProfileName, profile.getName());
+  public void setSelectedProfile(ConnectionId connectionId, @Nullable DBAIProfile profile) {
+    getAssistantState(connectionId).setSelectedProfile(profile);
   }
 
+  public boolean isDefaultProfile(ConnectionId connectionId, DBAIProfile profile) {
+    DBAIProfile defaultProfile = getDefaultProfile(connectionId);
+    return Objects.equals(defaultProfile, profile);
+  }
+
+  @Nullable
   public DBAIProfile getDefaultProfile(ConnectionId connectionId) {
-    String profileName = getDefaultProfileName(connectionId);
     List<DBAIProfile> profiles = getProfiles(connectionId);
-    return first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
+    if (profiles.isEmpty()) return null;
+
+    AssistantState assistantState = getAssistantState(connectionId);
+    String profileName = assistantState.getDefaultProfileName();
+
+    DBAIProfile profile = getProfile(connectionId, profileName);
+    assistantState.setDefaultProfile(profile);
+    return profile;
   }
 
   public DBAIProfile getSelectedProfile(ConnectionId connectionId) {
+    List<DBAIProfile> profiles = getProfiles(connectionId);
+    if (profiles.isEmpty()) return null;
+
     AssistantState assistantState = getAssistantState(connectionId);
     String profileName = assistantState.getSelectedProfileName();
+
+    DBAIProfile profile = getProfile(connectionId, profileName);
+    assistantState.setSelectedProfile(profile);
+    return profile;
+  }
+
+  @Nullable
+  private DBAIProfile getProfile(ConnectionId connectionId, String profileName) {
     List<DBAIProfile> profiles = getProfiles(connectionId);
-    return first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
+    DBAIProfile profile = first(profiles, p -> p.getName().equalsIgnoreCase(profileName));
+
+    if (profile == null) profile = firstElement(profiles);
+    return profile;
   }
 
   @Nullable
@@ -373,14 +391,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     AssistantState assistantState = getAssistantState(connectionId);
     String modelName = assistantState.getSelectedModelName();
 
-    return modelName == null ?
-            provider.getDefaultModel() :
-            provider.getModel(modelName);
-  }
-
-  public void setSelectedProfile(ConnectionId connectionId, @Nullable DBAIProfile profile) {
-    AssistantState assistantState = getAssistantState(connectionId);
-    assistantState.setSelectedProfileName(profile == null ? null : profile.getName());
+    AIModel model = provider.getModel(modelName);
+    return model == null ? provider.getDefaultModel() : model;
   }
 
   public boolean isPromptingAvailable(ConnectionId connectionId) {
