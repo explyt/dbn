@@ -8,6 +8,7 @@ public enum DatabaseObjectTypeId {
     ATTRIBUTE,
     ARGUMENT,
     CATEGORY,
+    CERTIFICATE,
     CHARSET,
     CLUSTER,
     COLLATION,

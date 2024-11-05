@@ -37,6 +37,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     ATTRIBUTE(DatabaseObjectTypeId.ATTRIBUTE, "attribute", "attribute", Icons.DBO_ATTRIBUTE, null, Icons.DBO_ATTRIBUTES, false),
     ARGUMENT(DatabaseObjectTypeId.ARGUMENT, "argument", "arguments", Icons.DBO_ARGUMENT, null, Icons.DBO_ARGUMENTS, false),
     CATEGORY(DatabaseObjectTypeId.CATEGORY, "category", "categories", null, null, null, false),
+    CERTIFICATE(DatabaseObjectTypeId.CERTIFICATE, "certificate", "certificates", Icons.DBO_CERTIFICATE, Icons.DBO_CERTIFICATE_DISABLED, Icons.DBO_CERTIFICATES, false),
     CHARSET(DatabaseObjectTypeId.CHARSET, "charset", "charsets", null, null, null, false),
     CLUSTER(DatabaseObjectTypeId.CLUSTER, "cluster", "clusters", Icons.DBO_CLUSTER, null, Icons.DBO_CLUSTERS, false),
     COLLATION(DatabaseObjectTypeId.COLLATION, "collation", "collations", null, null, Icons.DBO_CLUSTERS, false),
