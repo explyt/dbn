@@ -15,19 +15,22 @@
 package com.dbn.object.management;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.adapter.CredentialManagementAdapter;
-import com.dbn.object.management.adapter.ProfileManagementAdapter;
+import com.dbn.object.management.adapter.DBAIProfileManagementAdapter;
+import com.dbn.object.management.adapter.DBCredentialManagementAdapter;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
+import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +42,8 @@ import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
+import static com.dbn.object.type.DBObjectType.AI_PROFILE;
+import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 /**
  * Generic database object management component
@@ -52,8 +57,7 @@ import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 @State(
         name = ObjectManagementServiceImpl.COMPONENT_NAME,
         storages = @Storage(DatabaseNavigator.STORAGE_FILE))
-
-final class ObjectManagementServiceImpl extends ProjectComponentBase implements ObjectManagementService {
+final class ObjectManagementServiceImpl extends ProjectComponentBase implements ObjectManagementService, PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.ObjectManagementService";
 
     private final Map<DBObjectType, ObjectManagementAdapterFactory> managementAdapters = new HashMap<>();
@@ -64,8 +68,8 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
     }
 
     private void registerAdapters() {
-        managementAdapters.put(DBObjectType.CREDENTIAL, new CredentialManagementAdapter());
-        managementAdapters.put(DBObjectType.AI_PROFILE, new ProfileManagementAdapter());
+        managementAdapters.put(CREDENTIAL, new DBCredentialManagementAdapter());
+        managementAdapters.put(AI_PROFILE, new DBAIProfileManagementAdapter());
         //...
     }
 
@@ -115,5 +119,19 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
 
         adapter.addOutcomeHandler(OutcomeType.SUCCESS, successHandler);
         adapter.invokeModal();
+    }
+
+    /****************************************
+     *       PersistentStateComponent       *
+     *****************************************/
+    @Nullable
+    @Override
+    public Element getComponentState() {
+        return null;
+    }
+
+    @Override
+    public void loadComponentState(@NotNull Element element) {
+
     }
 }

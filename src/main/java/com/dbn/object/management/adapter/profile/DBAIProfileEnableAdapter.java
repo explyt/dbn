@@ -12,12 +12,12 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.object.management.adapter.credential;
+package com.dbn.object.management.adapter.profile;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
-import com.dbn.object.DBCredential;
+import com.dbn.object.DBAIProfile;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
 import org.jetbrains.annotations.Nls;
@@ -25,42 +25,44 @@ import org.jetbrains.annotations.Nls;
 import java.sql.SQLException;
 
 /**
- * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in enabling entities of type {@link DBCredential}
+ * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in
+ * enabling entities of type {@link DBAIProfile}
+ *
  * @author Dan Cioca (Oracle)
  */
-public class CredentialEnableAdapter extends ObjectManagementAdapterBase<DBCredential> {
+public class DBAIProfileEnableAdapter extends ObjectManagementAdapterBase<DBAIProfile> {
 
-    public CredentialEnableAdapter(DBCredential credential) {
-        super(credential, ObjectChangeAction.ENABLE);
+    public DBAIProfileEnableAdapter(DBAIProfile profile) {
+        super(profile, ObjectChangeAction.ENABLE);
     }
 
     @Nls
     @Override
     protected String getProcessTitle() {
-        return txt("prc.assistant.title.EnablingCredential");
+        return txt("prc.assistant.title.EnablingAiProfile");
     }
 
     @Nls
     @Override
-    protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.EnablingCredential", object.getType(), object.getQualifiedName());
+    protected String getProcessDescription(DBAIProfile object) {
+        return txt("prc.assistant.message.EnablingAiProfile", object.getQualifiedName());
     }
 
     @Nls
     @Override
-    protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialEnablingSuccess", object.getType(), object.getQualifiedName());
+    protected String getSuccessMessage(DBAIProfile object) {
+        return txt("msg.assistant.info.AiProfileEnablingSuccess", object.getQualifiedName());
     }
 
     @Nls
     @Override
-    protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialEnablingFailure", object.getType(), object.getQualifiedName());
+    protected String getFailureMessage(DBAIProfile object) {
+        return txt("msg.assistant.error.AiProfileEnablingFailure", object.getQualifiedName());
     }
 
     @Override
-    protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, DBCredential credential) throws SQLException {
+    protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, DBAIProfile profile) throws SQLException {
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-        assistantInterface.enableCredential(conn, credential.getName());
+        assistantInterface.enableProfile(conn, profile.getSchemaName(), profile.getName());
     }
 }

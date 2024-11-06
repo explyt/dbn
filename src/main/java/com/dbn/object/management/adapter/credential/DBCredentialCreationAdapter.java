@@ -14,66 +14,78 @@
 
 package com.dbn.object.management.adapter.credential;
 
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBCredential;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
-import com.dbn.object.type.DBAttributeType;
+import com.dbn.object.type.DBCredentialType;
 import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
-import java.util.Map;
+
+import static com.dbn.object.type.DBAttributeType.FINGERPRINT;
+import static com.dbn.object.type.DBAttributeType.PASSWORD;
+import static com.dbn.object.type.DBAttributeType.PRIVATE_KEY;
+import static com.dbn.object.type.DBAttributeType.USER_NAME;
+import static com.dbn.object.type.DBAttributeType.USER_OCID;
+import static com.dbn.object.type.DBAttributeType.USER_TENANCY_OCID;
 
 /**
- * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in updating entities of type {@link DBCredential}
+ * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in creating entities of type {@link DBCredential}
  * @author Dan Cioca (Oracle)
  */
-public class CredentialUpdateAdapter extends ObjectManagementAdapterBase<DBCredential> {
+public class DBCredentialCreationAdapter extends ObjectManagementAdapterBase<DBCredential> {
 
-    public CredentialUpdateAdapter(DBCredential credential) {
-        super(credential, ObjectChangeAction.UPDATE);
+    public DBCredentialCreationAdapter(DBCredential credential) {
+        super(credential, ObjectChangeAction.CREATE);
     }
 
     @Nls
     @Override
     protected String getProcessTitle() {
-        return txt("prc.assistant.title.UpdatingCredential");
+        return txt("prc.assistant.title.CreatingCredential");
     }
 
     @Nls
     @Override
     protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.UpdatingCredential", object.getType(), object.getQualifiedName());
+        return txt("prc.assistant.message.CreatingCredential", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialUpdateSuccess", object.getType(), object.getQualifiedName());
+        return txt("msg.assistant.info.CredentialCreateSuccess", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialUpdateFailure", object.getType(), object.getQualifiedName());
+        return txt("msg.assistant.error.CredentialCreateFailure", object.getType(), object.getQualifiedName());
     }
 
     @Override
     protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, DBCredential credential) throws SQLException {
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-        Map<DBAttributeType, String> attributes = credential.getAttributes();
         String credentialName = credential.getName();
+        DBCredentialType credentialType = credential.getType();
 
-        // update attributes
-        for (DBAttributeType attribute : attributes.keySet()) {
-            String value = attributes.get(attribute);
-            if (Strings.isEmpty(value)) continue;
-            assistantInterface.updateCredentialAttribute(conn, credentialName, attribute.getId(), value);
+        if (credentialType == DBCredentialType.PASSWORD) {
+            assistantInterface.createPwdCredential(conn,
+                    credentialName,
+                    credential.getAttribute(USER_NAME),
+                    credential.getAttribute(PASSWORD));
+
+        } else if (credentialType == DBCredentialType.OCI) {
+            assistantInterface.createOciCredential(conn,
+                    credentialName,
+                    credential.getAttribute(USER_OCID),
+                    credential.getAttribute(USER_TENANCY_OCID),
+                    credential.getAttribute(PRIVATE_KEY),
+                    credential.getAttribute(FINGERPRINT));
         }
-
         // update status
         if (credential.isEnabled())
             assistantInterface.enableCredential(conn, credentialName); else

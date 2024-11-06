@@ -25,42 +25,42 @@ import org.jetbrains.annotations.Nls;
 import java.sql.SQLException;
 
 /**
- * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in deleting entities of type {@link DBCredential}
+ * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in enabling entities of type {@link DBCredential}
  * @author Dan Cioca (Oracle)
  */
-public class CredentialDeleteAdapter extends ObjectManagementAdapterBase<DBCredential> {
+public class DBCredentialEnableAdapter extends ObjectManagementAdapterBase<DBCredential> {
 
-    public CredentialDeleteAdapter(DBCredential credential) {
-        super(credential, ObjectChangeAction.DELETE);
+    public DBCredentialEnableAdapter(DBCredential credential) {
+        super(credential, ObjectChangeAction.ENABLE);
     }
 
     @Nls
     @Override
     protected String getProcessTitle() {
-        return txt("prc.assistant.title.DeletingCredential");
+        return txt("prc.assistant.title.EnablingCredential");
     }
 
     @Nls
     @Override
     protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.DeletingCredential", object.getType(), object.getQualifiedName());
+        return txt("prc.assistant.message.EnablingCredential", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialDeleteSuccess", object.getType(), object.getQualifiedName());
+        return txt("msg.assistant.info.CredentialEnablingSuccess", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialDeleteFailure", object.getType(), object.getQualifiedName());
+        return txt("msg.assistant.error.CredentialEnablingFailure", object.getType(), object.getQualifiedName());
     }
 
     @Override
     protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, DBCredential credential) throws SQLException {
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-        assistantInterface.deleteCredential(conn, credential.getName());
+        assistantInterface.enableCredential(conn, credential.getName());
     }
 }

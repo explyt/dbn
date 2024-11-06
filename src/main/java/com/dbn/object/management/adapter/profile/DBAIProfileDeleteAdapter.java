@@ -30,9 +30,9 @@ import java.sql.SQLException;
  *
  * @author Dan Cioca (Oracle)
  */
-public class ProfileDeleteAdapter extends ObjectManagementAdapterBase<DBAIProfile> {
+public class DBAIProfileDeleteAdapter extends ObjectManagementAdapterBase<DBAIProfile> {
 
-    public ProfileDeleteAdapter(DBAIProfile profile) {
+    public DBAIProfileDeleteAdapter(DBAIProfile profile) {
         super(profile, ObjectChangeAction.DELETE);
     }
 

@@ -18,28 +18,28 @@ import com.dbn.object.DBAIProfile;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapter;
 import com.dbn.object.management.ObjectManagementAdapterFactory;
-import com.dbn.object.management.adapter.profile.ProfileCreationAdapter;
-import com.dbn.object.management.adapter.profile.ProfileDeleteAdapter;
-import com.dbn.object.management.adapter.profile.ProfileDisableAdapter;
-import com.dbn.object.management.adapter.profile.ProfileEnableAdapter;
-import com.dbn.object.management.adapter.profile.ProfileUpdateAdapter;
+import com.dbn.object.management.adapter.profile.DBAIProfileCreationAdapter;
+import com.dbn.object.management.adapter.profile.DBAIProfileDeleteAdapter;
+import com.dbn.object.management.adapter.profile.DBAIProfileDisableAdapter;
+import com.dbn.object.management.adapter.profile.DBAIProfileEnableAdapter;
+import com.dbn.object.management.adapter.profile.DBAIProfileUpdateAdapter;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBAIProfile}
  * @author Dan Cioca (Oracle)
  */
-public class ProfileManagementAdapter implements ObjectManagementAdapterFactory<DBAIProfile> {
+public class DBAIProfileManagementAdapter implements ObjectManagementAdapterFactory<DBAIProfile> {
 
   @Override
   @Nullable
   public ObjectManagementAdapter<DBAIProfile> createAdapter(DBAIProfile profile, ObjectChangeAction action) {
     switch (action) {
-      case CREATE: return new ProfileCreationAdapter(profile);
-      case UPDATE: return new ProfileUpdateAdapter(profile);
-      case DELETE: return new ProfileDeleteAdapter(profile);
-      case ENABLE: return new ProfileEnableAdapter(profile);
-      case DISABLE: return new ProfileDisableAdapter(profile);
+      case CREATE: return new DBAIProfileCreationAdapter(profile);
+      case UPDATE: return new DBAIProfileUpdateAdapter(profile);
+      case DELETE: return new DBAIProfileDeleteAdapter(profile);
+      case ENABLE: return new DBAIProfileEnableAdapter(profile);
+      case DISABLE: return new DBAIProfileDisableAdapter(profile);
       default: return null;
     }
   }

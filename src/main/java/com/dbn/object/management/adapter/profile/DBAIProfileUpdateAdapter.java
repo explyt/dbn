@@ -31,9 +31,9 @@ import java.sql.SQLException;
  *
  * @author Dan Cioca (Oracle)
  */
-public class ProfileUpdateAdapter extends ObjectManagementAdapterBase<DBAIProfile> {
+public class DBAIProfileUpdateAdapter extends ObjectManagementAdapterBase<DBAIProfile> {
 
-    public ProfileUpdateAdapter(DBAIProfile profile) {
+    public DBAIProfileUpdateAdapter(DBAIProfile profile) {
         super(profile, ObjectChangeAction.UPDATE);
     }
 

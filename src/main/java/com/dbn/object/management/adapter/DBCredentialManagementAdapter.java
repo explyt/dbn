@@ -18,28 +18,28 @@ import com.dbn.object.DBCredential;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapter;
 import com.dbn.object.management.ObjectManagementAdapterFactory;
-import com.dbn.object.management.adapter.credential.CredentialCreationAdapter;
-import com.dbn.object.management.adapter.credential.CredentialDeleteAdapter;
-import com.dbn.object.management.adapter.credential.CredentialDisableAdapter;
-import com.dbn.object.management.adapter.credential.CredentialEnableAdapter;
-import com.dbn.object.management.adapter.credential.CredentialUpdateAdapter;
+import com.dbn.object.management.adapter.credential.DBCredentialCreationAdapter;
+import com.dbn.object.management.adapter.credential.DBCredentialDeleteAdapter;
+import com.dbn.object.management.adapter.credential.DBCredentialDisableAdapter;
+import com.dbn.object.management.adapter.credential.DBCredentialEnableAdapter;
+import com.dbn.object.management.adapter.credential.DBCredentialUpdateAdapter;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * Implementation of {@link ObjectManagementAdapterFactory} for objects of type {@link DBCredential}
  * @author Dan Cioca (Oracle)
  */
-public class CredentialManagementAdapter implements ObjectManagementAdapterFactory<DBCredential> {
+public class DBCredentialManagementAdapter implements ObjectManagementAdapterFactory<DBCredential> {
 
   @Override
   @Nullable
   public ObjectManagementAdapter<DBCredential> createAdapter(DBCredential credential, ObjectChangeAction action) {
     switch (action) {
-      case CREATE: return new CredentialCreationAdapter(credential);
-      case UPDATE: return new CredentialUpdateAdapter(credential);
-      case DELETE: return new CredentialDeleteAdapter(credential);
-      case ENABLE: return new CredentialEnableAdapter(credential);
-      case DISABLE: return new CredentialDisableAdapter(credential);
+      case CREATE: return new DBCredentialCreationAdapter(credential);
+      case UPDATE: return new DBCredentialUpdateAdapter(credential);
+      case DELETE: return new DBCredentialDeleteAdapter(credential);
+      case ENABLE: return new DBCredentialEnableAdapter(credential);
+      case DISABLE: return new DBCredentialDisableAdapter(credential);
       default: return null;
     }
   }
