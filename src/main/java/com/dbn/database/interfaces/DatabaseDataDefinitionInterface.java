@@ -36,6 +36,8 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
     @Deprecated // TODO add objectOwner / decommission schema connection context
     void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException;
 
+
+    default void updateJavaObject(String objectName, String newCode, DBNConnection connection) throws SQLException{};
    /*********************************************************
     *                   DROP statements                     *
     *********************************************************/

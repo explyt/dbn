@@ -23,12 +23,19 @@ public class SourceCodeContent{
     private static final String EMPTY_CONTENT = "";
     private final Latent<SourceCodeOffsets> offsets = Latent.basic(() -> new SourceCodeOffsets());
     protected CharSequence text = EMPTY_CONTENT;
+    private boolean isWritable = true;
 
     public SourceCodeContent() {
     }
 
     public SourceCodeContent(CharSequence text) {
         setText(text);
+        isWritable = true;
+    }
+
+    public SourceCodeContent(CharSequence text, Boolean readOnly) {
+        setText(text);
+        isWritable = readOnly;
     }
 
     public boolean isLoaded() {
