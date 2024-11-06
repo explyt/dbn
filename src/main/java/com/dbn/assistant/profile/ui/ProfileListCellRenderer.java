@@ -19,8 +19,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
 import com.dbn.nls.NlsSupport;
 import com.dbn.object.DBAIProfile;
+import com.dbn.object.common.ui.DBObjectListCellRenderer;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
@@ -29,7 +29,7 @@ import javax.swing.JList;
 import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
 import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
 
-public class ProfileListCellRenderer extends ColoredListCellRenderer<DBAIProfile> implements NlsSupport {
+public class ProfileListCellRenderer extends DBObjectListCellRenderer<DBAIProfile> implements NlsSupport {
     private final ConnectionRef connection;
 
     public ProfileListCellRenderer(ConnectionHandler connection) {
@@ -42,11 +42,10 @@ public class ProfileListCellRenderer extends ColoredListCellRenderer<DBAIProfile
 
     @Override
     protected void customizeCellRenderer(@NotNull JList<? extends DBAIProfile> list, DBAIProfile profile, int index, boolean selected, boolean hasFocus) {
-        if (profile == null) return;
-        String profileName = profile.getName();
+        super.customizeCellRenderer(list, profile, index, selected, hasFocus);
+
         boolean enabled = list.isEnabled() && profile.isEnabled();
         SimpleTextAttributes attributes = enabled ? REGULAR_ATTRIBUTES : GRAY_ATTRIBUTES;
-        append(profileName, attributes);
         if (isDefault(profile)) append(" (default)", attributes);
 
         setToolTipText(enabled ? null : txt("ai.settings.profile.not_enabled"));

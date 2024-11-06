@@ -25,6 +25,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.DumbAware;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
 import java.util.List;
@@ -57,10 +58,13 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
         boolean enabled = chatBox != null && chatBox.getAssistantState().isAvailable();
 
+        DBAIProfile profile = getSelectedProfile(e);
+
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
         presentation.setDescription(txt("companion.chat.profile.tooltip"));
         presentation.setEnabled(enabled);
+        presentation.setIcon(profile == null ? null : profile.getIcon());
     }
 
     private String getText(@NotNull AnActionEvent e) {
@@ -76,14 +80,20 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
         return "Profile";
     }
 
+    @Nullable
     private static String getSelectedProfileName(@NotNull AnActionEvent e) {
-        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return null;
-
-        DBAIProfile profile = chatBox.getSelectedProfile();
+        DBAIProfile profile = getSelectedProfile(e);
         if (profile == null) return null;
 
         return Actions.adjustActionName(profile.getName());
+    }
+
+    @Nullable
+    private static DBAIProfile getSelectedProfile(@NotNull AnActionEvent e) {
+        ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
+        if (chatBox == null) return null;
+
+        return chatBox.getSelectedProfile();
     }
 
     @Override
