@@ -17,6 +17,9 @@ package com.dbn.object.impl;
 import com.dbn.common.icon.CompositeIcon;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
+import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
+import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
@@ -32,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 
+import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
@@ -123,5 +127,25 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	public boolean isInner() {
 		return is(INNER);
+	}
+
+	/*********************************************************
+	 *                  DBEditableCodeObject                 *
+	 ********************************************************/
+
+	@Override
+	public void executeUpdateDDL(DBContentType contentType, String oldCode, String newCode) throws SQLException {
+
+		DatabaseInterfaceInvoker.execute(HIGHEST,
+				"Updating source code",
+				"Updating sources of " + getQualifiedNameWithType(),
+				getProject(),
+				getConnectionId(),
+				getSchemaId(),
+				conn -> {
+					ConnectionHandler connection = getConnection();
+					DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
+					dataDefinition.updateJavaObject(getName(), newCode, conn);
+				});
 	}
 }

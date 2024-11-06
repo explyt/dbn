@@ -1982,6 +1982,18 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-binary-code" timeout="20">
+        <statement>
+            declare
+                V_BLOB BLOB;
+            begin
+                DBMS_LOB.CREATETEMPORARY(v_blob, TRUE);
+                DBMS_JAVA.export_class('{1}', '{0}', v_blob);
+                ? := V_BLOB;
+            end;
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="object-change-timestamp" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select to_date(TIMESTAMP, 'YYYY-MM-DD:HH24:MI:SS')

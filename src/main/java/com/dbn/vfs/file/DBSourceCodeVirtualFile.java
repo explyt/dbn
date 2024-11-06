@@ -59,6 +59,8 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
 
     private String sourceLoadError;
 
+    private boolean isWritable = true;
+
     public DBSourceCodeVirtualFile(final DBEditableObjectVirtualFile databaseFile, DBContentType contentType) {
         super(databaseFile, contentType);
         setCharset(databaseFile.getConnection().getSettings().getDetailSettings().getCharset());
@@ -99,7 +101,7 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
     }
 
     @Nullable
-    public DBLanguagePsiFile getPsiFile() {
+    public PsiFile getPsiFile() {
         Project project = getProject();
         return PsiUtil.getPsiFile(project, this);
     }
@@ -203,7 +205,8 @@ public class DBSourceCodeVirtualFile extends DBContentVirtualFile implements DBP
         sourceLoadError = null;
         set(LATEST, true);
         setModified(false);
-    }
+        isWritable = newContent.isWritable();
+	}
 
     public void saveSourceToDatabase() throws SQLException {
         DBSchemaObject object = getObject();
