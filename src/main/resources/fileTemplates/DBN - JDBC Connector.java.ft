@@ -1,0 +1,30 @@
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+#parse("File Header.java")
+public class ${CLASS_NAME}  {
+
+    public void connect(String jdbcUrl, String userName, String password) {
+
+        try (Connection connection = createConnection(jdbcUrl, userName, password)) {
+            connection.isValid(10);
+            System.out.println("INFO: Successfully connected");
+
+        } catch (SQLException e) {
+            System.out.println("ERROR: Failed to connect. Cause:  " +  e.getMessage());
+        }
+
+    }
+
+    private static Connection createConnection(String jdbcUrl, String userName, String password) throws SQLException {
+        return DriverManager.getConnection(jdbcUrl, userName, password);
+    }
+
+    public static void main(String[] args) {
+        ${CLASS_NAME} connector = new ${CLASS_NAME}();
+        connector.connect("${JDBC_URL}", "${USER_NAME}" ,"${PASSWORD}");
+    }
+}

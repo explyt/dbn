@@ -14,10 +14,24 @@
 
 package com.dbn.generator.code;
 
-public enum CodeGeneratorType {
-    DATABASE_CONNECTOR,
-    DATA_SELECTOR,
-    METHOD_EXECUTOR
+import lombok.Getter;
 
+@Getter
+public enum CodeGeneratorType {
+    DATABASE_CONNECTOR(             "JDBC Connector",                   "DBN - JDBC Connector.java"),
+    DATABASE_CONNECTOR_SERVICE_NAME("JDBC Connector with Service Name", "DBN - JDBC Connector (Service Name).java"),
+    DATABASE_CONNECTOR_SID(         "JDBC Connector with SID",          "DBN - JDBC Connector (SID).java"),
+    DATABASE_CONNECTOR_TNS(         "JDBC Connector with TNS",          "DBN - JDBC Connector (TNS).java"),
+    DATA_SELECTOR("", ""),
+    METHOD_EXECUTOR("", ""),
     //...
+    ;
+
+    private final String name;
+    private final String template;
+
+    CodeGeneratorType(String name, String template) {
+        this.name = name;
+        this.template = template;
+    }
 }
