@@ -1,4 +1,18 @@
-package com.dbn.generator.action;
+/*
+ * Copyright (c) 2024, Oracle and/or its affiliates.
+ *
+ * This software is dual-licensed to you under the Universal Permissive License
+ * (UPL) 1.0 as shown at https://oss.oracle.com/licenses/upl or Apache License
+ * 2.0 as shown at http://www.apache.org/licenses/LICENSE-2.0. You may choose
+ * either license.
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the License.
+ */
+
+package com.dbn.generator.statement.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.thread.Command;
@@ -8,7 +22,7 @@ import com.dbn.common.util.Editors;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionAction;
 import com.dbn.connection.context.DatabaseContextBase;
-import com.dbn.generator.StatementGeneratorResult;
+import com.dbn.generator.statement.StatementGeneratorResult;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.sql.SQLFileType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
