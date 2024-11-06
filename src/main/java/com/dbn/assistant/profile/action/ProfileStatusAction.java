@@ -14,9 +14,9 @@
 
 package com.dbn.assistant.profile.action;
 
-import com.dbn.assistant.profile.ProfileManagementService;
 import com.dbn.assistant.profile.ui.ProfileManagementForm;
 import com.dbn.object.DBAIProfile;
+import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
@@ -36,7 +36,7 @@ public class ProfileStatusAction extends ProfileManagementAction {
         DBAIProfile profile = getSelectedProfile(e);
         if (profile == null) return;
 
-        ProfileManagementService managementService = ProfileManagementService.getInstance(project);
+        ObjectManagementService managementService = ObjectManagementService.getInstance(project);
         if (profile.isEnabled())
             managementService.disableObject(profile, null); else
             managementService.enableObject(profile, null);

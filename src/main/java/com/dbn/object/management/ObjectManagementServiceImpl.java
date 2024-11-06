@@ -14,16 +14,26 @@
 
 package com.dbn.object.management;
 
+import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
+import com.dbn.object.management.adapter.CredentialManagementAdapter;
+import com.dbn.object.management.adapter.ProfileManagementAdapter;
+import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.components.State;
+import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.dbn.common.exception.Exceptions.unsupported;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.event.ObjectChangeAction.CREATE;
 import static com.dbn.object.event.ObjectChangeAction.DELETE;
 import static com.dbn.object.event.ObjectChangeAction.DISABLE;
@@ -32,39 +42,60 @@ import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 
 /**
  * Generic database object management component
- * Exposes CRUD-like actions for the {@link T} entities
+ * Exposes CRUD-like actions for the {@link DBObject} entities
  * Internally instantiates the specialized {@link com.dbn.object.management.ObjectManagementAdapter} component,
  * and invokes the MODAL option of the adapter
  *
  * @author Dan Cioca (Oracle)
  */
-public abstract class ObjectManagementServiceBase<T extends DBObject> extends ProjectComponentBase implements ObjectManagementService<T> {
-    protected ObjectManagementServiceBase(@NotNull Project project, String componentName) {
-        super(project, componentName);
+@Slf4j
+@State(
+        name = ObjectManagementServiceImpl.COMPONENT_NAME,
+        storages = @Storage(DatabaseNavigator.STORAGE_FILE))
+
+final class ObjectManagementServiceImpl extends ProjectComponentBase implements ObjectManagementService {
+    public static final String COMPONENT_NAME = "DBNavigator.Project.ObjectManagementService";
+
+    private final Map<DBObjectType, ObjectManagementAdapterFactory> managementAdapters = new HashMap<>();
+
+    public ObjectManagementServiceImpl(@NotNull Project project) {
+        super(project, COMPONENT_NAME);
+        registerAdapters();
     }
 
-    public final void createObject(T object, OutcomeHandler successHandler) {
+    private void registerAdapters() {
+        managementAdapters.put(DBObjectType.CREDENTIAL, new CredentialManagementAdapter());
+        managementAdapters.put(DBObjectType.AI_PROFILE, new ProfileManagementAdapter());
+        //...
+    }
+
+    @Override
+    public boolean supports(DBObject object) {
+        return managementAdapters.containsKey(object.getObjectType());
+    }
+
+    public void createObject(DBObject object, OutcomeHandler successHandler) {
         invokeModal(object, CREATE, successHandler);
     }
 
-    public final void updateObject(T object, OutcomeHandler successHandler) {
+    public void updateObject(DBObject object, OutcomeHandler successHandler) {
         invokeModal(object, UPDATE, successHandler);
     }
 
-    public final void deleteObject(T object, OutcomeHandler successHandler) {
+    public void deleteObject(DBObject object, OutcomeHandler successHandler) {
         invokeModal(object, DELETE, successHandler);
     }
 
-    public final void enableObject(T object, OutcomeHandler successHandler) {
+    public void enableObject(DBObject object, OutcomeHandler successHandler) {
         invokeModal(object, ENABLE, successHandler);
     }
 
-    public final void disableObject(T object, OutcomeHandler successHandler) {
+    public void disableObject(DBObject object, OutcomeHandler successHandler) {
         invokeModal(object, DISABLE, successHandler);
     }
 
     @Override
-    public final void changeObject(T object, ObjectChangeAction action, OutcomeHandler successHandler) {
+    public void changeObject(DBObject object, ObjectChangeAction action, OutcomeHandler successHandler) {
         switch (action) {
             case CREATE: createObject(object, successHandler); break;
             case UPDATE: updateObject(object, successHandler); break;
@@ -75,14 +106,14 @@ public abstract class ObjectManagementServiceBase<T extends DBObject> extends Pr
         }
     }
 
-    private void invokeModal(T object, ObjectChangeAction action, OutcomeHandler successHandler) {
-        ObjectManagementAdapterBase<T> adapter = createAdapter(object, action);
-        if (adapter == null) return;
+    private <T extends DBObject> void  invokeModal(T object, ObjectChangeAction action, OutcomeHandler successHandler) {
+        DBObjectType objectType = object.getObjectType();
+        ObjectManagementAdapterFactory<T> factory = cast(managementAdapters.get(objectType));
+        if (factory == null) throw new UnsupportedOperationException("Not supported for objects of type " + objectType);
+
+        ObjectManagementAdapter<T> adapter = factory.createAdapter(object, action);
 
         adapter.addOutcomeHandler(OutcomeType.SUCCESS, successHandler);
         adapter.invokeModal();
     }
-
-    @Nullable
-    protected abstract ObjectManagementAdapterBase<T> createAdapter(T object, ObjectChangeAction action);
 }

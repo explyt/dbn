@@ -387,8 +387,6 @@
         <projectService serviceImplementation="com.dbn.assistant.DatabaseAssistantManager"/>
         <projectService serviceImplementation="com.dbn.assistant.AssistantPrerequisiteManager"/>
         <projectService serviceImplementation="com.dbn.assistant.AssistantInitializationManager"/>
-        <projectService serviceImplementation="com.dbn.assistant.credential.remote.CredentialManagementService"/>
-        <projectService serviceImplementation="com.dbn.assistant.profile.ProfileManagementService"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileManager"/>
         <projectService serviceImplementation="com.dbn.ddl.DDLFileAttachmentManager"/>
@@ -413,6 +411,8 @@
         <projectService serviceImplementation="com.dbn.vfs.DatabaseFileManager"/>
         <projectService serviceImplementation="com.dbn.connection.session.DatabaseSessionManager"/>
         <projectService serviceImplementation="com.dbn.connection.console.DatabaseConsoleManager"/>
+        <projectService serviceInterface="com.dbn.object.management.ObjectManagementService" serviceImplementation="com.dbn.object.management.ObjectManagementServiceImpl"/>
+
         <fileIconPatcher implementation="com.dbn.vfs.DBFileIconPatcher"/>
     </extensions>
 

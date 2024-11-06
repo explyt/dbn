@@ -132,8 +132,8 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                             DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
                             databaseFileManager.closeFile(object);
 
-                            ObjectManagementService<DBSchemaObject> objectManagementService = ObjectManagementService.get(object);
-                            if (objectManagementService != null) {
+                            ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
+                            if (objectManagementService.supports(object)) {
                                 objectManagementService.deleteObject(object, null);
                                 return;
                             }

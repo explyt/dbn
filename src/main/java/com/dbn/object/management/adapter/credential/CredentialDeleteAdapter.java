@@ -12,71 +12,55 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.assistant.credential.remote.adapter;
+package com.dbn.object.management.adapter.credential;
 
-import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBCredential;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
-import com.dbn.object.type.DBAttributeType;
 import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
-import java.util.Map;
 
 /**
- * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in updating entities of type {@link DBCredential}
+ * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in deleting entities of type {@link DBCredential}
  * @author Dan Cioca (Oracle)
  */
-public class CredentialUpdateAdapter extends ObjectManagementAdapterBase<DBCredential> {
+public class CredentialDeleteAdapter extends ObjectManagementAdapterBase<DBCredential> {
 
-    public CredentialUpdateAdapter(DBCredential credential) {
-        super(credential, ObjectChangeAction.UPDATE);
+    public CredentialDeleteAdapter(DBCredential credential) {
+        super(credential, ObjectChangeAction.DELETE);
     }
 
     @Nls
     @Override
     protected String getProcessTitle() {
-        return txt("prc.assistant.title.UpdatingCredential");
+        return txt("prc.assistant.title.DeletingCredential");
     }
 
     @Nls
     @Override
     protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.UpdatingCredential", object.getType(), object.getQualifiedName());
+        return txt("prc.assistant.message.DeletingCredential", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialUpdateSuccess", object.getType(), object.getQualifiedName());
+        return txt("msg.assistant.info.CredentialDeleteSuccess", object.getType(), object.getQualifiedName());
     }
 
     @Nls
     @Override
     protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialUpdateFailure", object.getType(), object.getQualifiedName());
+        return txt("msg.assistant.error.CredentialDeleteFailure", object.getType(), object.getQualifiedName());
     }
 
     @Override
     protected void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, DBCredential credential) throws SQLException {
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-        Map<DBAttributeType, String> attributes = credential.getAttributes();
-        String credentialName = credential.getName();
-
-        // update attributes
-        for (DBAttributeType attribute : attributes.keySet()) {
-            String value = attributes.get(attribute);
-            if (Strings.isEmpty(value)) continue;
-            assistantInterface.updateCredentialAttribute(conn, credentialName, attribute.getId(), value);
-        }
-
-        // update status
-        if (credential.isEnabled())
-            assistantInterface.enableCredential(conn, credentialName); else
-            assistantInterface.disableCredential(conn, credentialName);
+        assistantInterface.deleteCredential(conn, credential.getName());
     }
 }

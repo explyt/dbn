@@ -14,7 +14,6 @@
 
 package com.dbn.assistant.profile.wizard;
 
-import com.dbn.assistant.profile.ProfileManagementService;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.outcome.DialogCloseOutcomeHandler;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -26,6 +25,7 @@ import com.dbn.object.DBAIProfile;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObjectUtil;
 import com.dbn.object.impl.DBAIProfileImpl;
+import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
@@ -165,10 +165,10 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
             editedProfile.getTemperature(),
             editedProfile.isEnabled());
 
-    ProfileManagementService profileManagementService = ProfileManagementService.getInstance(project);
+    ObjectManagementService managementService = ObjectManagementService.getInstance(project);
     if (isUpdate)
-      profileManagementService.updateObject(profile, wizardClose()); else
-      profileManagementService.createObject(profile, wizardClose());
+      managementService.updateObject(profile, wizardClose()); else
+      managementService.createObject(profile, wizardClose());
   }
 
   private OutcomeHandler wizardClose() {

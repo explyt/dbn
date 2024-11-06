@@ -14,41 +14,32 @@
 
 package com.dbn.object.management;
 
-import com.dbn.assistant.credential.remote.CredentialManagementService;
-import com.dbn.assistant.profile.ProfileManagementService;
+import com.dbn.common.component.ProjectComponent;
 import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.common.component.Components.projectService;
 
-public interface ObjectManagementService<T extends DBObject> {
+public interface ObjectManagementService extends ProjectComponent {
 
-    static <T extends DBSchemaObject> ObjectManagementService<T> get(@NotNull DBObject object) {
-        return get(object.getProject(), object.getObjectType());
+    static ObjectManagementService getInstance(@NotNull Project project) {
+        return projectService(project, ObjectManagementService.class);
     }
 
-    static <T extends DBSchemaObject> ObjectManagementService<T> get(@NotNull Project project, @NotNull DBObjectType objectType) {
-        switch (objectType) {
-            case AI_PROFILE: return cast(ProfileManagementService.getInstance(project));
-            case CREDENTIAL: return cast(CredentialManagementService.getInstance(project));
-            default: return null;
-        }
-    }
+    boolean supports(DBObject object);
 
-    void createObject(T object, OutcomeHandler successHandler);
+    void createObject(DBObject object, OutcomeHandler successHandler);
 
-    void updateObject(T object, OutcomeHandler successHandler);
+    void updateObject(DBObject object, OutcomeHandler successHandler);
 
-    void deleteObject(T object, OutcomeHandler successHandler);
+    void deleteObject(DBObject object, OutcomeHandler successHandler);
 
-    void enableObject(T object, OutcomeHandler successHandler);
+    void enableObject(DBObject object, OutcomeHandler successHandler);
 
-    void disableObject(T object, OutcomeHandler successHandler);
+    void disableObject(DBObject object, OutcomeHandler successHandler);
 
-    void changeObject(T object, ObjectChangeAction action, OutcomeHandler successHandler);
+    void changeObject(DBObject object, ObjectChangeAction action, OutcomeHandler successHandler);
 }

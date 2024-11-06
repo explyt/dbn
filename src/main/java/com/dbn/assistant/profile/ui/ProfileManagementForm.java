@@ -15,7 +15,6 @@
 package com.dbn.assistant.profile.ui;
 
 import com.dbn.assistant.DatabaseAssistantManager;
-import com.dbn.assistant.profile.ProfileManagementService;
 import com.dbn.assistant.profile.wizard.ProfileEditionWizard;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
@@ -37,6 +36,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBAIProfile;
 import com.dbn.object.common.ui.DBObjectListModel;
 import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
@@ -253,7 +253,7 @@ public class ProfileManagementForm extends DBNFormBase {
    * @param profile the profile ot be deleted
    */
   private void removeProfile(DBAIProfile profile) {
-    ProfileManagementService managementService = ProfileManagementService.getInstance(ensureProject());
+    ObjectManagementService managementService = ObjectManagementService.getInstance(ensureProject());
     managementService.deleteObject(profile, null);
   }
 

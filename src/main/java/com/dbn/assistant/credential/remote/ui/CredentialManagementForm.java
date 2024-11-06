@@ -14,7 +14,6 @@
 
 package com.dbn.assistant.credential.remote.ui;
 
-import com.dbn.assistant.credential.remote.CredentialManagementService;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.color.Colors;
 import com.dbn.common.dispose.Disposer;
@@ -39,6 +38,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.common.ui.DBObjectListCellRenderer;
 import com.dbn.object.common.ui.DBObjectListModel;
 import com.dbn.object.event.ObjectChangeListener;
+import com.dbn.object.management.ObjectManagementService;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
@@ -206,7 +206,7 @@ public class CredentialManagementForm extends DBNFormBase {
    * @param credential The name of the credential to be removed.
    */
   private void removeCredential(DBCredential credential) {
-    CredentialManagementService managementService = CredentialManagementService.getInstance(ensureProject());
+    ObjectManagementService managementService = ObjectManagementService.getInstance(ensureProject());
     managementService.deleteObject(credential, null);
   }
 

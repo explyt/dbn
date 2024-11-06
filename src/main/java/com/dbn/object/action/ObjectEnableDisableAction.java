@@ -30,14 +30,14 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
             @NotNull Project project,
             @NotNull DBSchemaObject object) {
 
-        ObjectManagementService<DBSchemaObject> objectManagementService = ObjectManagementService.get(project, object.getObjectType());
+        ObjectManagementService objectManagementService = ObjectManagementService.getInstance(project);
 
-        if (objectManagementService == null) {
-            enableDisable(project, object);
-        } else {
+        if (objectManagementService.supports(object)) {
             boolean enabled = object.getStatus().is(DBObjectStatus.ENABLED);
             ObjectChangeAction action = enabled ? ObjectChangeAction.DISABLE : ObjectChangeAction.ENABLE;
             objectManagementService.changeObject(object, action,null);
+        } else {
+            enableDisable(project, object);
         }
     }
 

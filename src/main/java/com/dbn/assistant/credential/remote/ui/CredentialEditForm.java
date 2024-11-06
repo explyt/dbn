@@ -16,7 +16,6 @@ package com.dbn.assistant.credential.remote.ui;
 
 import com.dbn.assistant.credential.local.LocalCredential;
 import com.dbn.assistant.credential.local.LocalCredentialSettings;
-import com.dbn.assistant.credential.remote.CredentialManagementService;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.common.exception.Exceptions;
 import com.dbn.common.outcome.OutcomeHandler;
@@ -30,6 +29,7 @@ import com.dbn.connection.ConnectionRef;
 import com.dbn.object.DBCredential;
 import com.dbn.object.DBSchema;
 import com.dbn.object.impl.DBCredentialImpl;
+import com.dbn.object.management.ObjectManagementService;
 import com.dbn.object.type.DBCredentialType;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -198,8 +198,8 @@ public class CredentialEditForm extends DBNFormBase {
   }
 
   @NotNull
-  private CredentialManagementService getManagementService() {
-    return CredentialManagementService.getInstance(ensureProject());
+  private ObjectManagementService getManagementService() {
+    return ObjectManagementService.getInstance(ensureProject());
   }
 
   private Void handleException(Throwable e) {
