@@ -42,7 +42,7 @@ public class DatasetJoinBundle {
         }
     }
 
-    protected boolean contains(DBDataset... datasets) {
+    public boolean contains(DBDataset... datasets) {
         for (DatasetJoin datasetJoin : joins) {
             if (datasetJoin.contains(datasets)) return true;
         }
