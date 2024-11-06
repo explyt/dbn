@@ -62,11 +62,12 @@ import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
 import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.fileTypes.BinaryFileDecompiler;
 import com.intellij.openapi.fileTypes.BinaryFileTypeDecompilers;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.io.FileUtil;
 import com.intellij.openapi.vfs.LocalFileSystem;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.util.text.DateFormatUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom.Element;
@@ -81,7 +82,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.List;
 import java.util.Objects;
-import com.intellij.psi.PsiFile;
+
 import static com.dbn.common.Priority.HIGH;
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.component.ApplicationMonitor.checkAppExitRequested;
@@ -553,6 +554,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     private static String getContentQualifier(DBObjectType objectType, DBContentType contentType) {
         switch (objectType) {
+            case JAVA_OBJECT:      return "JAVA SOURCE";
             case FUNCTION:         return "FUNCTION";
             case PROCEDURE:        return "PROCEDURE";
             case VIEW:             return "VIEW";
