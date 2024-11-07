@@ -359,8 +359,12 @@ public class Icons {
     public static final Icon DBO_INDEX                           = load("/img/object/index/Index.svg");
     public static final Icon DBO_INDEX_DISABLED                  = load("/img/object/index/IndexDisabled.svg");
     public static final Icon DBO_INDEXES                         = load("/img/object/index/Indexes.svg");
-    public static final Icon DBO_JAVA_CLASS                      = AllIcons.FileTypes.JavaClass;
-    public static final Icon DBO_JAVA_CLASSES                    = AllIcons.FileTypes.JavaClass;
+    public static final Icon DBO_JAVA_CLASS                      = load("/img/object/java/JavaClass.svg");
+    public static final Icon DBO_JAVA_CLASS_ABSTRACT             = load("/img/object/java/JavaClassAbstract.svg");
+    public static final Icon DBO_JAVA_CLASSES                    = load("/img/object/java/JavaClasses.svg");
+    public static final Icon DBO_JAVA_INTERFACE                  = load("/img/object/java/JavaInterface.svg");
+    public static final Icon DBO_JAVA_ENUMERATION                = load("/img/object/java/JavaEnumeration.svg");
+    public static final Icon DBO_JAVA_EXCEPTION                  = load("/img/object/java/JavaException.svg");
     public static final Icon DBO_MATERIALIZED_VIEW               = load("/img/object/view/MaterializedView.svg");
     public static final Icon DBO_MATERIALIZED_VIEWS              = load("/img/object/view/MaterializedViews.svg");
     public static final Icon DBO_METHOD                          = load("/img/object/Method.png");

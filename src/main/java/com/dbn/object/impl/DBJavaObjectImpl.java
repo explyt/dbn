@@ -14,7 +14,7 @@
 
 package com.dbn.object.impl;
 
-import com.dbn.common.icon.CompositeIcon;
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -27,7 +27,6 @@ import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.type.DBJavaObjectAccessibility;
 import com.dbn.object.type.DBJavaObjectKind;
 import com.dbn.object.type.DBObjectType;
-import com.intellij.icons.AllIcons;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,7 +44,6 @@ import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SOURCE_AVAILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
-import static com.dbn.object.type.DBJavaObjectAccessibility.PRIVATE;
 import static com.dbn.object.type.DBJavaObjectKind.ENUM;
 import static com.dbn.object.type.DBJavaObjectKind.INTERFACE;
 
@@ -102,25 +100,12 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	@Nullable
 	public Icon getIcon() {
-		// TODO cache all these icon variants in Icons (creating composites on every access is resource intensive)
-		Icon baseIcon;
+		if (kind == ENUM) return Icons.DBO_JAVA_ENUMERATION;
+		if (kind == INTERFACE) return Icons.DBO_JAVA_ENUMERATION;
+		if (isAbstract()) return Icons.DBO_JAVA_CLASS_ABSTRACT;
+		return Icons.DBO_JAVA_CLASS;
 
-		if (kind == ENUM)
-			baseIcon = AllIcons.Nodes.Enum;
-		else if (kind == INTERFACE)
-			baseIcon = AllIcons.Nodes.Interface;
-		else if (isAbstract())
-			baseIcon = AllIcons.Nodes.AbstractClass;
-		else
-			baseIcon = AllIcons.Nodes.Class;
-
-		if (isFinal() && kind != ENUM)
-			baseIcon = new CompositeIcon(baseIcon, AllIcons.Nodes.FinalMark, -17);
-
-		if (this.accessibility == PRIVATE)
-			baseIcon = new CompositeIcon(baseIcon, AllIcons.Nodes.Private, -10);
-
-		return baseIcon;
+		// TODO "final" - new CompositeIcon(baseIcon, AllIcons.Nodes.Private, -10);
 	}
 
 	@Override
