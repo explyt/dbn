@@ -93,10 +93,8 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
    }
 
     @Override
-    public void dropJavaObject(String objectName, DBNConnection connection) throws SQLException {
-       String ownerName = objectName.split("\\.")[0];
-       objectName = objectName.substring(objectName.indexOf(".") + 1);
-
+    public void dropJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+       // TODO move to OracleDataDefinitionInterface (too specific for this level)
        try {
            executeUpdate(connection, "drop-java-object-class", ownerName, objectName);
        } catch (SQLException e){

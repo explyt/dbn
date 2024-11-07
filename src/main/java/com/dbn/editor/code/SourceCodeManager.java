@@ -1,7 +1,6 @@
 package com.dbn.editor.code;
 
 import com.dbn.DatabaseNavigator;
-import com.dbn.common.Pair;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.component.ProjectManagerListener;
@@ -337,14 +336,12 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     public SourceCodeContent loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType) throws SQLException {
-        Pair<String,Boolean> sourceCode = DatabaseInterfaceInvoker.load(HIGH,
+        SourceCodeContent sourceCodeContent = DatabaseInterfaceInvoker.load(HIGH,
                 "Loading source code",
                 "Loading source code of " + object.getQualifiedNameWithType(),
                 object.getProject(),
                 object.getConnectionId(),
                 conn -> loadSourceFromDatabase(object, contentType, conn));
-
-        SourceCodeContent sourceCodeContent = new SourceCodeContent(sourceCode.first(),sourceCode.second());
 
         String objectName = object.getName();
         DBObjectType objectType = object.getObjectType();
@@ -355,10 +352,10 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     @NotNull
-    private static Pair<String, Boolean> loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType, DBNConnection conn) throws SQLException {
+    private static SourceCodeContent loadSourceFromDatabase(@NotNull DBSchemaObject object, DBContentType contentType, DBNConnection conn) throws SQLException {
         boolean optionalContent = contentType == DBContentType.CODE_BODY;
         ResultSet resultSet = null;
-        boolean isWritable = true;
+        boolean writable = true;
         try {
             DatabaseMetadataInterface metadata = object.getMetadataInterface();
             resultSet = loadSourceFromDatabase(
@@ -375,15 +372,15 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             }
 
             if (buffer.length() == 0 && object.getObjectType() == DBObjectType.JAVA_OBJECT) {
-                isWritable = false;
                 CharSequence code = loadJavaDecompiledCode(object, conn, metadata);
                 buffer.append(code);
+                writable = false;
             }
 
             if (buffer.length() == 0 && !optionalContent) {
                 throw new SQLException("Source lookup returned empty");
             }
-            return Pair.of(buffer.toString(), isWritable);
+            return new SourceCodeContent(buffer.toString(), writable);
         } finally {
             Resources.close(resultSet);
         }
