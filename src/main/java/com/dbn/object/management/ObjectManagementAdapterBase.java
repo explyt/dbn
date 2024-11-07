@@ -63,7 +63,7 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
         this.action = action;
 
         outcomeHandlers.addHandler(OutcomeType.SUCCESS, ObjectChangeNotifier.create(getConnection(), getOwnerId(), objectType, action));
-        outcomeHandlers.addNotificationHandler(OutcomeType.SUCCESS, getProject(), NotificationGroup.ASSISTANT);
+        outcomeHandlers.addNotificationHandler(OutcomeType.SUCCESS, getProject(), NotificationGroup.DDL);
         outcomeHandlers.addMessageHandler(OutcomeType.FAILURE, getProject());
     }
 

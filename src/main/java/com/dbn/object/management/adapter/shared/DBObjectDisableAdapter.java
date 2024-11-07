@@ -14,10 +14,15 @@
 
 package com.dbn.object.management.adapter.shared;
 
-import com.dbn.object.common.DBObject;
+import com.dbn.common.Priority;
+import com.dbn.common.outcome.BasicOutcomeHandler;
+import com.dbn.common.outcome.OutcomeType;
+import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.ObjectManagementAdapterBase;
 import org.jetbrains.annotations.Nls;
+
+import static com.dbn.object.common.status.DBObjectStatus.ENABLED;
 
 /**
  * Abstract implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} for DISABLE actions, 
@@ -25,10 +30,15 @@ import org.jetbrains.annotations.Nls;
  *
  * @author Dan Cioca (Oracle)
  */
-public abstract class DBObjectDisableAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
+public abstract class DBObjectDisableAdapter<T extends DBSchemaObject> extends ObjectManagementAdapterBase<T> {
 
     public DBObjectDisableAdapter(T object) {
         super(object, ObjectChangeAction.DISABLE);
+        addOutcomeHandler(OutcomeType.SUCCESS, BasicOutcomeHandler.create(Priority.HIGH, o -> disableLocal()));
+    }
+
+    private void disableLocal() {
+        getObject().getStatus().set(ENABLED, false);
     }
 
     @Nls

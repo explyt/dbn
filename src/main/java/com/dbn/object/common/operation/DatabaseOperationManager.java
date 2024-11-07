@@ -4,7 +4,6 @@ import com.dbn.common.component.Components;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.database.interfaces.DatabaseMetadataInterface;
-import com.dbn.object.DBConstraint;
 import com.dbn.object.DBTrigger;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.status.DBObjectStatus;
@@ -30,39 +29,7 @@ public class DatabaseOperationManager extends ProjectComponentBase {
         return Components.projectService(project, DatabaseOperationManager.class);
     }
 
-    public void enableConstraint(DBConstraint constraint) throws SQLException {
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                actionTitle("Enabling", constraint),
-                actionText("Enabling", constraint),
-                constraint.getProject(),
-                constraint.getConnectionId(),
-                conn -> {
-                    DatabaseMetadataInterface metadata = constraint.getMetadataInterface();
-                    metadata.enableConstraint(
-                            constraint.getSchemaName(),
-                            constraint.getDataset().getName(),
-                            constraint.getName(),
-                            conn);
-                    constraint.getStatus().set(DBObjectStatus.ENABLED, true);
-                });
-    }
 
-    public void disableConstraint(DBConstraint constraint) throws SQLException {
-        DatabaseInterfaceInvoker.execute(HIGHEST,
-                actionTitle("Disabling", constraint),
-                actionText("Disabling", constraint),
-                constraint.getProject(),
-                constraint.getConnectionId(),
-                conn -> {
-                    DatabaseMetadataInterface metadata = constraint.getMetadataInterface();
-                    metadata.disableConstraint(
-                            constraint.getSchemaName(),
-                            constraint.getDataset().getName(),
-                            constraint.getName(),
-                            conn);
-                    constraint.getStatus().set(DBObjectStatus.ENABLED, false);
-                });
-    }
 
     public void enableTrigger(DBTrigger trigger) throws SQLException {
         DatabaseInterfaceInvoker.execute(HIGHEST,
