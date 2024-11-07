@@ -12,11 +12,10 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.object.management.adapter.shared;
+package com.dbn.object.management.adapter;
 
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.ObjectManagementAdapterBase;
 import org.jetbrains.annotations.Nls;
 
 /**
@@ -25,10 +24,20 @@ import org.jetbrains.annotations.Nls;
  *
  * @author Dan Cioca (Oracle)
  */
-public abstract class DBObjectDeleteAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
+public final class DBObjectDeleteAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
 
-    public DBObjectDeleteAdapter(T object) {
-        super(object, ObjectChangeAction.DELETE);
+    public DBObjectDeleteAdapter(T object, InterfaceInvoker<T> invoker) {
+        super(object, ObjectChangeAction.DELETE, invoker);
+    }
+
+    @Nls
+    protected String getSuccessTitle() {
+        return txt("msg.objects.title.ActionSuccess_DELETE");
+    }
+
+    @Nls
+    protected  String getFailureTitle() {
+        return txt("msg.objects.title.ActionFailure_DELETE");
     }
 
     @Nls

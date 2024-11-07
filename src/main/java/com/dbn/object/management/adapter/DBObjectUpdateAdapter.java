@@ -12,11 +12,10 @@
  * See the License for the specific language governing permissions and limitations under the License.
  */
 
-package com.dbn.object.management.adapter.shared;
+package com.dbn.object.management.adapter;
 
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.ObjectManagementAdapterBase;
 import org.jetbrains.annotations.Nls;
 
 /**
@@ -25,11 +24,22 @@ import org.jetbrains.annotations.Nls;
  *
  * @author Dan Cioca (Oracle)
  */
-public abstract class DBObjectUpdateAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
+public final class DBObjectUpdateAdapter<T extends DBObject> extends ObjectManagementAdapterBase<T> {
 
-    public DBObjectUpdateAdapter(T object) {
-        super(object, ObjectChangeAction.UPDATE);
+    public DBObjectUpdateAdapter(T object, InterfaceInvoker<T> invoker) {
+        super(object, ObjectChangeAction.UPDATE, invoker);
     }
+
+    @Nls
+    protected String getSuccessTitle() {
+        return txt("msg.objects.title.ActionSuccess_UPDATE");
+    }
+
+    @Nls
+    protected  String getFailureTitle() {
+        return txt("msg.objects.title.ActionFailure_UPDATE");
+    }
+
 
     @Nls
     @Override
