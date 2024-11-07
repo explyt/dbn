@@ -18,10 +18,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBCredential;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.adapter.shared.DBObjectCreateAdapter;
 import com.dbn.object.type.DBCredentialType;
-import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 
@@ -36,34 +34,10 @@ import static com.dbn.object.type.DBAttributeType.USER_TENANCY_OCID;
  * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in creating entities of type {@link DBCredential}
  * @author Dan Cioca (Oracle)
  */
-public class DBCredentialCreationAdapter extends ObjectManagementAdapterBase<DBCredential> {
+public class DBCredentialCreationAdapter extends DBObjectCreateAdapter<DBCredential> {
 
     public DBCredentialCreationAdapter(DBCredential credential) {
-        super(credential, ObjectChangeAction.CREATE);
-    }
-
-    @Nls
-    @Override
-    protected String getProcessTitle() {
-        return txt("prc.assistant.title.CreatingCredential");
-    }
-
-    @Nls
-    @Override
-    protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.CreatingCredential", object.getType(), object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialCreateSuccess", object.getType(), object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialCreateFailure", object.getType(), object.getQualifiedName());
+        super(credential);
     }
 
     @Override

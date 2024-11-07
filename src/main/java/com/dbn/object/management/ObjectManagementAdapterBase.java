@@ -78,7 +78,7 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
         T object = getObject();
         Progress.modal(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(object),
+                getProcessDescription(),
                 progress -> invoke());
     }
 
@@ -87,7 +87,7 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
         T object = getObject();
         Progress.prompt(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(object),
+                getProcessDescription(),
                 progress -> invoke());
     }
 
@@ -96,7 +96,7 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
         T object = getObject();
         Progress.background(getProject(), getConnection(), true,
                 getProcessTitle(),
-                getProcessDescription(object),
+                getProcessDescription(),
                 progress -> invoke());
     }
     
@@ -114,7 +114,7 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
         try {
             DatabaseInterfaceInvoker.execute(HIGHEST,
                     getProcessTitle(),
-                    getProcessDescription(object),
+                    getProcessDescription(),
                     getProject(),
                     getConnectionId(),
                     getOwnerId(),
@@ -128,25 +128,33 @@ public abstract class ObjectManagementAdapterBase<T extends DBObject> extends DB
     }
 
     protected void handleSuccess(T object) {
-        Outcome outcome = Outcomes.success(getSuccessTitle(), getSuccessMessage(object));
+        Outcome outcome = Outcomes.success(getSuccessTitle(), getSuccessMessage());
         outcomeHandlers.handle(outcome);
     }
 
     protected void handleFailure(T object, Exception e) {
-        Outcome outcome = Outcomes.failure(getFailureTitle(), getFailureMessage(object), e);
+        Outcome outcome = Outcomes.failure(getFailureTitle(), getFailureMessage(), e);
         outcomeHandlers.handle(outcome);
     }
 
     protected abstract void invokeDatabaseInterface(ConnectionHandler connection, DBNConnection conn, T object) throws SQLException;
 
-    @Nls
-    protected abstract String getProcessDescription(T object);
+    protected String getObjectTypeName() {
+        return getObjectType().getName();
+    }
+
+    protected String getObjectName() {
+        return getObject().getQualifiedName();
+    }
 
     @Nls
-    protected abstract String getSuccessMessage(T object);
+    protected abstract String getProcessDescription();
 
     @Nls
-    protected abstract String getFailureMessage(T object);
+    protected abstract String getSuccessMessage();
+
+    @Nls
+    protected abstract String getFailureMessage();
 
     @Nls
     protected abstract String getProcessTitle();

@@ -22,6 +22,7 @@ import com.dbn.common.outcome.OutcomeType;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.event.ObjectChangeAction;
 import com.dbn.object.management.adapter.DBAIProfileManagementAdapter;
+import com.dbn.object.management.adapter.DBConstraintManagementAdapter;
 import com.dbn.object.management.adapter.DBCredentialManagementAdapter;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.components.State;
@@ -43,6 +44,7 @@ import static com.dbn.object.event.ObjectChangeAction.DISABLE;
 import static com.dbn.object.event.ObjectChangeAction.ENABLE;
 import static com.dbn.object.event.ObjectChangeAction.UPDATE;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
+import static com.dbn.object.type.DBObjectType.CONSTRAINT;
 import static com.dbn.object.type.DBObjectType.CREDENTIAL;
 
 /**
@@ -68,6 +70,7 @@ final class ObjectManagementServiceImpl extends ProjectComponentBase implements 
     }
 
     private void registerAdapters() {
+        managementAdapters.put(CONSTRAINT, new DBConstraintManagementAdapter());
         managementAdapters.put(CREDENTIAL, new DBCredentialManagementAdapter());
         managementAdapters.put(AI_PROFILE, new DBAIProfileManagementAdapter());
         //...

@@ -18,46 +18,19 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.ObjectManagementAdapterBase;
-import org.jetbrains.annotations.Nls;
+import com.dbn.object.management.adapter.shared.DBObjectEnableAdapter;
 
 import java.sql.SQLException;
 
 /**
- * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in
- * enabling entities of type {@link DBAIProfile}
+ * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in enabling entities of type {@link DBAIProfile}
  *
  * @author Dan Cioca (Oracle)
  */
-public class DBAIProfileEnableAdapter extends ObjectManagementAdapterBase<DBAIProfile> {
+public class DBAIProfileEnableAdapter extends DBObjectEnableAdapter<DBAIProfile> {
 
     public DBAIProfileEnableAdapter(DBAIProfile profile) {
-        super(profile, ObjectChangeAction.ENABLE);
-    }
-
-    @Nls
-    @Override
-    protected String getProcessTitle() {
-        return txt("prc.assistant.title.EnablingAiProfile");
-    }
-
-    @Nls
-    @Override
-    protected String getProcessDescription(DBAIProfile object) {
-        return txt("prc.assistant.message.EnablingAiProfile", object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getSuccessMessage(DBAIProfile object) {
-        return txt("msg.assistant.info.AiProfileEnablingSuccess", object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getFailureMessage(DBAIProfile object) {
-        return txt("msg.assistant.error.AiProfileEnablingFailure", object.getQualifiedName());
+        super(profile);
     }
 
     @Override

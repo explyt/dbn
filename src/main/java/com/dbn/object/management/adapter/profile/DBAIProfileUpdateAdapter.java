@@ -19,9 +19,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.ObjectManagementAdapterBase;
-import org.jetbrains.annotations.Nls;
+import com.dbn.object.management.adapter.shared.DBObjectUpdateAdapter;
 
 import java.sql.SQLException;
 
@@ -31,34 +29,10 @@ import java.sql.SQLException;
  *
  * @author Dan Cioca (Oracle)
  */
-public class DBAIProfileUpdateAdapter extends ObjectManagementAdapterBase<DBAIProfile> {
+public class DBAIProfileUpdateAdapter extends DBObjectUpdateAdapter<DBAIProfile> {
 
     public DBAIProfileUpdateAdapter(DBAIProfile profile) {
-        super(profile, ObjectChangeAction.UPDATE);
-    }
-
-    @Nls
-    @Override
-    protected String getProcessTitle() {
-        return txt("prc.assistant.title.UpdatingAiProfile");
-    }
-
-    @Nls
-    @Override
-    protected String getProcessDescription(DBAIProfile object) {
-        return txt("prc.assistant.message.UpdatingAiProfile", object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getSuccessMessage(DBAIProfile object) {
-        return txt("msg.assistant.info.AiProfileUpdateSuccess", object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getFailureMessage(DBAIProfile object) {
-        return txt("msg.assistant.error.AiProfileUpdateFailure", object.getQualifiedName());
+        super(profile);
     }
 
     @Override

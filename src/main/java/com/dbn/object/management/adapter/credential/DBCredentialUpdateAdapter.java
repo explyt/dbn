@@ -19,10 +19,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBCredential;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.ObjectManagementAdapterBase;
+import com.dbn.object.management.adapter.shared.DBObjectUpdateAdapter;
 import com.dbn.object.type.DBAttributeType;
-import org.jetbrains.annotations.Nls;
 
 import java.sql.SQLException;
 import java.util.Map;
@@ -31,34 +29,10 @@ import java.util.Map;
  * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in updating entities of type {@link DBCredential}
  * @author Dan Cioca (Oracle)
  */
-public class DBCredentialUpdateAdapter extends ObjectManagementAdapterBase<DBCredential> {
+public class DBCredentialUpdateAdapter extends DBObjectUpdateAdapter<DBCredential> {
 
     public DBCredentialUpdateAdapter(DBCredential credential) {
-        super(credential, ObjectChangeAction.UPDATE);
-    }
-
-    @Nls
-    @Override
-    protected String getProcessTitle() {
-        return txt("prc.assistant.title.UpdatingCredential");
-    }
-
-    @Nls
-    @Override
-    protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.UpdatingCredential", object.getType(), object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialUpdateSuccess", object.getType(), object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialUpdateFailure", object.getType(), object.getQualifiedName());
+        super(credential);
     }
 
     @Override

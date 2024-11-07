@@ -18,46 +18,19 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBAIProfile;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.ObjectManagementAdapterBase;
-import org.jetbrains.annotations.Nls;
+import com.dbn.object.management.adapter.shared.DBObjectDeleteAdapter;
 
 import java.sql.SQLException;
 
 /**
- * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in
- * deleting entities of type {@link DBAIProfile}
+ * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in deleting entities of type {@link DBAIProfile}
  *
  * @author Dan Cioca (Oracle)
  */
-public class DBAIProfileDeleteAdapter extends ObjectManagementAdapterBase<DBAIProfile> {
+public class DBAIProfileDeleteAdapter extends DBObjectDeleteAdapter<DBAIProfile> {
 
     public DBAIProfileDeleteAdapter(DBAIProfile profile) {
-        super(profile, ObjectChangeAction.DELETE);
-    }
-
-    @Nls
-    @Override
-    protected String getProcessTitle() {
-        return txt("prc.assistant.title.DeletingAiProfile");
-    }
-
-    @Nls
-    @Override
-    protected String getProcessDescription(DBAIProfile object) {
-        return txt("prc.assistant.message.DeletingAiProfile", object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getSuccessMessage(DBAIProfile object) {
-        return txt("msg.assistant.info.AiProfileDeleteSuccess", object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getFailureMessage(DBAIProfile object) {
-        return txt("msg.assistant.error.AiProfileDeleteFailure", object.getQualifiedName());
+        super(profile);
     }
 
     @Override

@@ -18,9 +18,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.interfaces.DatabaseAssistantInterface;
 import com.dbn.object.DBCredential;
-import com.dbn.object.event.ObjectChangeAction;
-import com.dbn.object.management.ObjectManagementAdapterBase;
-import org.jetbrains.annotations.Nls;
+import com.dbn.object.management.adapter.shared.DBObjectDeleteAdapter;
 
 import java.sql.SQLException;
 
@@ -28,34 +26,10 @@ import java.sql.SQLException;
  * Implementation of the {@link com.dbn.object.management.ObjectManagementAdapter} specialized in deleting entities of type {@link DBCredential}
  * @author Dan Cioca (Oracle)
  */
-public class DBCredentialDeleteAdapter extends ObjectManagementAdapterBase<DBCredential> {
+public class DBCredentialDeleteAdapter extends DBObjectDeleteAdapter<DBCredential> {
 
     public DBCredentialDeleteAdapter(DBCredential credential) {
-        super(credential, ObjectChangeAction.DELETE);
-    }
-
-    @Nls
-    @Override
-    protected String getProcessTitle() {
-        return txt("prc.assistant.title.DeletingCredential");
-    }
-
-    @Nls
-    @Override
-    protected String getProcessDescription(DBCredential object) {
-        return txt("prc.assistant.message.DeletingCredential", object.getType(), object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getSuccessMessage(DBCredential object) {
-        return txt("msg.assistant.info.CredentialDeleteSuccess", object.getType(), object.getQualifiedName());
-    }
-
-    @Nls
-    @Override
-    protected String getFailureMessage(DBCredential object) {
-        return txt("msg.assistant.error.CredentialDeleteFailure", object.getType(), object.getQualifiedName());
+        super(credential);
     }
 
     @Override
