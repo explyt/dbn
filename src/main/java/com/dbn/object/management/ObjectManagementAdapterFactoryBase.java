@@ -30,10 +30,6 @@ import java.sql.SQLException;
 public abstract class ObjectManagementAdapterFactoryBase<T extends DBSchemaObject> implements ObjectManagementAdapterFactory<T> {
     @Override
     public final ObjectManagementAdapter<T> createAdapter(T object, ObjectChangeAction action) {
-        return newAdapter(object, action);
-    }
-
-    private ObjectManagementAdapter<T> newAdapter(T object, ObjectChangeAction action) {
         switch (action) {
             case CREATE: return new DBObjectCreateAdapter<>(object, (d, c, o) -> createObject(d, c, o));
             case UPDATE: return new DBObjectUpdateAdapter<>(object, (d, c, o) -> updateObject(d, c, o));
