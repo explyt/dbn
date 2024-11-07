@@ -394,6 +394,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TYPE_PROCEDURE.addParent(TYPE);
         TYPE_TYPE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
+        JAVA_OBJECT.addParent(SCHEMA);
 
         PACKAGE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_PACKAGE_SPEC);
         PACKAGE.addIcon(DBContentType.CODE_BODY, Icons.DBO_PACKAGE_BODY);
