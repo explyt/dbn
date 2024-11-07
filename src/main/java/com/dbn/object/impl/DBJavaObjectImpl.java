@@ -37,12 +37,14 @@ import java.sql.SQLException;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
-import static com.dbn.object.common.property.DBObjectProperty.FINAL;
-import static com.dbn.object.common.property.DBObjectProperty.INNER;
-import static com.dbn.object.common.property.DBObjectProperty.STATIC;
+import static com.dbn.object.common.property.DBObjectProperty.BINARY_AVAILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.FINAL;
+import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.property.DBObjectProperty.SOURCE_AVAILABLE;
+import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaObjectAccessibility.PRIVATE;
 import static com.dbn.object.type.DBJavaObjectKind.ENUM;
 import static com.dbn.object.type.DBJavaObjectKind.INTERFACE;
@@ -71,6 +73,8 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 		set(ABSTRACT, metadata.isAbstract());
 		set(STATIC, metadata.isStatic());
 		set(INNER, metadata.isInner());
+		set(SOURCE_AVAILABLE, metadata.isSourceAvailable());
+		set(BINARY_AVAILABLE, metadata.isBinaryAvailable());
 
 		return metadata.getObjectName().replace("/",".");
 	}
@@ -137,6 +141,16 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	public boolean isInner() {
 		return is(INNER);
+	}
+
+	@Override
+	public boolean isSourceAvailable() {
+		return is(SOURCE_AVAILABLE);
+	}
+
+	@Override
+	public boolean isBinaryAvailable() {
+		return is(BINARY_AVAILABLE);
 	}
 
 	/*********************************************************

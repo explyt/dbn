@@ -36,4 +36,9 @@ public interface DBJavaObject extends DBSchemaObject {
 	boolean isStatic();
 
 	boolean isInner();
+
+	boolean isSourceAvailable();
+
+	boolean isBinaryAvailable();
+
 }
