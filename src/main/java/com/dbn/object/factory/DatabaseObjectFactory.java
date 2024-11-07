@@ -162,7 +162,8 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                             if (objectStatus.is(DBContentType.CODE_SPEC, DBObjectStatus.PRESENT)) {
                                 dataDefinition.dropObject(objectTypeName, objectName, conn);
                             }
-
+                        } else if(object.getObjectType() == DBObjectType.JAVA_OBJECT) {
+                            dataDefinition.dropJavaObject(objectName, conn);
                         } else {
                             dataDefinition.dropObject(objectTypeName, objectName, conn);
                         }

@@ -92,6 +92,26 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
        executeUpdate(connection, "drop-object-body", objectType, objectName);
    }
 
+    @Override
+    public void dropJavaObject(String objectName, DBNConnection connection) throws SQLException {
+       String ownerName = objectName.split("\\.")[0];
+       objectName = objectName.substring(objectName.indexOf(".") + 1);
+
+       try {
+           executeUpdate(connection, "drop-java-object-class", ownerName, objectName);
+       } catch (SQLException e){
+           /*
+            * Error ORA-29537, "class or resource cannot be created or dropped directly"
+            * Try to drop as Source
+            */
+           if(e.getErrorCode() == 29537){
+               executeUpdate(connection, "drop-java-object-source", ownerName, objectName);
+           } else {
+               throw e;
+           }
+       }
+    }
+
     protected String updateNameQualification(String code, boolean qualified, String objectType, String schemaName, String objectName, CodeStyleCaseSettings caseSettings) {
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();

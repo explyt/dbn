@@ -34,7 +34,7 @@
         <statement>begin
             execute immediate
             '
-                create or replace and compile java source named "{0}" as
+                create or replace java source named "{0}" as
                 {1}
             ';
             end;
@@ -47,6 +47,14 @@
 
     <statement-execution-processor id="drop-object-body">
         <statement>drop {0} body {1}</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-java-object-source" is-query="true">
+        <statement>drop java source {0}."{1}"</statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="drop-java-object-class" is-query="true">
+        <statement>drop java class {0}."{1}"</statement>
     </statement-execution-processor>
 
 </data-dictionary>

@@ -40,6 +40,9 @@ import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
+import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.type.DBJavaObjectAccessibility.PRIVATE;
 import static com.dbn.object.type.DBJavaObjectKind.ENUM;
 import static com.dbn.object.type.DBJavaObjectKind.INTERFACE;
@@ -83,6 +86,13 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 
 		childObjects.createSubcontentObjectList(JAVA_OBJECT, this, schema);
 */
+	}
+
+	public void initProperties() {
+		super.initProperties();
+		properties.set(COMPILABLE, true);
+		properties.set(INVALIDABLE, true);
+		properties.set(DEBUGABLE, true);
 	}
 
 	@Override
