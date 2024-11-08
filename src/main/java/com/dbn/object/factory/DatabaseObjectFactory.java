@@ -12,6 +12,7 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.DatabaseFileEditorManager;
+import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
@@ -176,7 +177,9 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                                 dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
                             }
                         } else if(object.getObjectType() == DBObjectType.JAVA_OBJECT) {
-                            dataDefinition.dropJavaObject(schemaName, objectName, conn);
+                            boolean isSourceAvailable = ((DBJavaObject) object).isSourceAvailable();
+                            boolean isBinaryAvailable = ((DBJavaObject) object).isBinaryAvailable();
+                            dataDefinition.dropJavaObject(schemaName, objectName, isSourceAvailable, isBinaryAvailable, conn);
                         } else {
                             dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
                         }
