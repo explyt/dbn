@@ -623,6 +623,14 @@
             <separator/>
             <group id="DBNavigator.Actions.DataEditor.Options" class="com.dbn.editor.data.action.DatasetEditorOptionsAction" text="Data Editor - Options"/>
         </group>
+        <group id="DBNavigator.ActionGroup.ExecutionConsoleMessages">
+            <action class="com.dbn.execution.common.message.action.MessagesWindowCloseAction" text="Messages - Close" icon="com.dbn.common.icon.Icons.EXEC_RESULT_CLOSE"/>
+            <action class="com.dbn.execution.common.message.action.ExecutedStatementViewAction" text="Messages - View SQL Statement" icon="com.dbn.common.icon.Icons.EXEC_RESULT_VIEW_STATEMENT"/>
+            <action class="com.dbn.execution.common.message.action.MessagesTreeExpandAction" text="Messages - Expand All" icon="com.dbn.common.icon.Icons.ACTION_EXPAND_ALL"/>
+            <action class="com.dbn.execution.common.message.action.MessagesTreeCollapseAction" text="Messages - Collapse All" icon="com.dbn.common.icon.Icons.ACTION_COLLAPSE_ALL"/>
+            <separator/>
+            <action class="com.dbn.execution.common.message.action.ExecutionEngineSettingsAction" text="Messages - Settings" icon="com.dbn.common.icon.Icons.EXEC_RESULT_OPTIONS"/>
+        </group>
         <group id="DBNavigator.ActionGroup.StatementExecutionResult">
             <action id="DBNavigator.Actions.ExecutionResult.Close" class="com.dbn.execution.statement.result.action.ExecutionResultCloseAction" text="Execution Result - Close" icon="com.dbn.common.icon.Icons.ACTION_CLOSE"/>
             <action id="DBNavigator.Actions.ExecutionResult.ViewStatement" class="com.dbn.execution.statement.result.action.ExecutionResultViewStatementAction" text="Execution Result - View Statement" icon="AllIcons.Actions.Preview"/>
