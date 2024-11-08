@@ -117,12 +117,22 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	@Nullable
 	public Icon getIcon() {
-		if (kind == ENUM) return Icons.DBO_JAVA_ENUMERATION;
-		if (kind == INTERFACE) return Icons.DBO_JAVA_INTERFACE;
-		if (isAbstract()) return Icons.DBO_JAVA_CLASS_ABSTRACT;
-		return Icons.DBO_JAVA_CLASS;
+		if (kind == ENUM) return withErrorMarker(Icons.DBO_JAVA_ENUMERATION);
+		if (kind == INTERFACE) return withErrorMarker(Icons.DBO_JAVA_INTERFACE);
+		if (isAbstract()) return withErrorMarker(Icons.DBO_JAVA_CLASS_ABSTRACT);
+		return withErrorMarker(withFinalMarker(Icons.DBO_JAVA_CLASS));
+	}
 
-		// TODO "final" - new CompositeIcon(baseIcon, AllIcons.Nodes.Private, -10);
+	private Icon withErrorMarker(Icon base) {
+		return isInvalid() ? Icons.withErrorMarker(base) : base;
+	}
+
+	private Icon withFinalMarker(Icon base) {
+		return isFinal() ? Icons.withPinMarker(base): base;
+	}
+
+	private boolean isInvalid() {
+		return getObjectStatus().isNot(DBObjectStatus.VALID);
 	}
 
 	@Override

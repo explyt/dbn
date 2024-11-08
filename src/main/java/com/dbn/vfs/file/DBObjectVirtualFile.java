@@ -165,7 +165,8 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
 
     @Override
     public Icon getIcon() {
-        return object.getObjectType().getIcon();
+        T object = guarded(null, () -> getObject());
+        return object == null ? getObjectType().getIcon() : object.getIcon();
     }
 
     @Override
