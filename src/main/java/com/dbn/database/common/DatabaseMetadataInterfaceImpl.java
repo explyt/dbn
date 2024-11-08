@@ -432,6 +432,11 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public void compileJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        executeUpdate(connection, "compile-java-object", ownerName, objectName);
+    }
+
+    @Override
     public void enableTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException {
         executeQuery(connection, "enable-trigger", ownerName, triggerName);
     }

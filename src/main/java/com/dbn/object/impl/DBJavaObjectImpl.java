@@ -15,6 +15,7 @@
 package com.dbn.object.impl;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.ref.WeakRefCache;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -24,6 +25,8 @@ import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
+import com.dbn.object.common.status.DBObjectStatus;
+import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.type.DBJavaObjectAccessibility;
 import com.dbn.object.type.DBJavaObjectKind;
 import com.dbn.object.type.DBObjectType;
@@ -52,6 +55,7 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 
 	private DBJavaObjectKind kind;
 	private DBJavaObjectAccessibility accessibility;
+	private static final WeakRefCache<DBJavaObject, String> presentableNameCache = WeakRefCache.weakKey();
 
 	DBJavaObjectImpl(DBSchema schema, DBJavaObjectMetadata metadata) throws SQLException {
 		super(schema, metadata);
@@ -74,7 +78,7 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 		set(SOURCE_AVAILABLE, metadata.isSourceAvailable());
 		set(BINARY_AVAILABLE, metadata.isBinaryAvailable());
 
-		return metadata.getObjectName().replace("/",".");
+		return metadata.getObjectName();
 	}
 
 
@@ -97,11 +101,24 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 		properties.set(DEBUGABLE, true);
 	}
 
+	public void initStatus(DBJavaObjectMetadata metadata) throws SQLException {
+		boolean isValid = metadata.isValid();
+		boolean isDebug = metadata.isDebug();
+		DBObjectStatusHolder objectStatus = getStatus();
+		objectStatus.set(DBObjectStatus.VALID, isValid);
+		objectStatus.set(DBObjectStatus.DEBUG, isDebug);
+	}
+
+	@Override
+	public String getPresentableText() {
+		return presentableNameCache.computeIfAbsent(this, o -> o.getName().replace("/", "."));
+	}
+
 	@Override
 	@Nullable
 	public Icon getIcon() {
 		if (kind == ENUM) return Icons.DBO_JAVA_ENUMERATION;
-		if (kind == INTERFACE) return Icons.DBO_JAVA_ENUMERATION;
+		if (kind == INTERFACE) return Icons.DBO_JAVA_INTERFACE;
 		if (isAbstract()) return Icons.DBO_JAVA_CLASS_ABSTRACT;
 		return Icons.DBO_JAVA_CLASS;
 

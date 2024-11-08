@@ -670,6 +670,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
 
+    void compileJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
     ResultSet loadObjectChangeTimestamp(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 
     void enableTrigger(String ownerName, String triggerName, DBNConnection connection) throws SQLException;

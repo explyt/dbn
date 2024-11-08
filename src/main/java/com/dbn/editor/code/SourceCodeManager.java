@@ -390,7 +390,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         File tempFile = null;
         try {
             String schemaName = object.getSchemaName();
-            String objectName = object.getName().replace(".", "/");
+            String objectName = object.getName();
             ByteArray byteArray = metadata.loadJavaBinaryCode(schemaName, objectName, conn);
             byte[] bytes = byteArray.getValue();
 
@@ -506,7 +506,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
             case JAVA_OBJECT:
                 return metadata.loadObjectSourceCode(
                     schemaName,
-                    objectName.replace(".","/"),
+                    objectName,
                     "JAVA SOURCE",
                     connection);
             default:
