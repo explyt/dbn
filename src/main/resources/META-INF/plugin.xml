@@ -401,7 +401,6 @@
         <projectService serviceImplementation="com.dbn.editor.session.SessionBrowserManager"/>
         <projectService serviceImplementation="com.dbn.generator.StatementGenerationManager"/>
         <projectService serviceImplementation="com.dbn.object.common.loader.DatabaseLoaderManager"/>
-        <projectService serviceImplementation="com.dbn.object.common.operation.DatabaseOperationManager"/>
         <projectService serviceImplementation="com.dbn.object.factory.DatabaseObjectFactory"/>
         <projectService serviceImplementation="com.dbn.object.factory.VirtualObjectFactory"/>
         <projectService serviceImplementation="com.dbn.object.filter.quick.ObjectQuickFilterManager"/>
