@@ -49,10 +49,18 @@
         <statement>drop {0} body {1}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="drop-java-object" is-query="true">
+    <statement-execution-processor id="drop-java-object">
         <statement>
             begin
-              dbms_java.dropjava('{0}');
+              dbms_java.dropjava('{0}.{1}');
+            end;
+        </statement>
+        <statement>
+            begin
+                execute immediate 'drop java source {0}."{1}"';
+            exception
+            when others then
+                execute immediate 'drop java class {0}."{1}"';
             end;
         </statement>
     </statement-execution-processor>
