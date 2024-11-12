@@ -44,6 +44,11 @@ import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
+import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
+import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
+import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
+import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
+import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 
 public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
@@ -84,7 +89,9 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
                 add(new ObjectEnableDisableAction(schemaObject));
             }
 
-            if (object.is(SCHEMA_OBJECT)) {
+            if (object.is(SCHEMA_OBJECT) &&
+                    !object.getSchema().isSystemSchema() &&
+                    !object.getSchema().isPublicSchema()) {
                 if (object.getObjectType() != DBObjectType.CONSTRAINT || CONSTRAINT_MANIPULATION.isSupported(object)) {
                     add(new ObjectDropAction((DBSchemaObject) object));
                 }
@@ -116,10 +123,10 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     }
 
     private void addDependencyActions(DBObject object) {
-        if(object instanceof DBSchemaObject) {
-            if(object.is(REFERENCEABLE) && OBJECT_DEPENDENCIES.isSupported(object)) {
+        if (object instanceof DBSchemaObject) {
+            if (object.is(REFERENCEABLE) && OBJECT_DEPENDENCIES.isSupported(object)) {
                 addSeparator();
-                add (new ObjectDependencyTreeAction((DBSchemaObject) object));
+                add(new ObjectDependencyTreeAction((DBSchemaObject) object));
             }
         }
     }
