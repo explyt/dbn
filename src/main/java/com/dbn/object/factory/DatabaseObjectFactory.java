@@ -177,9 +177,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                                 dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
                             }
                         } else if(object.getObjectType() == DBObjectType.JAVA_OBJECT) {
-                            boolean isSourceAvailable = ((DBJavaObject) object).isSourceAvailable();
-                            boolean isBinaryAvailable = ((DBJavaObject) object).isBinaryAvailable();
-                            dataDefinition.dropJavaObject(schemaName, objectName, isSourceAvailable, isBinaryAvailable, conn);
+                            dataDefinition.dropJavaObject(objectName, conn);
                         } else {
                             dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
                         }

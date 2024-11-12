@@ -93,12 +93,9 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
    }
 
     @Override
-    public void dropJavaObject(String ownerName, String objectName, boolean isSourceAvailable, boolean isBinaryAvailable, DBNConnection connection) throws SQLException {
+    public void dropJavaObject(String objectName, DBNConnection connection) throws SQLException {
        // TODO move to OracleDataDefinitionInterface (too specific for this level)
-        if (isSourceAvailable)
-            executeUpdate(connection, "drop-java-object-source", ownerName, objectName);
-        else if(isBinaryAvailable)
-            executeUpdate(connection, "drop-java-object-class", ownerName, objectName);
+        executeUpdate(connection, "drop-java-object", objectName);
     }
 
     protected String updateNameQualification(String code, boolean qualified, String objectType, String schemaName, String objectName, CodeStyleCaseSettings caseSettings) {

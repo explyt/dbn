@@ -49,12 +49,12 @@
         <statement>drop {0} body {1}</statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="drop-java-object-source" is-query="true">
-        <statement>drop java source {0}."{1}"</statement>
-    </statement-execution-processor>
-
-    <statement-execution-processor id="drop-java-object-class" is-query="true">
-        <statement>drop java class {0}."{1}"</statement>
+    <statement-execution-processor id="drop-java-object" is-query="true">
+        <statement>
+            begin
+              dbms_java.dropjava('{0}');
+            end;
+        </statement>
     </statement-execution-processor>
 
 </data-dictionary>

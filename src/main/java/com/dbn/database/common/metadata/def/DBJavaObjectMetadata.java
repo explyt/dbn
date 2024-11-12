@@ -37,10 +37,6 @@ public interface DBJavaObjectMetadata extends DBObjectMetadata {
 
     boolean isInner()throws SQLException;
 
-	boolean isSourceAvailable()throws SQLException;
-
-	boolean isBinaryAvailable()throws SQLException;
-
     boolean isValid() throws SQLException;
 
     boolean isDebug() throws SQLException;

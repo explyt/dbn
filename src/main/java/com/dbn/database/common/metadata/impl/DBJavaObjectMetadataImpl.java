@@ -70,14 +70,4 @@ public class DBJavaObjectMetadataImpl extends DBObjectMetadataBase implements DB
 	public boolean isDebug() throws SQLException {
 		return isYesFlag("IS_DEBUG");
 	}
-
-	@Override
-	public boolean isSourceAvailable() throws SQLException {
-		return isYesFlag("IS_SOURCE_AVAILABLE");
-	}
-
-	@Override
-	public boolean isBinaryAvailable() throws SQLException {
-		return isYesFlag("IS_BINARY_AVAILABLE");
-	}
 }
