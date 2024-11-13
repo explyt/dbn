@@ -51,6 +51,7 @@ sourceSets{
       include(
               "**/*.png",
               "**/*.jpg",
+              "**/*.txt",
               "**/*.xml",
               "**/*.svg",
               "**/*.css",
