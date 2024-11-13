@@ -10,7 +10,12 @@ import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -36,7 +41,6 @@ public final class Timeout {
                 String taskId = PooledThread.enter(future.get());
                 try {
                     return ThreadMonitor.surround(
-                            invoker.getProject(),
                             invoker,
                             ThreadProperty.TIMEOUT,
                             callable);
@@ -85,7 +89,6 @@ public final class Timeout {
                 String taskId = PooledThread.enter(future.get());
                 try {
                     ThreadMonitor.surround(
-                            invoker.getProject(),
                             invoker,
                             ThreadProperty.TIMEOUT,
                             runnable);

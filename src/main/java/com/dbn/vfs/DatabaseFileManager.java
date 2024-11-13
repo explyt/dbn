@@ -45,7 +45,13 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.util.Commons.list;
@@ -254,7 +260,7 @@ public class DatabaseFileManager extends ProjectComponentBase implements Persist
     private void reopenDatabaseEditors(@NotNull List<DBObjectRef<DBSchemaObject>> objects, @NotNull ConnectionHandler connection) {
         Project project = connection.getProject();
         ConnectionAction.invoke(txt("app.connection.activity.OpeningDatabaseEditors"), false, connection, action ->
-                ThreadMonitor.surround(project, ThreadProperty.WORKSPACE_RESTORE, () ->
+                ThreadMonitor.surround(ThreadProperty.WORKSPACE_RESTORE, () ->
                         Progress.background(project, connection, true,
                                 txt("prc.workspace.title.RestoringWorkspace"),
                                 txt("prc.workspace.message.RestoringWorkspace", connection.getName()),

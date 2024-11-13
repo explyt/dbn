@@ -4,7 +4,11 @@ import com.dbn.common.Priority;
 import com.dbn.common.cache.CacheKey;
 import com.dbn.common.thread.ThreadInfo;
 import com.dbn.common.thread.ThreadMonitor;
-import com.dbn.connection.*;
+import com.dbn.connection.ConnectionContext;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.ConnectionId;
+import com.dbn.connection.PooledConnection;
+import com.dbn.connection.SchemaId;
 import com.dbn.database.interfaces.DatabaseInterface.Callable;
 import com.dbn.database.interfaces.queue.InterfaceTaskRequest;
 import com.intellij.openapi.project.Project;
@@ -62,7 +66,7 @@ public final class DatabaseInterfaceInvoker {
         ThreadInfo threadInfo = ThreadInfo.copy();
         interfaceQueue.scheduleAndWait(request,
                 () -> ConnectionContext.surround(request,
-                    () -> ThreadMonitor.surround(project, threadInfo, null,
+                    () -> ThreadMonitor.surround(threadInfo, null,
                         () -> PooledConnection.run(request, runnable))));  }
 
 
@@ -89,7 +93,7 @@ public final class DatabaseInterfaceInvoker {
         ThreadInfo threadInfo = ThreadInfo.copy();
         return interfaceQueue.scheduleAndReturn(request,
                 () -> ConnectionContext.surround(request,
-                    () -> ThreadMonitor.surround(project, threadInfo, null,
+                    () -> ThreadMonitor.surround(threadInfo, null,
                             () -> PooledConnection.call(request, callable))));
     }
 

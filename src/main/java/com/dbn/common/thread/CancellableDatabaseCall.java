@@ -16,7 +16,13 @@ import java.sql.SQLException;
 import java.sql.SQLTimeoutException;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.*;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -57,7 +63,6 @@ public abstract class CancellableDatabaseCall<T> implements Callable<T> {
     @Override
     public T call() throws Exception {
         return ThreadMonitor.surround(
-                invoker.getProject(),
                 invoker,
                 ThreadProperty.CANCELABLE,
                 () -> {

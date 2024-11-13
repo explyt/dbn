@@ -11,7 +11,7 @@ import com.dbn.common.dispose.Checks;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.environment.EnvironmentTypeProvider;
 import com.dbn.common.filter.Filter;
-import com.dbn.common.thread.ThreadMonitor;
+import com.dbn.common.project.ProjectContext;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Lists;
 import com.dbn.connection.config.ConnectionSettings;
@@ -30,6 +30,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.vfs.file.DBSessionBrowserVirtualFile;
 import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.project.ProjectManager;
 import com.intellij.psi.PsiDirectory;
 import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
@@ -38,7 +39,6 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.SQLException;
 import java.util.List;
 
-import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -222,11 +222,20 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
         ConnectionHandler connection = ConnectionCache.resolve(connectionId);
         if (connection != null) return connection;
 
-        Project project = ThreadMonitor.getProject();
-        if (isNotValid(project)) return null;
+        Project project = ProjectContext.getProject();
+        if (project != null) {
+            ConnectionManager connectionManager = ConnectionManager.getInstance(project);
+            return connectionManager.getConnection(connectionId);
+        }
 
-        ConnectionManager connectionManager = ConnectionManager.getInstance(project);
-        return connectionManager.getConnection(connectionId);
+        Project[] projects = ProjectManager.getInstance().getOpenProjects();
+        for (Project openProject : projects) {
+            ConnectionManager connectionManager = ConnectionManager.getInstance(openProject);
+            connection = connectionManager.getConnection(connectionId);
+            if (connection != null) return connection;
+        }
+
+        return null;
     }
 
     @NotNull

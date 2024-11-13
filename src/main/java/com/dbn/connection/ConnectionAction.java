@@ -3,9 +3,10 @@ package com.dbn.connection;
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.thread.ThreadInfo;
+import com.dbn.common.thread.ThreadMonitor;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.connection.context.DatabaseContextBase;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
@@ -148,8 +149,10 @@ public abstract class ConnectionAction implements DatabaseContextBase {
         new ConnectionAction(description, interactive, databaseContext) {
             @Override
             public void execute() {
-                guarded(() -> action.accept(this));
+                ThreadMonitor.surround(ThreadInfo.copy(), null,
+                        () -> guarded(() -> action.accept(this)));
             }
+
         }.start();
     }
 
@@ -165,7 +168,8 @@ public abstract class ConnectionAction implements DatabaseContextBase {
             @Override
             public void execute() {
                 if (canExecute == null || canExecute.test(this)) {
-                    guarded(() -> action.accept(this));
+                    ThreadMonitor.surround(ThreadInfo.copy(), null, () -> guarded(() -> action.accept(this)));
+
                 }
             }
 
@@ -179,6 +183,4 @@ public abstract class ConnectionAction implements DatabaseContextBase {
 
         }.start();
     }
-
-
 }
