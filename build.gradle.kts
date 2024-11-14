@@ -22,7 +22,6 @@ dependencies {
   testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
   implementation("org.projectlombok:lombok:1.18.34")
-  implementation("com.github.mwiede:jsch:0.2.20")
 
   // poi libraries (xls export)
   implementation("org.apache.poi:poi:5.3.0")
@@ -35,6 +34,8 @@ dependencies {
   implementation("org.apache.commons:commons-collections4:4.4")
   implementation("org.apache.commons:commons-lang3:3.17.0")
   implementation("org.apache.logging.log4j:log4j-api:2.24.1")
+  implementation("org.apache.sshd:sshd-common:2.14.0")
+  implementation("org.apache.sshd:sshd-core:2.14.0")
   implementation("org.apache.xmlbeans:xmlbeans:5.2.1")
 
   implementation(project(":modules:dbn-api"))
