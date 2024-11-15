@@ -116,7 +116,7 @@ public class SshTunnelConnector {
     }
 
     public boolean isConnected() {
-        return session != null && session.isAuthenticated();
+        return session != null && session.isAuthenticated() && session.isOpen() && !session.isClosing();
     }
 
     public void disconnect() {
