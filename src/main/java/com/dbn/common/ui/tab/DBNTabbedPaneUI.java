@@ -3,10 +3,12 @@ package com.dbn.common.ui.tab;
 import com.dbn.common.color.Colors;
 import com.intellij.ide.ui.laf.darcula.ui.DarculaTabbedPaneUI;
 
-import javax.swing.*;
-import java.awt.*;
-
-import static com.intellij.util.ui.JBUI.CurrentTheme.TabbedPane.FOCUS_COLOR;
+import javax.swing.JTabbedPane;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Rectangle;
 
 class DBNTabbedPaneUI extends DarculaTabbedPaneUI {
     @Override
@@ -59,5 +61,7 @@ class DBNTabbedPaneUI extends DarculaTabbedPaneUI {
         super.paintTab(g, tabPlacement, rects, tabIndex, iconRect, textRect);
     }
 
-
+    protected Rectangle[] getRectangles() {
+        return rects;
+    }
 }

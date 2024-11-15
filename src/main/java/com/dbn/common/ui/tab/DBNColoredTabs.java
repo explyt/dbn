@@ -13,12 +13,13 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComponent;
 import java.util.Map;
 import java.util.Objects;
 
 @Getter
 @Setter
+@Deprecated // TODO replace with DBNTabbedPane
 public class DBNColoredTabs extends JBEditorTabs implements StatefulDisposable {
     private boolean disposed;
     private final Map<TabInfo, String> tabInfos = ContainerUtil.createConcurrentWeakMap();

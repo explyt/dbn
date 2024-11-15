@@ -1,35 +1,91 @@
 package com.dbn.common.ui.tab;
 
+import com.dbn.common.color.Colors;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposable;
 import com.intellij.openapi.Disposable;
 import com.intellij.ui.components.JBTabbedPane;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JTabbedPane;
+import javax.swing.JViewport;
+import java.awt.Component;
+import java.awt.Rectangle;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
+import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 
 @Getter
 @Setter
-public class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements StatefulDisposable {
+@Slf4j
+class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements StatefulDisposable {
     private boolean disposed;
     private final List<DBNTabInfo<T>> tabInfos = new ArrayList<>();
 
     public DBNTabbedPaneBase(Disposable parent) {
-        //super(TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
-        setUI(new DBNTabbedPaneUI());
+        super(TOP, JTabbedPane.SCROLL_TAB_LAYOUT);
+        DBNTabbedPaneUI ui = new DBNTabbedPaneUI();
+        setUI(ui);
 
-        //setTabLayoutPolicy(JTabbedPane.SCROLL_TAB_LAYOUT);
+        initHiddenTabsButton(ui);
         Disposer.register(parent, this);
+    }
+
+    @Workaround // future api changes could render this code void
+    private void initHiddenTabsButton(DBNTabbedPaneUI ui) {
+        JButton button = findChildComponent(this, JButton.class, c -> isHiddenTabsButton(c));
+        JViewport viewport = findChildComponent(this, JViewport.class, c -> isScrollableViewport(c));
+        if (button == null || viewport == null) {
+            // if this error is reported, the api has changed and hidden button adjustments are no longer happening
+            log.error("Cannot find HiddenTabsButton or ScrollableTabsViewport");
+            return;
+        }
+
+        button.setBorder(null);
+        button.setOpaque(false);
+        button.setBackground(Colors.getPanelBackground());
+
+       viewport.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                button.setVisible(hasHiddenTabs(viewport, ui));
+                super.componentResized(e);
+            }
+        });
+
+    }
+
+    private boolean hasHiddenTabs(JViewport viewport, DBNTabbedPaneUI ui) {
+        for (int i = 0; i < getTabCount(); i++) {
+            Rectangle rectangle = ui.getRectangles()[i];
+            if (!viewport.getViewRect().contains(rectangle)) return true;
+        }
+        return false;
+    }
+
+    private static boolean isHiddenTabsButton(JComponent c) {
+        return c instanceof JButton && c.getClass().getName().contains("HiddenTabs");
+    }
+
+    private static boolean isScrollableViewport(JComponent c) {
+        return c instanceof JViewport && Objects.equals(c.getName(), "TabbedPane.scrollableViewport");
     }
 
     @Override
     public void insertTab(@Nls(capitalization = Nls.Capitalization.Title) String title, Icon icon, Component component, @Nls(capitalization = Nls.Capitalization.Sentence) String tip, int index) {
         super.insertTab(title, icon, component, tip, index);
+        setTabComponentAt(index, null);
     }
 
     @Override
