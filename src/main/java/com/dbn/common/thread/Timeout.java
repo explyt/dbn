@@ -6,10 +6,12 @@ import com.dbn.common.routine.ThrowableRunnable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.TimeUtil;
 import com.dbn.diagnostics.Diagnostics;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -53,12 +55,14 @@ public final class Timeout {
                 }
             }));
 
-
             T result = waitFor(future.get(), seconds, TimeUnit.SECONDS);
             if (exception.get() != null) {
                 throw exception.get();
             }
             return result;
+        } catch (CancellationException e) {
+            conditionallyLog(e);
+            throw new ProcessCanceledException();
         } catch (TimeoutException | InterruptedException | RejectedExecutionException e) {
             conditionallyLog(e);
             String message = Commons.nvl(e.getMessage(), e.getClass().getSimpleName());
@@ -103,7 +107,9 @@ public final class Timeout {
             if (exception.get() != null) {
                 throw exception.get();
             }
-
+        } catch (CancellationException e) {
+            conditionallyLog(e);
+            throw new ProcessCanceledException();
         } catch (TimeoutException | InterruptedException | RejectedExecutionException e) {
             conditionallyLog(e);
             String message = Commons.nvl(e.getMessage(), e.getClass().getSimpleName());
@@ -120,6 +126,7 @@ public final class Timeout {
 
     public static <T> T waitFor(Future<T> future, long time, TimeUnit timeUnit) throws InterruptedException, TimeoutException, ExecutionException {
         try {
+            Progress.cancelCallback(() -> future.cancel(true));
             return future.get(time, timeUnit);
         } catch (TimeoutException | InterruptedException e) {
             conditionallyLog(e);
