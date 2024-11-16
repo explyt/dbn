@@ -3,8 +3,8 @@ package com.dbn.common.ui.tab;
 import com.dbn.common.ui.util.Listeners;
 import com.intellij.openapi.Disposable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import java.awt.Color;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -71,5 +71,4 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
             }
         }
     }
-
 }

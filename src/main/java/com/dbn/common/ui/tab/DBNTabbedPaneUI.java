@@ -16,7 +16,9 @@
  */
 package com.dbn.common.ui.tab;
 
+import com.dbn.common.Wrapper;
 import com.dbn.common.color.Colors;
+import com.dbn.common.ui.util.LookAndFeel;
 import com.dbn.common.ui.util.Popups;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Context;
@@ -44,6 +46,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.event.ChangeListener;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.UIResource;
 import javax.swing.plaf.basic.BasicArrowButton;
@@ -66,20 +69,23 @@ import java.awt.RenderingHints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.beans.PropertyChangeListener;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Conditional.when;
 import static com.intellij.util.ui.JBUI.CurrentTheme.TabbedPane.DISABLED_SELECTED_COLOR;
 import static com.intellij.util.ui.JBUI.CurrentTheme.TabbedPane.DISABLED_TEXT_COLOR;
 import static com.intellij.util.ui.JBUI.CurrentTheme.TabbedPane.ENABLED_SELECTED_COLOR;
-import static com.intellij.util.ui.JBUI.CurrentTheme.TabbedPane.FOCUS_COLOR;
 import static com.intellij.util.ui.JBUI.CurrentTheme.TabbedPane.HOVER_COLOR;
 import static com.intellij.util.ui.JBUI.CurrentTheme.TabbedPane.SELECTION_HEIGHT;
 import static com.intellij.util.ui.JBUI.CurrentTheme.TabbedPane.TAB_HEIGHT;
@@ -104,6 +110,12 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     private boolean tabsOverlapBorder;
     private boolean useSelectedRectBackup = false;
     private Color tabHoverColor;
+
+    private PropertyChangeListener propertyChangeListener;
+    private ComponentListener componentListener;
+    private ChangeListener changeListener;
+    private MouseListener mouseListener;
+    private MouseMotionAdapter mouseMotionListener;
 
     private static final JBValue OFFSET = new JBValue.Float(1);
 
@@ -167,7 +179,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     protected void installListeners() {
         super.installListeners();
 
-        tabPane.addPropertyChangeListener(e -> {
+        propertyChangeListener = e -> {
             String propName = e.getPropertyName();
             if ("JTabbedPane.hasFullBorder".equals(propName) || "tabLayoutPolicy".equals(propName)) {
                 boolean fullBorder = tabPane.getClientProperty("JTabbedPane.hasFullBorder") == Boolean.TRUE;
@@ -188,19 +200,19 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                 tabPane.setSelectedIndex(-1);
                 SwingUtilities.invokeLater(() -> tabPane.setSelectedIndex(index));
             }
-        });
+        };
 
-        tabPane.addComponentListener(new ComponentAdapter() {
+        componentListener = new ComponentAdapter() {
             @Override
             public void componentResized(ComponentEvent e) {
                 ensureSelectedTabIsVisible();
                 adjustHiddenTabsButton();
             }
-        });
+        };
 
-        tabPane.addChangeListener(e -> ensureSelectedTabIsVisible());
+        changeListener = e -> ensureSelectedTabIsVisible();
 
-        tabPane.addMouseListener(new MouseAdapter() {
+        mouseListener = new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
                 hoverTab = tabForCoordinate(tabPane, e.getX(), e.getY());
@@ -212,15 +224,49 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                 hoverTab = -1;
                 tabPane.repaint();
             }
-        });
+        };
 
-        tabPane.addMouseMotionListener(new MouseMotionAdapter() {
+        mouseMotionListener = new MouseMotionAdapter() {
             @Override
             public void mouseMoved(MouseEvent e) {
                 hoverTab = tabForCoordinate(tabPane, e.getX(), e.getY());
                 tabPane.repaint();
             }
-        });
+        };
+
+        tabPane.addPropertyChangeListener(propertyChangeListener);
+        tabPane.addComponentListener(componentListener);
+        tabPane.addChangeListener(changeListener);
+        tabPane.addMouseListener(mouseListener);
+        tabPane.addMouseMotionListener(mouseMotionListener);
+    }
+
+    @Override
+    protected void uninstallListeners() {
+        super.uninstallListeners();
+        if (changeListener != null) {
+            tabPane.removeChangeListener(changeListener);
+            changeListener = null;
+        }
+        if (componentListener != null) {
+            tabPane.removeComponentListener(componentListener);
+            componentListener = null;
+        }
+
+        if (propertyChangeListener != null) {
+            tabPane.removePropertyChangeListener(propertyChangeListener);
+            propertyChangeListener = null;
+        }
+
+        if (mouseListener != null) {
+            tabPane.removeMouseListener(mouseListener);
+            mouseListener = null;
+        }
+
+        if (mouseMotionListener != null) {
+            tabPane.removeMouseMotionListener(mouseMotionListener);
+            mouseMotionListener = null;
+        }
     }
 
     private void adjustHiddenTabsButton() {
@@ -243,6 +289,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     @Override
     public int tabForCoordinate(JTabbedPane pane, int x, int y) {
+/*
         if (hiddenTabsButton != null) {
             Point p = new Point(x, y);
             JViewport viewport = getScrollableViewport();
@@ -255,6 +302,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
             x = p.x;
             y = p.y;
         }
+*/
         return super.tabForCoordinate(pane, x, y);
     }
 
@@ -321,23 +369,24 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     @Override
     protected void paintTabBackground(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-        Color color = getTabPane().getTabColor(tabIndex);
+        Color color = nvl(getTabPane().getTabColor(tabIndex), tabPane.getBackground());
 
+        if (tabPane.isEnabled()) {
+
+            if (tabIndex == hoverTab) {
+                color = LookAndFeel.isDarkMode() ?
+                        Colors.lafBrighter(color, 6) :
+                        Colors.lafDarker(color, 6);
+            } else  if (isSelected) {
+                //color = Colors.lafDarker(color, 2);
+            }
+        }
+        g.setColor(color);
+
+
+/*
         Color backgroundColor = tabPane.getBackground();
         Color hoverColor = getHoverColor();
-
-        if (color != null) {
-            int hoverTab = 0;
-            if (tabPane.isEnabled()) {
-                if (tabPane.hasFocus() && isSelected) {
-                    color = Colors.lafBrighter(color, 2);
-                } else if (tabIndex == hoverTab) {
-                    color = Colors.lafDarker(color, 2);
-                }
-            }
-            g.setColor(color);
-        }
-
         if (tabStyle == TabStyle.fill) {
             if (tabPane.isEnabled()) {
                 g.setColor(isSelected ? ENABLED_SELECTED_COLOR : tabIndex == hoverTab ? hoverColor : backgroundColor);
@@ -357,6 +406,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
             g.setColor(c);
         }
+*/
 
         if (tabPlacement == LEFT || tabPlacement == RIGHT) {
             w -= getOffset();
@@ -459,7 +509,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     @Override
     protected int calculateTabHeight(int tabPlacement, int tabIndex, int fontHeight) {
         int height = super.calculateTabHeight(tabPlacement, tabIndex, fontHeight) - 2; //remove magic constant '2' added by parent
-        int minHeight = TAB_HEIGHT.get();
+        int minHeight = TAB_HEIGHT.get() - 2;
         return Math.max(height, minHeight);
     }
 
@@ -570,11 +620,11 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     }
 
-    private final class WrappingLayout extends TabbedPaneLayout {
-        private final TabbedPaneLayout myDelegate;
+    private final class WrappingLayout extends TabbedPaneLayout implements Wrapper<TabbedPaneLayout> {
+        private final TabbedPaneLayout delegate;
 
         private WrappingLayout(TabbedPaneLayout delegate) {
-            myDelegate = delegate;
+            this.delegate = delegate;
         }
 
         @Override
@@ -589,27 +639,27 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
         @Override
         public void calculateLayoutInfo() {
-            myDelegate.calculateLayoutInfo();
+            delegate.calculateLayoutInfo();
         }
 
         @Override
         public void addLayoutComponent(String name, Component comp) {
-            myDelegate.addLayoutComponent(name, comp);
+            delegate.addLayoutComponent(name, comp);
         }
 
         @Override
         public void removeLayoutComponent(Component comp) {
-            myDelegate.removeLayoutComponent(comp);
+            delegate.removeLayoutComponent(comp);
         }
 
         @Override
         public Dimension preferredLayoutSize(Container parent) {
-            return myDelegate.preferredLayoutSize(parent);
+            return delegate.preferredLayoutSize(parent);
         }
 
         @Override
         public Dimension minimumLayoutSize(Container parent) {
-            return myDelegate.minimumLayoutSize(parent);
+            return delegate.minimumLayoutSize(parent);
         }
 
         @Override
@@ -626,7 +676,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                 selectedRectBackup = null;
             }
 
-            myDelegate.layoutContainer(parent);
+            delegate.layoutContainer(parent);
             if (selectedRectBackup != null) {
                 rects[selectedIndex] = selectedRectBackup;
             }
@@ -688,6 +738,11 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                 }
                 hiddenTabsButton.setBounds(bounds);
             }
+        }
+
+        @Override
+        public TabbedPaneLayout unwrap() {
+            return delegate;
         }
     }
 
