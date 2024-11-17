@@ -290,20 +290,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     @Override
     public int tabForCoordinate(JTabbedPane pane, int x, int y) {
-/*
-        if (hiddenTabsButton != null) {
-            Point p = new Point(x, y);
-            JViewport viewport = getScrollableViewport();
-            if (viewport != null) {
-                Point vpp = viewport.getLocation();
-                Point viewp = viewport.getViewPosition();
-                p.x = x - vpp.x + viewp.x;
-                p.y = y - vpp.y + viewp.y;
-            }
-            x = p.x;
-            y = p.y;
-        }
-*/
         // prevent tab switch on right mouse click if showing popup
         if (getTabPane().isShowingPopup()) return -1;
 
@@ -386,31 +372,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
             }
         }
         g.setColor(color);
-
-
-/*
-        Color backgroundColor = tabPane.getBackground();
-        Color hoverColor = getHoverColor();
-        if (tabStyle == TabStyle.fill) {
-            if (tabPane.isEnabled()) {
-                g.setColor(isSelected ? ENABLED_SELECTED_COLOR : tabIndex == hoverTab ? hoverColor : backgroundColor);
-            } else {
-                g.setColor(isSelected ? DISABLED_SELECTED_COLOR : backgroundColor);
-            }
-        } else {
-            // underline
-            Color c = backgroundColor;
-            if (tabPane.isEnabled()) {
-                if (tabPane.hasFocus() && isSelected) {
-                    c = FOCUS_COLOR;
-                } else if (tabIndex == hoverTab) {
-                    c = hoverColor;
-                }
-            }
-
-            g.setColor(c);
-        }
-*/
 
         if (tabPlacement == LEFT || tabPlacement == RIGHT) {
             w -= getOffset();
