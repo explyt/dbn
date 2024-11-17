@@ -87,13 +87,14 @@ public class UserInterface {
     }
 
     /**
-     * TODO rename to whenFirstShown
-     * @param component
-     * @param runnable
+     * Invokes a runnable once when the given component is shown
+     * @param component the @{@link Component} to consider visibility event for
+     * @param runnable the @{@link Runnable} to be invoked when the component is shown
      */
-    public static void whenShown(JComponent component, Runnable runnable) {
+    public static void whenFirstShown(JComponent component, Runnable runnable) {
         whenShown(component, runnable, true);
     }
+
 
     public static void whenShown(JComponent component, Runnable runnable, boolean first) {
         // one time invocation of the runnable when component is shown

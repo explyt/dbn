@@ -158,8 +158,8 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         T content = TAB_CONTENT.get(component);
 
         super.removeTabAt(index);
-        Disposer.dispose(content);
         updateListeners.notify(l -> l.tabRemoved(index));
+        Disposer.dispose(content);
     }
 
     public void removeAllTabs() {

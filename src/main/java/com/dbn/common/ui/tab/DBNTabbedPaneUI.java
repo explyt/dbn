@@ -18,6 +18,7 @@ package com.dbn.common.ui.tab;
 
 import com.dbn.common.Wrapper;
 import com.dbn.common.color.Colors;
+import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.ui.util.LookAndFeel;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
@@ -109,7 +110,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     private int hoverTab = -1;
     private boolean tabsOverlapBorder;
-    private boolean useSelectedRectBackup = false;
     private Color tabHoverColor;
 
     private PropertyChangeListener propertyChangeListener;
@@ -674,33 +674,9 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
         @Override
         public void layoutContainer(Container parent) {
             hiddenTabsButton.setBounds(new Rectangle());
-            int selectedIndex = tabPane.getSelectedIndex();
-            Rectangle selectedRectBackup;
-            if (useSelectedRectBackup && selectedIndex != -1 && rects != null && rects.length > selectedIndex) {
-                selectedRectBackup = new Rectangle(rects[selectedIndex]);
-            } else {
-                selectedRectBackup = null;
-            }
-
             delegate.layoutContainer(parent);
-            if (selectedRectBackup != null) {
-                rects[selectedIndex] = selectedRectBackup;
-            }
 
-            useSelectedRectBackup = true;
-            Field obj = ReflectionUtil.getDeclaredField(BasicTabbedPaneUI.class, "tabScroller");
-            if (obj != null) {
-                Object obj1 = ReflectionUtil.getFieldValue(obj, DBNTabbedPaneUI.this);
-                if (obj1 != null) {
-                    Field obj2 = ReflectionUtil.getDeclaredField(obj1.getClass(), "croppedEdge");
-                    if (obj2 != null) {
-                        Object obj3 = ReflectionUtil.getFieldValue(obj2, obj1);
-                        if (obj3 != null) {
-                            ReflectionUtil.resetField(obj3, "shape");
-                        }
-                    }
-                }
-            }
+            removeCurlyTabEdge();
 
             if (hiddenTabsButton != null && !hiddenArrowButtons.isEmpty()) {
                 Rectangle bounds = null;
@@ -744,6 +720,23 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                 }
                 hiddenTabsButton.setBounds(bounds);
             }
+        }
+
+        @Workaround
+        private void removeCurlyTabEdge() {
+            Field obj = ReflectionUtil.getDeclaredField(BasicTabbedPaneUI.class, "tabScroller");
+            if (obj == null) return;
+
+            Object obj1 = ReflectionUtil.getFieldValue(obj, DBNTabbedPaneUI.this);
+            if (obj1 == null) return;
+
+            Field obj2 = ReflectionUtil.getDeclaredField(obj1.getClass(), "croppedEdge");
+            if (obj2 == null) return;
+
+            Object obj3 = ReflectionUtil.getFieldValue(obj2, obj1);
+            if (obj3 == null) return;
+
+            ReflectionUtil.resetField(obj3, "shape");
         }
 
         @Override
