@@ -20,6 +20,7 @@ import com.dbn.common.Wrapper;
 import com.dbn.common.color.Colors;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.ui.util.LookAndFeel;
+import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Context;
@@ -42,8 +43,8 @@ import com.intellij.util.ui.UIUtilities;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
-import javax.swing.JButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JTabbedPane;
 import javax.swing.JViewport;
 import javax.swing.SwingUtilities;
@@ -68,7 +69,6 @@ import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
@@ -104,7 +104,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
     private enum TabStyle {underline, fill}
 
     private TabStyle tabStyle;
-    private JButton hiddenTabsButton;
+    private JLabel hiddenTabsButton;
     private ListPopup hiddenTabsPopup;
     private List<Component> hiddenArrowButtons;
 
@@ -307,7 +307,21 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
         Dimension viewSize = viewport.getViewSize();
         Rectangle viewRect = viewport.getViewRect();
         Rectangle tabRect = rects[index];
-        if (viewRect.contains(tabRect)) return;
+        if (viewRect.contains(tabRect)) {
+            // adjust scrolling if right side gap is not justified
+            if (isTopBottom()) {
+                Rectangle bounds = hiddenTabsButton.getBounds();
+                Point viewPosition = viewport.getViewPosition();
+                int shift = tabPane.getWidth() - (viewport.getViewSize().width - viewPosition.x) - bounds.width;
+                if (shift > 0) {
+                    viewPosition.x = viewPosition.x - shift;
+                    viewport.setViewPosition(viewPosition);
+                }
+            } else {
+                // TODO implement for vertically laid out tabs
+            }
+            return;
+        }
         Point tabViewPosition = new Point();
         int location;
         Dimension extentSize;
@@ -540,16 +554,21 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
         return dest;
     }
 
-    private final class HiddenTabsButton extends JButton implements UIResource {
+    private final class HiddenTabsButton extends JLabel implements UIResource {
         private HiddenTabsButton() {
             super(AllIcons.Actions.FindAndShowNextMatches);
             setToolTipText("Show hidden tabs");
             setBorder(null);
-            setOpaque(false);
+            setOpaque(true);
+
+            MouseListener mouseListener = Mouse.listener().onClick(e -> when(
+                    SwingUtilities.isLeftMouseButton(e),
+                    () -> showHiddenTabsPopup()));
+            addMouseListener(mouseListener);
         }
 
-        @Override
-        protected void fireActionPerformed(ActionEvent event) {
+
+        private void showHiddenTabsPopup() {
             JViewport viewport = getScrollableViewport();
             if (viewport == null) return;
 
