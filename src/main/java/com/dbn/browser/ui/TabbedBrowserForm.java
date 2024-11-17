@@ -8,9 +8,8 @@ import com.dbn.common.environment.options.EnvironmentSettings;
 import com.dbn.common.environment.options.EnvironmentVisibilitySettings;
 import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
-import com.dbn.common.ui.tab.DBNTabInfo;
 import com.dbn.common.ui.tab.DBNTabbedPane;
-import com.dbn.common.ui.tab.TabsListener;
+import com.dbn.common.ui.util.ClientProperty;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionBundle;
 import com.dbn.connection.ConnectionHandler;
@@ -31,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.ui.tab.DBNTabs.initTabComponent;
+import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 
 public class TabbedBrowserForm extends DatabaseBrowserForm{
     private final DBNTabbedPane<SimpleBrowserForm> connectionTabs;
@@ -43,13 +44,10 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
         //mainPanel.add(connectionTabs, BorderLayout.CENTER);
         initBrowserForms();
         ProjectEvents.subscribe(ensureProject(), this, EnvironmentManagerListener.TOPIC, environmentManagerListener());
-        connectionTabs.addTabsListener(createTabsListener());
-    }
-
-    private @NotNull TabsListener createTabsListener() {
-        return selectedIndex -> ProjectEvents.notify(ensureProject(),
-                BrowserTreeEventListener.TOPIC,
-                (listener) -> listener.selectionChanged());
+        connectionTabs.addTabSelectionListener(i ->
+                ProjectEvents.notify(ensureProject(),
+                        BrowserTreeEventListener.TOPIC,
+                        (listener) -> listener.selectionChanged()));
     }
 
     @NotNull
@@ -59,23 +57,23 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
             public void configurationChanged(Project project) {
                 EnvironmentSettings environmentSettings = getEnvironmentSettings(project);
                 EnvironmentVisibilitySettings visibilitySettings = environmentSettings.getVisibilitySettings();
-                for (DBNTabInfo tabInfo : getTabInfos()) {
-                    guarded(tabInfo, ti -> updateTabColor(ti, visibilitySettings));
+                for (Component component : getTabComponents()) {
+                    guarded(component, c -> updateTabColor(c, visibilitySettings));
                 }
             }
         };
     }
 
-    private static void updateTabColor(DBNTabInfo tabInfo, EnvironmentVisibilitySettings visibilitySettings) {
-        SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getContent();
+    private void updateTabColor(Component component, EnvironmentVisibilitySettings visibilitySettings) {
+        SimpleBrowserForm browserForm = TAB_CONTENT.get(component);
         ConnectionHandler connection = browserForm.getConnection();
         if (connection == null) return;
 
         if (visibilitySettings.getConnectionTabs().value()) {
             Color environmentColor = connection.getEnvironmentType().getColor();
-            tabInfo.setColor(environmentColor);
+            connectionTabs.setTabColor(component, environmentColor);
         } else {
-            tabInfo.setColor(null);
+            connectionTabs.setTabColor(component, null);
         }
     }
 
@@ -94,10 +92,11 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
             String title = Commons.nvl(connection.getName(), txt("app.connection.placeholder.UnnamedConnection"));
             Icon icon = null; //connection.getIcon();
 
-            DBNTabInfo tabInfo = this.connectionTabs.addTab(title, icon, component, browserForm);
-
             EnvironmentType environmentType = connection.getEnvironmentType();
-            tabInfo.setColor(environmentType.getColor());
+            Color color = environmentType.getColor();
+
+            initTabComponent(component, icon, color, browserForm);
+            this.connectionTabs.addTab(title, component);
         }
         if (this.connectionTabs.getTabCount() == 0) {
             mainPanel.removeAll();
@@ -118,8 +117,8 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
     @Nullable
     private SimpleBrowserForm getBrowserForm(ConnectionId connectionId) {
         var connectionTabs = getConnectionTabs();
-        for (var tabInfo : connectionTabs.getTabInfos()) {
-            SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getContent();
+        for (Component component : connectionTabs.getTabbedComponents()) {
+            SimpleBrowserForm browserForm = TAB_CONTENT.get(component);
             ConnectionHandler connection = browserForm.getConnection();
             if (connection != null && connection.getConnectionId() == connectionId) {
                 return browserForm;
@@ -131,11 +130,11 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
     @Nullable
     private SimpleBrowserForm removeBrowserForm(ConnectionId connectionId) {
         var connectionTabs = getConnectionTabs();
-        for (var tabInfo : connectionTabs.getTabInfos()) {
-            SimpleBrowserForm browserForm = tabInfo.getContent();
+        for (Component component : connectionTabs.getTabbedComponents()) {
+            SimpleBrowserForm browserForm = TAB_CONTENT.get(component);
             ConnectionId tabConnectionId = browserForm.getConnectionId();
             if (tabConnectionId == connectionId) {
-                connectionTabs.removeTab(tabInfo, false);
+                connectionTabs.removeTab(component, false);
                 return browserForm;
             }
         }
@@ -162,12 +161,12 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
 
     @Nullable
     private SimpleBrowserForm getSelectedBrowserForm() {
-        DBNTabInfo<SimpleBrowserForm> tabInfo = getSelectedTabInfo();
-        return tabInfo == null ? null : tabInfo.getContent();
+        Component component = getSelectedTabComponent();
+        return ClientProperty.TAB_CONTENT.get(component);
     }
 
-    private DBNTabInfo<SimpleBrowserForm> getSelectedTabInfo() {
-        return getConnectionTabs().getSelectedTabInfo();
+    private Component getSelectedTabComponent() {
+        return getConnectionTabs().getSelectedTabComponent();
     }
 
     @Nullable
@@ -202,9 +201,9 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
 
     @Override
     public void rebuildTree() {
-        getTabInfos()
+        getTabComponents()
             .stream()
-            .map(ti -> (SimpleBrowserForm) ti.getContent())
+            .map(c -> (SimpleBrowserForm) TAB_CONTENT.get(c))
             .forEach(f -> f.rebuildTree());
     }
 
@@ -214,21 +213,22 @@ public class TabbedBrowserForm extends DatabaseBrowserForm{
     }
 
     void refreshTabInfo(ConnectionId connectionId) {
-        for (DBNTabInfo tabInfo : getTabInfos()) {
-            SimpleBrowserForm browserForm = (SimpleBrowserForm) tabInfo.getContent();
+        for (Component component : getTabComponents()) {
+            SimpleBrowserForm browserForm = TAB_CONTENT.get(component);
             ConnectionHandler connection = browserForm.getConnection();
             if (connection == null) continue;
 
             if (connection.getConnectionId() == connectionId) {
-                tabInfo.setTitle(connection.getName());
+                String title = connection.getName();
+                connectionTabs.setTabTitle(component, title);
                 break;
             }
         }
 
     }
 
-    private List<DBNTabInfo<SimpleBrowserForm>> getTabInfos() {
-        return getConnectionTabs().getTabInfos();
+    private List<Component> getTabComponents() {
+        return getConnectionTabs().getTabbedComponents();
     }
 }
 

@@ -19,12 +19,13 @@ package com.dbn.common.ui.tab;
 import com.dbn.common.Wrapper;
 import com.dbn.common.color.Colors;
 import com.dbn.common.ui.util.LookAndFeel;
-import com.dbn.common.ui.util.Popups;
 import com.dbn.common.ui.util.UserInterface;
+import com.dbn.common.util.Actions;
 import com.dbn.common.util.Context;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
@@ -303,6 +304,9 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
             y = p.y;
         }
 */
+        // prevent tab switch on right mouse click if showing popup
+        if (getTabPane().isShowingPopup()) return -1;
+
         return super.tabForCoordinate(pane, x, y);
     }
 
@@ -369,7 +373,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     @Override
     protected void paintTabBackground(Graphics g, int tabPlacement, int tabIndex, int x, int y, int w, int h, boolean isSelected) {
-        Color color = nvl(getTabPane().getTabColor(tabIndex), tabPane.getBackground());
+        Color color = nvl(getTabPane().getTabColorAt(tabIndex), tabPane.getBackground());
 
         if (tabPane.isEnabled()) {
 
@@ -594,6 +598,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                 if (!viewRect.contains(rects[i])) {
                     int index = i;
                     String title = tabPane.getTitleAt(index);
+                    title = Actions.adjustActionName(title);
                     Icon icon = tabPane.getIconAt(index);
                     actionGroup.add(new AnAction(title, null, icon) {
                         @Override
@@ -604,10 +609,11 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                 }
             }
 
+            DataContext dataContext = Context.getDataContext(this);
             hiddenTabsPopup = JBPopupFactory.getInstance().createActionGroupPopup(
                     null,
                     actionGroup,
-                    Context.getDataContext(this),
+                    dataContext,
                     false,
                     false,
                     false,
@@ -615,7 +621,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
                     10,
                     a -> false);
 
-            Popups.showUnderneathOf(hiddenTabsPopup, hiddenTabsButton, 8, 200);
+            hiddenTabsPopup.showInBestPositionFor(dataContext);
         }
 
     }
