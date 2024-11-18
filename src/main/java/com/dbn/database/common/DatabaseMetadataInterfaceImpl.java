@@ -527,6 +527,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         ResultSet resultSet = null;
         try {
             resultSet = executeQuery(connection, true, "session-user");
+            resultSet.next();
             return resultSet.getString(1);
         } finally {
             Resources.close(resultSet);
