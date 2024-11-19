@@ -705,6 +705,8 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     boolean isValid(DBNConnection connection);
 
+    String loadSessionUser(DBNConnection connection) throws SQLException;
+
     String createDateString(Date date);
 
     boolean hasPendingTransactions(@NotNull DBNConnection connection);
