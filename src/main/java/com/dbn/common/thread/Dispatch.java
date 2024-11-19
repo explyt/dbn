@@ -15,7 +15,7 @@ import javax.swing.JComponent;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static com.dbn.common.ui.util.UserInterface.whenShown;
+import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvl;
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
 
@@ -59,7 +59,7 @@ public final class Dispatch {
             return;
         }
         // invoke when component is shown and the modality state is known
-        whenShown(component, () -> background(project, component, supplier, consumer));
+        whenFirstShown(component, () -> background(project, component, supplier, consumer));
     }
 
     private static <T> void background(Project project, JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
