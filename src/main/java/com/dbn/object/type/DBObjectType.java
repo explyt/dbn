@@ -63,6 +63,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, null, false),
     JAVA_OBJECT(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "java objects", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
+    JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "method", "methods", Icons.DBO_METHOD, null, Icons.DBO_METHODS, false),
     JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", null, null, null, false),
     LIBRARY(DatabaseObjectTypeId.LIBRARY, "library", "libraries", null, null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
@@ -396,6 +397,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TYPE_TYPE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
         JAVA_OBJECT.addParent(SCHEMA);
+        JAVA_METHOD.addParent(JAVA_OBJECT);
+
 
         PACKAGE.addIcon(DBContentType.CODE_SPEC, Icons.DBO_PACKAGE_SPEC);
         PACKAGE.addIcon(DBContentType.CODE_BODY, Icons.DBO_PACKAGE_BODY);

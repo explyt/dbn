@@ -23,6 +23,7 @@ import com.dbn.object.DBDatasetTrigger;
 import com.dbn.object.DBDimension;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBIndex;
+import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBPackage;
@@ -88,6 +89,7 @@ import static com.dbn.object.type.DBObjectType.DIMENSION;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.INDEX;
 import static com.dbn.object.type.DBObjectType.JAVA_OBJECT;
+import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
 import static com.dbn.object.type.DBObjectType.PACKAGE;
@@ -156,6 +158,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(TYPE_ATTRIBUTE,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_FUNCTION,     this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_PROCEDURE,    this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_METHOD,       this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(ARGUMENT,          this, INTERNAL, GROUPED, HIDDEN);
 
         //ol.createHiddenObjectList(DBObjectType.TYPE_METHOD, this, TYPE_METHODS_LOADER);
@@ -337,6 +340,10 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         return getChildObjects(DBLINK);
     }
 
+    @Override
+    public List<DBJavaObject> getJavaObjects() {
+        return getChildObjects(JAVA_OBJECT);
+    }
 
     @Override
     public DBTable getTable(String name) {
@@ -376,6 +383,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     @Override
     public DBDatabaseLink getDatabaseLink(String name) {
         return getChildObject(DBLINK, name);
+    }
+
+    @Override
+    public DBJavaObject getJavaObject(String name) {
+        return getChildObject(JAVA_OBJECT, name);
     }
 
     @Override

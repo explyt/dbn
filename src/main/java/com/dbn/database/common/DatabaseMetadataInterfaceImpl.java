@@ -237,6 +237,15 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
         return executeQuery(connection, "all-package-types", ownerName);
     }
 
+    @Override
+    public ResultSet loadJavaMethods(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-methods", ownerName, objectName);
+    }
+
+    public ResultSet loadAllJavaMethods(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-methods", ownerName);
+    }
+
     /*********************************************************
      *                        TYPES                          *
      *********************************************************/

@@ -329,6 +329,42 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-methods" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL">
+            select
+                NAME as CLASS_NAME,
+                METHOD_NAME,
+                METHOD_INDEX as POSITION,
+                decode(ACCESSIBILITY,'PUBLIC','Y','N') as IS_PUBLIC,
+                decode(IS_STATIC,'YES','Y','N') as IS_STATIC
+            from [PREFIX]_JAVA_METHODS
+            where OWNER = {0}
+            and NAME = {1}
+            order by
+                METHOD_NAME,
+                METHOD_INDEX,
+                IS_PUBLIC,
+                IS_STATIC
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-java-methods" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL">
+            select
+                NAME as CLASS_NAME,
+                METHOD_NAME,
+                METHOD_INDEX as POSITION,
+                decode(ACCESSIBILITY,'PUBLIC','Y','N') as IS_PUBLIC,
+                decode(IS_STATIC,'YES','Y','N') as IS_STATIC
+            from [PREFIX]_JAVA_METHODS
+            where OWNER = {0}
+            order by
+                NAME,
+                METHOD_NAME,
+                METHOD_INDEX
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select

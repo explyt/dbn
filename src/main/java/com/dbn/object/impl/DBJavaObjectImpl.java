@@ -16,9 +16,12 @@
 
 package com.dbn.object.impl;
 
+import com.dbn.browser.DatabaseBrowserUtils;
+import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
@@ -27,8 +30,10 @@ import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
+import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
+import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBJavaObjectAccessibility;
 import com.dbn.object.type.DBJavaObjectKind;
 import com.dbn.object.type.DBObjectType;
@@ -38,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
@@ -49,6 +55,7 @@ import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaObjectKind.ENUM;
 import static com.dbn.object.type.DBJavaObjectKind.INTERFACE;
+import static com.dbn.object.type.DBObjectType.*;
 
 @Getter
 public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> implements DBJavaObject {
@@ -83,13 +90,11 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	protected void initLists(ConnectionHandler connection) {
 		super.initLists(connection);
-/*
+
 		// TODO support inner classes as child objects
 		DBSchema schema = getSchema();
 		DBObjectListContainer childObjects = ensureChildObjects();
-
-		childObjects.createSubcontentObjectList(JAVA_OBJECT, this, schema);
-*/
+		childObjects.createSubcontentObjectList(JAVA_METHOD, this, schema);
 	}
 
 	public void initProperties() {
@@ -171,5 +176,21 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 					DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
 					dataDefinition.updateJavaObject(getName(), newCode, conn);
 				});
+	}
+
+	/*********************************************************
+	 *                     TreeElement                       *
+	 *********************************************************/
+	@Override
+	@NotNull
+	public List<BrowserTreeNode> buildPossibleTreeChildren() {
+		return DatabaseBrowserUtils.createList(
+				getChildObjectList(JAVA_METHOD));
+	}
+
+	@Override
+	public boolean hasVisibleTreeChildren() {
+		ObjectTypeFilterSettings settings = getObjectTypeFilterSettings();
+		return settings.isVisible(JAVA_METHOD);
 	}
 }

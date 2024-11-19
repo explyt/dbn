@@ -53,6 +53,7 @@ public enum DBObjectProperty implements Property.LongBase {
     FINAL,
     STATIC,
     INNER,
+    PUBLIC,
 
     // other
 

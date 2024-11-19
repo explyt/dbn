@@ -34,6 +34,7 @@ public enum DatabaseObjectTypeId {
     INDEX,
     INDEXTYPE,
     JAVA_OBJECT,
+    JAVA_METHOD,
     JAVA_CLASS,
     LIBRARY,
     LOB,

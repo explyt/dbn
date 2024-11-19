@@ -467,9 +467,14 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet loadAllPackageTypes(String ownerName, DBNConnection connection) throws SQLException;
 
 
-   /*********************************************************
-    *                        TYPES                          *
-    *********************************************************/
+    ResultSet loadJavaMethods(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadAllJavaMethods(String ownerName, DBNConnection connection) throws SQLException;
+
+
+    /*********************************************************
+	 *                        TYPES                          *
+	 *********************************************************/
 
     /**
      * Loads the user defined types (UDT) of the given owner<br>
