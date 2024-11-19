@@ -335,6 +335,10 @@
                 NAME as CLASS_NAME,
                 METHOD_NAME,
                 METHOD_INDEX as POSITION,
+                case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
+                     then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
+                     else 0
+                end as OVERLOAD,
                 decode(ACCESSIBILITY,'PUBLIC','Y','N') as IS_PUBLIC,
                 decode(IS_STATIC,'YES','Y','N') as IS_STATIC
             from [PREFIX]_JAVA_METHODS
@@ -342,9 +346,7 @@
             and NAME = {1}
             order by
                 METHOD_NAME,
-                METHOD_INDEX,
-                IS_PUBLIC,
-                IS_STATIC
+                METHOD_INDEX
         </statement>
     </statement-execution-processor>
 
@@ -354,6 +356,10 @@
                 NAME as CLASS_NAME,
                 METHOD_NAME,
                 METHOD_INDEX as POSITION,
+                case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
+                     then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
+                     else 0
+                end as OVERLOAD,
                 decode(ACCESSIBILITY,'PUBLIC','Y','N') as IS_PUBLIC,
                 decode(IS_STATIC,'YES','Y','N') as IS_STATIC
             from [PREFIX]_JAVA_METHODS
