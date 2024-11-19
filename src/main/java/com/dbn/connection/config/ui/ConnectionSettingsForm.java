@@ -17,14 +17,29 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectivityStatus;
 import com.dbn.connection.DatabaseType;
-import com.dbn.connection.config.*;
+import com.dbn.connection.config.ConnectionBundleSettings;
+import com.dbn.connection.config.ConnectionConfigListener;
+import com.dbn.connection.config.ConnectionConfigType;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionDebuggerSettings;
+import com.dbn.connection.config.ConnectionDetailSettings;
+import com.dbn.connection.config.ConnectionFilterSettings;
+import com.dbn.connection.config.ConnectionPropertiesSettings;
+import com.dbn.connection.config.ConnectionSettings;
+import com.dbn.connection.config.ConnectionSshTunnelSettings;
+import com.dbn.connection.config.ConnectionSslSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.Icon;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -46,6 +61,7 @@ public class ConnectionSettingsForm extends CompositeConfigurationEditorForm<Con
         super(connectionSettings);
         ConnectionDatabaseSettings databaseSettings = connectionSettings.getDatabaseSettings();
         tabbedPane = new DBNTabbedPane(this);
+        tabbedPane.setTabComponentInsets(DBNTabbedPane.REGULAR_INSETS);
         contentPanel.add(tabbedPane, BorderLayout.CENTER);
 
         tabbedPane.addTab(txt("cfg.connection.title.Database"), databaseSettings.createComponent());

@@ -1,12 +1,14 @@
 package com.dbn.common.ui.tab;
 
 import com.intellij.openapi.Disposable;
+import com.intellij.util.ui.JBInsets;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Insets;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -14,6 +16,8 @@ import static com.dbn.common.ui.util.ClientProperty.TAB_COLOR;
 import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 
 public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
+    public static final Insets REGULAR_INSETS = new JBInsets(6, 6, 6, 6);
+
     public DBNTabbedPane(Disposable parent) {
         this(parent, false);
     }

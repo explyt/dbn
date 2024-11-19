@@ -145,16 +145,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
             // hard-coded in the basic implementation
             return new Dimension(20, 20);
         }
-
-        @Override
-        public void setBounds(@NotNull Rectangle r) {
-            super.setBounds(r);
-        }
-
-        @Override
-        public void setBounds(int x, int y, int width, int height) {
-            super.setBounds(x, y, width, height);
-        }
     }
 
     @Override

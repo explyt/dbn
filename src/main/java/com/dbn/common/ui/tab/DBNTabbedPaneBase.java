@@ -63,12 +63,13 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     public DBNTabbedPaneBase(int tabPlacement, Disposable parent, boolean mutable) {
         super(tabPlacement, JTabbedPane.SCROLL_TAB_LAYOUT);
         setUI(new DBNTabbedPaneUI());
-
-        DataProviders.register(this, this);
-        Disposer.register(parent, this);
+        setTabComponentInsets(null);
 
         installHiddenTabButton();
         installTabCloser(mutable);
+
+        DataProviders.register(this, this);
+        Disposer.register(parent, this);
     }
 
     private void installHiddenTabButton() {
