@@ -1,6 +1,7 @@
 package com.dbn.common.ui.tab;
 
 import com.intellij.openapi.Disposable;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -26,13 +27,19 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
 
         addChangeListener(e -> {
             DBNTabbedPane source = (DBNTabbedPane) e.getSource();
-            int selectedIndex = source.getSelectedIndex();
-            selectionListeners.notify(l -> l.selectionChanged(selectedIndex));
+            int index = source.getSelectedIndex();
+            if (index == -1) return;
+
+            selectionListeners.notify(l -> l.selectionChanged(index));
         });
     }
 
+    @Nullable
     public T getSelectedContent() {
-        return getContentAt(getSelectedIndex());
+        int index = getSelectedIndex();
+        if (index == -1) return null;
+
+        return getContentAt(index);
     }
 
     public T getContentAt(int index) {
@@ -75,6 +82,7 @@ public class DBNTabbedPane<T extends Disposable> extends DBNTabbedPaneBase<T> {
 
     public String getSelectedTabTitle() {
         int index = getSelectedIndex();
+        if (index == -1) return "";
         return getTitleAt(index);
     }
 

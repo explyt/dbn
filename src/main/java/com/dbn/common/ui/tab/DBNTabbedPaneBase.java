@@ -19,6 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import javax.swing.JTabbedPane;
@@ -135,9 +136,12 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         addTab(title, icon, component, tooltip);
     }
 
+    @Nullable
     public final Component getSelectedTabComponent() {
-        int selectedIndex = getSelectedIndex();
-        return getComponentAt(selectedIndex);
+        int index = getSelectedIndex();
+        if (index == -1) return null;
+
+        return getComponentAt(index);
     }
 
     public void removeTab(Component component, boolean disposeContent) {
