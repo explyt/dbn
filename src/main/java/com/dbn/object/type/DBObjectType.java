@@ -330,6 +330,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DATASET_TRIGGER.setInheritedType(TRIGGER);
         DATABASE_TRIGGER.setInheritedType(TRIGGER);
         XMLTYPE.setInheritedType(TYPE);
+        JAVA_METHOD.setInheritedType(METHOD);
 
         SYSTEM_PRIVILEGE.setInheritedType(PRIVILEGE);
         OBJECT_PRIVILEGE.setInheritedType(PRIVILEGE);

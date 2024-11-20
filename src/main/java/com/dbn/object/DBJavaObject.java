@@ -21,6 +21,8 @@ import com.dbn.object.type.DBJavaObjectAccessibility;
 import com.dbn.object.type.DBJavaObjectKind;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
+
 
 public interface DBJavaObject extends DBSchemaObject {
 
@@ -38,4 +40,8 @@ public interface DBJavaObject extends DBSchemaObject {
 	boolean isStatic();
 
 	boolean isInner();
+
+    List<DBJavaMethod> getMethods();
+
+    DBJavaMethod getMethod(String name, short index);
 }

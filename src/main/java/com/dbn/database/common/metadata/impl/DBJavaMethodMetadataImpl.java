@@ -39,8 +39,8 @@ public class DBJavaMethodMetadataImpl extends DBObjectMetadataBase implements DB
 	}
 
 	@Override
-	public short getPosition() throws SQLException {
-		return resultSet.getShort("POSITION");
+	public short getMethodIndex() throws SQLException {
+		return resultSet.getShort("METHOD_INDEX");
 	}
 
 	@Override
