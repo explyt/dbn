@@ -16,6 +16,8 @@
 
 package com.dbn.object;
 
+import com.dbn.object.type.DBJavaAccessibility;
+
 import java.util.List;
 
 
@@ -25,11 +27,15 @@ public interface DBJavaMethod extends DBOrderedObject {
 
 	String getReturnType();
 
-	DBJavaObject getReturnClass();
+    DBJavaObject getReturnClass();
 
-	boolean isPublic();
+	DBJavaAccessibility getAccessibility();
+
+	boolean isFinal();
 
 	boolean isStatic();
+
+	boolean isAbstract();
 
 	String getClassName();
 

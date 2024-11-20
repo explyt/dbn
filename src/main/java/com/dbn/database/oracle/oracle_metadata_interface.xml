@@ -306,7 +306,7 @@
             select
                 j.NAME as OBJECT_NAME,
                 j.KIND as OBJECT_KIND,
-                j.ACCESSIBILITY as OBJECT_ACCESSIBILITY,
+                j.ACCESSIBILITY as ACCESSIBILITY,
                 decode(j.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
@@ -340,9 +340,11 @@
                      else 0
                 end as OVERLOAD,
                 BASE_TYPE as RETURN_TYPE,
+                ACCESSIBILITY,
                 decode(RETURN_CLASS, '-', null, RETURN_CLASS) as RETURN_CLASS_NAME,
-                decode(ACCESSIBILITY,'PUBLIC','Y','N') as IS_PUBLIC,
-                decode(IS_STATIC,'YES','Y','N') as IS_STATIC
+                decode(IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT
             from [PREFIX]_JAVA_METHODS
             where OWNER = {0}
             and NAME = {1}
@@ -364,9 +366,11 @@
                      else 0
                 end as OVERLOAD,
                 BASE_TYPE as RETURN_TYPE,
+                ACCESSIBILITY,
                 decode(RETURN_CLASS, '-', null, RETURN_CLASS) as RETURN_CLASS_NAME,
-                decode(ACCESSIBILITY,'PUBLIC','Y','N') as IS_PUBLIC,
-                decode(IS_STATIC,'YES','Y','N') as IS_STATIC
+                decode(IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT
             from [PREFIX]_JAVA_METHODS
             where OWNER = {0}
               and METHOD_NAME != '-'

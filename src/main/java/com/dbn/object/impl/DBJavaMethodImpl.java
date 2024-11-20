@@ -17,6 +17,7 @@
 package com.dbn.object.impl;
 
 import com.dbn.browser.model.BrowserTreeNode;
+import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
 import com.dbn.object.DBJavaMethod;
@@ -29,17 +30,21 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.lookup.DBJavaObjectRef;
+import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.Icon;
 import java.sql.SQLException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.dbn.object.common.property.DBObjectProperty.PUBLIC;
+import static com.dbn.common.icon.Icons.withStaticMarker;
+import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
+import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 
 @Getter
@@ -49,6 +54,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	private String className;
 	private String returnType;
 	private DBJavaObjectRef returnClass;
+	private DBJavaAccessibility accessibility;
 
 	public DBJavaMethodImpl(@NotNull DBJavaObject javaObject, DBJavaMethodMetadata metadata) throws SQLException {
 		super(javaObject, metadata);
@@ -74,6 +80,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		overload = metadata.getOverload();
 		className = metadata.getClassName();
 		returnType = metadata.getReturnType();
+		accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
 
 		String returnClassName = metadata.getReturnClassName();
 		if (returnClassName != null) {
@@ -81,8 +88,9 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 			returnClass = new DBJavaObjectRef(schema, returnClassName, "SYS");
 		}
 
-		set(PUBLIC,metadata.isPublic());
-		set(STATIC,metadata.isStatic());
+		set(STATIC, metadata.isStatic());
+		set(FINAL, metadata.isFinal());
+		set(ABSTRACT, metadata.isAbstract());
 		return metadata.getMethodName();
 	}
 
@@ -125,6 +133,17 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		return builder.toString();
 	}
 
+	@Override
+	@Nullable
+	public Icon getIcon() {
+		return
+			isAbstract() ? Icons.DBO_JAVA_METHOD_ABSTRACT :
+			isStatic() ? withStaticMarker(Icons.DBO_JAVA_METHOD) :
+				Icons.DBO_JAVA_METHOD;
+		// TODO accessibility overlays
+	}
+
+	@Override
 	public DBJavaObject getReturnClass() {
 		return returnClass == null ? null : returnClass.get();
 	}
@@ -140,13 +159,18 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
-	public boolean isPublic() {
-		return is(PUBLIC);
+	public boolean isStatic() {
+		return is(STATIC);
 	}
 
 	@Override
-	public boolean isStatic() {
-		return is(STATIC);
+	public boolean isFinal() {
+		return is(FINAL);
+	}
+
+	@Override
+	public boolean isAbstract() {
+		return is(ABSTRACT);
 	}
 
 	@Override

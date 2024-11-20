@@ -34,7 +34,7 @@ import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
-import com.dbn.object.type.DBJavaObjectAccessibility;
+import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaObjectKind;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -61,7 +61,7 @@ import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> implements DBJavaObject {
 
 	private DBJavaObjectKind kind;
-	private DBJavaObjectAccessibility accessibility;
+	private DBJavaAccessibility accessibility;
 	private static final WeakRefCache<DBJavaObject, String> presentableNameCache = WeakRefCache.weakKey();
 
 	DBJavaObjectImpl(DBSchema schema, DBJavaObjectMetadata metadata) throws SQLException {
@@ -76,7 +76,7 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaObjectMetadata metadata) throws SQLException {
 		this.kind = DBJavaObjectKind.get(metadata.getObjectKind());
-		this.accessibility = DBJavaObjectAccessibility.get(metadata.getObjectAccessibility());
+		this.accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
 
 		set(FINAL, metadata.isFinal());
 		set(ABSTRACT, metadata.isAbstract());

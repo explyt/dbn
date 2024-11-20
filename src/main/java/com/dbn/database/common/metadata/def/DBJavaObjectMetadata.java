@@ -29,7 +29,7 @@ public interface DBJavaObjectMetadata extends DBObjectMetadata {
 
 	String getObjectKind()throws SQLException;
 
-    String getObjectAccessibility()throws SQLException;
+    String getAccessibility()throws SQLException;
 
     boolean isFinal() throws SQLException;
 

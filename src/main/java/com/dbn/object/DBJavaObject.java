@@ -17,7 +17,7 @@
 package com.dbn.object;
 
 import com.dbn.object.common.DBSchemaObject;
-import com.dbn.object.type.DBJavaObjectAccessibility;
+import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaObjectKind;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +31,7 @@ public interface DBJavaObject extends DBSchemaObject {
 
 	DBJavaObjectKind getKind();
 
-	DBJavaObjectAccessibility getAccessibility();
+	DBJavaAccessibility getAccessibility();
 
 	boolean isFinal();
 

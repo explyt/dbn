@@ -39,8 +39,8 @@ public class DBJavaObjectMetadataImpl extends DBObjectMetadataBase implements DB
 	}
 
 	@Override
-	public String getObjectAccessibility() throws SQLException {
-		return getString("OBJECT_ACCESSIBILITY");
+	public String getAccessibility() throws SQLException {
+		return getString("ACCESSIBILITY");
 	}
 
 	@Override

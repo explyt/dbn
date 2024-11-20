@@ -54,17 +54,27 @@ public class DBJavaMethodMetadataImpl extends DBObjectMetadataBase implements DB
 	}
 
 	@Override
+	public String getAccessibility() throws SQLException {
+		return getString("ACCESSIBILITY");
+	}
+
+	@Override
 	public short getOverload() throws SQLException {
 		return resultSet.getShort("OVERLOAD");
 	}
 
 	@Override
-	public boolean isPublic() throws SQLException {
-		return isYesFlag("IS_PUBLIC");
+	public boolean isStatic() throws SQLException {
+		return isYesFlag("IS_STATIC");
 	}
 
 	@Override
-	public boolean isStatic() throws SQLException {
-		return isYesFlag("IS_STATIC");
+	public boolean isFinal() throws SQLException {
+		return isYesFlag("IS_FINAL");
+	}
+
+	@Override
+	public boolean isAbstract() throws SQLException {
+		return isYesFlag("IS_ABSTRACT");
 	}
 }
