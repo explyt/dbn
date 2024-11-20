@@ -18,8 +18,8 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.UIManager;
+import java.awt.Color;
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -35,6 +35,8 @@ public final class Colors {
 
     public static Color FAILURE_COLOR = new JBColor(new Color(0xFF0000), new Color(0xBC3F3C));
     public static Color SUCCESS_COLOR = new JBColor(new Color(0x009600), new Color(0x629755));
+
+    public static Color SEPARATOR_COLOR = JBColor.namedColor("Separator.separatorColor", new JBColor(0xcdcdcd, 0x515151));
 
     public static Color getPanelBackground() {
         return cached(0, () -> UIUtil.getPanelBackground());

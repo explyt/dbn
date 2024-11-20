@@ -40,6 +40,7 @@ public class ProjectSettingsForm extends CompositeConfigurationEditorForm<Projec
         super(globalSettings);
 
         configurationTabs = new DBNTabbedPane<>(this);
+        configurationTabs.setTabComponentInsets(DBNTabbedPane.REGULAR_INSETS);
         //configurationTabs.setAdjustBorders(false);
 
         tabsPanel.add(configurationTabs, BorderLayout.CENTER);
