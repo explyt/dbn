@@ -334,7 +334,7 @@
             select
                 NAME as CLASS_NAME,
                 METHOD_NAME,
-                METHOD_INDEX as POSITION,
+                METHOD_INDEX,
                 case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
                      then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
                      else 0
@@ -356,7 +356,7 @@
             select
                 NAME as CLASS_NAME,
                 METHOD_NAME,
-                METHOD_INDEX as POSITION,
+                METHOD_INDEX,
                 case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
                      then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
                      else 0
@@ -375,41 +375,75 @@
 
     <statement-execution-processor id="java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
+            with JAVA_METHODS as (
+                select
+                    OWNER,
+                    NAME,
+                    METHOD_NAME,
+                    METHOD_INDEX,
+                    case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
+                        then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
+                        else 0
+                    end as METHOD_OVERLOAD
+                from [PREFIX]_JAVA_METHODS
+                where OWNER = {0}
+                  and NAME = {1}
+                  and METHOD_NAME = {2}
+                  and METHOD_INDEX = {3})
             select
-                NAME as CLASS_NAME,
-                METHOD_INDEX,
-                METHOD_NAME,
-                ARGUMENT_POSITION,
-                ARRAY_DEPTH,
-                BASE_TYPE,
-                ARGUMENT_CLASS
-            from [PREFIX]_JAVA_ARGUMENTS
-            where OWNER = {0}
-              and NAME = {1}
-              and METHOD_NAME = {2}
-              and METHOD_INDEX = {3}
-            order by ARGUMENT_POSITION
+                jm.NAME as CLASS_NAME,
+                jm.METHOD_NAME,
+                jm.METHOD_INDEX,
+                jm.METHOD_OVERLOAD,
+                ja.ARGUMENT_POSITION,
+                ja.ARRAY_DEPTH,
+                ja.BASE_TYPE,
+                ja.ARGUMENT_CLASS
+            from JAVA_METHODS jm
+            join [PREFIX]_JAVA_ARGUMENTS ja
+              on ja.OWNER = jm.OWNER
+             and ja.NAME = jm.NAME
+             and ja.METHOD_NAME = jm.METHOD_NAME
+             and ja.METHOD_INDEX = jm.METHOD_INDEX
+            order by
+                ja.ARGUMENT_POSITION
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="all-java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
+            with JAVA_METHODS as (
+                select
+                    OWNER,
+                    NAME,
+                    METHOD_NAME,
+                    METHOD_INDEX,
+                    case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
+                         then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
+                         else 0
+                    end as METHOD_OVERLOAD
+                from [PREFIX]_JAVA_METHODS
+                where OWNER = {0})
             select
-                NAME as CLASS_NAME,
-                METHOD_INDEX,
-                METHOD_NAME,
-                ARGUMENT_POSITION,
-                ARRAY_DEPTH,
-                BASE_TYPE,
-                ARGUMENT_CLASS
-            from [PREFIX]_JAVA_ARGUMENTS
-            where OWNER = {0}
-             and METHOD_NAME != '-'
+                jm.NAME as CLASS_NAME,
+                jm.METHOD_NAME,
+                jm.METHOD_INDEX,
+                jm.METHOD_OVERLOAD,
+                ja.ARGUMENT_POSITION,
+                ja.ARRAY_DEPTH,
+                ja.BASE_TYPE,
+                ja.ARGUMENT_CLASS
+            from JAVA_METHODS jm
+            join [PREFIX]_JAVA_ARGUMENTS ja
+              on ja.OWNER = jm.OWNER
+             and ja.NAME = jm.NAME
+             and ja.METHOD_NAME = jm.METHOD_NAME
+             and ja.METHOD_INDEX = jm.METHOD_INDEX
             order by
-                NAME,
-                METHOD_NAME,
-                METHOD_INDEX
-                ARGUMENT_POSITION
+                jm.NAME,
+                jm.METHOD_NAME,
+                jm.METHOD_OVERLOAD,
+                ja.ARGUMENT_POSITION
         </statement>
     </statement-execution-processor>
 

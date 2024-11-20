@@ -30,8 +30,8 @@ import java.sql.SQLException;
 import java.util.Objects;
 
 public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> implements DBJavaParameter {
-
 	protected short methodIndex;
+	protected short methodOverload;
 	protected short position;
 	protected short arrayDimension;
 
@@ -52,6 +52,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	@Override
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaParameterMetadata metadata) throws SQLException {
 		methodIndex = metadata.getMethodIndex();
+		methodOverload = metadata.getMethodOverload();
 		position = metadata.getArgumentPosition();
 		arrayDimension = metadata.getArrayDepth();
 

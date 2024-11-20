@@ -21,11 +21,11 @@ import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
@@ -55,7 +55,7 @@ import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaObjectKind.ENUM;
 import static com.dbn.object.type.DBJavaObjectKind.INTERFACE;
-import static com.dbn.object.type.DBObjectType.*;
+import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 
 @Getter
 public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> implements DBJavaObject {
@@ -156,6 +156,16 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	public boolean isInner() {
 		return is(INNER);
+	}
+
+	@Override
+	public List<DBJavaMethod> getMethods() {
+		return getChildObjects(JAVA_METHOD);
+	}
+
+	@Override
+	public DBJavaMethod getMethod(String name, short index) {
+		return getChildObject(JAVA_METHOD, name, index);
 	}
 
 	/*********************************************************

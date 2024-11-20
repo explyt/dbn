@@ -16,16 +16,20 @@
 
 package com.dbn.object;
 
-import com.dbn.api.object.DBJavaClass;
+import java.util.List;
 
 
 public interface DBJavaMethod extends DBOrderedObject {
 
-	DBJavaClass getJavaClass();
+	DBJavaObject getJavaObject();
 
 	boolean isPublic();
 
 	boolean isStatic();
 
 	String getClassName();
+
+	short getIndex();
+
+	List<DBJavaParameter> getParameters();
 }

@@ -15,6 +15,7 @@
 package com.dbn.database.common.metadata.def;
 
 import com.dbn.database.common.metadata.DBObjectMetadata;
+
 import java.sql.SQLException;
 
 public interface DBJavaParameterMetadata extends DBObjectMetadata {
@@ -23,6 +24,8 @@ public interface DBJavaParameterMetadata extends DBObjectMetadata {
 	String getMethodName() throws SQLException;
 
 	short getMethodIndex() throws SQLException;
+
+	short getMethodOverload() throws SQLException;
 
 	short getArgumentPosition() throws SQLException;
 

@@ -25,7 +25,7 @@ public interface DBJavaMethodMetadata extends DBObjectMetadata {
 
 	String getMethodName() throws SQLException;
 
-	short getPosition() throws SQLException;
+	short getMethodIndex() throws SQLException;
 
 	short getOverload() throws SQLException;
 

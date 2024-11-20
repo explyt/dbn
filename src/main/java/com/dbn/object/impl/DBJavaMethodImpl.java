@@ -16,13 +16,13 @@
 
 package com.dbn.object.impl;
 
-import com.dbn.api.object.DBJavaClass;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaObject;
+import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
@@ -40,8 +40,8 @@ import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 
 @Getter
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
+	protected short index;
 	protected short overload;
-	protected short position;
 	protected String className;
 
 	public DBJavaMethodImpl(@NotNull DBJavaObject javaObject, DBJavaMethodMetadata metadata) throws SQLException {
@@ -65,7 +65,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 
 	@Override
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaMethodMetadata metadata) throws SQLException {
-		position = metadata.getPosition();
+		index = metadata.getMethodIndex();
 		overload = metadata.getOverload();
 		className = metadata.getClassName();
 
@@ -75,12 +75,22 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
+	public short getPosition() {
+		return index;
+	}
+
+	@Override
 	public String getPresentableTextDetails() {
 		return overload > 0 ? " #" + overload : "";
 	}
 
 	@Override
-	public DBJavaClass getJavaClass() {
+	public List<DBJavaParameter> getParameters() {
+		return getChildObjects(DBObjectType.JAVA_PARAMETER);
+	}
+
+	@Override
+	public DBJavaObject getJavaObject() {
 		return getParentObject();
 	}
 

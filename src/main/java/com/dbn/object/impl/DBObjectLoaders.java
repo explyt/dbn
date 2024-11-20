@@ -347,19 +347,19 @@ public class DBObjectLoaders {
                 });
 
         DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
-                "ALL_JAVA_PARAMETERS", DBObjectType.SCHEMA, DBObjectType.JAVA_PARAMETER, true, true,
+                "ALL_JAVA_METHOD_PARAMETERS", DBObjectType.SCHEMA, DBObjectType.JAVA_PARAMETER, true, true,
                 (content, conn, mdi) -> mdi.loadAllJavaParameters(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String className = md.getClassName();
                     String methodName = md.getMethodName();
-                    Short methodIndex = md.getMethodIndex();
+                    short methodOverload = md.getMethodOverload();
 
-                    String key = className + methodName + methodIndex;
-
+                    String key = className + methodName + methodOverload;
                     DBJavaMethod javaMethod = cache.get(key);
-
                     if (javaMethod == null) {
-                        javaMethod = valid(cache.get(key, () -> ((DBSchema) content.ensureParentEntity()).getJavaMethod(className, methodName, methodIndex)));
+                        DBSchema schema = content.ensureParentEntity();
+                        DBJavaObject javaObject = valid(schema.getJavaObject(className));
+                        javaMethod = valid(javaObject.getMethod(methodName, methodOverload));
                         cache.set(key, javaMethod);
                     }
 
@@ -549,15 +549,6 @@ public class DBObjectLoaders {
                         (content, conn, mdi) -> mdi.loadJavaMethods(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBJavaMethodImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("ALL_JAVA_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER,
-                DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
-                        "JAVA_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER, false, true,
-                        (content, conn, mdi) -> {
-                            DBJavaMethod javaMethod = valid(content.getParentEntity());
-                            return mdi.loadJavaParameters(content.getParentSchemaName(), javaMethod.getClassName(), content.getParentObjectName(), javaMethod.getPosition(), conn);
-                        },
-                        (content, cache, md) -> new DBJavaParameterImpl(valid(content.getParentEntity()), md)));
-
         DynamicContentResultSetLoader.<DBTypeAttribute, DBTypeAttributeMetadata>create(
                 "PACKAGE_TYPE_ATTRIBUTES", DBObjectType.PACKAGE_TYPE, DBObjectType.TYPE_ATTRIBUTE, true, true,
                 (content, conn, mdi) -> {
@@ -603,6 +594,19 @@ public class DBObjectLoaders {
                                     mdi.loadProgramMethodArguments(ownerName, program.getName(), method.getName(), overload, conn);
                         },
                         (content, cache, md) -> new DBArgumentImpl(valid(content.getParentEntity()), md)));
+
+        DynamicSubcontentLoader.create("JAVA_METHOD_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER,
+                DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
+                        "JAVA_METHOD_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER, false, true,
+                        (content, conn, mdi) -> {
+                            DBJavaMethod method = content.ensureParentEntity();
+                            String className = method.getJavaObject().getName();
+                            String methodName = method.getName();
+                            String ownerName = method.getSchemaName();
+                            short index = method.getIndex();
+                            return mdi.loadJavaParameters(ownerName, className, methodName, index, conn);
+                        },
+                        (content, cache, md) -> new DBJavaParameterImpl(valid(content.getParentEntity()), md)));
     }
 
     /* Loaders for object dependencies */
