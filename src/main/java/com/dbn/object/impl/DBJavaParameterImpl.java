@@ -27,6 +27,7 @@ import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
+import java.util.Objects;
 
 public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> implements DBJavaParameter {
 
@@ -54,12 +55,13 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 		position = metadata.getArgumentPosition();
 		arrayDimension = metadata.getArrayDepth();
 
-		String arrMatrix = " []".repeat(arrayDimension);
+		String arrMatrix = arrayDimension > 0 ? " []".repeat(arrayDimension) : "";
 
-		if(metadata.getBaseType().equals("class")){
+		String baseType = metadata.getBaseType();
+		if(Objects.equals(baseType, "class")){
 			return metadata.getArgumentClass().replace("/", ".") + arrMatrix;
 		}
-		return metadata.getBaseType() + arrMatrix;
+		return baseType + arrMatrix;
 	}
 
 	@Override

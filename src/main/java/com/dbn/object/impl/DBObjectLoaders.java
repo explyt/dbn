@@ -19,8 +19,8 @@ import com.dbn.database.common.metadata.def.DBGrantedPrivilegeMetadata;
 import com.dbn.database.common.metadata.def.DBGrantedRoleMetadata;
 import com.dbn.database.common.metadata.def.DBIndexColumnMetadata;
 import com.dbn.database.common.metadata.def.DBIndexMetadata;
-import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
+import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
 import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
 import com.dbn.database.common.metadata.def.DBNestedTableMetadata;
@@ -55,8 +55,8 @@ import com.dbn.object.DBFunction;
 import com.dbn.object.DBGrantedPrivilege;
 import com.dbn.object.DBGrantedRole;
 import com.dbn.object.DBIndex;
-import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
@@ -545,13 +545,13 @@ public class DBObjectLoaders {
 
         DynamicSubcontentLoader.create("ALL_JAVA_METHODS", DBObjectType.JAVA_OBJECT, DBObjectType.JAVA_METHOD,
                 DynamicContentResultSetLoader.<DBJavaMethod, DBJavaMethodMetadata>create(
-                        "JAVA_OBJECTS", DBObjectType.JAVA_OBJECT, DBObjectType.JAVA_METHOD, false, true,
+                        "JAVA_METHODS", DBObjectType.JAVA_OBJECT, DBObjectType.JAVA_METHOD, false, true,
                         (content, conn, mdi) -> mdi.loadJavaMethods(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBJavaMethodImpl(valid(content.getParentEntity()), md)));
 
         DynamicSubcontentLoader.create("ALL_JAVA_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER,
                 DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
-                        "JAVA_METHODS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER, false, true,
+                        "JAVA_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER, false, true,
                         (content, conn, mdi) -> {
                             DBJavaMethod javaMethod = valid(content.getParentEntity());
                             return mdi.loadJavaParameters(content.getParentSchemaName(), javaMethod.getClassName(), content.getParentObjectName(), javaMethod.getPosition(), conn);

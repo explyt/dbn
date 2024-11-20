@@ -344,6 +344,7 @@
             from [PREFIX]_JAVA_METHODS
             where OWNER = {0}
             and NAME = {1}
+            and METHOD_NAME != '-'
             order by
                 METHOD_NAME,
                 METHOD_INDEX
@@ -364,6 +365,7 @@
                 decode(IS_STATIC,'YES','Y','N') as IS_STATIC
             from [PREFIX]_JAVA_METHODS
             where OWNER = {0}
+              and METHOD_NAME != '-'
             order by
                 NAME,
                 METHOD_NAME,
@@ -382,10 +384,10 @@
                 BASE_TYPE,
                 ARGUMENT_CLASS
             from [PREFIX]_JAVA_ARGUMENTS
-            where OWNER={0}
-            and NAME={1}
-            and METHOD_NAME={2}
-            and METHOD_INDEX={3}
+            where OWNER = {0}
+              and NAME = {1}
+              and METHOD_NAME = {2}
+              and METHOD_INDEX = {3}
             order by ARGUMENT_POSITION
         </statement>
     </statement-execution-processor>
@@ -401,8 +403,13 @@
                 BASE_TYPE,
                 ARGUMENT_CLASS
             from [PREFIX]_JAVA_ARGUMENTS
-            where OWNER={0}
-            order by ARGUMENT_POSITION
+            where OWNER = {0}
+             and METHOD_NAME != '-'
+            order by
+                NAME,
+                METHOD_NAME,
+                METHOD_INDEX
+                ARGUMENT_POSITION
         </statement>
     </statement-execution-processor>
 
