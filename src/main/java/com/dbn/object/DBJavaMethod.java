@@ -23,6 +23,10 @@ public interface DBJavaMethod extends DBOrderedObject {
 
 	DBJavaObject getJavaObject();
 
+	String getReturnType();
+
+	DBJavaObject getReturnClass();
+
 	boolean isPublic();
 
 	boolean isStatic();

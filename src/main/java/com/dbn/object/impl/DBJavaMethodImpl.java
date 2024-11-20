@@ -16,7 +16,6 @@
 
 package com.dbn.object.impl;
 
-import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
@@ -26,23 +25,30 @@ import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
+import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
-import com.dbn.object.filter.type.ObjectTypeFilterSettings;
+import com.dbn.object.common.list.DBObjectNavigationList;
+import com.dbn.object.lookup.DBJavaObjectRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.dbn.object.common.property.DBObjectProperty.PUBLIC;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 
 @Getter
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
-	protected short index;
-	protected short overload;
-	protected String className;
+	private short index;
+	private short overload;
+	private String className;
+	private String returnType;
+	private DBJavaObjectRef returnClass;
 
 	public DBJavaMethodImpl(@NotNull DBJavaObject javaObject, DBJavaMethodMetadata metadata) throws SQLException {
 		super(javaObject, metadata);
@@ -60,7 +66,6 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		DBSchema schema = getSchema();
 		DBObjectListContainer childObjects = ensureChildObjects();
 		childObjects.createSubcontentObjectList(DBObjectType.JAVA_PARAMETER, this, schema);
-
 	}
 
 	@Override
@@ -68,6 +73,13 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		index = metadata.getMethodIndex();
 		overload = metadata.getOverload();
 		className = metadata.getClassName();
+		returnType = metadata.getReturnType();
+
+		String returnClassName = metadata.getReturnClassName();
+		if (returnClassName != null) {
+			DBSchema schema = parentObject.getSchema();
+			returnClass = new DBJavaObjectRef(schema, returnClassName, "SYS");
+		}
 
 		set(PUBLIC,metadata.isPublic());
 		set(STATIC,metadata.isStatic());
@@ -82,6 +94,39 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	public String getPresentableTextDetails() {
 		return overload > 0 ? " #" + overload : "";
+	}
+
+	@Override
+	public String getPresentableText() {
+		DBObjectList<DBJavaParameter> parameterList = getChildObjectList(DBObjectType.JAVA_PARAMETER);
+		StringBuilder builder = new StringBuilder();
+		builder.append(getName());
+		builder.append("(");
+
+		if (parameterList != null) {
+			if (parameterList.isLoaded()) {
+				String parameters = parameterList
+						.getElements()
+						.stream()
+						.map(p -> p.getParameterTypeName())
+						.collect(Collectors.joining(", "));
+				builder.append(parameters);
+			} else if (!parameterList.isLoading()){
+				parameterList.loadInBackground();
+			}
+		}
+		builder.append("): ");
+
+		if (returnClass == null) {
+			builder.append(returnType);
+		} else {
+			builder.append(returnClass.getClassSimpleName());
+		}
+		return builder.toString();
+	}
+
+	public DBJavaObject getReturnClass() {
+		return returnClass == null ? null : returnClass.get();
 	}
 
 	@Override
@@ -104,19 +149,33 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		return is(STATIC);
 	}
 
+	@Override
+	protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
+		List<DBObjectNavigationList> navigationLists = new LinkedList<>();
+		navigationLists.add(DBObjectNavigationList.create("Parameters", getParameters()));
+		navigationLists.add(DBObjectNavigationList.create("Return Type", getReturnClass()));
+		return navigationLists;
+	}
+
 	/*********************************************************
 	 *                     TreeElement                       *
 	 *********************************************************/
 	@Override
 	@NotNull
 	public List<BrowserTreeNode> buildPossibleTreeChildren() {
+		return super.buildPossibleTreeChildren();
+/*
 		return DatabaseBrowserUtils.createList(
 				getChildObjectList(DBObjectType.JAVA_PARAMETER));
+*/
 	}
 
 	@Override
 	public boolean hasVisibleTreeChildren() {
+		return false;
+/*
 		ObjectTypeFilterSettings settings = getObjectTypeFilterSettings();
 		return settings.isVisible(DBObjectType.JAVA_PARAMETER);
+*/
 	}
 }

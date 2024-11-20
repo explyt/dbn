@@ -20,20 +20,26 @@ package com.dbn.object.impl;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
 import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
+import com.dbn.object.lookup.DBJavaObjectRef;
 import com.dbn.object.type.DBObjectType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
-import java.util.Objects;
 
+@Getter
 public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> implements DBJavaParameter {
-	protected short methodIndex;
-	protected short methodOverload;
-	protected short position;
-	protected short arrayDimension;
+	private short methodIndex;
+	private short methodOverload;
+	private short position;
+	private short arrayDepth;
+
+	private String parameterType;
+	private DBJavaObjectRef parameterClass;
 
 	public DBJavaParameterImpl(@NotNull DBJavaMethod javaMethod, DBJavaParameterMetadata metadata) throws SQLException {
 		super(javaMethod, metadata);
@@ -54,15 +60,39 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 		methodIndex = metadata.getMethodIndex();
 		methodOverload = metadata.getMethodOverload();
 		position = metadata.getArgumentPosition();
-		arrayDimension = metadata.getArrayDepth();
+		arrayDepth = metadata.getArrayDepth();
 
-		String arrMatrix = arrayDimension > 0 ? " []".repeat(arrayDimension) : "";
+		parameterType = metadata.getBaseType();
+		boolean isClass = parameterType.equals("class");
+		String argumentClass = metadata.getArgumentClass();
 
-		String baseType = metadata.getBaseType();
-		if(Objects.equals(baseType, "class")){
-			return metadata.getArgumentClass().replace("/", ".") + arrMatrix;
+		String arrMatrix = arrayDepth > 0 ? "[]".repeat(arrayDepth) : "";
+
+		if (isClass) {
+			parameterClass = new DBJavaObjectRef(parentObject.getSchema(), argumentClass, "SYS");
+			String className = argumentClass.substring(argumentClass.lastIndexOf("/") + 1);
+			return className + arrMatrix + " p" + position;
+		} else {
+			return parameterType + arrMatrix + " p" + position;
 		}
-		return baseType + arrMatrix;
+	}
+
+	@Override
+	public DBJavaObject getParameterClass() {
+		return parameterClass == null ? null : parameterClass.get();
+	}
+
+	@Override
+	public String getPresentableText() {
+
+		return super.getPresentableText();
+	}
+
+	@Override
+	public String getParameterTypeName() {
+		return parameterClass == null ?
+				parameterType :
+				parameterClass.getClassSimpleName();
 	}
 
 	@Override

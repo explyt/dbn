@@ -23,6 +23,10 @@ import java.sql.SQLException;
 public interface DBJavaMethodMetadata extends DBObjectMetadata {
 	String getClassName() throws SQLException;
 
+	String getReturnType() throws SQLException;
+
+	String getReturnClassName() throws SQLException;
+
 	String getMethodName() throws SQLException;
 
 	short getMethodIndex() throws SQLException;

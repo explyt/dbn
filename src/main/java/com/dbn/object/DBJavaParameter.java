@@ -16,4 +16,9 @@ package com.dbn.object;
 
 public interface DBJavaParameter extends DBOrderedObject {
 
+    String getParameterTypeName();
+    String getParameterType();
+    DBJavaObject getParameterClass();
+    short getArrayDepth();
+
 }

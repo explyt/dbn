@@ -1,6 +1,7 @@
 package com.dbn.object.action;
 
 import com.dbn.common.action.BasicAction;
+import com.dbn.object.DBJavaParameter;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -23,10 +24,14 @@ public class NavigateToObjectAction extends BasicAction {
         this.objectRef = DBObjectRef.of(object);
 
         Presentation presentation = getTemplatePresentation();
-        presentation.setText(
-                sourceObject != object.getParentObject() ?
-                        object.getQualifiedName() :
-                        object.getName(), false);
+        if (object instanceof DBJavaParameter) {
+            presentation.setText(object.getName(), true);
+        } else {
+            presentation.setText(
+                    sourceObject != object.getParentObject() ?
+                            object.getQualifiedName() :
+                            object.getName(), true);
+        }
         presentation.setIcon(object.getIcon());
         presentation.setDescription(object.getTypeName());
     }

@@ -339,6 +339,8 @@
                      then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
                      else 0
                 end as OVERLOAD,
+                BASE_TYPE as RETURN_TYPE,
+                decode(RETURN_CLASS, '-', null, RETURN_CLASS) as RETURN_CLASS_NAME,
                 decode(ACCESSIBILITY,'PUBLIC','Y','N') as IS_PUBLIC,
                 decode(IS_STATIC,'YES','Y','N') as IS_STATIC
             from [PREFIX]_JAVA_METHODS
@@ -361,6 +363,8 @@
                      then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
                      else 0
                 end as OVERLOAD,
+                BASE_TYPE as RETURN_TYPE,
+                decode(RETURN_CLASS, '-', null, RETURN_CLASS) as RETURN_CLASS_NAME,
                 decode(ACCESSIBILITY,'PUBLIC','Y','N') as IS_PUBLIC,
                 decode(IS_STATIC,'YES','Y','N') as IS_STATIC
             from [PREFIX]_JAVA_METHODS
