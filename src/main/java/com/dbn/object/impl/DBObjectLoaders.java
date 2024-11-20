@@ -263,7 +263,7 @@ public class DBObjectLoaders {
                 (content, cache, md) -> new DBDatabaseTriggerImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
-                "JAVA_OBJECTS", DBObjectType.SCHEMA, DBObjectType.JAVA_CLASS, true, true,
+                "JAVA_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_CLASS, true, true,
                 (content, conn, mdi) -> mdi.loadJavaClasses(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBJavaClassImpl(content.getParentEntity(), md));
 
