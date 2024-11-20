@@ -1,6 +1,5 @@
 package com.dbn.object;
 
-import com.dbn.api.object.DBJavaClass;
 import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.SchemaId;
 import com.dbn.object.common.DBRootObject;
@@ -36,6 +35,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     List<DBColumn> getPrimaryKeyColumns();
     List<DBColumn> getForeignKeyColumns();
     List<DBJavaObject> getJavaObjects();
+    List<DBJavaMethod> getJavaMethods();
 
     DBDataset getDataset(String name);
     DBTable getTable(String name);
@@ -54,6 +54,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     DBCredential getAIProfile(String name);
     DBDatabaseLink getDatabaseLink(String name);
     DBJavaObject getJavaObject(String name);
+    DBJavaMethod getJavaMethod(String javaClass, String methodName, int methodIndex);
 
     @Override
     DBObjectRef<DBSchema> ref();

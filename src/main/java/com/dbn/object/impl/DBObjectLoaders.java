@@ -1,13 +1,86 @@
 package com.dbn.object.impl;
 
-import com.dbn.api.object.DBJavaClass;
 import com.dbn.common.content.loader.DynamicContentLoaderImpl;
 import com.dbn.common.content.loader.DynamicContentResultSetLoader;
 import com.dbn.common.content.loader.DynamicSubcontentLoader;
 import com.dbn.common.exception.ElementSkippedException;
 import com.dbn.database.common.metadata.DBObjectMetadata;
-import com.dbn.database.common.metadata.def.*;
-import com.dbn.object.*;
+import com.dbn.database.common.metadata.def.DBArgumentMetadata;
+import com.dbn.database.common.metadata.def.DBCharsetMetadata;
+import com.dbn.database.common.metadata.def.DBClusterMetadata;
+import com.dbn.database.common.metadata.def.DBColumnMetadata;
+import com.dbn.database.common.metadata.def.DBConstraintColumnMetadata;
+import com.dbn.database.common.metadata.def.DBConstraintMetadata;
+import com.dbn.database.common.metadata.def.DBCredentialMetadata;
+import com.dbn.database.common.metadata.def.DBDatabaseLinkMetadata;
+import com.dbn.database.common.metadata.def.DBDimensionMetadata;
+import com.dbn.database.common.metadata.def.DBFunctionMetadata;
+import com.dbn.database.common.metadata.def.DBGrantedPrivilegeMetadata;
+import com.dbn.database.common.metadata.def.DBGrantedRoleMetadata;
+import com.dbn.database.common.metadata.def.DBIndexColumnMetadata;
+import com.dbn.database.common.metadata.def.DBIndexMetadata;
+import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
+import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
+import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
+import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
+import com.dbn.database.common.metadata.def.DBNestedTableMetadata;
+import com.dbn.database.common.metadata.def.DBObjectDependencyMetadata;
+import com.dbn.database.common.metadata.def.DBPackageMetadata;
+import com.dbn.database.common.metadata.def.DBPrivilegeMetadata;
+import com.dbn.database.common.metadata.def.DBProcedureMetadata;
+import com.dbn.database.common.metadata.def.DBProfileMetadata;
+import com.dbn.database.common.metadata.def.DBRoleMetadata;
+import com.dbn.database.common.metadata.def.DBSchemaMetadata;
+import com.dbn.database.common.metadata.def.DBSequenceMetadata;
+import com.dbn.database.common.metadata.def.DBSynonymMetadata;
+import com.dbn.database.common.metadata.def.DBTableMetadata;
+import com.dbn.database.common.metadata.def.DBTriggerMetadata;
+import com.dbn.database.common.metadata.def.DBTypeAttributeMetadata;
+import com.dbn.database.common.metadata.def.DBTypeMetadata;
+import com.dbn.database.common.metadata.def.DBUserMetadata;
+import com.dbn.database.common.metadata.def.DBViewMetadata;
+import com.dbn.object.DBArgument;
+import com.dbn.object.DBCharset;
+import com.dbn.object.DBCluster;
+import com.dbn.object.DBColumn;
+import com.dbn.object.DBConsole;
+import com.dbn.object.DBConstraint;
+import com.dbn.object.DBCredential;
+import com.dbn.object.DBDatabaseLink;
+import com.dbn.object.DBDatabaseTrigger;
+import com.dbn.object.DBDataset;
+import com.dbn.object.DBDatasetTrigger;
+import com.dbn.object.DBDimension;
+import com.dbn.object.DBFunction;
+import com.dbn.object.DBGrantedPrivilege;
+import com.dbn.object.DBGrantedRole;
+import com.dbn.object.DBIndex;
+import com.dbn.object.DBJavaObject;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBMaterializedView;
+import com.dbn.object.DBMethod;
+import com.dbn.object.DBNestedTable;
+import com.dbn.object.DBObjectPrivilege;
+import com.dbn.object.DBPackage;
+import com.dbn.object.DBPackageFunction;
+import com.dbn.object.DBPackageProcedure;
+import com.dbn.object.DBPackageType;
+import com.dbn.object.DBPrivilege;
+import com.dbn.object.DBProcedure;
+import com.dbn.object.DBProgram;
+import com.dbn.object.DBRole;
+import com.dbn.object.DBSchema;
+import com.dbn.object.DBSequence;
+import com.dbn.object.DBSynonym;
+import com.dbn.object.DBSystemPrivilege;
+import com.dbn.object.DBTable;
+import com.dbn.object.DBType;
+import com.dbn.object.DBTypeAttribute;
+import com.dbn.object.DBTypeFunction;
+import com.dbn.object.DBTypeProcedure;
+import com.dbn.object.DBUser;
+import com.dbn.object.DBView;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectBundle;
 import com.dbn.object.common.list.loader.DBObjectListFromRelationListLoader;
@@ -273,6 +346,26 @@ public class DBObjectLoaders {
                     return new DBJavaMethodImpl(javaObject, md);
                 });
 
+        DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
+                "ALL_JAVA_PARAMETERS", DBObjectType.SCHEMA, DBObjectType.JAVA_PARAMETER, true, true,
+                (content, conn, mdi) -> mdi.loadAllJavaParameters(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> {
+                    String className = md.getClassName();
+                    String methodName = md.getMethodName();
+                    Short methodIndex = md.getMethodIndex();
+
+                    String key = className + methodName + methodIndex;
+
+                    DBJavaMethod javaMethod = cache.get(key);
+
+                    if (javaMethod == null) {
+                        javaMethod = valid(cache.get(key, () -> ((DBSchema) content.ensureParentEntity()).getJavaMethod(className, methodName, methodIndex)));
+                        cache.set(key, javaMethod);
+                    }
+
+                    return new DBJavaParameterImpl(javaMethod, md);
+                });
+
         DynamicContentResultSetLoader.<DBPackageFunction, DBFunctionMetadata>create(
                 "ALL_PACKAGE_FUNCTIONS", DBObjectType.SCHEMA, DBObjectType.PACKAGE_FUNCTION, true, true,
                 (content, conn, mdi) -> mdi.loadAllPackageFunctions(content.ensureParentEntity().getName(), conn),
@@ -455,6 +548,15 @@ public class DBObjectLoaders {
                         "JAVA_OBJECTS", DBObjectType.JAVA_OBJECT, DBObjectType.JAVA_METHOD, false, true,
                         (content, conn, mdi) -> mdi.loadJavaMethods(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBJavaMethodImpl(valid(content.getParentEntity()), md)));
+
+        DynamicSubcontentLoader.create("ALL_JAVA_PARAMETERS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER,
+                DynamicContentResultSetLoader.<DBJavaParameter, DBJavaParameterMetadata>create(
+                        "JAVA_METHODS", DBObjectType.JAVA_METHOD, DBObjectType.JAVA_PARAMETER, false, true,
+                        (content, conn, mdi) -> {
+                            DBJavaMethod javaMethod = valid(content.getParentEntity());
+                            return mdi.loadJavaParameters(content.getParentSchemaName(), javaMethod.getClassName(), content.getParentObjectName(), javaMethod.getPosition(), conn);
+                        },
+                        (content, cache, md) -> new DBJavaParameterImpl(valid(content.getParentEntity()), md)));
 
         DynamicContentResultSetLoader.<DBTypeAttribute, DBTypeAttributeMetadata>create(
                 "PACKAGE_TYPE_ATTRIBUTES", DBObjectType.PACKAGE_TYPE, DBObjectType.TYPE_ATTRIBUTE, true, true,

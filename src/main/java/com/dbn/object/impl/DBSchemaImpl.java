@@ -24,6 +24,7 @@ import com.dbn.object.DBDimension;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBIndex;
 import com.dbn.object.DBJavaObject;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBPackage;
@@ -90,6 +91,7 @@ import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.INDEX;
 import static com.dbn.object.type.DBObjectType.JAVA_OBJECT;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
+import static com.dbn.object.type.DBObjectType.JAVA_PARAMETER;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
 import static com.dbn.object.type.DBObjectType.PACKAGE;
@@ -159,6 +161,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(TYPE_FUNCTION,     this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_PROCEDURE,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_METHOD,       this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_PARAMETER,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(ARGUMENT,          this, INTERNAL, GROUPED, HIDDEN);
 
         //ol.createHiddenObjectList(DBObjectType.TYPE_METHOD, this, TYPE_METHODS_LOADER);
@@ -346,6 +349,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public List<DBJavaMethod> getJavaMethods() {
+        return getChildObjects(JAVA_METHOD);
+    }
+
+    @Override
     public DBTable getTable(String name) {
         return getChildObject(TABLE, name);
     }
@@ -388,6 +396,17 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     @Override
     public DBJavaObject getJavaObject(String name) {
         return getChildObject(JAVA_OBJECT, name);
+    }
+
+    @Override
+    public DBJavaMethod getJavaMethod(String javaClass, String name, int methodIndex) {
+        List<DBJavaMethod> methods = getJavaMethods();
+        for(DBJavaMethod method:methods){
+            if(method.getClassName().equals(javaClass) && method.getName().equals(name) && method.getPosition() == methodIndex){
+                return method;
+            }
+        }
+        return getChildObject(JAVA_METHOD, name);
     }
 
     @Override

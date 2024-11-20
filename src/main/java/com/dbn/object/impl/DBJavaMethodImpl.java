@@ -17,17 +17,23 @@
 package com.dbn.object.impl;
 
 import com.dbn.api.object.DBJavaClass;
+import com.dbn.browser.DatabaseBrowserUtils;
+import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaObject;
+import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
+import com.dbn.object.common.list.DBObjectListContainer;
+import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.object.common.property.DBObjectProperty.PUBLIC;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
@@ -36,6 +42,7 @@ import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
 	protected short overload;
 	protected short position;
+	protected String className;
 
 	public DBJavaMethodImpl(@NotNull DBJavaObject javaObject, DBJavaMethodMetadata metadata) throws SQLException {
 		super(javaObject, metadata);
@@ -49,12 +56,18 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	protected void initLists(ConnectionHandler connection) {
 		super.initLists(connection);
+
+		DBSchema schema = getSchema();
+		DBObjectListContainer childObjects = ensureChildObjects();
+		childObjects.createSubcontentObjectList(DBObjectType.JAVA_PARAMETER, this, schema);
+
 	}
 
 	@Override
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaMethodMetadata metadata) throws SQLException {
 		position = metadata.getPosition();
 		overload = metadata.getOverload();
+		className = metadata.getClassName();
 
 		set(PUBLIC,metadata.isPublic());
 		set(STATIC,metadata.isStatic());
@@ -79,5 +92,21 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	public boolean isStatic() {
 		return is(STATIC);
+	}
+
+	/*********************************************************
+	 *                     TreeElement                       *
+	 *********************************************************/
+	@Override
+	@NotNull
+	public List<BrowserTreeNode> buildPossibleTreeChildren() {
+		return DatabaseBrowserUtils.createList(
+				getChildObjectList(DBObjectType.JAVA_PARAMETER));
+	}
+
+	@Override
+	public boolean hasVisibleTreeChildren() {
+		ObjectTypeFilterSettings settings = getObjectTypeFilterSettings();
+		return settings.isVisible(DBObjectType.JAVA_PARAMETER);
 	}
 }

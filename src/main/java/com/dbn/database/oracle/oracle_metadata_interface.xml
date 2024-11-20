@@ -371,6 +371,41 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL">
+            select
+                NAME as CLASS_NAME,
+                METHOD_INDEX,
+                METHOD_NAME,
+                ARGUMENT_POSITION,
+                ARRAY_DEPTH,
+                BASE_TYPE,
+                ARGUMENT_CLASS
+            from [PREFIX]_JAVA_ARGUMENTS
+            where OWNER={0}
+            and NAME={1}
+            and METHOD_NAME={2}
+            and METHOD_INDEX={3}
+            order by ARGUMENT_POSITION
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
+        <statement prefixes="DBA, ALL">
+            select
+                NAME as CLASS_NAME,
+                METHOD_INDEX,
+                METHOD_NAME,
+                ARGUMENT_POSITION,
+                ARRAY_DEPTH,
+                BASE_TYPE,
+                ARGUMENT_CLASS
+            from [PREFIX]_JAVA_ARGUMENTS
+            where OWNER={0}
+            order by ARGUMENT_POSITION
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="materialized-views" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select

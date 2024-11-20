@@ -26,4 +26,6 @@ public interface DBJavaMethod extends DBOrderedObject {
 	boolean isPublic();
 
 	boolean isStatic();
+
+	String getClassName();
 }

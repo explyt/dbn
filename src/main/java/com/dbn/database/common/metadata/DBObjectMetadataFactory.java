@@ -17,6 +17,7 @@ import com.dbn.database.common.metadata.impl.DBIndexColumnMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBIndexMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaObjectMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBJavaMethodMetadataImpl;
+import com.dbn.database.common.metadata.impl.DBJavaParameterMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBMaterializedViewMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBNestedTableMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBObjectDependencyMetadataImpl;
@@ -97,6 +98,7 @@ public class DBObjectMetadataFactory {
             case DATASET_TRIGGER:     return new DBTriggerMetadataImpl(resultSet);
             case JAVA_OBJECT:         return new DBJavaObjectMetadataImpl(resultSet);
             case JAVA_METHOD:         return new DBJavaMethodMetadataImpl(resultSet);
+            case JAVA_PARAMETER:      return new DBJavaParameterMetadataImpl(resultSet);
             case INCOMING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
             case OUTGOING_DEPENDENCY: return new DBObjectDependencyMetadataImpl(resultSet);
         }
