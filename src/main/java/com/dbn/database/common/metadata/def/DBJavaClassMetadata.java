@@ -24,7 +24,7 @@ import java.sql.SQLException;
  * Interface for showing Java object node in Schema tree
  * @author rishabh (Oracle)
  */
-public interface DBJavaObjectMetadata extends DBObjectMetadata {
+public interface DBJavaClassMetadata extends DBObjectMetadata {
 	String getObjectName() throws SQLException;
 
 	String getObjectKind()throws SQLException;

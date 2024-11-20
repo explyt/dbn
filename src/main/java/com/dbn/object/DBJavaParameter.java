@@ -18,7 +18,7 @@ public interface DBJavaParameter extends DBOrderedObject {
 
     String getParameterTypeName();
     String getParameterType();
-    DBJavaObject getParameterClass();
+    DBJavaClass getParameterClass();
     short getArrayDepth();
 
 }

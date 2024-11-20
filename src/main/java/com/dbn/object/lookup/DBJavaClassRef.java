@@ -17,7 +17,7 @@
 package com.dbn.object.lookup;
 
 import com.dbn.connection.ConnectionId;
-import com.dbn.object.DBJavaObject;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.Nullable;
@@ -25,17 +25,17 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DBJavaObjectRef{
-    private final List<DBObjectRef<DBJavaObject>> lookups = new ArrayList<>();
+public class DBJavaClassRef {
+    private final List<DBObjectRef<DBJavaClass>> lookups = new ArrayList<>();
 
-    public DBJavaObjectRef(DBSchema schema, String className, String ... alternativeSchemas) {
-        lookups.add(new DBObjectRef<>(schema.ref(), DBObjectType.JAVA_OBJECT, className));
+    public DBJavaClassRef(DBSchema schema, String className, String ... alternativeSchemas) {
+        lookups.add(new DBObjectRef<>(schema.ref(), DBObjectType.JAVA_CLASS, className));
 
         ConnectionId connectionId = schema.getConnectionId();
         for (String schemaName : alternativeSchemas) {
             if (schemaName.equalsIgnoreCase(schema.getName())) continue;
             DBObjectRef<DBSchema> sysSchema = new DBObjectRef<>(connectionId, DBObjectType.SCHEMA, schemaName);
-            lookups.add(new DBObjectRef<>(sysSchema, DBObjectType.JAVA_OBJECT, className));
+            lookups.add(new DBObjectRef<>(sysSchema, DBObjectType.JAVA_CLASS, className));
         }
     }
 
@@ -48,10 +48,10 @@ public class DBJavaObjectRef{
     }
 
     @Nullable
-    public DBJavaObject get() {
-        for (DBObjectRef<DBJavaObject> lookup : lookups) {
-            DBJavaObject javaObject = lookup.get();
-            if (javaObject != null) return javaObject;
+    public DBJavaClass get() {
+        for (DBObjectRef<DBJavaClass> lookup : lookups) {
+            DBJavaClass javaClass = lookup.get();
+            if (javaClass != null) return javaClass;
         }
 
         return null;

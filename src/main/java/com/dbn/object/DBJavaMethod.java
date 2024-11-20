@@ -23,11 +23,11 @@ import java.util.List;
 
 public interface DBJavaMethod extends DBOrderedObject {
 
-	DBJavaObject getJavaObject();
+	DBJavaClass getOwnerClass();
 
 	String getReturnType();
 
-    DBJavaObject getReturnClass();
+    DBJavaClass getReturnClass();
 
 	DBJavaAccessibility getAccessibility();
 

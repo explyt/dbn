@@ -122,7 +122,7 @@ public class ObjectFilterSettingsForm extends ConfigurationEditorForm<ObjectFilt
                     DBObjectType.PACKAGE,
                     DBObjectType.TYPE,
                     DBObjectType.SYNONYM,
-                    DBObjectType.JAVA_OBJECT,
+                    DBObjectType.JAVA_CLASS,
                     DBObjectType.DBLINK));
 
             List<DBObjectType> configuredObjectTypes = convert(filterForms, f -> f.getFilter().getObjectType());

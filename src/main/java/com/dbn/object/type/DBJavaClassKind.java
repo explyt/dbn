@@ -23,15 +23,15 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public enum DBJavaObjectKind implements Constant<DBJavaObjectKind> {
+public enum DBJavaClassKind implements Constant<DBJavaClassKind> {
     OBJECT("object"),
     INTERFACE("interface"),
     ENUM("enum");
 
     private final String name;
 
-    public static DBJavaObjectKind get(String name) {
+    public static DBJavaClassKind get(String name) {
         // safe lookup - default to OBJECT if not known
-        return Constants.get(values(), name, DBJavaObjectKind.OBJECT);
+        return Constants.get(values(), name, DBJavaClassKind.OBJECT);
     }
 }

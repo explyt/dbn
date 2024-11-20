@@ -18,18 +18,18 @@ package com.dbn.object;
 
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBJavaAccessibility;
-import com.dbn.object.type.DBJavaObjectKind;
+import com.dbn.object.type.DBJavaClassKind;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
 
-public interface DBJavaObject extends DBSchemaObject {
+public interface DBJavaClass extends DBSchemaObject {
 
 	@NotNull
 	String getName();
 
-	DBJavaObjectKind getKind();
+	DBJavaClassKind getKind();
 
 	DBJavaAccessibility getAccessibility();
 

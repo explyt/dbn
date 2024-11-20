@@ -99,7 +99,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public ResultSet loadJavaObjects(String ownerName, DBNConnection connection) throws SQLException {
+    public ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "java-objects", ownerName);
     }
 
@@ -452,7 +452,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public void compileJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "compile-java-object", ownerName, objectName);
     }
 

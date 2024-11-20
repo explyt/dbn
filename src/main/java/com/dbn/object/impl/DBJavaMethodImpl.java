@@ -20,8 +20,8 @@ import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
-import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
@@ -29,7 +29,7 @@ import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
-import com.dbn.object.lookup.DBJavaObjectRef;
+import com.dbn.object.lookup.DBJavaClassRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -53,11 +53,11 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	private short overload;
 	private String className;
 	private String returnType;
-	private DBJavaObjectRef returnClass;
+	private DBJavaClassRef returnClass;
 	private DBJavaAccessibility accessibility;
 
-	public DBJavaMethodImpl(@NotNull DBJavaObject javaObject, DBJavaMethodMetadata metadata) throws SQLException {
-		super(javaObject, metadata);
+	public DBJavaMethodImpl(@NotNull DBJavaClass javaClass, DBJavaMethodMetadata metadata) throws SQLException {
+		super(javaClass, metadata);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		String returnClassName = metadata.getReturnClassName();
 		if (returnClassName != null) {
 			DBSchema schema = parentObject.getSchema();
-			returnClass = new DBJavaObjectRef(schema, returnClassName, "SYS");
+			returnClass = new DBJavaClassRef(schema, returnClassName, "SYS");
 		}
 
 		set(STATIC, metadata.isStatic());
@@ -144,7 +144,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
-	public DBJavaObject getReturnClass() {
+	public DBJavaClass getReturnClass() {
 		return returnClass == null ? null : returnClass.get();
 	}
 
@@ -154,7 +154,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
-	public DBJavaObject getJavaObject() {
+	public DBJavaClass getOwnerClass() {
 		return getParentObject();
 	}
 

@@ -33,7 +33,6 @@ public enum DatabaseObjectTypeId {
     GRANTED_ROLE,
     INDEX,
     INDEXTYPE,
-    JAVA_OBJECT,
     JAVA_METHOD,
     JAVA_PARAMETER,
     JAVA_CLASS,

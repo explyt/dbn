@@ -23,7 +23,7 @@ import com.dbn.object.DBDatasetTrigger;
 import com.dbn.object.DBDimension;
 import com.dbn.object.DBFunction;
 import com.dbn.object.DBIndex;
-import com.dbn.object.DBJavaObject;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMaterializedView;
 import com.dbn.object.DBMethod;
@@ -89,7 +89,7 @@ import static com.dbn.object.type.DBObjectType.DBLINK;
 import static com.dbn.object.type.DBObjectType.DIMENSION;
 import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.INDEX;
-import static com.dbn.object.type.DBObjectType.JAVA_OBJECT;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 import static com.dbn.object.type.DBObjectType.JAVA_PARAMETER;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
@@ -141,7 +141,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(PACKAGE,           this);
         childObjects.createObjectList(TYPE,              this);
         childObjects.createObjectList(DATABASE_TRIGGER,  this);
-        childObjects.createObjectList(JAVA_OBJECT,       this);
+        childObjects.createObjectList(JAVA_CLASS,        this);
         childObjects.createObjectList(DIMENSION,         this);
         childObjects.createObjectList(CLUSTER,           this);
         childObjects.createObjectList(DBLINK,            this);
@@ -344,8 +344,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
-    public List<DBJavaObject> getJavaObjects() {
-        return getChildObjects(JAVA_OBJECT);
+    public List<DBJavaClass> getJavaClasses() {
+        return getChildObjects(JAVA_CLASS);
     }
 
     @Override
@@ -394,8 +394,8 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
-    public DBJavaObject getJavaObject(String name) {
-        return getChildObject(JAVA_OBJECT, name);
+    public DBJavaClass getJavaClass(String name) {
+        return getChildObject(JAVA_CLASS, name);
     }
 
     @Override
@@ -581,7 +581,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
                 getChildObjectList(PACKAGE),
                 getChildObjectList(TYPE),
                 getChildObjectList(DATABASE_TRIGGER),
-                getChildObjectList(JAVA_OBJECT),
+                getChildObjectList(JAVA_CLASS),
                 getChildObjectList(DIMENSION),
                 getChildObjectList(CLUSTER),
                 getChildObjectList(DBLINK),
@@ -595,7 +595,6 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         return
             settings.isVisible(TABLE) ||
             settings.isVisible(VIEW) ||
-            settings.isVisible(JAVA_OBJECT) ||
             settings.isVisible(MATERIALIZED_VIEW) ||
             settings.isVisible(SYNONYM) ||
             settings.isVisible(SEQUENCE) ||
@@ -604,6 +603,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
             settings.isVisible(PACKAGE) ||
             settings.isVisible(TYPE) ||
             settings.isVisible(DATABASE_TRIGGER) ||
+            settings.isVisible(JAVA_CLASS) ||
             settings.isVisible(DIMENSION) ||
             settings.isVisible(CLUSTER) ||
             settings.isVisible(DBLINK) ||

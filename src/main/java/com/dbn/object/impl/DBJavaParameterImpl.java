@@ -19,12 +19,12 @@ package com.dbn.object.impl;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
-import com.dbn.object.DBJavaObject;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.lookup.DBJavaObjectRef;
+import com.dbn.object.lookup.DBJavaClassRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -39,7 +39,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	private short arrayDepth;
 
 	private String parameterType;
-	private DBJavaObjectRef parameterClass;
+	private DBJavaClassRef parameterClass;
 
 	public DBJavaParameterImpl(@NotNull DBJavaMethod javaMethod, DBJavaParameterMetadata metadata) throws SQLException {
 		super(javaMethod, metadata);
@@ -69,7 +69,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 		String arrMatrix = arrayDepth > 0 ? "[]".repeat(arrayDepth) : "";
 
 		if (isClass) {
-			parameterClass = new DBJavaObjectRef(parentObject.getSchema(), argumentClass, "SYS");
+			parameterClass = new DBJavaClassRef(parentObject.getSchema(), argumentClass, "SYS");
 			String className = argumentClass.substring(argumentClass.lastIndexOf("/") + 1);
 			return className + arrMatrix + " p" + position;
 		} else {
@@ -78,7 +78,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	}
 
 	@Override
-	public DBJavaObject getParameterClass() {
+	public DBJavaClass getParameterClass() {
 		return parameterClass == null ? null : parameterClass.get();
 	}
 
