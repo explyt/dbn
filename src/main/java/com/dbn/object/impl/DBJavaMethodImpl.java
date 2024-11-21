@@ -29,6 +29,7 @@ import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
+import com.dbn.object.common.list.ObjectListProvider;
 import com.dbn.object.lookup.DBJavaClassRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
@@ -38,6 +39,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -106,22 +108,18 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 
 	@Override
 	public String getPresentableText() {
-		DBObjectList<DBJavaParameter> parameterList = getChildObjectList(DBObjectType.JAVA_PARAMETER);
+		DBObjectList<DBJavaParameter> parameterList = initParameterList();
 		StringBuilder builder = new StringBuilder();
 		builder.append(getName());
 		builder.append("(");
 
 		if (parameterList != null) {
-			if (parameterList.isLoaded()) {
-				String parameters = parameterList
-						.getElements()
-						.stream()
-						.map(p -> p.getParameterTypeName())
-						.collect(Collectors.joining(", "));
-				builder.append(parameters);
-			} else if (!parameterList.isLoading()){
-				parameterList.loadInBackground();
-			}
+			String parameters = parameterList
+					.getElements()
+					.stream()
+					.map(p -> p.getParameterTypeName())
+					.collect(Collectors.joining(", "));
+			builder.append(parameters);
 		}
 		builder.append("): ");
 
@@ -131,6 +129,16 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 			builder.append(returnClass.getClassSimpleName());
 		}
 		return builder.toString();
+	}
+
+	@Nullable
+	private DBObjectList<DBJavaParameter> initParameterList() {
+		DBObjectList<DBJavaParameter> parameterList = getChildObjectList(DBObjectType.JAVA_PARAMETER);
+		if (parameterList == null) return null;
+		if (parameterList.isLoaded()) return parameterList;
+
+		if (!parameterList.isLoading()) parameterList.loadInBackground();
+		return null;
 	}
 
 	@Override
@@ -176,8 +184,28 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	protected @Nullable List<DBObjectNavigationList> createNavigationLists() {
 		List<DBObjectNavigationList> navigationLists = new LinkedList<>();
-		navigationLists.add(DBObjectNavigationList.create("Parameters", getParameters()));
-		navigationLists.add(DBObjectNavigationList.create("Return Type", getReturnClass()));
+		DBObjectList<DBJavaParameter> parameterList = initParameterList();
+		if (parameterList != null) {
+			if (parameterList.isLoaded()) {
+                navigationLists.add(DBObjectNavigationList.create("Parameters", getParameters()));
+            } else {
+				ObjectListProvider<DBJavaParameter> provider = () -> getParameters();
+				navigationLists.add(DBObjectNavigationList.create("Parameters", provider)); // lazy
+			}
+		}
+
+		if (returnClass != null) {
+			if (returnClass.isLoaded()) {
+                navigationLists.add(DBObjectNavigationList.create("Return Type", getReturnClass()));
+            } else {
+				ObjectListProvider<DBJavaClass> provider = () -> {
+					DBJavaClass returnClass = getReturnClass();
+					return returnClass == null ? Collections.emptyList() : List.of(returnClass);
+				};
+				navigationLists.add(DBObjectNavigationList.create("Return Type", provider));
+			}
+		}
+
 		return navigationLists;
 	}
 

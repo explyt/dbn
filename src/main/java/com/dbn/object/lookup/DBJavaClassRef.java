@@ -56,4 +56,8 @@ public class DBJavaClassRef {
 
         return null;
     }
+
+    public boolean isLoaded() {
+        return lookups.stream().anyMatch(ref -> ref.isLoaded());
+    }
 }
