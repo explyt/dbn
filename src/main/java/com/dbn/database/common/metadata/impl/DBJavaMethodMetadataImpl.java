@@ -49,6 +49,11 @@ public class DBJavaMethodMetadataImpl extends DBObjectMetadataBase implements DB
 	}
 
 	@Override
+	public String getMethodSignature() throws SQLException {
+		return getString("METHOD_SIGNATURE");
+	}
+
+	@Override
 	public short getMethodIndex() throws SQLException {
 		return resultSet.getShort("METHOD_INDEX");
 	}
@@ -56,11 +61,6 @@ public class DBJavaMethodMetadataImpl extends DBObjectMetadataBase implements DB
 	@Override
 	public String getAccessibility() throws SQLException {
 		return getString("ACCESSIBILITY");
-	}
-
-	@Override
-	public short getOverload() throws SQLException {
-		return resultSet.getShort("OVERLOAD");
 	}
 
 	@Override

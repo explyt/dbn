@@ -37,6 +37,8 @@ public interface DBJavaMethod extends DBOrderedObject {
 
 	boolean isAbstract();
 
+	String getSignature();
+
 	String getClassName();
 
 	short getIndex();

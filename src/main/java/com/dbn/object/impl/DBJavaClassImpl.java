@@ -164,8 +164,8 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	}
 
 	@Override
-	public DBJavaMethod getMethod(String name, short index) {
-		return getChildObject(JAVA_METHOD, name, index);
+	public DBJavaMethod getMethod(String name) {
+		return getChildObject(JAVA_METHOD, name);
 	}
 
 	/*********************************************************

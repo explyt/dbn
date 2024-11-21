@@ -42,7 +42,6 @@ import java.sql.SQLException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.dbn.common.icon.Icons.withStaticMarker;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
@@ -52,7 +51,7 @@ import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 @Getter
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
 	private short index;
-	private short overload;
+	private String signature;
 	private String className;
 	private String returnType;
 	private DBJavaClassRef returnClass;
@@ -79,7 +78,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaMethodMetadata metadata) throws SQLException {
 		index = metadata.getMethodIndex();
-		overload = metadata.getOverload();
+		signature = metadata.getMethodSignature();
 		className = metadata.getClassName();
 		returnType = metadata.getReturnType();
 		accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
@@ -102,33 +101,8 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
-	public String getPresentableTextDetails() {
-		return overload > 0 ? " #" + overload : "";
-	}
-
-	@Override
 	public String getPresentableText() {
-		DBObjectList<DBJavaParameter> parameterList = initParameterList();
-		StringBuilder builder = new StringBuilder();
-		builder.append(getName());
-		builder.append("(");
-
-		if (parameterList != null) {
-			String parameters = parameterList
-					.getElements()
-					.stream()
-					.map(p -> p.getParameterTypeName())
-					.collect(Collectors.joining(", "));
-			builder.append(parameters);
-		}
-		builder.append("): ");
-
-		if (returnClass == null) {
-			builder.append(returnType);
-		} else {
-			builder.append(returnClass.getClassSimpleName());
-		}
-		return builder.toString();
+		return signature;
 	}
 
 	@Nullable

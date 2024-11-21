@@ -25,8 +25,6 @@ public interface DBJavaParameterMetadata extends DBObjectMetadata {
 
 	short getMethodIndex() throws SQLException;
 
-	short getMethodOverload() throws SQLException;
-
 	short getArgumentPosition() throws SQLException;
 
 	short getArrayDepth() throws SQLException;

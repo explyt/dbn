@@ -332,126 +332,124 @@
     <statement-execution-processor id="java-methods" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
             select
-                NAME as CLASS_NAME,
-                METHOD_NAME,
-                METHOD_INDEX,
-                case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
-                     then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
-                     else 0
-                end as OVERLOAD,
-                BASE_TYPE as RETURN_TYPE,
-                ACCESSIBILITY,
-                decode(RETURN_CLASS, '-', null, RETURN_CLASS) as RETURN_CLASS_NAME,
-                decode(IS_STATIC,'YES','Y','N') as IS_STATIC,
-                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
-                decode(IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT
-            from [PREFIX]_JAVA_METHODS
-            where OWNER = {0}
-            and NAME = {1}
-            and METHOD_NAME != '-'
+                m.NAME as CLASS_NAME,
+                m.METHOD_NAME||'#'||m.METHOD_INDEX as METHOD_NAME,
+                m.METHOD_INDEX,
+                m.BASE_TYPE as RETURN_TYPE,
+                m.ACCESSIBILITY,
+                decode(m.RETURN_CLASS, '-', null, m.RETURN_CLASS) as RETURN_CLASS_NAME,
+                decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                case when m.METHOD_NAME in (chr(60)||'init'||chr(62), chr(60)||'clinit'||chr(62)) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
+                    || listagg(decode(a.ARGUMENT_CLASS, '-', a.BASE_TYPE, regexp_substr(a.ARGUMENT_CLASS, '[^/]+$', 1, 1))|| lpad('[]', a.ARRAY_DEPTH * 2, '[]'), ', ') within group (order by a.ARGUMENT_POSITION) || '): '
+                    || decode(m.RETURN_CLASS, '-', m.BASE_TYPE, regexp_substr(m.RETURN_CLASS, '[^/]+$', 1, 1))
+                    || lpad('[]', m.ARRAY_DEPTH * 2, '[]') as METHOD_SIGNATURE
+            from [PREFIX]_JAVA_METHODS m left join
+                 [PREFIX]_JAVA_ARGUMENTS a on
+                    m.OWNER = a.OWNER and
+                    m.NAME = a.NAME and
+                    m.METHOD_INDEX = a.METHOD_INDEX
+            where
+                m.OWNER = {0} and
+                m.NAME = {1} and
+                m.METHOD_NAME != '-'
+            group by
+                m.NAME,
+                m.METHOD_NAME,
+                m.METHOD_INDEX,
+                m.BASE_TYPE,
+                m.ACCESSIBILITY,
+                m.RETURN_CLASS,
+                m.ARRAY_DEPTH,
+                m.IS_STATIC,
+                m.IS_FINAL,
+                m.IS_ABSTRACT
             order by
-                METHOD_NAME,
-                METHOD_INDEX
+                m.METHOD_NAME,
+                m.METHOD_INDEX
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="all-java-methods" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
             select
-                NAME as CLASS_NAME,
-                METHOD_NAME,
-                METHOD_INDEX,
-                case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
-                     then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
-                     else 0
-                end as OVERLOAD,
-                BASE_TYPE as RETURN_TYPE,
-                ACCESSIBILITY,
-                decode(RETURN_CLASS, '-', null, RETURN_CLASS) as RETURN_CLASS_NAME,
-                decode(IS_STATIC,'YES','Y','N') as IS_STATIC,
-                decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
-                decode(IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT
-            from [PREFIX]_JAVA_METHODS
-            where OWNER = {0}
-              and METHOD_NAME != '-'
+                m.NAME as CLASS_NAME,
+                m.METHOD_NAME||'#'||m.METHOD_INDEX as METHOD_NAME,
+                m.METHOD_INDEX,
+                m.BASE_TYPE as RETURN_TYPE,
+                m.ACCESSIBILITY,
+                decode(m.RETURN_CLASS, '-', null, m.RETURN_CLASS) as RETURN_CLASS_NAME,
+                decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                case when m.METHOD_NAME in (chr(60)||'init'||chr(62), chr(60)||'clinit'||chr(62)) then regexp_substr(m.NAME, '[^/]+$', 1, 1) else m.METHOD_NAME end || '('
+                    || listagg(decode(a.ARGUMENT_CLASS, '-', a.BASE_TYPE, regexp_substr(a.ARGUMENT_CLASS, '[^/]+$', 1, 1))|| lpad('[]', a.ARRAY_DEPTH * 2, '[]'), ', ') within group (order by a.ARGUMENT_POSITION) || '): '
+                    || decode(m.RETURN_CLASS, '-', m.BASE_TYPE, regexp_substr(m.RETURN_CLASS, '[^/]+$', 1, 1))
+                    || lpad('[]', m.ARRAY_DEPTH * 2, '[]') as METHOD_SIGNATURE
+            from [PREFIX]_JAVA_METHODS m left join
+                 [PREFIX]_JAVA_ARGUMENTS a on
+                    m.OWNER = a.OWNER and
+                    m.NAME = a.NAME and
+                    m.METHOD_INDEX = a.METHOD_INDEX
+            where
+                m.OWNER = {0} and
+                m.METHOD_NAME != '-'
+            group by
+                m.NAME,
+                m.METHOD_NAME,
+                m.METHOD_INDEX,
+                m.BASE_TYPE,
+                m.ACCESSIBILITY,
+                m.RETURN_CLASS,
+                m.ARRAY_DEPTH,
+                m.IS_STATIC,
+                m.IS_FINAL,
+                m.IS_ABSTRACT
             order by
-                NAME,
-                METHOD_NAME,
-                METHOD_INDEX
+                m.NAME,
+                m.METHOD_NAME,
+                m.METHOD_INDEX
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
-            with JAVA_METHODS as (
-                select
-                    OWNER,
-                    NAME,
-                    METHOD_NAME,
-                    METHOD_INDEX,
-                    case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
-                        then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
-                        else 0
-                    end as METHOD_OVERLOAD
-                from [PREFIX]_JAVA_METHODS
-                where OWNER = {0}
-                  and NAME = {1}
-                  and METHOD_NAME = {2}
-                  and METHOD_INDEX = {3})
             select
-                jm.NAME as CLASS_NAME,
-                jm.METHOD_NAME,
-                jm.METHOD_INDEX,
-                jm.METHOD_OVERLOAD,
-                ja.ARGUMENT_POSITION,
-                ja.ARRAY_DEPTH,
-                ja.BASE_TYPE,
-                ja.ARGUMENT_CLASS
-            from JAVA_METHODS jm
-            join [PREFIX]_JAVA_ARGUMENTS ja
-              on ja.OWNER = jm.OWNER
-             and ja.NAME = jm.NAME
-             and ja.METHOD_NAME = jm.METHOD_NAME
-             and ja.METHOD_INDEX = jm.METHOD_INDEX
+                NAME as CLASS_NAME,
+                METHOD_NAME||'#'||METHOD_INDEX as METHOD_NAME,
+                METHOD_INDEX,
+                ARGUMENT_POSITION,
+                ARRAY_DEPTH,
+                BASE_TYPE,
+                ARGUMENT_CLASS
+            from [PREFIX]_JAVA_ARGUMENTS
+            where OWNER = {0}
+              and NAME = {1}
+              and METHOD_NAME = SUBSTR({2}, 1, INSTR({2}, '#') - 1)
+              and METHOD_INDEX = SUBSTR({3}, INSTR({3}, '#') + 1)
             order by
-                ja.ARGUMENT_POSITION
+                ARGUMENT_POSITION
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="all-java-parameters" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
-            with JAVA_METHODS as (
-                select
-                    OWNER,
-                    NAME,
-                    METHOD_NAME,
-                    METHOD_INDEX,
-                    case when count(1) OVER (partition by OWNER, NAME, METHOD_NAME) > 1
-                         then row_number() over (partition by OWNER, NAME, METHOD_NAME order by ARGUMENTS)
-                         else 0
-                    end as METHOD_OVERLOAD
-                from [PREFIX]_JAVA_METHODS
-                where OWNER = {0})
             select
-                jm.NAME as CLASS_NAME,
-                jm.METHOD_NAME,
-                jm.METHOD_INDEX,
-                jm.METHOD_OVERLOAD,
-                ja.ARGUMENT_POSITION,
-                ja.ARRAY_DEPTH,
-                ja.BASE_TYPE,
-                ja.ARGUMENT_CLASS
-            from JAVA_METHODS jm
-            join [PREFIX]_JAVA_ARGUMENTS ja
-              on ja.OWNER = jm.OWNER
-             and ja.NAME = jm.NAME
-             and ja.METHOD_NAME = jm.METHOD_NAME
-             and ja.METHOD_INDEX = jm.METHOD_INDEX
+                NAME as CLASS_NAME,
+                METHOD_NAME||'#'||METHOD_INDEX as METHOD_NAME,
+                METHOD_INDEX,
+                ARGUMENT_POSITION,
+                ARRAY_DEPTH,
+                BASE_TYPE,
+                ARGUMENT_CLASS
+            from [PREFIX]_JAVA_ARGUMENTS
+            where OWNER = {0}
             order by
-                jm.NAME,
-                jm.METHOD_NAME,
-                jm.METHOD_OVERLOAD,
-                ja.ARGUMENT_POSITION
+                NAME,
+                METHOD_NAME,
+                METHOD_INDEX,
+                ARGUMENT_POSITION
         </statement>
     </statement-execution-processor>
 

@@ -352,14 +352,13 @@ public class DBObjectLoaders {
                 (content, cache, md) -> {
                     String className = md.getClassName();
                     String methodName = md.getMethodName();
-                    short methodOverload = md.getMethodOverload();
 
-                    String key = className + methodName + methodOverload;
+                    String key = className + methodName;
                     DBJavaMethod javaMethod = cache.get(key);
                     if (javaMethod == null) {
                         DBSchema schema = content.ensureParentEntity();
                         DBJavaClass javaClass = valid(schema.getJavaClass(className));
-                        javaMethod = valid(javaClass.getMethod(methodName, methodOverload));
+                        javaMethod = valid(javaClass.getMethod(methodName));
                         cache.set(key, javaMethod);
                     }
 

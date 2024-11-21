@@ -46,11 +46,6 @@ public class DBJavaParameterMetadataImpl extends DBObjectMetadataBase implements
 	}
 
 	@Override
-	public short getMethodOverload() throws SQLException {
-		return resultSet.getShort("METHOD_OVERLOAD");
-	}
-
-	@Override
 	public short getArgumentPosition() throws SQLException {
 		return resultSet.getShort("ARGUMENT_POSITION");
 	}

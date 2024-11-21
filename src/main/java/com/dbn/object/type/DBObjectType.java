@@ -12,6 +12,7 @@ import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.ddl.DDLFileTypeId;
 import com.dbn.editor.DBContentType;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -31,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
+@Slf4j
 @Getter
 public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentable {
     AI_PROFILE(DatabaseObjectTypeId.AI_PROFILE, "AI profile", "AI profiles", Icons.DBO_AI_PROFILE, Icons.DBO_AI_PROFILE_DISABLED, Icons.DBO_AI_PROFILES, false),
@@ -525,7 +527,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
             return forListName(name, null);
         }
 
-        throw new IllegalArgumentException("No ObjectType found for name '" + name + "'");
+        log.warn("No ObjectType found for name '{}'", name, new IllegalArgumentException("Invalid object type"));
+        return DBObjectType.UNKNOWN;
     }
 
     public boolean isSupported(@Nullable DatabaseContext connectionProvider) {

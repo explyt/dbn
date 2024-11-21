@@ -43,5 +43,5 @@ public interface DBJavaClass extends DBSchemaObject {
 
     List<DBJavaMethod> getMethods();
 
-    DBJavaMethod getMethod(String name, short index);
+    DBJavaMethod getMethod(String name);
 }
