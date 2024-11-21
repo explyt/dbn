@@ -17,14 +17,14 @@
 package com.dbn.database.common.metadata.impl;
 
 import com.dbn.database.common.metadata.DBObjectMetadataBase;
-import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
+import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DBJavaObjectMetadataImpl extends DBObjectMetadataBase implements DBJavaObjectMetadata {
+public class DBJavaClassMetadataImpl extends DBObjectMetadataBase implements DBJavaClassMetadata {
 
-	public DBJavaObjectMetadataImpl(ResultSet resultSet) {
+	public DBJavaClassMetadataImpl(ResultSet resultSet) {
 		super(resultSet);
 	}
 
@@ -39,8 +39,8 @@ public class DBJavaObjectMetadataImpl extends DBObjectMetadataBase implements DB
 	}
 
 	@Override
-	public String getObjectAccessibility() throws SQLException {
-		return getString("OBJECT_ACCESSIBILITY");
+	public String getAccessibility() throws SQLException {
+		return getString("ACCESSIBILITY");
 	}
 
 	@Override

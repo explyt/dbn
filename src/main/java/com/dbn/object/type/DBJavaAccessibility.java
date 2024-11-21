@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 @Getter
 @AllArgsConstructor
-public enum DBJavaObjectAccessibility implements Constant<DBJavaObjectAccessibility> {
+public enum DBJavaAccessibility implements Constant<DBJavaAccessibility> {
     PUBLIC("public"),
     PRIVATE("private"),
     PROTECTED("protected"),
@@ -33,7 +33,7 @@ public enum DBJavaObjectAccessibility implements Constant<DBJavaObjectAccessibil
     private final String name;
 
     @Nullable
-    public static DBJavaObjectAccessibility get(String name) {
+    public static DBJavaAccessibility get(String name) {
         // safe lookup - default to null if not known
         return Constants.get(values(), name, null);
     }

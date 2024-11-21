@@ -308,6 +308,7 @@ public class Icons {
         public static final Icon ERROR = load("/img/marker/ErrorMark.svg");
         public static final Icon WARNING = load("/img/marker/WarningMark.svg");
         public static final Icon RUNNABLE  = load("/img/marker/RunnableMark.svg");
+        public static final Icon STATIC  = load("/img/marker/StaticMark.svg");
     }
 
 
@@ -375,6 +376,9 @@ public class Icons {
     public static final Icon DBO_JAVA_INTERFACE                  = load("/img/object/java/JavaInterface.svg");
     public static final Icon DBO_JAVA_ENUMERATION                = load("/img/object/java/JavaEnumeration.svg");
     public static final Icon DBO_JAVA_EXCEPTION                  = load("/img/object/java/JavaException.svg");
+    public static final Icon DBO_JAVA_METHOD                     = load("/img/object/java/JavaMethod.svg");
+    public static final Icon DBO_JAVA_METHODS                    = load("/img/object/java/JavaMethods.svg");
+    public static final Icon DBO_JAVA_METHOD_ABSTRACT            = load("/img/object/java/JavaMethodAbstract.svg");
     public static final Icon DBO_MATERIALIZED_VIEW               = load("/img/object/view/MaterializedView.svg");
     public static final Icon DBO_MATERIALIZED_VIEWS              = load("/img/object/view/MaterializedViews.svg");
     public static final Icon DBO_METHOD                          = load("/img/object/Method.png");
@@ -480,6 +484,10 @@ public class Icons {
 
     public static Icon withErrorMarker(Icon base) {
         return LayeredIcon.create(base, Icons.Marker.ERROR);
+    }
+
+    public static Icon withStaticMarker(Icon base) {
+        return LayeredIcon.create(base, Marker.STATIC);
     }
 
     public static Icon withPinMarker(Icon base) {

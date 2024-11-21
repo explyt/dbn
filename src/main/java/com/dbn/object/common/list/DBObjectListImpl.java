@@ -51,12 +51,24 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import javax.swing.tree.TreeNode;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Consumer;
 
-import static com.dbn.common.content.DynamicContentProperty.*;
+import static com.dbn.common.content.DynamicContentProperty.DEPENDENCY;
+import static com.dbn.common.content.DynamicContentProperty.GROUPED;
+import static com.dbn.common.content.DynamicContentProperty.HIDDEN;
+import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
+import static com.dbn.common.content.DynamicContentProperty.SEARCHABLE;
+import static com.dbn.common.content.DynamicContentProperty.VIRTUAL;
 import static com.dbn.common.dispose.Checks.isValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.list.FilteredList.unwrap;
@@ -218,7 +230,9 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
         List<T> elements = getAllElements();
         if (elements.isEmpty()) return null;
 
-        if (objectType == DBObjectType.ARGUMENT || objectType == DBObjectType.TYPE_ATTRIBUTE) {
+        if (objectType == DBObjectType.ARGUMENT ||
+                objectType == DBObjectType.TYPE_ATTRIBUTE ||
+                objectType == DBObjectType.JAVA_PARAMETER) {
             // arguments and type attributes are sorted by position (linear search)
             return super.getElement(name, overload);
         }

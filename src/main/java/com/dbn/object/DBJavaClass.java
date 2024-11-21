@@ -14,24 +14,34 @@
  * limitations under the License.
  */
 
-package com.dbn.object.type;
+package com.dbn.object;
 
-import com.dbn.common.constant.Constant;
-import com.dbn.common.constant.Constants;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.type.DBJavaAccessibility;
+import com.dbn.object.type.DBJavaClassKind;
+import org.jetbrains.annotations.NotNull;
 
-@Getter
-@AllArgsConstructor
-public enum DBJavaObjectKind implements Constant<DBJavaObjectKind> {
-    OBJECT("object"),
-    INTERFACE("interface"),
-    ENUM("enum");
+import java.util.List;
 
-    private final String name;
 
-    public static DBJavaObjectKind get(String name) {
-        // safe lookup - default to OBJECT if not known
-        return Constants.get(values(), name, DBJavaObjectKind.OBJECT);
-    }
+public interface DBJavaClass extends DBSchemaObject {
+
+	@NotNull
+	String getName();
+
+	DBJavaClassKind getKind();
+
+	DBJavaAccessibility getAccessibility();
+
+	boolean isFinal();
+
+	boolean isAbstract();
+
+	boolean isStatic();
+
+	boolean isInner();
+
+    List<DBJavaMethod> getMethods();
+
+    DBJavaMethod getMethod(String name);
 }

@@ -137,7 +137,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      * <li> IS_INNER (Y/N)
      * <li> IS_STATIC (Y/N)
      */
-    ResultSet loadJavaObjects(String ownerName, DBNConnection connection) throws SQLException;
+    ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException;
 
     /**
      * Loads the materialized views of the given owner<br>
@@ -467,9 +467,17 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
     ResultSet loadAllPackageTypes(String ownerName, DBNConnection connection) throws SQLException;
 
 
-   /*********************************************************
-    *                        TYPES                          *
-    *********************************************************/
+    ResultSet loadJavaMethods(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadAllJavaMethods(String ownerName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadJavaParameters(String ownerName, String objectName, String methodName, int methodIndex, DBNConnection connection) throws SQLException;
+
+    ResultSet loadAllJavaParameters(String ownerName, DBNConnection connection) throws SQLException;
+
+    /*********************************************************
+	 *                        TYPES                          *
+	 *********************************************************/
 
     /**
      * Loads the user defined types (UDT) of the given owner<br>
@@ -670,7 +678,7 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
 
     void compileObjectBody(String ownerName, String objectName, String objectType, boolean debug, DBNConnection connection) throws SQLException;
 
-    void compileJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+    void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     ResultSet loadObjectChangeTimestamp(String ownerName, String objectName, String objectType, DBNConnection connection) throws SQLException;
 

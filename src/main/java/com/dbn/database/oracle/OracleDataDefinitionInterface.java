@@ -101,7 +101,7 @@ public class OracleDataDefinitionInterface extends DatabaseDataDefinitionInterfa
         executeUpdate(connection, "change-object", newCode);
     }
 
-    public void updateJavaObject(String objectName, String code, DBNConnection connection) throws SQLException {
+    public void updateJavaClass(String objectName, String code, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "change-java-object", objectName.replace(".","/"), code.replace("'","''"));
     }
 

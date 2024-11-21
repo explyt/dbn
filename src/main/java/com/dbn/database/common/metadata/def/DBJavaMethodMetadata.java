@@ -20,26 +20,24 @@ import com.dbn.database.common.metadata.DBObjectMetadata;
 
 import java.sql.SQLException;
 
-/**
- * Interface for showing Java object node in Schema tree
- * @author rishabh (Oracle)
- */
-public interface DBJavaObjectMetadata extends DBObjectMetadata {
-	String getObjectName() throws SQLException;
+public interface DBJavaMethodMetadata extends DBObjectMetadata {
+	String getClassName() throws SQLException;
 
-	String getObjectKind()throws SQLException;
+	String getReturnType() throws SQLException;
 
-    String getObjectAccessibility()throws SQLException;
+	String getReturnClassName() throws SQLException;
 
-    boolean isFinal() throws SQLException;
+	String getMethodName() throws SQLException;
 
-    boolean isAbstract()throws SQLException;
+	String getMethodSignature() throws SQLException;
 
-    boolean isStatic()throws SQLException;
+	String getAccessibility() throws SQLException;
 
-    boolean isInner()throws SQLException;
+	short getMethodIndex() throws SQLException;
 
-    boolean isValid() throws SQLException;
+	boolean isStatic() throws SQLException;
 
-    boolean isDebug() throws SQLException;
+	boolean isFinal() throws SQLException;
+
+	boolean isAbstract() throws SQLException;
 }

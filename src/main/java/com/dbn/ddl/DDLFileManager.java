@@ -154,7 +154,7 @@ public class DDLFileManager extends ProjectComponentBase implements PersistentSt
 
     @Nullable
     public LanguageFileType resolveFileType(DBObjectType objectType, DBContentType contentType) {
-        if (objectType == DBObjectType.JAVA_OBJECT) {
+        if (objectType == DBObjectType.JAVA_CLASS) {
             // java module may not be present in the IDE (if not IntelliJ)
             // (fallback to plain text)
             Language language = findLanguageByID("JAVA");

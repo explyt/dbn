@@ -99,7 +99,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public ResultSet loadJavaObjects(String ownerName, DBNConnection connection) throws SQLException {
+    public ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "java-objects", ownerName);
     }
 
@@ -235,6 +235,26 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     @Override
     public ResultSet loadAllPackageTypes(String ownerName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "all-package-types", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJavaMethods(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-methods", ownerName, objectName);
+    }
+
+    @Override
+    public ResultSet loadAllJavaMethods(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-methods", ownerName);
+    }
+
+    @Override
+    public ResultSet loadJavaParameters(String ownerName, String objectName, String methodName, int methodIndex, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-parameters", ownerName, objectName, methodName, methodIndex);
+    }
+
+    @Override
+    public ResultSet loadAllJavaParameters(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-parameters", ownerName);
     }
 
     /*********************************************************
@@ -432,7 +452,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
-    public void compileJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+    public void compileJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
         executeUpdate(connection, "compile-java-object", ownerName, objectName);
     }
 

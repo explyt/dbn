@@ -3,6 +3,7 @@ package com.dbn.object.common.ui;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.ui.tree.Trees;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
@@ -23,10 +24,9 @@ public class ObjectTreeCellRenderer extends DBNColoredTreeCellRenderer {
             DBObject object = DBObjectRef.get(objectRef);
             setIcon(object == null ? objectRef.getObjectType().getIcon() : object.getOriginalIcon());
 
-            if (object instanceof DBMethod) {
-                DBMethod method = (DBMethod) object;
-                if (method.getOverload() > 0) {
-                    append(" #" + method.getOverload(), SimpleTextAttributes.GRAY_ATTRIBUTES);
+            if (object instanceof DBMethod || object instanceof DBJavaMethod) {
+                if (object.getOverload() > 0) {
+                    append(" #" + object.getOverload(), SimpleTextAttributes.GRAY_ATTRIBUTES);
                 }
             }
 

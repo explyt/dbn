@@ -197,8 +197,8 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
         String objectName = object.getName();
         String objectTypeName = cachedUpperCase(object.getTypeName());
 
-        if (object.getObjectType() == DBObjectType.JAVA_OBJECT) {
-            metadata.compileJavaObject(
+        if (object.getObjectType() == DBObjectType.JAVA_CLASS) {
+            metadata.compileJavaClass(
                     schemaName,
                     objectName,
                     conn);

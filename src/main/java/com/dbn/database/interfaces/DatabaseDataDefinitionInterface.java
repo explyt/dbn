@@ -37,7 +37,7 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
     void updateObject(String objectName, String objectType, String oldCode, String newCode, DBNConnection connection) throws SQLException;
 
 
-    default void updateJavaObject(String objectName, String newCode, DBNConnection connection) throws SQLException{};
+    default void updateJavaClass(String objectName, String newCode, DBNConnection connection) throws SQLException{};
    /*********************************************************
     *                   DROP statements                     *
     *********************************************************/
@@ -45,7 +45,7 @@ public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     void dropObjectBody(String objectType, String objectName, DBNConnection connection) throws SQLException;
 
-    default void dropJavaObject(String ownerName, String objectName, DBNConnection connection) throws SQLException {}
+    default void dropJavaClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {}
    /*********************************************************
     *                   RENAME statements                     *
     *********************************************************/

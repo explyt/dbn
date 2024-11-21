@@ -105,7 +105,7 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
     @Override
     public @NotNull String getPresentableName() {
         String presentableName = super.getPresentableName();
-        if (getObjectType() == DBObjectType.JAVA_OBJECT) {
+        if (getObjectType() == DBObjectType.JAVA_CLASS) {
             presentableName = presentableName.replace("/", ".");
         }
         return presentableName;

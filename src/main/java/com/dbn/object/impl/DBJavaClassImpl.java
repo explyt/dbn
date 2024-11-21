@@ -16,21 +16,26 @@
 
 package com.dbn.object.impl;
 
+import com.dbn.browser.DatabaseBrowserUtils;
+import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.database.common.metadata.def.DBJavaObjectMetadata;
+import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
-import com.dbn.object.DBJavaObject;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
+import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
-import com.dbn.object.type.DBJavaObjectAccessibility;
-import com.dbn.object.type.DBJavaObjectKind;
+import com.dbn.object.filter.type.ObjectTypeFilterSettings;
+import com.dbn.object.type.DBJavaAccessibility;
+import com.dbn.object.type.DBJavaClassKind;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -38,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
+import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
@@ -47,29 +53,30 @@ import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
-import static com.dbn.object.type.DBJavaObjectKind.ENUM;
-import static com.dbn.object.type.DBJavaObjectKind.INTERFACE;
+import static com.dbn.object.type.DBJavaClassKind.ENUM;
+import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
+import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 
 @Getter
-public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> implements DBJavaObject {
+public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> implements DBJavaClass {
 
-	private DBJavaObjectKind kind;
-	private DBJavaObjectAccessibility accessibility;
-	private static final WeakRefCache<DBJavaObject, String> presentableNameCache = WeakRefCache.weakKey();
+	private DBJavaClassKind kind;
+	private DBJavaAccessibility accessibility;
+	private static final WeakRefCache<DBJavaClass, String> presentableNameCache = WeakRefCache.weakKey();
 
-	DBJavaObjectImpl(DBSchema schema, DBJavaObjectMetadata metadata) throws SQLException {
+	DBJavaClassImpl(DBSchema schema, DBJavaClassMetadata metadata) throws SQLException {
 		super(schema, metadata);
 	}
 
 	@Override
 	public @NotNull DBObjectType getObjectType() {
-		return DBObjectType.JAVA_OBJECT;
+		return DBObjectType.JAVA_CLASS;
 	}
 
 	@Override
-	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaObjectMetadata metadata) throws SQLException {
-		this.kind = DBJavaObjectKind.get(metadata.getObjectKind());
-		this.accessibility = DBJavaObjectAccessibility.get(metadata.getObjectAccessibility());
+	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaClassMetadata metadata) throws SQLException {
+		this.kind = DBJavaClassKind.get(metadata.getObjectKind());
+		this.accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
 
 		set(FINAL, metadata.isFinal());
 		set(ABSTRACT, metadata.isAbstract());
@@ -83,13 +90,11 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 	@Override
 	protected void initLists(ConnectionHandler connection) {
 		super.initLists(connection);
-/*
+
 		// TODO support inner classes as child objects
 		DBSchema schema = getSchema();
 		DBObjectListContainer childObjects = ensureChildObjects();
-
-		childObjects.createSubcontentObjectList(JAVA_OBJECT, this, schema);
-*/
+		childObjects.createSubcontentObjectList(JAVA_METHOD, this, schema);
 	}
 
 	public void initProperties() {
@@ -99,7 +104,7 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 		properties.set(DEBUGABLE, true);
 	}
 
-	public void initStatus(DBJavaObjectMetadata metadata) throws SQLException {
+	public void initStatus(DBJavaClassMetadata metadata) throws SQLException {
 		boolean isValid = metadata.isValid();
 		boolean isDebug = metadata.isDebug();
 		DBObjectStatusHolder objectStatus = getStatus();
@@ -153,6 +158,16 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 		return is(INNER);
 	}
 
+	@Override
+	public List<DBJavaMethod> getMethods() {
+		return getChildObjects(JAVA_METHOD);
+	}
+
+	@Override
+	public DBJavaMethod getMethod(String name) {
+		return getChildObject(JAVA_METHOD, name);
+	}
+
 	/*********************************************************
 	 *                  DBEditableCodeObject                 *
 	 ********************************************************/
@@ -169,7 +184,23 @@ public class DBJavaObjectImpl extends DBSchemaObjectImpl<DBJavaObjectMetadata> i
 				conn -> {
 					ConnectionHandler connection = getConnection();
 					DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-					dataDefinition.updateJavaObject(getName(), newCode, conn);
+					dataDefinition.updateJavaClass(getName(), newCode, conn);
 				});
+	}
+
+	/*********************************************************
+	 *                     TreeElement                       *
+	 *********************************************************/
+	@Override
+	@NotNull
+	public List<BrowserTreeNode> buildPossibleTreeChildren() {
+		return DatabaseBrowserUtils.createList(
+				getChildObjectList(JAVA_METHOD));
+	}
+
+	@Override
+	public boolean hasVisibleTreeChildren() {
+		ObjectTypeFilterSettings settings = getObjectTypeFilterSettings();
+		return settings.isVisible(JAVA_METHOD);
 	}
 }
