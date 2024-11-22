@@ -28,6 +28,7 @@ import org.apache.sshd.common.NamedResource;
 import org.apache.sshd.common.config.keys.FilePasswordProvider;
 import org.apache.sshd.common.util.net.SshdSocketAddress;
 import org.apache.sshd.common.util.security.SecurityUtils;
+import org.apache.sshd.core.CoreModuleProperties;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -73,6 +74,7 @@ public class SshTunnelConnector {
     private void initClient() {
         client = SshClient.setUpDefaultClient();
         client.setServerKeyVerifier((clientSession, remoteAddress, serverKey) -> true); // Disable host key checking (for development/testing)
+        CoreModuleProperties.SOCKET_KEEPALIVE.set(client, true);
         client.start();
         log.info("SSH Tunnel Connection - client initialized");
     }
