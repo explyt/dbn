@@ -32,7 +32,6 @@
             This software solution enhances the capabilities of the IntelliJ IDEA development environment and its associated products by providing comprehensive features for database development and maintenance.
             It includes a robust SQL and PL/SQL editor that adheres to the IDE standards, along with advanced functionality for managing database connections, executing scripts, browsing database objects, editing data and code, supporting database compiler operations, executing and debugging methods, and facilitating the creation of database objects.
             Additionally, it offers diverse navigation capabilities that seamlessly integrate across all its components, providing a powerful toolset for efficient and effective database development and management.<br>
-            <!--See features overview on the <a href="https://plugins.jetbrains.com/plugin/1800-database-navigator" target="new">support page</a>.<br>--><br>
 
             <b>Supported Databases:</b>
             <ul>
@@ -45,6 +44,13 @@
     ]]></description>
     <change-notes><![CDATA[
         <ul>
+            <li><b>3.5.0</b>
+            <ul>
+                <li>Oracle "Select-AI" integration (Database Assistant)
+                <li>Oracle token authentication ("OCI API Key" and "OCI Interactive")
+                <li>Oracle OJVM support (early preview)
+                <li>Bug fixes
+            </ul>
             <li><b>3.4.4425</b>
             <ul>
                 <li>Script execution engine - support for Oracle TNS_ADMIN / cloud connections
