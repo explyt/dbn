@@ -47,20 +47,21 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
     public final R generateCode(I input) {
         OutcomeHandlers outcomeHandlers = input.getOutcomeHandlers();
         try {
-
             R result = generateCode(input, input.getDatabaseContext());
-            Outcome outcome = createOutcome(OutcomeType.SUCCESS, null);
+            Outcome outcome = createOutcome(OutcomeType.SUCCESS, result, null);
             outcomeHandlers.handle(outcome);
             return result;
         } catch (Exception e){
-            Outcome outcome = createOutcome(OutcomeType.FAILURE, e);
+            Outcome outcome = createOutcome(OutcomeType.FAILURE, null, e);
             outcomeHandlers.handle(outcome);
         }
         return null;
     }
 
-    private Outcome createOutcome(OutcomeType type, Exception e) {
-        return new Outcome(type, getTitle(type), getMessage(type), e);
+    private Outcome createOutcome(OutcomeType type, R result, Exception e) {
+        Outcome outcome = new Outcome(type, getTitle(type), getMessage(type), e);
+        outcome.setData(result);
+        return outcome;
     };
 
     protected abstract String getTitle(OutcomeType outcomeType);

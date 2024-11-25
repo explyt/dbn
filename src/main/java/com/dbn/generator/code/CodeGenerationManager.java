@@ -19,7 +19,6 @@ package com.dbn.generator.code;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
-import com.dbn.common.options.setting.Settings;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.java.impl.JdbcConnectorCodeGenerator;
@@ -38,9 +37,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static com.dbn.common.component.Components.projectService;
-import static com.dbn.editor.DatabaseEditorStateManager.COMPONENT_NAME;
+import static com.dbn.common.options.setting.Settings.enumAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.setEnumAttribute;
+import static com.dbn.generator.code.CodeGenerationManager.COMPONENT_NAME;
 
 @State(
         name = COMPONENT_NAME,
@@ -59,7 +62,7 @@ public class CodeGenerationManager extends ProjectComponentBase implements Persi
         //...
     }
 
-    private String targetModuleSelection;
+    private Map<CodeGeneratorCategory, CodeGeneratorState> states = new ConcurrentHashMap<>();
 
     private CodeGenerationManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -82,6 +85,11 @@ public class CodeGenerationManager extends ProjectComponentBase implements Persi
         return new ArrayList<>(CODE_GENERATORS.values());
     }
 
+    @NotNull
+    public CodeGeneratorState getState(CodeGeneratorCategory category) {
+        return states.computeIfAbsent(category, k -> new CodeGeneratorState());
+    }
+
     /****************************************
      *       PersistentStateComponent       *
      *****************************************/
@@ -89,13 +97,28 @@ public class CodeGenerationManager extends ProjectComponentBase implements Persi
     @Override
     public Element getComponentState() {
         Element element = new Element("state");
-        Settings.setString(element, "target-module-selection", targetModuleSelection);
+        Element statesElement = newElement(element, "generator-states");
+        for (CodeGeneratorCategory category : states.keySet()) {
+            Element stateElement = newElement(statesElement, "generator-state");
+            setEnumAttribute(stateElement, "category", category);
+
+            CodeGeneratorState state = states.get(category);
+            state.writeState(stateElement);
+        }
         return element;
     }
 
     @Override
     public void loadComponentState(@NotNull Element element) {
-        targetModuleSelection = Settings.getString(element, "target-module-selection", targetModuleSelection);
+        Element statesElement = element.getChild("generator-states");
+        if (statesElement != null) {
+            for (Element stateElement : statesElement.getChildren("generator-state")) {
+                CodeGeneratorCategory category = enumAttribute(stateElement, "category", CodeGeneratorCategory.class);
+                CodeGeneratorState state = new CodeGeneratorState();
+                state.readState(stateElement);
+                states.put(category, state);
+            }
+        }
     }
 
 }

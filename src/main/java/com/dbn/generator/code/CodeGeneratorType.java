@@ -18,21 +18,27 @@ package com.dbn.generator.code;
 
 import lombok.Getter;
 
+import static com.dbn.generator.code.CodeGeneratorCategory.JAVA;
+
 @Getter
 public enum CodeGeneratorType {
-    DATABASE_CONNECTOR(             "JDBC Connector",                   "DBN - JDBC Connector.java"),
-    DATABASE_CONNECTOR_SERVICE_NAME("JDBC Connector with Service Name", "DBN - JDBC Connector (Service Name).java"),
-    DATABASE_CONNECTOR_SID(         "JDBC Connector with SID",          "DBN - JDBC Connector (SID).java"),
-    DATABASE_CONNECTOR_TNS(         "JDBC Connector with TNS",          "DBN - JDBC Connector (TNS).java"),
-    DATA_SELECTOR("", ""),
-    METHOD_EXECUTOR("", ""),
+    DATABASE_CONNECTOR(             JAVA, "JdbcConnector", "JDBC Connector",                   "DBN - JDBC Connector.java"),
+    DATABASE_CONNECTOR_SERVICE_NAME(JAVA, "JdbcConnector", "JDBC Connector with Service Name", "DBN - JDBC Connector (Service Name).java"),
+    DATABASE_CONNECTOR_SID(         JAVA, "JdbcConnector", "JDBC Connector with SID",          "DBN - JDBC Connector (SID).java"),
+    DATABASE_CONNECTOR_TNS(         JAVA, "JdbcConnector", "JDBC Connector with TNS",          "DBN - JDBC Connector (TNS).java"),
+    DATA_SELECTOR(                  JAVA, "", "", ""),
+    METHOD_EXECUTOR(                JAVA, "", "", ""),
     //...
     ;
 
+    private final CodeGeneratorCategory category;
     private final String name;
     private final String template;
+    private final String fileName;
 
-    CodeGeneratorType(String name, String template) {
+    CodeGeneratorType(CodeGeneratorCategory category, String fileName, String name, String template) {
+        this.category = category;
+        this.fileName = fileName;
         this.name = name;
         this.template = template;
     }

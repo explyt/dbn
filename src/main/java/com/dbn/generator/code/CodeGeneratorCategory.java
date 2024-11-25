@@ -14,25 +14,8 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.code.shared.ui;
+package com.dbn.generator.code;
 
-import com.dbn.common.ui.form.DBNFormBase;
-import com.dbn.generator.code.shared.CodeGeneratorInput;
-import lombok.Getter;
-
-@Getter
-public abstract class CodeGeneratorInputForm<I extends CodeGeneratorInput> extends DBNFormBase {
-    private final I input;
-
-    public CodeGeneratorInputForm(CodeGeneratorInputDialog dialog, I input) {
-        super(dialog);
-        this.input = input;
-    }
-
-    public I getInput() {
-        applyFieldInput(input);
-        return input;
-    }
-
-    protected abstract void applyFieldInput(I input);
+public enum CodeGeneratorCategory {
+    JAVA
 }

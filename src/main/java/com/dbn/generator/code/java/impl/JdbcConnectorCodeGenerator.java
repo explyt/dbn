@@ -17,7 +17,6 @@
 package com.dbn.generator.code.java.impl;
 
 import com.dbn.common.dispose.Failsafe;
-import com.dbn.common.outcome.MessageOutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseUrlType;
@@ -33,6 +32,8 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+
+import java.util.Properties;
 
 public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorCodeGeneratorInput, JdbcConnectorCodeGeneratorResult> {
     public JdbcConnectorCodeGenerator(CodeGeneratorType type) {
@@ -63,10 +64,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
     @Override
     public JdbcConnectorCodeGeneratorInput createInput(DatabaseContext context) {
-        Project project = context.getProject();
-        JdbcConnectorCodeGeneratorInput input = new JdbcConnectorCodeGeneratorInput(context);
-        input.addOutcomeHandler(OutcomeType.FAILURE, MessageOutcomeHandler.get(project));
-        return input;
+        return new JdbcConnectorCodeGeneratorInput(context);
     }
 
     @Override
@@ -77,8 +75,13 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
         FileTemplate template = templateManager.getTemplate(templateName);
 
+
         PsiDirectory directory = input.getTargetDirectory();
-        PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, null, null, directory);
+        Properties properties = new Properties();
+        properties.put("CLASS_NAME", input.getClassName());
+        properties.put("PACKAGE_NAME", input.getPackageName());
+
+        PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, input.getClassName(), properties, directory);
         VirtualFile javaFile = javaClass.getContainingFile().getVirtualFile();
 
         JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);

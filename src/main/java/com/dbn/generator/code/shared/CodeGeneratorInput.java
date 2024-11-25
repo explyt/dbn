@@ -32,4 +32,6 @@ public interface CodeGeneratorInput {
     void addOutcomeHandler(OutcomeType outcomeType, OutcomeHandler handler);
 
     OutcomeHandlers getOutcomeHandlers();
+
+    void prepareInput();
 }
