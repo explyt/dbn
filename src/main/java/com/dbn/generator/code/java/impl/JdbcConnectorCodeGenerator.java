@@ -20,14 +20,15 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.outcome.MessageOutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.DatabaseUrlType;
+import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGenerator;
-import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
-import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
+import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -40,7 +41,24 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
     @Override
     public boolean supports(DatabaseContext context) {
-        return context instanceof ConnectionHandler;
+        if (context instanceof ConnectionHandler) {
+            ConnectionHandler connection = (ConnectionHandler) context;
+            ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
+            DatabaseUrlType urlType = databaseSettings.getDatabaseInfo().getUrlType();
+
+            CodeGeneratorType type = getType();
+            switch (type) {
+                case DATABASE_CONNECTOR: return urlType.isOneOf(
+                        DatabaseUrlType.DATABASE,
+                        DatabaseUrlType.SERVICE,
+                        DatabaseUrlType.SID,
+                        DatabaseUrlType.FILE);
+                case DATABASE_CONNECTOR_TNS: return urlType == DatabaseUrlType.TNS;
+                case DATABASE_CONNECTOR_SID: return urlType == DatabaseUrlType.SID;
+                case DATABASE_CONNECTOR_SERVICE_NAME: return urlType == DatabaseUrlType.SERVICE;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -52,12 +70,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
     }
 
     @Override
-    public CodeGeneratorInputForm<JdbcConnectorCodeGeneratorInput> createInputForm(CodeGeneratorInputDialog dialog, JdbcConnectorCodeGeneratorInput input) {
-        return null;
-    }
-
-    @Override
-    public JdbcConnectorCodeGeneratorResult performCodeGeneration(JdbcConnectorCodeGeneratorInput input, DatabaseContext context) throws Exception {
+    public JdbcConnectorCodeGeneratorResult generateCode(JdbcConnectorCodeGeneratorInput input, DatabaseContext context) throws Exception {
         String templateName = getType().getTemplate();
 
         Project project = Failsafe.nd(context.getProject());
@@ -89,5 +102,10 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
             case FAILURE: return "Failed to create Jdbc Connector";
         }
         return "";
+    }
+
+    @Override
+    public AnAction createAction(DatabaseContext context) {
+        return super.createAction(context);
     }
 }

@@ -22,7 +22,6 @@ import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.shared.CodeGenerator;
 import com.dbn.generator.code.shared.CodeGeneratorInput;
-import com.dbn.generator.code.shared.CodeGeneratorResult;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
@@ -32,7 +31,7 @@ public class CodeGeneratorInputDialog extends DBNDialog<CodeGeneratorInputForm> 
     private final CodeGenerator codeGenerator;
 
     public CodeGeneratorInputDialog(DatabaseContext databaseContext, CodeGenerator codeGenerator) {
-        super(databaseContext.getProject(), codeGenerator.getType().getName(), false);
+        super(databaseContext.getProject(), "Generate Code (" + codeGenerator.getType().getName() + ")", false);
         this.databaseContext = WeakRef.of(databaseContext);
         this.codeGenerator = codeGenerator;
 
@@ -70,14 +69,7 @@ public class CodeGeneratorInputDialog extends DBNDialog<CodeGeneratorInputForm> 
                 getProject(),
                 getDatabaseContext(), true,
                 "Generating code",
-                "Generating code ", p -> {
-                    doGenerateCode(input);
-                });
+                "Generating code ", p -> codeGenerator.generateCode(input));
 
-    }
-
-    private void doGenerateCode(CodeGeneratorInput input) {
-        DatabaseContext databaseContext = getDatabaseContext();
-        CodeGeneratorResult result = codeGenerator.generateCode(input, databaseContext);
     }
 }

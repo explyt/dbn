@@ -16,26 +16,23 @@
 
 package com.dbn.connection.action;
 
-import com.dbn.common.action.ContextAction;
+import com.dbn.common.action.ContextActionGroup;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
-
-public abstract class AbstractConnectionAction extends ContextAction<ConnectionHandler> {
+public abstract class AbstractConnectionActionGroup extends ContextActionGroup<ConnectionHandler> {
     private final ConnectionRef connection;
 
-    public AbstractConnectionAction(@NotNull ConnectionHandler connection) {
-        this.connection = connection.ref();
+    public AbstractConnectionActionGroup(@NotNull ConnectionHandler connection) {
+        this(null, false, connection);
     }
 
-    public AbstractConnectionAction(String text, String description, Icon icon, @NotNull ConnectionHandler connection) {
-        super(text, description, icon);
+    public AbstractConnectionActionGroup(@Nullable String name, boolean popup, @NotNull ConnectionHandler connection) {
+        super(name, popup);
         this.connection = connection.ref();
     }
 
@@ -51,12 +48,6 @@ public abstract class AbstractConnectionAction extends ContextAction<ConnectionH
     @Override
     protected ConnectionHandler getContext(@NotNull AnActionEvent e) {
         return connection.get();
-    }
-
-    @NotNull
-    @Override
-    public Project getProject() {
-        return connection.ensure().getProject();
     }
 }
 

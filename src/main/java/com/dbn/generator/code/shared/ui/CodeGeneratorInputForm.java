@@ -22,12 +22,10 @@ import lombok.Getter;
 
 @Getter
 public abstract class CodeGeneratorInputForm<I extends CodeGeneratorInput> extends DBNFormBase {
-    private I input;
+    private final I input;
 
-    public CodeGeneratorInputForm(CodeGeneratorInputDialog dialog) {
+    public CodeGeneratorInputForm(CodeGeneratorInputDialog dialog, I input) {
         super(dialog);
+        this.input = input;
     }
-
-
-
 }

@@ -17,7 +17,7 @@
 package com.dbn.generator.code.shared;
 
 /**
- * Result of the {@link CodeGenerator#generateCode(CodeGeneratorInput, com.dbn.connection.context.DatabaseContext)}
+ * Result of the {@link CodeGenerator#generateCode(CodeGeneratorInput)}
  * @param <I> the type of {@link CodeGeneratorInput} used to produce the result
  */
 public interface CodeGeneratorResult<I extends CodeGeneratorInput> {

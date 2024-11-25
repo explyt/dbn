@@ -14,25 +14,26 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.common.message.action;
+package com.dbn.common.action;
 
-import com.dbn.common.action.ContextAction;
-import com.dbn.common.action.DataKeys;
-import com.dbn.execution.common.message.ui.tree.MessagesTree;
+import com.intellij.openapi.actionSystem.ActionUpdateThread;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.Icon;
-
-abstract class AbstractExecutionMessagesAction extends ContextAction<MessagesTree> {
-
-    AbstractExecutionMessagesAction(String name, String description, Icon icon) {
-        super(name, description, icon);
+public abstract class ContextActionGroup<T> extends DefaultActionGroup implements BackgroundUpdateAware {
+    public ContextActionGroup(@Nullable String name, boolean popup) {
+        super(name, popup);
     }
 
-    @Nullable
-    protected MessagesTree getContext(@NotNull AnActionEvent e) {
-        return DataKeys.MESSAGES_TREE.getData(e.getDataContext());
+    protected ContextActionGroup() {}
+
+    protected abstract T getContext(@NotNull AnActionEvent e);
+
+    @NotNull
+    @Override
+    public ActionUpdateThread getActionUpdateThread() {
+        return resolveActionUpdateThread();
     }
 }

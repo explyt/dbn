@@ -70,6 +70,22 @@ public class ComboBoxes {
         comboBox.setSelectedItem(value);
     }
 
+    public static <T extends Presentable> void selectElement(JComboBox<T> comboBox, String name) {
+        List<T> elements = getElements(comboBox);
+        for (T element : elements) {
+            if (element.getName().equals(name)) {
+                setSelection(comboBox, element);
+                return;
+            }
+        }
+
+    }
+
+    public static void selectFirstElement(JComboBox comboBox) {
+        if (comboBox.getItemCount() == 0) return;
+        comboBox.setSelectedIndex(0);
+    }
+
     public static <T> List<T> getElements(JComboBox<T> comboBox) {
         List<T> list = new ArrayList<>();
         ComboBoxModel<T> model = comboBox.getModel();

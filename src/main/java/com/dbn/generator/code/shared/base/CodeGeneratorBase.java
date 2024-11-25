@@ -44,11 +44,11 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
     }
 
     @Override
-    public final R generateCode(I input, DatabaseContext context) {
+    public final R generateCode(I input) {
         OutcomeHandlers outcomeHandlers = input.getOutcomeHandlers();
         try {
 
-            R result = performCodeGeneration(input, context);
+            R result = generateCode(input, input.getDatabaseContext());
             Outcome outcome = createOutcome(OutcomeType.SUCCESS, null);
             outcomeHandlers.handle(outcome);
             return result;
@@ -67,5 +67,5 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
 
     protected abstract String getMessage(OutcomeType outcomeType);
 
-    protected abstract R performCodeGeneration(I input, DatabaseContext context) throws Exception;
+    protected abstract R generateCode(I input, DatabaseContext context) throws Exception;
 }

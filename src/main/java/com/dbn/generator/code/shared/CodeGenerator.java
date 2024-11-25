@@ -20,6 +20,7 @@ import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
+import com.intellij.openapi.actionSystem.AnAction;
 
 /**
  * Code generator definition accepting a {@link CodeGeneratorInput} and producing a {@link CodeGeneratorResult}
@@ -66,9 +67,15 @@ public interface CodeGenerator<I extends CodeGeneratorInput, R extends CodeGener
      * The main utility of the code generator, accepting an input and producing a result
      * The outcomes are reported back to the outcome handlers registered to the input (see {@link CodeGeneratorInput#getOutcomeHandlers()})
      *
-     * @param input  the {@link CodeGeneratorInput}
-     * @param context the {@link DatabaseContext} the code generation is issued from
+     * @param input the {@link CodeGeneratorInput}
      * @return a {@link CodeGeneratorResult}
      */
-    R generateCode(I input, DatabaseContext context);
+    R generateCode(I input);
+
+    /**
+     * Creates an action that generates code for the given context
+     * @param context the {@link DatabaseContext} the action should be created for
+     * @return an action to be added to the "Generate code" action group
+     */
+    AnAction createAction(DatabaseContext context);
 }
