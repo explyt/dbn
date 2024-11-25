@@ -16,5 +16,16 @@
 
 package com.dbn.generator.code.shared;
 
+import com.dbn.common.outcome.OutcomeHandler;
+import com.dbn.common.outcome.OutcomeHandlers;
+import com.dbn.common.outcome.OutcomeType;
+
+/**
+ * Input for the {@link CodeGenerator}, containing all necessary information for code generation to be performed
+ *
+ * @author Dan Cioca (Oracle)
+ */
 public interface CodeGeneratorInput {
+    void addOutcomeHandler(OutcomeType outcomeType, OutcomeHandler handler);
+    OutcomeHandlers getOutcomeHandlers();
 }

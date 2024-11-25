@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.code.shared.ui;
+package com.dbn.generator.code.java.impl;
 
-import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.connection.context.DatabaseContext;
+import com.dbn.generator.code.java.JavaCodeGeneratorInput;
 
-public abstract class CodeGeneratorForm extends DBNFormBase {
-    public CodeGeneratorForm(DBNDialog dialog) {
-        super(dialog);
+public class JdbcConnectorCodeGeneratorInput extends JavaCodeGeneratorInput {
+    protected JdbcConnectorCodeGeneratorInput(DatabaseContext databaseContext) {
+        super(databaseContext);
     }
 }

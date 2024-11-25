@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.code.java;
+package com.dbn.generator.code.java.impl;
 
+import com.dbn.generator.code.java.JavaCodeGeneratorResult;
 
-import com.dbn.generator.code.CodeGeneratorType;
-import com.dbn.generator.code.shared.base.CodeGeneratorBase;
-
-public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R extends JavaCodeGeneratorResult<I>> extends CodeGeneratorBase<I, R> {
-    public JavaCodeGenerator(CodeGeneratorType type) {
-        super(type);
+public class JdbcConnectorCodeGeneratorResult extends JavaCodeGeneratorResult<JdbcConnectorCodeGeneratorInput> {
+    public JdbcConnectorCodeGeneratorResult(JdbcConnectorCodeGeneratorInput input) {
+        super(input);
     }
 }

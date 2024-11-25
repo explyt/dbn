@@ -16,7 +16,17 @@
 
 package com.dbn.generator.code.java;
 
-import com.dbn.generator.code.shared.CodeGeneratorInput;
+import com.dbn.connection.context.DatabaseContext;
+import com.dbn.generator.code.shared.base.CodeGeneratorInputBase;
+import com.intellij.psi.PsiDirectory;
 
-public class JavaCodeGeneratorInput implements CodeGeneratorInput {
+public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
+
+    protected JavaCodeGeneratorInput(DatabaseContext databaseContext) {
+        super(databaseContext);
+    }
+
+    public PsiDirectory getTargetDirectory() {
+        return null; // TODO
+    }
 }

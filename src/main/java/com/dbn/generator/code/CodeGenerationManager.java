@@ -17,14 +17,27 @@
 package com.dbn.generator.code;
 
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.generator.code.java.impl.JdbcConnectorCodeGenerator;
+import com.dbn.generator.code.shared.CodeGenerator;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.dbn.common.component.Components.projectService;
 
 public class CodeGenerationManager extends ProjectComponentBase {
 
     public static final String COMPONENT_NAME = "DBNavigator.Project.CodeGenerationManager";
+    private static final Map<CodeGeneratorType, CodeGenerator> CODE_GENERATORS = new HashMap<>();
+    static {
+        new JdbcConnectorCodeGenerator(CodeGeneratorType.DATABASE_CONNECTOR);
+        new JdbcConnectorCodeGenerator(CodeGeneratorType.DATABASE_CONNECTOR_SID);
+        new JdbcConnectorCodeGenerator(CodeGeneratorType.DATABASE_CONNECTOR_SERVICE_NAME);
+        new JdbcConnectorCodeGenerator(CodeGeneratorType.DATABASE_CONNECTOR_TNS);
+        //...
+    }
 
     private CodeGenerationManager(Project project) {
         super(project, COMPONENT_NAME);
@@ -34,8 +47,14 @@ public class CodeGenerationManager extends ProjectComponentBase {
         return projectService(project, CodeGenerationManager.class);
     }
 
-    public void generateCode(CodeGeneratorType type) {
+    public static void registerCodeGenerator(CodeGenerator codeGenerator) {
+        CODE_GENERATORS.put(codeGenerator.getType(), codeGenerator);
+    }
 
+    public void generateCode(CodeGeneratorType type) {
+        CodeGenerator codeGenerator = CODE_GENERATORS.get(type);
+
+        // TODO
     }
 
 }

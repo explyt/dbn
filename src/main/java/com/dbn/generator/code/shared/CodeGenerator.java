@@ -16,9 +16,59 @@
 
 package com.dbn.generator.code.shared;
 
+import com.dbn.connection.context.DatabaseContext;
+import com.dbn.generator.code.CodeGeneratorType;
+import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
+import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
+
 /**
+ * Code generator definition accepting a {@link CodeGeneratorInput} and producing a {@link CodeGeneratorResult}
+ * @param <I> the input for the generator
+ * @param <R> the result of the code generation operation
  *
+ * @author Dan Cioca (Oracle)
  */
-public interface CodeGenerator<I extends CodeGeneratorInput, R extends CodeGeneratorResult> {
-    R generateCode(I input);
+public interface CodeGenerator<I extends CodeGeneratorInput, R extends CodeGeneratorResult<I>> {
+
+    /**
+     * Returns the type of the code generator
+     * @return a {@link CodeGeneratorType}
+     */
+    CodeGeneratorType getType();
+
+    /**
+     * Expected to check if the given {@link DatabaseContext} is supported for the generator
+     * The database context can be either a {@link com.dbn.connection.ConnectionHandler},
+     * a {@link com.dbn.object.common.list.DBObjectList} or a {@link com.dbn.object.common.DBObject}
+     *
+     * @param context the context to check generator support
+     * @return true if this generator supports the context, false otherwise
+     */
+    boolean supports(DatabaseContext context);
+
+    /**
+     * Creates an input for the code generator for a given database context
+     * @param context the {@link DatabaseContext} to create input for
+     * @return a {@link CodeGeneratorInput}
+     */
+    I createInput(DatabaseContext context);
+
+    /**
+     * Creates an input form for the user to enter the details for the code generator
+     *
+     * @param dialog the dialog which will host the input form
+     * @param input the input to be passed on to the form
+     * @return a specific implementation of {@link CodeGeneratorInputForm}
+     */
+    CodeGeneratorInputForm<I> createInputForm(CodeGeneratorInputDialog dialog, I input);
+
+    /**
+     * The main utility of the code generator, accepting an input and producing a result
+     * The outcomes are reported back to the outcome handlers registered to the input (see {@link CodeGeneratorInput#getOutcomeHandlers()})
+     *
+     * @param input  the {@link CodeGeneratorInput}
+     * @param context the {@link DatabaseContext} the code generation is issued from
+     * @return a {@link CodeGeneratorResult}
+     */
+    R generateCode(I input, DatabaseContext context);
 }

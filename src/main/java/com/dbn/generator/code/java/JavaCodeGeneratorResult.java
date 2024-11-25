@@ -16,7 +16,11 @@
 
 package com.dbn.generator.code.java;
 
-import com.dbn.generator.code.shared.CodeGeneratorResult;
+import com.dbn.generator.code.shared.base.CodeGeneratorResultBase;
 
-public class JavaCodeGeneratorResult implements CodeGeneratorResult {
+public abstract class JavaCodeGeneratorResult<I extends JavaCodeGeneratorInput> extends CodeGeneratorResultBase<I> {
+
+    public JavaCodeGeneratorResult(I input) {
+        super(input);
+    }
 }

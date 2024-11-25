@@ -14,14 +14,16 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.code.java;
+package com.dbn.common.message;
 
+import lombok.Getter;
 
-import com.dbn.generator.code.CodeGeneratorType;
-import com.dbn.generator.code.shared.base.CodeGeneratorBase;
+@Getter
+public class TitledMessage extends Message {
+    private final String title;
 
-public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R extends JavaCodeGeneratorResult<I>> extends CodeGeneratorBase<I, R> {
-    public JavaCodeGenerator(CodeGeneratorType type) {
-        super(type);
+    public TitledMessage(MessageType type, String text, String title) {
+        super(type, text);
+        this.title = title;
     }
 }
