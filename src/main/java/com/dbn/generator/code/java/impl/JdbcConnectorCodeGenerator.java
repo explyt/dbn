@@ -36,7 +36,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 
+import java.util.Map;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorCodeGeneratorInput, JdbcConnectorCodeGeneratorResult> {
     public JdbcConnectorCodeGenerator(CodeGeneratorType type) {
@@ -113,7 +115,14 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "TOKEN_CONFIG_FILE", authenticationInfo.getTokenConfigFile());
         addProperty(properties, "TOKEN_PROFILE", authenticationInfo.getTokenProfile());
 
-
+        // custom properties as csv
+        Map<String, String> props = settings.getPropertiesSettings().getProperties();
+        String propsCsv = props
+                .entrySet()
+                .stream()
+                .map(e -> e.getKey() + "=" + e.getValue())
+                .collect(Collectors.joining(","));
+        addProperty(properties, "PROPERTIES", propsCsv);
     }
 
     private static void addProperty(Properties properties, String key, Object value) {

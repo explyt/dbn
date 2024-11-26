@@ -5,15 +5,14 @@ import java.sql.Driver;
 import java.util.Properties;
 
 public class ${CLASS_NAME}  {
-    private static final String PROP_USER = "user";
-    private static final String PROP_PASSWORD = "password";
+    #parse("DBN - JDBC Constants.java")
 
     /**
-     * Creates a jdbc connection to a ${DATABASE_TYPE} database using a jdbc url and user / password credentials
+     * Creates a jdbc connection to the ${DATABASE_TYPE} database
      * @return a new {@link Connection}
      * @throws Exception if something goes wrong
      */
-    private static Connection createConnection() throws Exception {
+    public Connection connect() throws Exception {
         Properties properties = new Properties();
 
         // JDBC URL
@@ -21,7 +20,10 @@ public class ${CLASS_NAME}  {
         #parse("DBN - JDBC URL.java")
 
         // AUTHENTICATION
-        #parse("DBN - JDBC Auth.java")
+        #parse("DBN - JDBC Authentication.java")
+
+        // PROPERTIES
+        #parse("DBN - JDBC Properties.java")
 
         // DRIVER
         // ${DATABASE_TYPE} driver class: ${JDBC_DRIVER}
@@ -32,19 +34,15 @@ public class ${CLASS_NAME}  {
         return driver.connect(jdbcUrl, properties);
     }
 
-    public void connect() {
-        try (Connection connection = createConnection()) {
+    public static void main(String[] args) {
+        ${CLASS_NAME} connector = new ${CLASS_NAME}();
+
+        try (Connection connection = connector.connect()) {
             connection.isValid(10);
-            System.out.println("INFO: Successfully connected");
+            System.out.println("INFO: Successfully connected and validated");
 
         } catch (Exception e) {
             System.out.println("ERROR: Failed to connect. Cause:  " + e.getMessage());
         }
-
-    }
-
-    public static void main(String[] args) {
-        ${CLASS_NAME} connector = new ${CLASS_NAME}();
-        connector.connect();
     }
 }
