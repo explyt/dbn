@@ -17,6 +17,7 @@
 package com.dbn.generator.code.java;
 
 
+import com.dbn.common.util.Environment;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.action.JavaCodeGenerationAction;
@@ -29,6 +30,11 @@ import com.intellij.openapi.actionSystem.AnAction;
 public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R extends JavaCodeGeneratorResult<I>> extends CodeGeneratorBase<I, R> {
     public JavaCodeGenerator(CodeGeneratorType type) {
         super(type);
+    }
+
+    @Override
+    public boolean supports(DatabaseContext context) {
+        return Environment.hasJavaSupport();
     }
 
     @Override

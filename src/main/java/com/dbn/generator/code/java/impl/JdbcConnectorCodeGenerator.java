@@ -42,6 +42,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
     @Override
     public boolean supports(DatabaseContext context) {
+        if (!super.supports(context)) return false;
+
         if (context instanceof ConnectionHandler) {
             ConnectionHandler connection = (ConnectionHandler) context;
             ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
