@@ -45,6 +45,7 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
 
     @Override
     public final R generateCode(I input) {
+        input.prepareDestination();
         OutcomeHandlers outcomeHandlers = input.getOutcomeHandlers();
         try {
             R result = generateCode(input, input.getDatabaseContext());

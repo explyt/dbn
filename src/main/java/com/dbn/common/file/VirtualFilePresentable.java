@@ -38,6 +38,10 @@ public class VirtualFilePresentable implements Presentable {
         return Arrays.stream(files).map(f -> new VirtualFilePresentable(f)).collect(Collectors.toList());
     }
 
+    public static List<VirtualFilePresentable> fromFiles(List<VirtualFile> files) {
+        return files.stream().map(f -> new VirtualFilePresentable(f)).collect(Collectors.toList());
+    }
+
     @Nullable
     public VirtualFile getFile() {
         return VirtualFileRef.get(file);

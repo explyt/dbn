@@ -111,7 +111,7 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
     }
 
     @SneakyThrows
-    public void prepareInput() {
+    public void prepareDestination() {
         Module module = findModule();
         VirtualFile file = findContentRoot(module);
         PsiDirectory directory = getContentRootDirectory(file);

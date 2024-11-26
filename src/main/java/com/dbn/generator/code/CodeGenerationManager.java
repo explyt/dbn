@@ -23,7 +23,9 @@ import com.dbn.common.util.Dialogs;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.java.impl.JdbcConnectorCodeGenerator;
 import com.dbn.generator.code.shared.CodeGenerator;
+import com.dbn.generator.code.shared.CodeGeneratorInput;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
+import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
@@ -76,9 +78,17 @@ public class CodeGenerationManager extends ProjectComponentBase implements Persi
         CODE_GENERATORS.put(codeGenerator.getType(), codeGenerator);
     }
 
-    public void openCodeGeneratorDialog(CodeGeneratorType type, DatabaseContext context) {
-        CodeGenerator codeGenerator = CODE_GENERATORS.get(type);
+    public void openCodeGenerator(CodeGeneratorType type, DatabaseContext context) {
+        CodeGenerator codeGenerator = getCodeGenerator(type);
         Dialogs.show(() -> new CodeGeneratorInputDialog(context, codeGenerator));
+    }
+
+    public void generateCode(CodeGenerator codeGenerator, CodeGeneratorInput input) {
+        WriteAction.run(() -> codeGenerator.generateCode(input));
+    }
+
+    private static CodeGenerator getCodeGenerator(CodeGeneratorType type) {
+        return CODE_GENERATORS.get(type);
     }
 
     public static List<CodeGenerator> getCodeGenerators() {

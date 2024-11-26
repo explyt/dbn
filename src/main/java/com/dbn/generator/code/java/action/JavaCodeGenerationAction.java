@@ -39,7 +39,7 @@ public class JavaCodeGenerationAction extends ProjectAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
         CodeGenerationManager manager = CodeGenerationManager.getInstance(project);
-        manager.openCodeGeneratorDialog(type, getContext());
+        manager.openCodeGenerator(type, getContext());
     }
 
     @Nullable

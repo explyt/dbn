@@ -35,6 +35,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.jetbrains.jps.model.java.JavaSourceRootType;
 
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -42,6 +43,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.util.List;
+import java.util.Set;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
@@ -110,7 +112,8 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
             ComboBoxes.initComboBox(contentRootComboBox);
         } else {
             ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
-            VirtualFile[] sourceRoots = moduleRootManager.getSourceRoots(true);
+            Set<JavaSourceRootType> javaSourceRootTypes = Set.of(JavaSourceRootType.SOURCE, JavaSourceRootType.TEST_SOURCE);
+            List<VirtualFile> sourceRoots = moduleRootManager.getSourceRoots(javaSourceRootTypes);
 
             List<VirtualFilePresentable> presentableFiles = VirtualFilePresentable.fromFiles(sourceRoots);
             ComboBoxes.initComboBox(contentRootComboBox, presentableFiles);
