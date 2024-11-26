@@ -1,29 +1,50 @@
 #if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
 
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.Driver;
+import java.util.Properties;
 
 public class ${CLASS_NAME}  {
+    private static final String PROP_USER = "user";
+    private static final String PROP_PASSWORD = "password";
 
-    public void connect(String jdbcUrl, String userName, String password) {
+    /**
+     * Creates a jdbc connection to a ${DATABASE_TYPE} database using a jdbc url and user / password credentials
+     * @return a new {@link Connection}
+     * @throws Exception if something goes wrong
+     */
+    private static Connection createConnection() throws Exception {
+        Properties properties = new Properties();
 
-        try (Connection connection = createConnection(jdbcUrl, userName, password)) {
+        // JDBC URL
+        // ${DATABASE_TYPE} jdbc url: ${JDBC_URL_PATTERN}
+        #parse("DBN - JDBC URL.java")
+
+        // AUTHENTICATION
+        #parse("DBN - JDBC Auth.java")
+
+        // DRIVER
+        // ${DATABASE_TYPE} driver class: ${JDBC_DRIVER}
+        Class<? extends Driver> driverClass = ${JDBC_DRIVER}.class;
+        Driver driver = driverClass.getConstructor().newInstance();
+
+        // CONNECTION
+        return driver.connect(jdbcUrl, properties);
+    }
+
+    public void connect() {
+        try (Connection connection = createConnection()) {
             connection.isValid(10);
             System.out.println("INFO: Successfully connected");
 
-        } catch (SQLException e) {
-            System.out.println("ERROR: Failed to connect. Cause:  " +  e.getMessage());
+        } catch (Exception e) {
+            System.out.println("ERROR: Failed to connect. Cause:  " + e.getMessage());
         }
 
     }
 
-    private static Connection createConnection(String jdbcUrl, String userName, String password) throws SQLException {
-        return DriverManager.getConnection(jdbcUrl, userName, password);
-    }
-
     public static void main(String[] args) {
         ${CLASS_NAME} connector = new ${CLASS_NAME}();
-        connector.connect("${JDBC_URL}", "${USER_NAME}" ,"${PASSWORD}");
+        connector.connect();
     }
 }

@@ -16,11 +16,13 @@
 
 package com.dbn.generator.code.java.impl;
 
+import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGenerator;
@@ -28,6 +30,7 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
@@ -46,20 +49,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
         if (context instanceof ConnectionHandler) {
             ConnectionHandler connection = (ConnectionHandler) context;
-            ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
-            DatabaseUrlType urlType = databaseSettings.getDatabaseInfo().getUrlType();
-
-            CodeGeneratorType type = getType();
-            switch (type) {
-                case DATABASE_CONNECTOR: return urlType.isOneOf(
-                        DatabaseUrlType.DATABASE,
-                        DatabaseUrlType.SERVICE,
-                        DatabaseUrlType.SID,
-                        DatabaseUrlType.FILE);
-                case DATABASE_CONNECTOR_TNS: return urlType == DatabaseUrlType.TNS;
-                case DATABASE_CONNECTOR_SID: return urlType == DatabaseUrlType.SID;
-                case DATABASE_CONNECTOR_SERVICE_NAME: return urlType == DatabaseUrlType.SERVICE;
-            }
+            return !connection.isVirtual();
         }
         return false;
     }
@@ -80,8 +70,9 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
         PsiDirectory directory = input.getTargetDirectory();
         Properties properties = new Properties();
-        properties.put("CLASS_NAME", input.getClassName());
-        properties.put("PACKAGE_NAME", input.getPackageName());
+
+        addInputProperties(input, properties);
+        addConnectionProperties(context, properties);
 
         PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, input.getClassName(), properties, directory);
         VirtualFile javaFile = javaClass.getContainingFile().getVirtualFile();
@@ -89,6 +80,45 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);
         result.addGeneratedFile(javaFile);
         return result;
+    }
+
+    private static void addInputProperties(JdbcConnectorCodeGeneratorInput input, Properties properties) throws ConfigurationException {
+        addProperty(properties, "CLASS_NAME", input.getClassName());
+        addProperty(properties, "PACKAGE_NAME", input.getPackageName());
+    }
+
+    private static void addConnectionProperties(DatabaseContext context, Properties properties) {
+        ConnectionHandler connection = context.ensureConnection();
+        ConnectionSettings settings = connection.getSettings();
+
+        ConnectionDatabaseSettings databaseSettings = settings.getDatabaseSettings();
+        addProperty(properties, "DATABASE_TYPE", databaseSettings.getDatabaseType());
+        addProperty(properties, "JDBC_URL", databaseSettings.getConnectionUrl());
+        addProperty(properties, "JDBC_DRIVER", databaseSettings.getDriver());
+        addProperty(properties, "JDBC_URL_PATTERN", databaseSettings.getUrlPattern().getUrlTemplate());
+
+        DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
+        addProperty(properties, "JDBC_URL_TYPE", databaseInfo.getUrlType());
+        addProperty(properties, "HOST", databaseInfo.getHost());
+        addProperty(properties, "PORT", databaseInfo.getPort());
+        addProperty(properties, "DATABASE", databaseInfo.getDatabase());
+        addProperty(properties, "TNS_FOLDER", databaseInfo.getTnsFolder());
+        addProperty(properties, "TNS_PROFILE", databaseInfo.getTnsProfile());
+
+        AuthenticationInfo authenticationInfo = databaseSettings.getAuthenticationInfo();
+        addProperty(properties, "AUTH_TYPE", authenticationInfo.getType());
+        addProperty(properties, "AUTH_TOKEN_TYPE", authenticationInfo.getTokenType());
+        addProperty(properties, "USER_NAME", authenticationInfo.getUser());
+        addProperty(properties, "PASSWORD", authenticationInfo.getPassword());
+        addProperty(properties, "TOKEN_CONFIG_FILE", authenticationInfo.getTokenConfigFile());
+        addProperty(properties, "TOKEN_PROFILE", authenticationInfo.getTokenProfile());
+
+
+    }
+
+    private static void addProperty(Properties properties, String key, Object value) {
+        if (value == null) return;
+        properties.put(key, value.toString());
     }
 
     @Override

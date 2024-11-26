@@ -22,12 +22,9 @@ import static com.dbn.generator.code.CodeGeneratorCategory.JAVA;
 
 @Getter
 public enum CodeGeneratorType {
-    DATABASE_CONNECTOR(             JAVA, "JdbcConnector", "JDBC Connector",                   "DBN - JDBC Connector.java"),
-    DATABASE_CONNECTOR_SERVICE_NAME(JAVA, "JdbcConnector", "JDBC Connector with Service Name", "DBN - JDBC Connector (Service Name).java"),
-    DATABASE_CONNECTOR_SID(         JAVA, "JdbcConnector", "JDBC Connector with SID",          "DBN - JDBC Connector (SID).java"),
-    DATABASE_CONNECTOR_TNS(         JAVA, "JdbcConnector", "JDBC Connector with TNS",          "DBN - JDBC Connector (TNS).java"),
-    DATA_SELECTOR(                  JAVA, "", "", ""),
-    METHOD_EXECUTOR(                JAVA, "", "", ""),
+    DATABASE_CONNECTOR(              JAVA, "JdbcConnector", "JDBC Connector",                   "DBN - JDBC Connector.java"),
+    DATA_SELECTOR(                   JAVA, "", "", ""),
+    METHOD_EXECUTOR(                 JAVA, "", "", ""),
     //...
     ;
 

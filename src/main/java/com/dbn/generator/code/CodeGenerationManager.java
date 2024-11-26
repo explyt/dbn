@@ -36,7 +36,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -55,12 +55,9 @@ import static com.dbn.generator.code.CodeGenerationManager.COMPONENT_NAME;
 @Setter
 public class CodeGenerationManager extends ProjectComponentBase implements PersistentState {
     public static final String COMPONENT_NAME = "DBNavigator.Project.CodeGenerationManager";
-    private static final Map<CodeGeneratorType, CodeGenerator> CODE_GENERATORS = new HashMap<>();
+    private static final Map<CodeGeneratorType, CodeGenerator> CODE_GENERATORS = new LinkedHashMap<>();
     static {
         new JdbcConnectorCodeGenerator(CodeGeneratorType.DATABASE_CONNECTOR);
-        new JdbcConnectorCodeGenerator(CodeGeneratorType.DATABASE_CONNECTOR_SID);
-        new JdbcConnectorCodeGenerator(CodeGeneratorType.DATABASE_CONNECTOR_SERVICE_NAME);
-        new JdbcConnectorCodeGenerator(CodeGeneratorType.DATABASE_CONNECTOR_TNS);
         //...
     }
 
