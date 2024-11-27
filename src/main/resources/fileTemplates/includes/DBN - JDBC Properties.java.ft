@@ -8,5 +8,5 @@
         properties.put("$key", "$value");
     #end
 #else
-    // custom properties (e.g. properties.put("charset", "UTF8);)
+    // custom properties (e.g. properties.put("charset", "UTF-8");)
 #end

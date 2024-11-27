@@ -28,4 +28,6 @@
         String jdbcUrl = #if (${JDBC_URL_TYPE} == 'DATABASE')"jdbc:postgresql://" + host + ":" + port + "/" + database;#elseif (${JDBC_URL_TYPE} == 'CUSTOM')"${JDBC_URL}";#end
 #elseif(${DATABASE_TYPE} == 'SQLITE')
     String jdbcUrl = "${JDBC_URL}";
+#elseif(${DATABASE_TYPE} == 'GENERIC')
+    String jdbcUrl = "${JDBC_URL}";
 #end

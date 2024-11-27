@@ -1,9 +1,30 @@
+/*
+ * Copyright 2024 Oracle and/or its affiliates
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 #if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME};#end
+#if(${DATABASE_TYPE} == 'GENERIC')
+    #set($databaseType = "Custom")
+#else
+    #set($databaseType = "${DATABASE_TYPE}")
+#end
 
 import java.sql.Connection;
 import java.sql.Driver;
 import java.util.Properties;
 
+#parse("DBN - JDBC Doc ${DATABASE_TYPE}.java")
 public class ${CLASS_NAME}  {
     #parse("DBN - JDBC Constants.java")
 
@@ -16,7 +37,7 @@ public class ${CLASS_NAME}  {
         Properties properties = new Properties();
 
         // JDBC URL
-        // ${DATABASE_TYPE} jdbc url: ${JDBC_URL_PATTERN}
+        // $databaseType jdbc url: ${JDBC_URL_PATTERN}
         #parse("DBN - JDBC URL.java")
 
         // AUTHENTICATION
@@ -26,8 +47,8 @@ public class ${CLASS_NAME}  {
         #parse("DBN - JDBC Properties.java")
 
         // DRIVER
-        // ${DATABASE_TYPE} driver class: ${JDBC_DRIVER}
-        Class<? extends Driver> driverClass = ${JDBC_DRIVER}.class;
+        // $databaseType driver class "${JDBC_DRIVER}"
+        Class<? extends Driver> driverClass =#if (${JDBC_DRIVER}) ${JDBC_DRIVER}.class; #else null; // TODO specify driver class#end
         Driver driver = driverClass.getConstructor().newInstance();
 
         // CONNECTION

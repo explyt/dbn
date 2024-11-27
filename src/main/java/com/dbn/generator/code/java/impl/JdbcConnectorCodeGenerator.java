@@ -20,6 +20,8 @@ import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.outcome.OutcomeType;
+import com.dbn.connection.AuthenticationTokenType;
+import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
@@ -101,6 +103,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
         DatabaseInfo databaseInfo = databaseSettings.getDatabaseInfo();
         addProperty(properties, "JDBC_URL_TYPE", databaseInfo.getUrlType());
+        addProperty(properties, "JDBC_URL_TYPE_NAME", databaseInfo.getUrlType().getName());
         addProperty(properties, "HOST", databaseInfo.getHost());
         addProperty(properties, "PORT", databaseInfo.getPort());
         addProperty(properties, "DATABASE", databaseInfo.getDatabase());
@@ -108,8 +111,13 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "TNS_PROFILE", databaseInfo.getTnsProfile());
 
         AuthenticationInfo authenticationInfo = databaseSettings.getAuthenticationInfo();
-        addProperty(properties, "AUTH_TYPE", authenticationInfo.getType());
-        addProperty(properties, "AUTH_TOKEN_TYPE", authenticationInfo.getTokenType());
+        AuthenticationType authType = authenticationInfo.getType();
+        AuthenticationTokenType authTokenType = authenticationInfo.getTokenType();
+        addProperty(properties, "AUTH_TYPE", authType);
+        addProperty(properties, "AUTH_TYPE_NAME", authType == null ? null  :authType.getName());
+        addProperty(properties, "AUTH_TOKEN_TYPE", authTokenType);
+        addProperty(properties, "AUTH_TOKEN_TYPE_NAME", authTokenType == null ? null : authTokenType.getName());
+
         addProperty(properties, "USER_NAME", authenticationInfo.getUser());
         addProperty(properties, "PASSWORD", authenticationInfo.getPassword());
         addProperty(properties, "TOKEN_CONFIG_FILE", authenticationInfo.getTokenConfigFile());
