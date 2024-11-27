@@ -16,9 +16,6 @@
 
 package com.dbn.generator.code.shared;
 
-import com.dbn.common.outcome.OutcomeHandler;
-import com.dbn.common.outcome.OutcomeHandlers;
-import com.dbn.common.outcome.OutcomeType;
 import com.dbn.connection.context.DatabaseContext;
 
 /**
@@ -28,10 +25,6 @@ import com.dbn.connection.context.DatabaseContext;
  */
 public interface CodeGeneratorInput {
     DatabaseContext getDatabaseContext();
-
-    void addOutcomeHandler(OutcomeType outcomeType, OutcomeHandler handler);
-
-    OutcomeHandlers getOutcomeHandlers();
 
     void prepareDestination();
 }

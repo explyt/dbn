@@ -29,7 +29,8 @@
               <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Module"/>
+              <labelFor value="fa006"/>
+              <text value="&amp;Module"/>
             </properties>
           </component>
           <hspacer id="adc4a">
@@ -47,7 +48,8 @@
               <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Content Root"/>
+              <labelFor value="fad02"/>
+              <text value="Content &amp;Root"/>
             </properties>
           </component>
           <component id="fa006" class="javax.swing.JComboBox" binding="moduleComboBox">
@@ -75,7 +77,8 @@
               <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Java Package"/>
+              <labelFor value="c6b9"/>
+              <text value="Java &amp;Package"/>
             </properties>
           </component>
           <component id="50a79" class="javax.swing.JLabel">
@@ -83,7 +86,8 @@
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="Class Name"/>
+              <labelFor value="61a5d"/>
+              <text value="Java &amp;Class Name"/>
             </properties>
           </component>
           <component id="61a5d" class="javax.swing.JTextField" binding="classNameTextField">

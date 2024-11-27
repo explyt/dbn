@@ -29,10 +29,13 @@ public abstract class CodeGeneratorInputForm<I extends CodeGeneratorInput> exten
         this.input = input;
     }
 
-    public I getInput() {
-        applyFieldInput(input);
-        return input;
+    public final void applyUserInput() {
+        applyUserInput(input);
     }
 
-    protected abstract void applyFieldInput(I input);
+    /**
+     * Expected to apply all user inputs from the input-form fields to the {@link CodeGeneratorInput}
+     * @param input the
+     */
+    protected abstract void applyUserInput(I input);
 }

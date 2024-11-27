@@ -21,8 +21,8 @@ import com.dbn.common.project.ModulePresentable;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.ComboBoxes;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.CodeGenerationManager;
 import com.dbn.generator.code.CodeGeneratorCategory;
+import com.dbn.generator.code.CodeGeneratorManager;
 import com.dbn.generator.code.CodeGeneratorState;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGeneratorInput;
@@ -63,7 +63,7 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     public JavaCodeGeneratorInputForm(CodeGeneratorInputDialog dialog, I input) {
         super(dialog, input);
 
-        DatabaseContext databaseContext = input.getDatabaseContext();
+        DatabaseContext databaseContext = dialog.getContext().getDatabaseContext();
         DBNHeaderForm headerForm = new DBNHeaderForm(this, databaseContext);
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
         classNameTextField.setText(getGeneratorType().getFileName());
@@ -81,9 +81,9 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     private void initStatePersistence() {
         Project project = ensureProject();
         CodeGeneratorCategory generatorCategory = getGeneratorCategory();
-        CodeGenerationManager codeGenerationManager = CodeGenerationManager.getInstance(project);
+        CodeGeneratorManager codeGeneratorManager = CodeGeneratorManager.getInstance(project);
 
-        CodeGeneratorState state = codeGenerationManager.getState(generatorCategory);
+        CodeGeneratorState state = codeGeneratorManager.getState(generatorCategory);
 
         initPersistence(moduleComboBox,
                 () -> state.getAttribute("module-selection"),
@@ -120,7 +120,7 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         }
     }
 
-    protected void applyFieldInput(I input) {
+    protected void applyUserInput(I input) {
         input.setModuleName(getSelectedModuleName());
         input.setContentRoot(getSelectedContentPath());
         input.setPackageName(getPackageName());
@@ -166,6 +166,6 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
 
     private CodeGeneratorType getGeneratorType() {
         CodeGeneratorInputDialog dialog = ensureParentComponent();
-        return dialog.getCodeGenerator().getType();
+        return dialog.getContext().getType();
     }
 }

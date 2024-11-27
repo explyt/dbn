@@ -20,7 +20,8 @@ import com.dbn.common.outcome.Outcome;
 import com.dbn.common.outcome.OutcomeHandlers;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.CodeGenerationManager;
+import com.dbn.generator.code.CodeGeneratorContext;
+import com.dbn.generator.code.CodeGeneratorRegistry;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.shared.CodeGenerator;
 import com.dbn.generator.code.shared.CodeGeneratorInput;
@@ -40,23 +41,23 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
 
     public CodeGeneratorBase(CodeGeneratorType type) {
         this.type = type;
-        CodeGenerationManager.registerCodeGenerator(this);
+        CodeGeneratorRegistry.register(this);
     }
 
     @Override
-    public final R generateCode(I input) {
+    public final void generateCode(CodeGeneratorContext<I, R> context) {
+        I input = context.getInput();
         input.prepareDestination();
-        OutcomeHandlers outcomeHandlers = input.getOutcomeHandlers();
+        OutcomeHandlers outcomeHandlers = context.getOutcomeHandlers();
         try {
             R result = generateCode(input, input.getDatabaseContext());
             Outcome outcome = createOutcome(OutcomeType.SUCCESS, result, null);
             outcomeHandlers.handle(outcome);
-            return result;
+            context.setResult(result);
         } catch (Exception e){
             Outcome outcome = createOutcome(OutcomeType.FAILURE, null, e);
             outcomeHandlers.handle(outcome);
         }
-        return null;
     }
 
     private Outcome createOutcome(OutcomeType type, R result, Exception e) {

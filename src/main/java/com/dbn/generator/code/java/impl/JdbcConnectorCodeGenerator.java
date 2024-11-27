@@ -57,8 +57,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
     }
 
     @Override
-    public JdbcConnectorCodeGeneratorInput createInput(DatabaseContext context) {
-        return new JdbcConnectorCodeGeneratorInput(context);
+    public JdbcConnectorCodeGeneratorInput createInput(DatabaseContext databaseContext) {
+        return new JdbcConnectorCodeGeneratorInput(databaseContext);
     }
 
     @Override

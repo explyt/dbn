@@ -21,7 +21,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import java.util.List;
 
 /**
- * Result of the {@link CodeGenerator#generateCode(CodeGeneratorInput)}
+ * Result of the {@link CodeGenerator#generateCode(com.dbn.generator.code.CodeGeneratorContext)}
  * @param <I> the type of {@link CodeGeneratorInput} used to produce the result
  */
 public interface CodeGeneratorResult<I extends CodeGeneratorInput> {

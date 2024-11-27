@@ -17,78 +17,49 @@
 package com.dbn.generator.code.shared.ui;
 
 import com.dbn.common.outcome.DialogCloseOutcomeHandler;
-import com.dbn.common.outcome.MessageOutcomeHandler;
-import com.dbn.common.outcome.OutcomeHandler;
 import com.dbn.common.outcome.OutcomeType;
-import com.dbn.common.ref.WeakRef;
 import com.dbn.common.ui.dialog.DBNDialog;
-import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.CodeGenerationManager;
-import com.dbn.generator.code.shared.CodeGenerator;
-import com.dbn.generator.code.shared.CodeGeneratorInput;
-import com.dbn.generator.code.shared.CodeGeneratorResult;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.vfs.VirtualFile;
+import com.dbn.generator.code.CodeGeneratorContext;
+import com.dbn.generator.code.CodeGeneratorManager;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Action;
-import java.util.List;
-
-import static com.dbn.common.util.Editors.openFileEditor;
 
 @Getter
 public class CodeGeneratorInputDialog extends DBNDialog<CodeGeneratorInputForm> {
-    private final WeakRef<DatabaseContext>databaseContext;
-    private final CodeGenerator codeGenerator;
+    private final CodeGeneratorContext context;
 
-    public CodeGeneratorInputDialog(DatabaseContext databaseContext, CodeGenerator codeGenerator) {
-        super(databaseContext.getProject(), "Generate Code (" + codeGenerator.getType().getName() + ")", false);
-        this.databaseContext = WeakRef.of(databaseContext);
-        this.codeGenerator = codeGenerator;
+    public CodeGeneratorInputDialog(CodeGeneratorContext context) {
+        super(context.getProject(), "Generate Code (" + context.getGeneratorName() + ")", false);
+        this.context = context;
 
+        // add handler to close the dialog on success
+        this.context.addOutcomeHandler(OutcomeType.SUCCESS, DialogCloseOutcomeHandler.create(this));
         init();
     }
 
     @NotNull
     @Override
     protected CodeGeneratorInputForm createForm() {
-        CodeGeneratorInput input = createInput();
-        return codeGenerator.createInputForm(this, input);
-    }
-
-    private @NotNull CodeGeneratorInput createInput() {
-        Project project = getProject();
-        DatabaseContext databaseContext = getDatabaseContext();
-        CodeGeneratorInput input = codeGenerator.createInput(databaseContext);
-        input.addOutcomeHandler(OutcomeType.FAILURE, MessageOutcomeHandler.get(project));
-        input.addOutcomeHandler(OutcomeType.SUCCESS, DialogCloseOutcomeHandler.create(this));
-        input.addOutcomeHandler(OutcomeType.SUCCESS, createFilesOpener(project));
-        return input;
+        CodeGeneratorManager manager = getCodeGenerationManager();
+        return manager.createInputForm(this, context);
     }
 
     private void generateCode() {
-        Project project = getProject();
-        CodeGenerationManager codeGenerationManager = CodeGenerationManager.getInstance(project);
-        codeGenerationManager.generateCode(codeGenerator, getInput());
+        // apply the form field values to the input
+        CodeGeneratorInputForm inputForm = getForm();
+        inputForm.applyUserInput();
+
+        CodeGeneratorManager manager = getCodeGenerationManager();
+        manager.generateCode(context);
     }
 
     @NotNull
-    public DatabaseContext getDatabaseContext() {
-        return WeakRef.ensure(databaseContext);
+    private CodeGeneratorManager getCodeGenerationManager() {
+        return CodeGeneratorManager.getInstance(getProject());
     }
 
-    @NotNull
-    private static OutcomeHandler createFilesOpener(Project project) {
-        return (OutcomeHandler.LowPriority) outcome -> {
-            CodeGeneratorResult<?> data = outcome.getData();
-
-            List<VirtualFile> generatedFiles = data.getGeneratedFiles();
-            for (VirtualFile generatedFile : generatedFiles) {
-                openFileEditor(project, generatedFile, true);
-            }
-        };
-    }
 
     @NotNull
     @Override
@@ -101,9 +72,5 @@ public class CodeGeneratorInputDialog extends DBNDialog<CodeGeneratorInputForm> 
     @Override
     protected void doOKAction() {
         generateCode();
-    }
-
-    private CodeGeneratorInput getInput() {
-        return getForm().getInput();
     }
 }

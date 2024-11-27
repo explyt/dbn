@@ -16,10 +16,6 @@
 
 package com.dbn.generator.code.shared.base;
 
-import com.dbn.common.outcome.OutcomeHandler;
-import com.dbn.common.outcome.OutcomeHandlers;
-import com.dbn.common.outcome.OutcomeHandlersImpl;
-import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.shared.CodeGeneratorInput;
@@ -33,8 +29,6 @@ import static com.dbn.common.dispose.Failsafe.nd;
 @Getter
 public abstract class CodeGeneratorInputBase implements CodeGeneratorInput {
     private final WeakRef<DatabaseContext> databaseContext;
-    private final OutcomeHandlers outcomeHandlers = new OutcomeHandlersImpl();
-    // TODO consider making CodeGenerators stateful (e.g. add factories) and move outcome handlers to them
 
     protected CodeGeneratorInputBase(DatabaseContext databaseContext) {
         this.databaseContext = WeakRef.of(databaseContext);
@@ -43,12 +37,6 @@ public abstract class CodeGeneratorInputBase implements CodeGeneratorInput {
     @NotNull
     public DatabaseContext getDatabaseContext() {
         return WeakRef.ensure(databaseContext);
-    }
-
-    @Override
-    public final void addOutcomeHandler(OutcomeType outcomeType, OutcomeHandler handler) {
-        if (handler == null) return;
-        outcomeHandlers.addHandler(outcomeType, handler);
     }
 
     @NotNull

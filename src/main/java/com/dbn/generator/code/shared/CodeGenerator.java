@@ -17,6 +17,7 @@
 package com.dbn.generator.code.shared;
 
 import com.dbn.connection.context.DatabaseContext;
+import com.dbn.generator.code.CodeGeneratorContext;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
@@ -49,10 +50,11 @@ public interface CodeGenerator<I extends CodeGeneratorInput, R extends CodeGener
 
     /**
      * Creates an input for the code generator for a given database context
-     * @param context the {@link DatabaseContext} to create input for
+     *
+     * @param databaseContext the {@link DatabaseContext} to create input for
      * @return a {@link CodeGeneratorInput}
      */
-    I createInput(DatabaseContext context);
+    I createInput(DatabaseContext databaseContext);
 
     /**
      * Creates an input form for the user to enter the details for the code generator
@@ -64,13 +66,13 @@ public interface CodeGenerator<I extends CodeGeneratorInput, R extends CodeGener
     CodeGeneratorInputForm<I> createInputForm(CodeGeneratorInputDialog dialog, I input);
 
     /**
-     * The main utility of the code generator, accepting an input and producing a result
-     * The outcomes are reported back to the outcome handlers registered to the input (see {@link CodeGeneratorInput#getOutcomeHandlers()})
+     * The main utility of the code generator, accepting a {@link CodeGeneratorContext}.
+     * The context is expected to contain the {@link CodeGeneratorInput}
+     * The outcomes are reported back to the outcome handlers registered to the context (see {@link CodeGeneratorContext#getOutcomeHandlers()})
      *
-     * @param input the {@link CodeGeneratorInput}
-     * @return a {@link CodeGeneratorResult}
+     * @param context the {@link CodeGeneratorContext} that contains all the information necessary for code generation
      */
-    R generateCode(I input);
+    void generateCode(CodeGeneratorContext<I, R> context);
 
     /**
      * Creates an action that generates code for the given context

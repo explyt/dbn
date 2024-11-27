@@ -17,7 +17,7 @@
 package com.dbn.connection.action;
 
 import com.dbn.connection.ConnectionHandler;
-import com.dbn.generator.code.CodeGenerationManager;
+import com.dbn.generator.code.CodeGeneratorRegistry;
 import com.dbn.generator.code.shared.CodeGenerator;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -30,7 +30,7 @@ public class GenerateCodeActionGroup extends AbstractConnectionActionGroup {
     public GenerateCodeActionGroup(ConnectionHandler connection) {
         super("Generate Code", true,  connection);
 
-        List<CodeGenerator> codeGenerators = CodeGenerationManager.getCodeGenerators();
+        List<CodeGenerator> codeGenerators = CodeGeneratorRegistry.list();
         for (CodeGenerator codeGenerator : codeGenerators) {
             if (codeGenerator.supports(connection)) {
                 AnAction action = codeGenerator.createAction(connection);
@@ -40,7 +40,7 @@ public class GenerateCodeActionGroup extends AbstractConnectionActionGroup {
     }
 
     public static boolean supports(ConnectionHandler connection) {
-        List<CodeGenerator> codeGenerators = CodeGenerationManager.getCodeGenerators();
+        List<CodeGenerator> codeGenerators = CodeGeneratorRegistry.list();
         return codeGenerators.stream().anyMatch(g -> g.supports(connection));
     }
 

@@ -19,24 +19,25 @@ package com.dbn.generator.code;
 import com.dbn.DatabaseNavigator;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
+import com.dbn.common.outcome.MessageOutcomeHandler;
+import com.dbn.common.outcome.OutcomeHandler;
+import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.util.Dialogs;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.java.impl.JdbcConnectorCodeGenerator;
 import com.dbn.generator.code.shared.CodeGenerator;
 import com.dbn.generator.code.shared.CodeGeneratorInput;
+import com.dbn.generator.code.shared.CodeGeneratorResult;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
+import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.project.Project;
-import lombok.Getter;
-import lombok.Setter;
+import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,51 +46,69 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
-import static com.dbn.generator.code.CodeGenerationManager.COMPONENT_NAME;
+import static com.dbn.common.util.Editors.openFileEditor;
+import static com.dbn.generator.code.CodeGeneratorManager.COMPONENT_NAME;
 
 @State(
         name = COMPONENT_NAME,
         storages = @Storage(DatabaseNavigator.STORAGE_FILE)
 )
-@Getter
-@Setter
-public class CodeGenerationManager extends ProjectComponentBase implements PersistentState {
-    public static final String COMPONENT_NAME = "DBNavigator.Project.CodeGenerationManager";
-    private static final Map<CodeGeneratorType, CodeGenerator> CODE_GENERATORS = new LinkedHashMap<>();
-    static {
-        new JdbcConnectorCodeGenerator(CodeGeneratorType.DATABASE_CONNECTOR);
-        //...
-    }
+public class CodeGeneratorManager extends ProjectComponentBase implements PersistentState {
+    public static final String COMPONENT_NAME = "DBNavigator.Project.CodeGeneratorManager";
 
-    private Map<CodeGeneratorCategory, CodeGeneratorState> states = new ConcurrentHashMap<>();
+    private final Map<CodeGeneratorCategory, CodeGeneratorState> states = new ConcurrentHashMap<>();
 
-    private CodeGenerationManager(Project project) {
+    private CodeGeneratorManager(Project project) {
         super(project, COMPONENT_NAME);
     }
 
-    public static CodeGenerationManager getInstance(@NotNull Project project) {
-        return projectService(project, CodeGenerationManager.class);
+    public static CodeGeneratorManager getInstance(@NotNull Project project) {
+        return projectService(project, CodeGeneratorManager.class);
     }
 
-    public static void registerCodeGenerator(CodeGenerator codeGenerator) {
-        CODE_GENERATORS.put(codeGenerator.getType(), codeGenerator);
+    public void openCodeGenerator(CodeGeneratorType type, DatabaseContext databaseContext) {
+        CodeGeneratorContext context = createContext(type, databaseContext);
+        Dialogs.show(() -> new CodeGeneratorInputDialog(context));
     }
 
-    public void openCodeGenerator(CodeGeneratorType type, DatabaseContext context) {
-        CodeGenerator codeGenerator = getCodeGenerator(type);
-        Dialogs.show(() -> new CodeGeneratorInputDialog(context, codeGenerator));
+    @NotNull
+    private CodeGeneratorContext createContext(CodeGeneratorType type, DatabaseContext databaseContext) {
+        Project project = getProject();
+
+        // create and initialize context
+        CodeGeneratorContext context = new CodeGeneratorContext(type, databaseContext);
+        context.addOutcomeHandler(OutcomeType.FAILURE, MessageOutcomeHandler.get(project));
+        context.addOutcomeHandler(OutcomeType.SUCCESS, createFilesOpener(project));
+
+        // create empty input
+        CodeGenerator generator = context.getGenerator();
+        CodeGeneratorInput input = generator.createInput(databaseContext);
+        context.setInput(input);
+
+        return context;
     }
 
-    public void generateCode(CodeGenerator codeGenerator, CodeGeneratorInput input) {
-        WriteAction.run(() -> codeGenerator.generateCode(input));
+    public CodeGeneratorInputForm createInputForm(CodeGeneratorInputDialog dialog, CodeGeneratorContext context) {
+        CodeGeneratorInput input = context.getInput();
+        CodeGenerator generator = context.getGenerator();
+        return generator.createInputForm(dialog, input);
     }
 
-    private static CodeGenerator getCodeGenerator(CodeGeneratorType type) {
-        return CODE_GENERATORS.get(type);
+    public void generateCode(CodeGeneratorContext context) {
+        CodeGenerator generator = context.getGenerator();
+        WriteAction.run(() -> generator.generateCode(context));
     }
 
-    public static List<CodeGenerator> getCodeGenerators() {
-        return new ArrayList<>(CODE_GENERATORS.values());
+    @NotNull
+    private static OutcomeHandler createFilesOpener(Project project) {
+        return (OutcomeHandler.LowPriority) outcome -> {
+            CodeGeneratorResult<?> data = outcome.getData();
+
+            List<VirtualFile> generatedFiles = data.getGeneratedFiles();
+            for (VirtualFile generatedFile : generatedFiles) {
+                openFileEditor(project, generatedFile, true);
+            }
+        };
     }
 
     @NotNull

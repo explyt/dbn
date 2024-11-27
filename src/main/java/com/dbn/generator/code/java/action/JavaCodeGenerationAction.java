@@ -19,7 +19,7 @@ package com.dbn.generator.code.java.action;
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.connection.context.DatabaseContext;
-import com.dbn.generator.code.CodeGenerationManager;
+import com.dbn.generator.code.CodeGeneratorManager;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
@@ -38,7 +38,7 @@ public class JavaCodeGenerationAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        CodeGenerationManager manager = CodeGenerationManager.getInstance(project);
+        CodeGeneratorManager manager = CodeGeneratorManager.getInstance(project);
         manager.openCodeGenerator(type, getContext());
     }
 
