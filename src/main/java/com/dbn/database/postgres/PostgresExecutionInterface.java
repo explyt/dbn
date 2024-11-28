@@ -24,9 +24,11 @@ import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
 import com.dbn.database.common.DatabaseExecutionInterfaceImpl;
+import com.dbn.database.common.execution.JavaExecutionProcessor;
 import com.dbn.database.common.execution.MethodExecutionProcessor;
 import com.dbn.database.postgres.execution.PostgresMethodExecutionProcessor;
 import com.dbn.execution.script.CmdLineInterface;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,6 +45,9 @@ public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     public MethodExecutionProcessor createDebugExecutionProcessor(DBMethod method) {
         return null;
     }
+
+    @Override
+    public JavaExecutionProcessor createExecutionProcessor(DBJavaMethod method) {return null;}
 
     @Override
     public CmdLineExecutionInput createScriptExecutionInput(@NotNull CmdLineInterface cmdLineInterface, @NotNull String filePath, String content, @Nullable SchemaId schemaId, @NotNull DatabaseInfo databaseInfo, @NotNull AuthenticationInfo authenticationInfo) {

@@ -20,6 +20,8 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.editor.DBContentType;
 import com.dbn.execution.compiler.action.CompileActionGroup;
+import com.dbn.execution.java.action.JavaObjectRunAction;
+import com.dbn.execution.java.action.JavaRunAction;
 import com.dbn.execution.method.action.MethodDebugAction;
 import com.dbn.execution.method.action.MethodRunAction;
 import com.dbn.execution.method.action.ProgramMethodDebugAction;
@@ -27,6 +29,8 @@ import com.dbn.execution.method.action.ProgramMethodRunAction;
 import com.dbn.generator.action.GenerateStatementActionGroup;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
@@ -95,6 +99,16 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
             if (DatabaseFeature.DEBUGGING.isSupported(object)) {
                 add(new MethodDebugAction(method, false));
             }
+        }
+
+        if(object instanceof DBJavaMethod){
+            DBJavaMethod method = (DBJavaMethod) object;
+            add(new JavaRunAction(method, false));
+        }
+
+        if (object instanceof DBJavaClass && object.is(SCHEMA_OBJECT)) {
+            addSeparator();
+            add(new JavaObjectRunAction((DBJavaClass) object));
         }
 
         if (object instanceof DBProgram && object.is(SCHEMA_OBJECT)) {
