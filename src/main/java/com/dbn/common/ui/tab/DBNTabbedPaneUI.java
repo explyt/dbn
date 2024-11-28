@@ -99,6 +99,7 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     private int hoverTab = -1;
     private boolean tabsOverlapBorder;
+    private boolean validating;
     private Color tabHoverColor;
 
     private PropertyChangeListener propertyChangeListener;
@@ -290,6 +291,8 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     @Override
     public int tabForCoordinate(JTabbedPane pane, int x, int y) {
+        if (!pane.isValid()) return -1;
+
         // prevent tab switch on right mouse click if showing popup
         if (getTabPane().isShowingPopup()) return -1;
 
