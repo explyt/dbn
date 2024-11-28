@@ -109,7 +109,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
      */
     public boolean hasUserInformation() {
         if (type == OS_CREDENTIALS) return true;
-        if (type.isOneOf(USER, USER_PASSWORD)) return Strings.isNotEmpty(user);
+        if (type.isOneOf(USER, USER_PASSWORD)) return isNotEmpty(user);
 
         return false;
     }
@@ -172,7 +172,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         setString(element, "user", nvl(user));
 
         String encodedPassword = Passwords.encodePassword(password);
-        if (!DatabaseCredentialManager.USE){
+        if (!DatabaseCredentialManager.USE || true){ // TODO cleanup (retaining passwords until PwdSafe is implemented)
             setString(element, TEMP_PWD_ATTRIBUTE, encodedPassword);
         }
 

@@ -28,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 import static com.dbn.common.component.Components.applicationService;
 
 public class DatabaseCredentialManager extends ApplicationComponentBase {
-    public static boolean USE = false;
+    public static boolean USE = true;
 
     public DatabaseCredentialManager() {
         super("DBNavigator.DatabaseCredentialManager");
@@ -39,11 +39,11 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     }
 
 
-    public void removePassword(@NotNull ConnectionId connectionId, @NotNull String userName) {
+    public void removePassword(@NotNull ConnectionId connectionId, @Nullable String userName) {
         setPassword(connectionId, userName, null);
     }
 
-    public void setPassword(@NotNull ConnectionId connectionId, @NotNull String userName, @Nullable String password) {
+    public void setPassword(@NotNull ConnectionId connectionId, @Nullable String userName, @Nullable String password) {
         CredentialAttributes credentialAttributes = createCredentialAttributes(connectionId, userName);
         Credentials credentials = Strings.isEmpty(password) ? null : new Credentials(userName, password);
 
@@ -52,7 +52,7 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     }
 
     @Nullable
-    public String getPassword(@NotNull ConnectionId connectionId, @NotNull String userName) {
+    public String getPassword(@NotNull ConnectionId connectionId, String userName) {
         CredentialAttributes credentialAttributes = createCredentialAttributes(connectionId, userName);
 
         PasswordSafe passwordSafe = PasswordSafe.getInstance();
