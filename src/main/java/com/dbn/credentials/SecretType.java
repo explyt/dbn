@@ -16,8 +16,12 @@
 
 package com.dbn.credentials;
 
-public enum CredentialServiceType {
-    CONNECTION,  // connection passwords
-    SSH_TUNNEL,  // passwords for SSH tunnels
-    ASSISTANT    // database assistant credential tokens
+/**
+ * Secret type classification used to uniquely identify secret tokens stored in {@link com.intellij.ide.passwordSafe.PasswordSafe}
+ */
+public enum SecretType {
+    CONNECTION_PASSWORD,   // connection passwords
+    SSH_TUNNEL_PASSWORD,   // passwords for SSH tunnels
+    SSH_TUNNEL_PASSPHRASE, // passwords for SSH tunnels
+    ASSISTANT_API_TOKEN    // database assistant credential tokens
 }

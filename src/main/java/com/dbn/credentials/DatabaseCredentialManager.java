@@ -18,22 +18,23 @@ package com.dbn.credentials;
 
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.component.ApplicationComponentBase;
-import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.thread.Background;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.credentialStore.OneTimeString;
 import com.intellij.ide.passwordSafe.PasswordSafe;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import java.net.PasswordAuthentication;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static com.dbn.common.component.Components.applicationService;
-import static com.dbn.common.database.AuthenticationInfo.EMPTY_PASSWORD;
 import static com.dbn.common.util.Commons.match;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.credentials.Secret.EMPTY;
 
+@Slf4j
 public class DatabaseCredentialManager extends ApplicationComponentBase {
 
     public DatabaseCredentialManager() {
@@ -44,60 +45,86 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
         return applicationService(DatabaseCredentialManager.class);
     }
 
-    public void replacePassword(@NotNull CredentialServiceType serviceType, @NotNull Object serviceId, PasswordAuthentication oldAuth, PasswordAuthentication newAuth) {
-        String oldUserName = oldAuth.getUserName();
-        char[] oldPassword = oldAuth.getPassword();
-
-        String newUserName = newAuth.getUserName();
-        char[] newPassword = newAuth.getPassword();
-
-        boolean userNameChanged = !match(oldUserName, newUserName);
-        boolean passwordChanged = !Arrays.equals(oldPassword, newPassword);
-        if (userNameChanged || passwordChanged) {
-
-            if (userNameChanged) {
-                // clear the old authentication data
-                oldAuth = new PasswordAuthentication(oldUserName, EMPTY_PASSWORD);
-                uploadPassword(serviceType, serviceId, oldAuth);
-            }
-
-            if (passwordChanged) {
-                uploadPassword(serviceType, serviceId, newAuth);
-            }
+    public void replaceSecrets(@NotNull Object id, Secret[] oldSecrets, Secret[] newSecrets) {
+        for (int i = 0; i < oldSecrets.length; i++) {
+            Secret oldSecret = oldSecrets[i];
+            Secret newSecret = newSecrets[i];
+            replaceSecret(id, oldSecret, newSecret);
         }
     }
 
-    public void uploadPassword(@NotNull CredentialServiceType serviceType, @NotNull Object serviceId, @NotNull PasswordAuthentication auth) {
+    public void replaceSecret(@NotNull Object id, Secret oldSecret, Secret newSecret) {
+        if (Objects.equals(oldSecret, newSecret)) return;
+
+        String oldUser = oldSecret.getUser();
+        String newUser = newSecret.getUser();
+
+        char[] oldToken = oldSecret.getToken();
+        char[] newToken = newSecret.getToken();
+
+        boolean userChanged = !match(oldUser, newUser);
+        boolean tokenChanged = !Arrays.equals(oldToken, newToken);
+
+        if (userChanged) {
+            // clear the old secret
+            Secret emptySecret = new Secret(oldSecret.getType(), oldUser, EMPTY);
+            uploadSecret(id, emptySecret);
+        }
+
+        if (tokenChanged) {
+            uploadSecret(id, newSecret);
+        }
+    }
+
+    public void uploadSecret(@NotNull Object id, @NotNull Secret secret) {
         // background update to circumvent slow-ops assertions
-        Background.run(null, () -> storePassword(serviceType, serviceId, auth));
+        Background.run(null, () -> storeSecret(id, secret));
     }
 
-    public void storePassword(@NotNull CredentialServiceType serviceType, @NotNull Object serviceId, @NotNull PasswordAuthentication auth) {
-        String userName = auth.getUserName();
-        char[] password = auth.getPassword();
+    public void storeSecret(@NotNull Object id, @NotNull Secret secret) {
+        try {
+            SecretType type = secret.getType();
+            String user = secret.getUser();
+            char[] token = secret.getToken();
 
-        CredentialAttributes credentialAttributes = createAttributes(serviceType, serviceId, userName);
-        Credentials credentials = password.length == 0 ? null : new Credentials(userName, password);
+            CredentialAttributes credentialAttributes = createAttributes(type, id, user);
+            Credentials credentials = token.length == 0 ? null : new Credentials(user, token);
 
-        PasswordSafe passwordSafe = PasswordSafe.getInstance();
-        passwordSafe.set(credentialAttributes, credentials, false);
+            PasswordSafe passwordSafe = PasswordSafe.getInstance();
+            passwordSafe.set(credentialAttributes, credentials, false);
+            log.info("Saved secret {}", secret);
+        } catch (Throwable e) {
+            log.error("Failed to save secret {}", secret, e);
+        }
     }
 
-    public char[] loadPassword(@NotNull CredentialServiceType serviceType, @NotNull Object serviceId, String userName) {
-        CredentialAttributes credentialAttributes = createAttributes(serviceType, serviceId, userName);
+    @NotNull
+    public Secret loadSecret(@NotNull SecretType type, @NotNull Object id, String user) {
+        Secret secret;
+        try {
+            CredentialAttributes credentialAttributes = createAttributes(type, id, user);
 
-        PasswordSafe passwordSafe = PasswordSafe.getInstance();
-        Credentials credentials = passwordSafe.get(credentialAttributes);
-        OneTimeString password = credentials == null ? null : credentials.getPassword();
-        return password == null ? AuthenticationInfo.EMPTY_PASSWORD : password.toCharArray() ;
+            PasswordSafe passwordSafe = PasswordSafe.getInstance();
+            Credentials credentials = passwordSafe.get(credentialAttributes);
+            OneTimeString password = credentials == null ? null : credentials.getPassword();
+            char[] token = password == null ? EMPTY : password.toCharArray();
+
+            secret = new Secret(type, user, token);
+            log.info("Loaded secret {}", secret);
+
+        } catch (Exception e) {
+            secret = new Secret(type, user, EMPTY);
+            log.error("Failed to load secret {}", secret, e);
+        }
+        return secret;
     }
 
     @NotNull
     @Compatibility
-    private static CredentialAttributes createAttributes(CredentialServiceType serviceType, Object serviceId, String userName) {
-        userName = nvl(userName, "default");
-        String service = "DBNavigator." + serviceType + "." + serviceId;
-        return new CredentialAttributes(service, userName, DatabaseCredentialManager.class, false);
+    private static CredentialAttributes createAttributes(SecretType secretType, Object secretId, String user) {
+        user = nvl(user, "default");
+        String serviceName = "DBNavigator." + secretType + "." + secretId;
+        return new CredentialAttributes(serviceName, user, DatabaseCredentialManager.class, false);
     }
 
     private boolean isMemoryStorage() {

@@ -26,6 +26,7 @@ import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
 @UtilityClass
+@Deprecated // TODO remove after subsequent release (passwords moved to IDE keychain, no longer stored to xml configuration)
 public final class Passwords {
 
     public static String encodePassword(String password) {

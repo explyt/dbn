@@ -18,7 +18,6 @@ package com.dbn.common.database;
 
 import com.dbn.common.constant.Constants;
 import com.dbn.common.options.BasicConfiguration;
-import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.TimeAware;
@@ -28,19 +27,19 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.Passwords;
 import com.dbn.credentials.DatabaseCredentialManager;
+import com.dbn.credentials.Secret;
+import com.dbn.credentials.SecretHolder;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
+import org.jetbrains.annotations.NotNull;
 
-import java.net.PasswordAuthentication;
 import java.util.Objects;
 
 import static com.dbn.common.database.AuthenticationInfo.Attributes.DEPRECATED_PWD_ATTRIBUTE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
-import static com.dbn.common.options.ConfigActivity.APPLYING;
-import static com.dbn.common.options.ConfigActivity.CLONING;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
@@ -51,12 +50,11 @@ import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
 import static com.dbn.connection.AuthenticationType.USER;
 import static com.dbn.connection.AuthenticationType.USER_PASSWORD;
-import static com.dbn.credentials.CredentialServiceType.CONNECTION;
+import static com.dbn.credentials.SecretType.CONNECTION_PASSWORD;
 
 @Getter
 @Setter
-public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<AuthenticationInfo>, TimeAware {
-    public static final char[] EMPTY_PASSWORD = new char[0];
+public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<AuthenticationInfo>, TimeAware, SecretHolder {
 
     interface Attributes {
         String TOKEN_TYPE = "token-type";
@@ -132,11 +130,6 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     	}
     }
 
-    public PasswordAuthentication getPasswordAuthentication() {
-        char[] password = this.password == null ? EMPTY_PASSWORD : this.password.toCharArray();
-        return new PasswordAuthentication(user, password);
-    }
-
     @Override
     public void readConfiguration(Element element) {
         type = getEnum(element, "type", type);
@@ -185,10 +178,6 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         setString(element, TOKEN_PROFILE, tokenProfile);
     }
 
-    private static boolean isTransientContext() {
-        return ConfigMonitor.is(CLONING) || ConfigMonitor.is(APPLYING);
-    }
-
     @Deprecated // temporarily support old storage - TODO cleanup in subsequent release
     private void restorePassword(Element element) {
         if (type != USER_PASSWORD) return;
@@ -198,11 +187,10 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
             // password still in old config store
             if (isNotEmpty(user) && isNotEmpty(password)) {
                 DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-                credentialManager.uploadPassword(CONNECTION, getConnectionId(), getPasswordAuthentication());
+                credentialManager.uploadSecret(getConnectionId(), createPasswordSecret());
             }
         }
     }
-
 
     @Override
     public AuthenticationInfo clone() {
@@ -238,5 +226,33 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
     public int hashCode() {
         // lombok override (avoid using accessors / exclude irrelevant timestamp and temporary flag)
         return Objects.hash(type, user, password, tokenType, tokenConfigFile, tokenProfile);
+    }
+
+    /*********************************************************
+     *                     SecretHolder                      *
+     *********************************************************/
+
+    @NotNull
+    @Override
+    public Object getSecretId() {
+        return getConnectionId();
+    }
+
+    @Override
+    public Secret[] createSecrets() {
+        return new Secret[] {createPasswordSecret()};
+    }
+
+    private Secret createPasswordSecret() {
+        char[] password = this.password == null ? Secret.EMPTY : this.password.toCharArray();
+        return new Secret(CONNECTION_PASSWORD, user, password);
+    }
+
+    public void initSecrets() {
+        if (type == AuthenticationType.USER_PASSWORD) {
+            DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+            Secret secret = credentialManager.loadSecret(CONNECTION_PASSWORD, getConnectionId(), user);
+            this.password = secret.getStringToken();
+        }
     }
 }

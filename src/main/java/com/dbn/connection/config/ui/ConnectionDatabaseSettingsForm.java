@@ -40,7 +40,7 @@ import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
-import com.dbn.credentials.DatabaseCredentialManager;
+import com.dbn.credentials.Secret;
 import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -59,13 +59,11 @@ import javax.swing.text.Document;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionListener;
-import java.net.PasswordAuthentication;
 import java.util.Objects;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
-import static com.dbn.credentials.CredentialServiceType.CONNECTION;
 import static java.awt.event.KeyEvent.VK_UNDEFINED;
 
 @SuppressWarnings("unused")
@@ -274,17 +272,15 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
         // create snapshot of earlier authentication
         AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
-        PasswordAuthentication oldAuthentication = authenticationInfo.getPasswordAuthentication();
+        Secret[] oldSecrets = authenticationInfo.createSecrets();
 
         // apply changes and create snapshot of new authentication
         authSettingsForm.applyFormChanges(authenticationInfo);
-        PasswordAuthentication newAuthentication = authenticationInfo.getPasswordAuthentication();
+        Secret[] newSecrets  = authenticationInfo.createSecrets();
 
         if (!authenticationInfo.isTemporary()) {
             // update password store if authentication info is not marked as temporary
-            ConnectionId connectionId = authenticationInfo.getConnectionId();
-            DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-            credentialManager.replacePassword(CONNECTION, connectionId, oldAuthentication, newAuthentication);
+            authenticationInfo.saveSecrets(oldSecrets);
         }
 
         configuration.setDriverSource(driverSettingsForm.getDriverSource());
