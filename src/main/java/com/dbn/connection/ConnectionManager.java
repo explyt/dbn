@@ -49,6 +49,7 @@ import com.dbn.connection.transaction.DatabaseTransactionManager;
 import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.ui.IdleConnectionDialog;
 import com.dbn.connection.ui.ConnectionAuthenticationDialog;
+import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.execution.ExecutionManager;
 import com.dbn.execution.method.MethodExecutionManager;
 import com.dbn.options.ConfigId;
@@ -67,6 +68,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.net.PasswordAuthentication;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -82,6 +84,7 @@ import static com.dbn.common.util.Messages.showErrorDialog;
 import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.connection.transaction.TransactionAction.actions;
+import static com.dbn.credentials.CredentialServiceType.CONNECTION;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -400,18 +403,15 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                         AuthenticationInfo storedAuthenticationInfo = connection.getAuthenticationInfo();
 
                         if (dialog.isRememberCredentials()) {
-                            String oldUser = storedAuthenticationInfo.getUser();
-                            String oldPassword = storedAuthenticationInfo.getPassword();
+                            // create snapshots of both "previous" and "updated" authentication
+                            PasswordAuthentication oldAuth = storedAuthenticationInfo.getPasswordAuthentication();
+                            PasswordAuthentication newAuth = newAuthenticationInfo.getPasswordAuthentication();
 
-                            storedAuthenticationInfo.setType(newAuthenticationInfo.getType());
-                            storedAuthenticationInfo.setUser(newAuthenticationInfo.getUser());
-                            storedAuthenticationInfo.setPassword(newAuthenticationInfo.getPassword());
+                            storedAuthenticationInfo.updateWith(newAuthenticationInfo);
 
-                            storedAuthenticationInfo.setTokenConfigFile(newAuthenticationInfo.getTokenConfigFile());
-                            storedAuthenticationInfo.setTokenProfile(newAuthenticationInfo.getTokenProfile());
-                            storedAuthenticationInfo.setTokenType(newAuthenticationInfo.getTokenType());
-
-                            storedAuthenticationInfo.updateKeyChain(oldUser, oldPassword);
+                            ConnectionId connectionId = connection.getConnectionId();
+                            DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+                            credentialManager.replacePassword(CONNECTION, connectionId, oldAuth, newAuth);
                         } else {
                             AuthenticationInfo temporaryAuthenticationInfo = newAuthenticationInfo.clone();
                             temporaryAuthenticationInfo.setTemporary(true);

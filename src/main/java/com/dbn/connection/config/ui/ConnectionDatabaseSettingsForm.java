@@ -21,7 +21,6 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.options.ConfigurationHandle;
 import com.dbn.common.options.SettingsChangeNotifier;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
@@ -41,6 +40,7 @@ import com.dbn.connection.config.ConnectionConfigType;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.ConnectionSettings;
 import com.dbn.connection.config.file.DatabaseFileBundle;
+import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.driver.DriverSource;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
@@ -59,11 +59,13 @@ import javax.swing.text.Document;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionListener;
+import java.net.PasswordAuthentication;
 import java.util.Objects;
 
 import static com.dbn.common.ui.util.ComboBoxes.getSelection;
 import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.setSelection;
+import static com.dbn.credentials.CredentialServiceType.CONNECTION;
 import static java.awt.event.KeyEvent.VK_UNDEFINED;
 
 @SuppressWarnings("unused")
@@ -270,14 +272,19 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
             databaseInfo.setDatabase(urlSettingsForm.getDatabase());
         }
 
+        // create snapshot of earlier authentication
         AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
-        String oldUserName = authenticationInfo.getUser();
-        String oldPassword = authenticationInfo.getPassword();
-        String oldConfigFile = authenticationInfo.getTokenConfigFile();
-        String oldProfile = authenticationInfo.getTokenProfile();
+        PasswordAuthentication oldAuthentication = authenticationInfo.getPasswordAuthentication();
+
+        // apply changes and create snapshot of new authentication
         authSettingsForm.applyFormChanges(authenticationInfo);
-        if (!ConfigurationHandle.isTransitory()) {
-            authenticationInfo.updateKeyChain(oldUserName, oldPassword);
+        PasswordAuthentication newAuthentication = authenticationInfo.getPasswordAuthentication();
+
+        if (!authenticationInfo.isTemporary()) {
+            // update password store if authentication info is not marked as temporary
+            ConnectionId connectionId = authenticationInfo.getConnectionId();
+            DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+            credentialManager.replacePassword(CONNECTION, connectionId, oldAuthentication, newAuthentication);
         }
 
         configuration.setDriverSource(driverSettingsForm.getDriverSource());

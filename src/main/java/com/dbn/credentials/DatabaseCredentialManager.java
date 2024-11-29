@@ -16,19 +16,25 @@
 
 package com.dbn.credentials;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.component.ApplicationComponentBase;
-import com.dbn.common.util.Strings;
-import com.dbn.connection.ConnectionId;
+import com.dbn.common.database.AuthenticationInfo;
+import com.dbn.common.thread.Background;
 import com.intellij.credentialStore.CredentialAttributes;
 import com.intellij.credentialStore.Credentials;
+import com.intellij.credentialStore.OneTimeString;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+
+import java.net.PasswordAuthentication;
+import java.util.Arrays;
 
 import static com.dbn.common.component.Components.applicationService;
+import static com.dbn.common.database.AuthenticationInfo.EMPTY_PASSWORD;
+import static com.dbn.common.util.Commons.match;
+import static com.dbn.common.util.Commons.nvl;
 
 public class DatabaseCredentialManager extends ApplicationComponentBase {
-    public static boolean USE = true;
 
     public DatabaseCredentialManager() {
         super("DBNavigator.DatabaseCredentialManager");
@@ -38,32 +44,60 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
         return applicationService(DatabaseCredentialManager.class);
     }
 
+    public void replacePassword(@NotNull CredentialServiceType serviceType, @NotNull Object serviceId, PasswordAuthentication oldAuth, PasswordAuthentication newAuth) {
+        String oldUserName = oldAuth.getUserName();
+        char[] oldPassword = oldAuth.getPassword();
 
-    public void removePassword(@NotNull ConnectionId connectionId, @Nullable String userName) {
-        setPassword(connectionId, userName, null);
+        String newUserName = newAuth.getUserName();
+        char[] newPassword = newAuth.getPassword();
+
+        boolean userNameChanged = !match(oldUserName, newUserName);
+        boolean passwordChanged = !Arrays.equals(oldPassword, newPassword);
+        if (userNameChanged || passwordChanged) {
+
+            if (userNameChanged) {
+                // clear the old authentication data
+                oldAuth = new PasswordAuthentication(oldUserName, EMPTY_PASSWORD);
+                uploadPassword(serviceType, serviceId, oldAuth);
+            }
+
+            if (passwordChanged) {
+                uploadPassword(serviceType, serviceId, newAuth);
+            }
+        }
     }
 
-    public void setPassword(@NotNull ConnectionId connectionId, @Nullable String userName, @Nullable String password) {
-        CredentialAttributes credentialAttributes = createCredentialAttributes(connectionId, userName);
-        Credentials credentials = Strings.isEmpty(password) ? null : new Credentials(userName, password);
+    public void uploadPassword(@NotNull CredentialServiceType serviceType, @NotNull Object serviceId, @NotNull PasswordAuthentication auth) {
+        // background update to circumvent slow-ops assertions
+        Background.run(null, () -> storePassword(serviceType, serviceId, auth));
+    }
+
+    public void storePassword(@NotNull CredentialServiceType serviceType, @NotNull Object serviceId, @NotNull PasswordAuthentication auth) {
+        String userName = auth.getUserName();
+        char[] password = auth.getPassword();
+
+        CredentialAttributes credentialAttributes = createAttributes(serviceType, serviceId, userName);
+        Credentials credentials = password.length == 0 ? null : new Credentials(userName, password);
 
         PasswordSafe passwordSafe = PasswordSafe.getInstance();
         passwordSafe.set(credentialAttributes, credentials, false);
     }
 
-    @Nullable
-    public String getPassword(@NotNull ConnectionId connectionId, String userName) {
-        CredentialAttributes credentialAttributes = createCredentialAttributes(connectionId, userName);
+    public char[] loadPassword(@NotNull CredentialServiceType serviceType, @NotNull Object serviceId, String userName) {
+        CredentialAttributes credentialAttributes = createAttributes(serviceType, serviceId, userName);
 
         PasswordSafe passwordSafe = PasswordSafe.getInstance();
         Credentials credentials = passwordSafe.get(credentialAttributes);
-        return credentials == null ? null : credentials.getPasswordAsString() ;
+        OneTimeString password = credentials == null ? null : credentials.getPassword();
+        return password == null ? AuthenticationInfo.EMPTY_PASSWORD : password.toCharArray() ;
     }
 
     @NotNull
-    private CredentialAttributes createCredentialAttributes(ConnectionId connectionId, String userName) {
-        String serviceName = "DBNavigator.Connection." + connectionId;
-        return new CredentialAttributes(serviceName, userName, this.getClass(), false);
+    @Compatibility
+    private static CredentialAttributes createAttributes(CredentialServiceType serviceType, Object serviceId, String userName) {
+        userName = nvl(userName, "default");
+        String service = "DBNavigator." + serviceType + "." + serviceId;
+        return new CredentialAttributes(service, userName, DatabaseCredentialManager.class, false);
     }
 
     private boolean isMemoryStorage() {

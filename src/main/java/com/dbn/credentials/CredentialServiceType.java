@@ -14,21 +14,10 @@
  * limitations under the License.
  */
 
-package com.dbn.common.options;
+package com.dbn.credentials;
 
-public abstract class SettingsChangeNotifier {
-    private SettingsChangeNotifier() {
-        ConfigMonitor.registerChangeNotifier(this);
-    }
-
-    public abstract void notifyChanges();
-
-    public static void register(Runnable runnable) {
-        new SettingsChangeNotifier() {
-            @Override
-            public void notifyChanges() {
-                runnable.run();
-            }
-        };
-    }
+public enum CredentialServiceType {
+    CONNECTION,  // connection passwords
+    SSH_TUNNEL,  // passwords for SSH tunnels
+    ASSISTANT    // database assistant credential tokens
 }
