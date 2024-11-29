@@ -147,12 +147,11 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         ConnectionHandler connection = getConnection(connectionId);
         if (connection == null) return;
 
-        Project project = getProject();
-        Background.run(project, () -> {
+        Background.run(() -> {
             connection.resetCompatibilityMonitor();
             List<TransactionAction> actions = actions(TransactionAction.DISCONNECT);
 
-            DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(project);
+            DatabaseTransactionManager transactionManager = DatabaseTransactionManager.getInstance(getProject());
             List<DBNConnection> connections = connection.getConnections();
             for (DBNConnection conn : connections) {
                 transactionManager.execute(connection, conn, actions, false, null);
@@ -519,7 +518,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
             MethodExecutionManager methodExecutionManager = MethodExecutionManager.getInstance(project);
             methodExecutionManager.cleanupExecutionHistory(connectionIds);
 
-            Background.run(project, () -> {
+            Background.run(() -> {
                 for (ConnectionHandler connection : connections) {
                     connection.getConnectionPool().closeConnections();
                     Disposer.dispose(connection);

@@ -47,15 +47,15 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     }
 
     public void queueSecretsInsert(@NotNull Object ownerId, @NotNull Secret ... secrets) {
-        Background.run(null, () -> insertSecrets(ownerId, secrets));
+        Background.run(() -> insertSecrets(ownerId, secrets));
     }
 
     public void queueSecretsRemove(@NotNull Object ownerId, @NotNull Secret ... secrets) {
-        Background.run(null, () -> removeSecrets(ownerId, secrets));
+        Background.run(() -> removeSecrets(ownerId, secrets));
     }
 
     public void queueSecretsUpdate(@NotNull Object ownerId, @Nullable Secret[] oldSecrets, @NotNull Secret[] newSecrets) {
-        Background.run(null, () -> updateSecrets(ownerId, oldSecrets, newSecrets));
+        Background.run(() -> updateSecrets(ownerId, oldSecrets, newSecrets));
     }
 
     public void insertSecrets(@NotNull Object ownerId, @NotNull Secret ... secrets) {
