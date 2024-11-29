@@ -402,10 +402,10 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
 
                         if (dialog.isRememberCredentials()) {
                             // create snapshot of previous authentication secrets
-                            Secret[] oldSecrets = storedAuthenticationInfo.createSecrets();
+                            Secret[] oldSecrets = storedAuthenticationInfo.getSecrets();
 
                             storedAuthenticationInfo.updateWith(newAuthenticationInfo);
-                            storedAuthenticationInfo.saveSecrets(oldSecrets);
+                            storedAuthenticationInfo.updateSecrets(oldSecrets);
                         } else {
                             AuthenticationInfo temporaryAuthenticationInfo = newAuthenticationInfo.clone();
                             temporaryAuthenticationInfo.setTemporary(true);

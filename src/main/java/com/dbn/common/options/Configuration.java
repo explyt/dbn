@@ -24,8 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Failsafe.nd;
-import static com.dbn.common.options.ConfigActivity.APPLYING;
-import static com.dbn.common.options.ConfigActivity.CLONING;
 import static com.dbn.common.util.Unsafe.cast;
 
 public interface Configuration<P extends Configuration, E extends ConfigurationEditorForm>
@@ -41,10 +39,6 @@ public interface Configuration<P extends Configuration, E extends ConfigurationE
         if (type.isAssignableFrom(parent.getClass())) return cast(parent);
 
         return cast(parent.getParentOfType(type));
-    }
-
-    default boolean isTransientContext() {
-        return ConfigMonitor.is(CLONING) || ConfigMonitor.is(APPLYING);
     }
 
     @NotNull

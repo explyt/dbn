@@ -25,6 +25,7 @@ import com.intellij.credentialStore.OneTimeString;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -45,64 +46,79 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
         return applicationService(DatabaseCredentialManager.class);
     }
 
-    public void replaceSecrets(@NotNull Object id, Secret[] oldSecrets, Secret[] newSecrets) {
-        for (int i = 0; i < oldSecrets.length; i++) {
+    public void queueSecretsInsert(@NotNull Object ownerId, @NotNull Secret ... secrets) {
+        Background.run(null, () -> insertSecrets(ownerId, secrets));
+    }
+
+    public void queueSecretsRemove(@NotNull Object ownerId, @NotNull Secret ... secrets) {
+        Background.run(null, () -> removeSecrets(ownerId, secrets));
+    }
+
+    public void queueSecretsUpdate(@NotNull Object ownerId, @Nullable Secret[] oldSecrets, @NotNull Secret[] newSecrets) {
+        Background.run(null, () -> updateSecrets(ownerId, oldSecrets, newSecrets));
+    }
+
+    public void insertSecrets(@NotNull Object ownerId, @NotNull Secret ... secrets) {
+        Arrays.stream(secrets).forEach(s -> storeSecret(ownerId, s));
+    }
+
+    public void removeSecrets(@NotNull Object ownerId, @NotNull Secret ... secrets) {
+        Arrays.stream(secrets).forEach(s -> removeSecret(ownerId, s));
+    }
+
+    public void updateSecrets(@NotNull Object ownerId, @Nullable Secret[] oldSecrets, @NotNull Secret[] newSecrets) {
+        if (oldSecrets == null) {
+            insertSecrets(ownerId, newSecrets);
+            return;
+        }
+
+        for (int i = 0; i < newSecrets.length; i++) {
             Secret oldSecret = oldSecrets[i];
             Secret newSecret = newSecrets[i];
-            replaceSecret(id, oldSecret, newSecret);
+            updateSecret(ownerId, oldSecret, newSecret);
         }
     }
 
-    public void replaceSecret(@NotNull Object id, Secret oldSecret, Secret newSecret) {
+    public void updateSecret(@NotNull Object ownerId, Secret oldSecret, Secret newSecret) {
         if (Objects.equals(oldSecret, newSecret)) return;
 
-        String oldUser = oldSecret.getUser();
-        String newUser = newSecret.getUser();
-
-        char[] oldToken = oldSecret.getToken();
-        char[] newToken = newSecret.getToken();
-
-        boolean userChanged = !match(oldUser, newUser);
-        boolean tokenChanged = !Arrays.equals(oldToken, newToken);
-
-        if (userChanged) {
-            // clear the old secret
-            Secret emptySecret = new Secret(oldSecret.getType(), oldUser, EMPTY);
-            uploadSecret(id, emptySecret);
+        if (!match(oldSecret.getUser(), newSecret.getUser())) {
+            // username has changed. remove the secret
+            removeSecret(ownerId, oldSecret);
         }
 
-        if (tokenChanged) {
-            uploadSecret(id, newSecret);
-        }
+        storeSecret(ownerId, newSecret);
     }
 
-    public void uploadSecret(@NotNull Object id, @NotNull Secret secret) {
-        // background update to circumvent slow-ops assertions
-        Background.run(null, () -> storeSecret(id, secret));
-    }
-
-    public void storeSecret(@NotNull Object id, @NotNull Secret secret) {
+    public void storeSecret(@NotNull Object ownerId, @NotNull Secret secret) {
         try {
             SecretType type = secret.getType();
             String user = secret.getUser();
             char[] token = secret.getToken();
 
-            CredentialAttributes credentialAttributes = createAttributes(type, id, user);
+            CredentialAttributes credentialAttributes = createAttributes(type, ownerId, user);
             Credentials credentials = token.length == 0 ? null : new Credentials(user, token);
 
             PasswordSafe passwordSafe = PasswordSafe.getInstance();
             passwordSafe.set(credentialAttributes, credentials, false);
+
             log.info("Saved secret {}", secret);
         } catch (Throwable e) {
             log.error("Failed to save secret {}", secret, e);
         }
     }
 
+    public void removeSecret(@NotNull Object ownerId, @NotNull Secret secret) {
+        // store empty secret
+        Secret emptySecret = new Secret(secret.getType(), secret.getUser(), EMPTY);
+        storeSecret(ownerId, emptySecret);
+    }
+
     @NotNull
-    public Secret loadSecret(@NotNull SecretType type, @NotNull Object id, String user) {
+    public Secret loadSecret(@NotNull SecretType type, @NotNull Object ownerId, String user) {
         Secret secret;
         try {
-            CredentialAttributes credentialAttributes = createAttributes(type, id, user);
+            CredentialAttributes credentialAttributes = createAttributes(type, ownerId, user);
 
             PasswordSafe passwordSafe = PasswordSafe.getInstance();
             Credentials credentials = passwordSafe.get(credentialAttributes);
@@ -121,9 +137,9 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
 
     @NotNull
     @Compatibility
-    private static CredentialAttributes createAttributes(SecretType secretType, Object secretId, String user) {
+    private static CredentialAttributes createAttributes(SecretType secretType, Object ownerId, String user) {
         user = nvl(user, "default");
-        String serviceName = "DBNavigator." + secretType + "." + secretId;
+        String serviceName = "DBNavigator." + secretType + "." + ownerId;
         return new CredentialAttributes(serviceName, user, DatabaseCredentialManager.class, false);
     }
 

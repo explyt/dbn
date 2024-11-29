@@ -23,5 +23,5 @@ public enum SecretType {
     CONNECTION_PASSWORD,   // connection passwords
     SSH_TUNNEL_PASSWORD,   // passwords for SSH tunnels
     SSH_TUNNEL_PASSPHRASE, // passwords for SSH tunnels
-    ASSISTANT_API_TOKEN    // database assistant credential tokens
+    GENERIC_CREDENTIAL     // e.g. database assistant credential tokens
 }

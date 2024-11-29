@@ -124,7 +124,7 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
     @Override
     public void applyFormChanges(ConnectionSshTunnelSettings configuration) throws ConfigurationException {
         // snapshot old secret before form changes are applied
-        Secret[] oldSecrets = configuration.createSecrets();
+        Secret[] oldSecrets = configuration.getSecrets();
 
         boolean enabled = activeCheckBox.isSelected();
         configuration.setActive(enabled);
@@ -144,7 +144,7 @@ public class ConnectionSshTunnelSettingsForm extends ConfigurationEditorForm<Con
         configuration.setKeyPassphrase(String.valueOf(keyPassphraseField.getPassword()));
 
         // replace secrets in password store
-        configuration.saveSecrets(oldSecrets);
+        configuration.updateSecrets(oldSecrets);
 
     }
 

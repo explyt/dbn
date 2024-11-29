@@ -18,6 +18,7 @@ package com.dbn.common.database;
 
 import com.dbn.common.constant.Constants;
 import com.dbn.common.options.BasicConfiguration;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.TimeAware;
@@ -28,7 +29,7 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.connection.config.Passwords;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
-import com.dbn.credentials.SecretHolder;
+import com.dbn.credentials.SecretsOwner;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
@@ -40,12 +41,12 @@ import static com.dbn.common.database.AuthenticationInfo.Attributes.DEPRECATED_P
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_CONFIG_FILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_PROFILE;
 import static com.dbn.common.database.AuthenticationInfo.Attributes.TOKEN_TYPE;
+import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
 import static com.dbn.common.util.Commons.match;
-import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.connection.AuthenticationType.OS_CREDENTIALS;
 import static com.dbn.connection.AuthenticationType.USER;
@@ -54,7 +55,7 @@ import static com.dbn.credentials.SecretType.CONNECTION_PASSWORD;
 
 @Getter
 @Setter
-public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<AuthenticationInfo>, TimeAware, SecretHolder {
+public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSettings, ConfigurationEditorForm> implements Cloneable<AuthenticationInfo>, TimeAware, SecretsOwner {
 
     interface Attributes {
         String TOKEN_TYPE = "token-type";
@@ -178,17 +179,18 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         setString(element, TOKEN_PROFILE, tokenProfile);
     }
 
-    @Deprecated // temporarily support old storage - TODO cleanup in subsequent release
+    @Deprecated // TODO cleanup in subsequent release (temporarily support old storage)
     private void restorePassword(Element element) {
-        if (type != USER_PASSWORD) return;
-        if (isEmpty(password)) {
-            password = Passwords.decodePassword(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
+        if (!ConfigMonitor.is(INITIALIZING)) return; // only during config initialization
 
-            // password still in old config store
-            if (isNotEmpty(user) && isNotEmpty(password)) {
-                DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-                credentialManager.uploadSecret(getConnectionId(), createPasswordSecret());
-            }
+        if (type != USER_PASSWORD) return;
+        if (isNotEmpty(password)) return;
+
+        password = Passwords.decodePassword(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
+        // password still in old config store
+        if (isNotEmpty(user) && isNotEmpty(password)) {
+            DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+            credentialManager.storeSecret(getConnectionId(), getPasswordSecret());
         }
     }
 
@@ -234,25 +236,25 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
 
     @NotNull
     @Override
-    public Object getSecretId() {
+    public Object getSecretOwnerId() {
         return getConnectionId();
     }
 
     @Override
-    public Secret[] createSecrets() {
-        return new Secret[] {createPasswordSecret()};
+    public Secret[] getSecrets() {
+        return new Secret[] {getPasswordSecret()};
     }
 
-    private Secret createPasswordSecret() {
-        char[] password = this.password == null ? Secret.EMPTY : this.password.toCharArray();
+    private Secret getPasswordSecret() {
         return new Secret(CONNECTION_PASSWORD, user, password);
     }
 
+    @Override
     public void initSecrets() {
         if (type == AuthenticationType.USER_PASSWORD) {
             DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
             Secret secret = credentialManager.loadSecret(CONNECTION_PASSWORD, getConnectionId(), user);
-            this.password = secret.getStringToken();
+            password = secret.getStringToken();
         }
     }
 }

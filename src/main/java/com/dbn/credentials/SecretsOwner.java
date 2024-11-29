@@ -22,12 +22,12 @@ import org.jetbrains.annotations.NotNull;
  * Marker interface for configuration holding secret tokens like passwords, passphrases or authentication tokens
  * @author Dan Cioca (Oracle)
  */
-public interface SecretHolder {
+public interface SecretsOwner {
     @NotNull
-    Object getSecretId();
+    Object getSecretOwnerId();
 
     @NotNull
-    Secret[] createSecrets();
+    Secret[] getSecrets();
 
     /**
      * Utility for initializing the secrets from PasswordStore
@@ -36,12 +36,18 @@ public interface SecretHolder {
     void initSecrets();
 
     /**
-     * Utility for saving the secrets in PasswordStore via {@link DatabaseCredentialManager}
+     * Utility for updating the secrets in PasswordStore via {@link DatabaseCredentialManager}
      * (will be invoked when settings are saved)
      * @param oldSecrets the old secrets to be discarded when new secrets are saved
      */
-    default void saveSecrets(Secret[] oldSecrets) {
+    default void updateSecrets(Secret[] oldSecrets) {
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-        credentialManager.replaceSecrets(getSecretId(), oldSecrets, createSecrets());
+        credentialManager.queueSecretsUpdate(getSecretOwnerId(), oldSecrets, getSecrets());
     }
+
+    default void removeSecrets() {
+        DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
+        credentialManager.queueSecretsRemove(getSecretOwnerId(), getSecrets());
+    }
+
 }

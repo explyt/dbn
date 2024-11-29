@@ -272,15 +272,15 @@ public class ConnectionDatabaseSettingsForm extends ConfigurationEditorForm<Conn
 
         // create snapshot of earlier authentication
         AuthenticationInfo authenticationInfo = configuration.getAuthenticationInfo();
-        Secret[] oldSecrets = authenticationInfo.createSecrets();
+        Secret[] oldSecrets = authenticationInfo.getSecrets();
 
         // apply changes and create snapshot of new authentication
         authSettingsForm.applyFormChanges(authenticationInfo);
-        Secret[] newSecrets  = authenticationInfo.createSecrets();
+        Secret[] newSecrets = authenticationInfo.getSecrets();
 
         if (!authenticationInfo.isTemporary()) {
             // update password store if authentication info is not marked as temporary
-            authenticationInfo.saveSecrets(oldSecrets);
+            authenticationInfo.updateSecrets(oldSecrets);
         }
 
         configuration.setDriverSource(driverSettingsForm.getDriverSource());

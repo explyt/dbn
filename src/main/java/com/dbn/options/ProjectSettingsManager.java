@@ -17,6 +17,8 @@
 package com.dbn.options;
 
 import com.dbn.DatabaseNavigator;
+import com.dbn.assistant.credential.local.LocalCredentialSettings;
+import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
 import com.dbn.common.action.UserDataKeys;
@@ -125,6 +127,10 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         return getProjectSettings().getDdlFileSettings();
     }
 
+    private AssistantSettings getAssistantSettings() {
+        return getProjectSettings().getAssistantSettings();
+    }
+
     public void openDefaultProjectSettings() {
         Dialogs.show(() -> new ProjectSettingsDialog(Projects.getDefaultProject()));
     }
@@ -155,15 +161,21 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
      * (to be used once on component initialization)
      */
     private void restoreKeychainSecrets() {
-        // TODO walk the config tree and identify configurations of type com.dbn.credentials.SecretAwareConfiguration
         ConnectionBundleSettings connectionSettings = getConnectionSettings();
         for (ConnectionSettings connection : connectionSettings.getConnections()) {
+            // CONNECTION PASSWORDS
             AuthenticationInfo authenticationInfo = connection.getDatabaseSettings().getAuthenticationInfo();
             authenticationInfo.initSecrets();
 
+            // SSH TUNNEL PASSWORDS
             ConnectionSshTunnelSettings sshTunnelSettings = connection.getSshTunnelSettings();
             sshTunnelSettings.initSecrets();
         }
+
+        // LOCAL CREDENTIALS
+        AssistantSettings assistantSettings = getAssistantSettings();
+        LocalCredentialSettings credentialSettings = assistantSettings.getCredentialSettings();
+        credentialSettings.getCredentials().initSecrets();
     }
 
     /****************************************

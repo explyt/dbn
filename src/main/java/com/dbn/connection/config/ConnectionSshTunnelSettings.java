@@ -17,25 +17,26 @@
 package com.dbn.connection.config;
 
 import com.dbn.common.options.BasicProjectConfiguration;
+import com.dbn.common.options.ConfigMonitor;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ui.ConnectionSshTunnelSettingsForm;
 import com.dbn.connection.ssh.SshAuthType;
 import com.dbn.credentials.DatabaseCredentialManager;
 import com.dbn.credentials.Secret;
-import com.dbn.credentials.SecretHolder;
+import com.dbn.credentials.SecretsOwner;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.getBoolean;
 import static com.dbn.common.options.setting.Settings.getEnum;
 import static com.dbn.common.options.setting.Settings.getString;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 import static com.dbn.common.options.setting.Settings.setEnum;
 import static com.dbn.common.options.setting.Settings.setString;
-import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSPHRASE;
 import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
@@ -43,7 +44,7 @@ import static com.dbn.credentials.SecretType.SSH_TUNNEL_PASSWORD;
 @Getter
 @Setter
 @EqualsAndHashCode(callSuper = false)
-public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<ConnectionSettings, ConnectionSshTunnelSettingsForm> implements SecretHolder {
+public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<ConnectionSettings, ConnectionSshTunnelSettingsForm> implements SecretsOwner {
      // TODO passwords moved to IDE keychain (cleanup after followup release)
     @Deprecated private static final String DEPRECATED_PWD_ATTRIBUTE = "deprecated-proxy-pwd";
     @Deprecated private static final String DEPRECATED_PASSPHRASE_ATTRIBUTE = "key-passphrase";
@@ -128,19 +129,27 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
 
     @Deprecated // TODO cleanup in subsequent release (temporarily support old storage)
     private void restorePasswords(Element element) {
+        if (!ConfigMonitor.is(INITIALIZING)) return; // only during config initialization
+        if (!active) return;
+
         DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-        if (authType == SshAuthType.PASSWORD && isEmpty(password)) {
+        if (authType == SshAuthType.PASSWORD) {
+            if (isNotEmpty(password)) return; // do not overwrite
+
             password = Passwords.decodePassword(getString(element, DEPRECATED_PWD_ATTRIBUTE, password));
-            // password still in old config store
             if (isNotEmpty(user) && isNotEmpty(password)) {
-                credentialManager.uploadSecret(getConnectionId(), createPasswordSecret());
+                // password still in old config store
+                credentialManager.queueSecretsInsert(getConnectionId(), getPasswordSecret());
             }
         }
-        if (authType == SshAuthType.KEY_PAIR && isEmpty(keyPassphrase)) {
+
+        if (authType == SshAuthType.KEY_PAIR) {
+            if (isNotEmpty(keyPassphrase)) return; // do not overwrite
+
             keyPassphrase = Passwords.decodePassword(getString(element, DEPRECATED_PASSPHRASE_ATTRIBUTE, keyPassphrase));
-            // password still in old config store
             if (isNotEmpty(keyFile) && isNotEmpty(keyPassphrase)) {
-                credentialManager.uploadSecret(getConnectionId(), createKeyPassphraseSecret());
+                // passphrase still in old config store
+                credentialManager.queueSecretsInsert(getConnectionId(), getKeyPassphraseSecret());
             }
         }
     }
@@ -151,28 +160,29 @@ public class ConnectionSshTunnelSettings extends BasicProjectConfiguration<Conne
      *********************************************************/
 
     @Override
-    public @NotNull Object getSecretId() {
+    public @NotNull Object getSecretOwnerId() {
         return getConnectionId();
     }
 
     @Override
-    public Secret[] createSecrets() {
+    public Secret[] getSecrets() {
         return new Secret[] {
-                createPasswordSecret(),
-                createKeyPassphraseSecret()};
+                getPasswordSecret(),
+                getKeyPassphraseSecret()};
     }
 
-    private Secret createPasswordSecret() {
+    private Secret getPasswordSecret() {
         return new Secret(SSH_TUNNEL_PASSWORD, user, password);
     }
 
-    private Secret createKeyPassphraseSecret() {
+    private Secret getKeyPassphraseSecret() {
         return new Secret(SSH_TUNNEL_PASSPHRASE, keyFile, keyPassphrase );
     }
 
     /**
      * Load password or passphrase from Password Safe
      */
+    @Override
     public void initSecrets() {
         if (!active) return;
 
