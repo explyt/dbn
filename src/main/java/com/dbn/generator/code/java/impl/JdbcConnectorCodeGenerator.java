@@ -32,11 +32,13 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 
 import java.util.Map;
 import java.util.Properties;
@@ -79,11 +81,20 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addConnectionProperties(context, properties);
 
         PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, input.getClassName(), properties, directory);
+        reformatClass(project, javaClass);
+
         VirtualFile javaFile = javaClass.getContainingFile().getVirtualFile();
 
         JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);
         result.addGeneratedFile(javaFile);
         return result;
+    }
+
+    private static void reformatClass(Project project, PsiElement javaClass) {
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+            CodeStyleManager codeStyleManager = CodeStyleManager.getInstance(project);
+            codeStyleManager.reformat(javaClass);
+        });
     }
 
     private static void addInputProperties(JdbcConnectorCodeGeneratorInput input, Properties properties) throws ConfigurationException {
