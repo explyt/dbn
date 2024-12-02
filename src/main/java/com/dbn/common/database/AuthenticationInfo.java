@@ -190,7 +190,7 @@ public class AuthenticationInfo extends BasicConfiguration<ConnectionDatabaseSet
         // password still in old config store
         if (isNotEmpty(user) && isNotEmpty(password)) {
             DatabaseCredentialManager credentialManager = DatabaseCredentialManager.getInstance();
-            credentialManager.storeSecret(getConnectionId(), getPasswordSecret());
+            credentialManager.queueSecretsInsert(getConnectionId(), getPasswordSecret());
         }
     }
 
