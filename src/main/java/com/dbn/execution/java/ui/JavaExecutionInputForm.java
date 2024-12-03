@@ -41,12 +41,16 @@ import lombok.Getter;
 import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -87,7 +91,6 @@ public class JavaExecutionInputForm extends DBNFormBase {
             debuggerTypeLabel.setText(debuggerType.name());
             debuggerVersionLabel.setText("...");
             Dispatch.async(
-                    getProject(),
                     debuggerVersionLabel,
                     () -> executionInput.getDebuggerVersion(),
                     v -> debuggerVersionLabel.setText(v));
@@ -131,7 +134,6 @@ public class JavaExecutionInputForm extends DBNFormBase {
 
         //lazy load
         Dispatch.async(
-                getProject(),
                 mainPanel,
                 () -> getMethodArguments(),
                 a -> initArgumentsPanel(a));
