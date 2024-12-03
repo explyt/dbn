@@ -58,6 +58,7 @@ import com.intellij.openapi.fileEditor.FileDocumentManager;
 import com.intellij.openapi.fileEditor.FileEditor;
 import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileEditor.TextEditor;
+import com.intellij.openapi.fileEditor.impl.EditorWindowHolder;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.SyntaxHighlighter;
 import com.intellij.openapi.fileTypes.SyntaxHighlighterFactory;
@@ -83,8 +84,11 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -150,6 +154,28 @@ public class Editors {
             return fileEditorManager.getEditors(file);
         });
     }
+
+    public static Collection<TabInfo> getEditorTabInfos(Project project, VirtualFile file) {
+        Set<TabInfo> tabInfos = new HashSet<>();
+
+        FileEditorManager editorManager = FileEditorManager.getInstance(project);
+        FileEditor[] allEditors = editorManager.getAllEditors(file);
+
+        for (FileEditor fileEditor : allEditors) {
+            EditorWindowHolder editorWindow = UIUtil.getParentOfType(EditorWindowHolder.class, fileEditor.getComponent());
+            if (editorWindow == null) continue;
+
+            JBTabsImpl editorTabs = UIUtil.getParentOfType(JBTabsImpl.class, (Component) editorWindow);
+            if (editorTabs == null) continue;
+
+            TabInfo tabInfo = editorTabs.getTabs().stream().filter(t -> t.getComponent() == editorWindow).findFirst().orElse(null);
+            if (tabInfo == null) continue;
+
+            tabInfos.add(tabInfo);
+        }
+        return tabInfos;
+    }
+
 
     public static void setEditorProviderIcon(@NotNull Project project, @NotNull VirtualFile file, @NotNull FileEditor fileEditor, Icon icon) {
         JBTabsImpl tabs = getEditorTabComponent(project, file, fileEditor);
@@ -588,5 +614,6 @@ public class Editors {
         for (VirtualFile file : files) {
             fileEditorManager.updateFilePresentation(file);
         }
+
     }
 }
