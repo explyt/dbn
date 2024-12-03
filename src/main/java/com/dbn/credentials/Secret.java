@@ -52,8 +52,7 @@ public class Secret {
         return isEmpty(token) ? null : new String(token);
     }
 
-    @NotNull
-    private static char[] toChars(String token) {
+    private static char @NotNull [] toChars(String token) {
         return token == null || token.isEmpty() ? EMPTY : token.toCharArray();
     }
 
