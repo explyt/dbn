@@ -130,7 +130,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "AUTH_TOKEN_TYPE_NAME", authTokenType == null ? null : authTokenType.getName());
 
         addProperty(properties, "USER_NAME", authenticationInfo.getUser());
-        addProperty(properties, "PASSWORD", authenticationInfo.getPassword());
+        // TODO add toggle in the input form, allowing the user to decide whether passwords are allowed to be propagated to the generated code
+        //addProperty(properties, "PASSWORD", authenticationInfo.getPassword());
         addProperty(properties, "TOKEN_CONFIG_FILE", authenticationInfo.getTokenConfigFile());
         addProperty(properties, "TOKEN_PROFILE", authenticationInfo.getTokenProfile());
 
