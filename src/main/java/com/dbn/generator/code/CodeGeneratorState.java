@@ -27,6 +27,13 @@ import java.util.Map;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.setStringAttribute;
 
+/**
+ * Generic state holder for the code generator.
+ * Allows storing an indefinite number of properties to be persisted and reused whenever the code generator is invoked again.
+ * e.g. can be used for remembering and restoring the module and content-root selection for the generated files.
+ *
+ * @author Dan Cioca (Oracle)
+ */
 public class CodeGeneratorState implements PersistentStateElement {
     private final Map<String, String> properties = new HashMap<>();
 

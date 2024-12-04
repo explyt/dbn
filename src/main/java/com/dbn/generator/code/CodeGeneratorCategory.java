@@ -16,6 +16,12 @@
 
 package com.dbn.generator.code;
 
+/**
+ * High level categorization of code generators, typically resembling the language of the generated code
+ *
+ * @author Dan Cioca (Oracle)
+ */
 public enum CodeGeneratorCategory {
     JAVA
+    //...
 }
