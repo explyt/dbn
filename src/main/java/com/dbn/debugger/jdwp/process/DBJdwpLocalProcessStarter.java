@@ -90,7 +90,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
         try {
             inetAddress = InetAddress.getByName(host);
         } catch (UnknownHostException e) {
-            throw new ExecutionException("Failed to resolve host '" + host + "'", e);
+            throw new ExecutionException("Failed to resolve host", e);
         }
 
         for (int portNumber = minPortNumber; portNumber < maxPortNumber; portNumber++) {
