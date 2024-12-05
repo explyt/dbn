@@ -111,6 +111,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		DBObjectStatusHolder objectStatus = getStatus();
 		objectStatus.set(DBObjectStatus.VALID, isValid);
 		objectStatus.set(DBObjectStatus.DEBUG, isDebug);
+		objectStatus.set(DBContentType.CODE, DBObjectStatus.PRESENT, true);
 	}
 
 	@Override
