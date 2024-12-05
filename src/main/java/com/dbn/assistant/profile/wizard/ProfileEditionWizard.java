@@ -103,7 +103,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     Project project = getProject();
 
     ProfileData editedProfile = getEditedProfile();
-    log.debug("entering doOKAction");
     if (editedProfile.getName().isEmpty()) {
       Messages.showErrorDialog(project, txt("profile.mgmt.general_step.profile_name.validation.empty"));
     } else if (!this.isUpdate &&
@@ -114,7 +113,6 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     } else if (editedProfile.getObjectList().isEmpty()) {
       Messages.showErrorDialog(project, txt("profile.mgmt.object_list_step.validation"));
     } else if (initialProfile.equals(editedProfile)) {
-      log.debug("profile has not changed, skipping the update");
       Messages.showErrorDialog(project, txt("profile.mgmt.update.validation"));
     } else {
       commitWizardView();
