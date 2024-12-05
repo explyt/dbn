@@ -100,7 +100,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
                 conditionallyLog(e);
             }
         }
-        throw new ExecutionException("Could not find any free port on host '" + host + "' in the range " + minPortNumber + " - " + maxPortNumber);
+        throw new ExecutionException("Could not find any free port on the host for the given range");
     }
 
     private static String resolveTcpHost(String tcpHost) {
