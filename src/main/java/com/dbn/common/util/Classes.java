@@ -47,19 +47,19 @@ public class Classes {
         }
     }
 
-    public static String name(@Nullable Object object) {
-        return object == null ? "null" : name(object.getClass());
+    public static String className(@Nullable Object object) {
+        return object == null ? "null" : className(object.getClass());
     }
 
-    public static String name(@Nullable Class<?> clazz) {
+    public static String className(@Nullable Class<?> clazz) {
         return clazz == null ? "null" : clazz.getName();
     }
 
-    public static String simpleName(@Nullable Object object) {
-        return object == null ? "null" : simpleName(object.getClass());
+    public static String simpleClassName(@Nullable Object object) {
+        return object == null ? "null" : simpleClassName(object.getClass());
     }
 
-    public static String simpleName(@Nullable Class<?> clazz) {
+    public static String simpleClassName(@Nullable Class<?> clazz) {
         return clazz == null ? "null" : clazz.getSimpleName();
     }
 }

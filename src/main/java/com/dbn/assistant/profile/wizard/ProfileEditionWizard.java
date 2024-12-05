@@ -48,6 +48,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.util.Set;
 
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.nls.NlsResources.txt;
 
 /**
@@ -123,7 +124,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   @Override
   protected @NonNls @Nullable String getDimensionServiceKey() {
     // remember last dialog size and position
-    return Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + getClass().getSimpleName();
+    return Diagnostics.isDialogSizingReset() ? null : "DBNavigator." + simpleClassName(this);
   }
 
   @Override

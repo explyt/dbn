@@ -81,7 +81,7 @@ public class Messages {
             //message = message + "\nCause: [" + className + "] " + exception.getMessage();
             String exceptionMessage = exception.getLocalizedMessage();
             if (exceptionMessage == null) {
-                exceptionMessage = exception.getClass().getName();
+                exceptionMessage = Classes.className(exception);
             }
             message = message + "\n" + exceptionMessage.trim();
         }

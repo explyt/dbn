@@ -18,6 +18,7 @@ package com.dbn.common.dispose;
 
 import com.dbn.common.list.FilteredList;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.util.Classes;
 import com.dbn.vfs.DBVirtualFile;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.ui.popup.JBPopup;
@@ -37,7 +38,6 @@ import java.util.Timer;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
-import static com.dbn.common.util.Classes.name;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -60,7 +60,7 @@ public final class Disposer {
 
         if (disposable instanceof UnlistedDisposable) {
             log.error("Unlisted disposable {} should not be registered",
-                    name(disposable),
+                    Classes.className(disposable),
                     new IllegalArgumentException("Unlisted disposable"));
         }
 
@@ -95,7 +95,7 @@ public final class Disposer {
 
             });
         } catch (Throwable e) {
-            log.warn("Failed to dispose entity {}", name(disposable), e);
+            log.warn("Failed to dispose entity {}", Classes.className(disposable), e);
         }
     }
 
