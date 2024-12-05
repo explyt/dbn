@@ -112,7 +112,7 @@ public abstract class DBJdwpLocalProcessStarter extends DBJdwpProcessStarter {
         } catch (UnknownHostException e) {
             conditionallyLog(e);
             // TODO log to the debugger console instead
-            log.warn("Failed to resolve TCP host address '{}'. Using 'localhost'", tcpHost, e);
+            log.warn("Failed to resolve provided TCP host address Using 'localhost'", e);
             tcpHost =  "localhost";
 
         }
