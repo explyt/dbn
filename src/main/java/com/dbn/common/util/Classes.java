@@ -46,4 +46,20 @@ public class Classes {
             return null;
         }
     }
+
+    public static String name(@Nullable Object object) {
+        return object == null ? "null" : name(object.getClass());
+    }
+
+    public static String name(@Nullable Class<?> clazz) {
+        return clazz == null ? "null" : clazz.getName();
+    }
+
+    public static String simpleName(@Nullable Object object) {
+        return object == null ? "null" : simpleName(object.getClass());
+    }
+
+    public static String simpleName(@Nullable Class<?> clazz) {
+        return clazz == null ? "null" : clazz.getSimpleName();
+    }
 }

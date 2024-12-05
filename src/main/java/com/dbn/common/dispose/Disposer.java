@@ -37,6 +37,7 @@ import java.util.Timer;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
+import static com.dbn.common.util.Classes.name;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @Slf4j
@@ -59,7 +60,7 @@ public final class Disposer {
 
         if (disposable instanceof UnlistedDisposable) {
             log.error("Unlisted disposable {} should not be registered",
-                    disposable.getClass().getName(),
+                    name(disposable),
                     new IllegalArgumentException("Unlisted disposable"));
         }
 
@@ -76,6 +77,7 @@ public final class Disposer {
     }
 
     public static void dispose(@Nullable Disposable disposable) {
+        if (disposable == null) return;
         try {
             guarded(disposable, d -> {
                 if (isNotValid(d)) return;
@@ -93,7 +95,7 @@ public final class Disposer {
 
             });
         } catch (Throwable e) {
-            log.warn("Failed to dispose entity {}", disposable, e);
+            log.warn("Failed to dispose entity {}", name(disposable), e);
         }
     }
 
