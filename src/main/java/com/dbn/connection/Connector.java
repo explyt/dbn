@@ -231,7 +231,7 @@ class Connector {
 
             Connection connection = connect(driver, connectionUrl, properties);
             if (connection == null) {
-                throw new SQLException("Driver failed to create connection " + connectionUrl + ". No failure information provided by jdbc vendor.");
+                throw new SQLException("Driver failed to create connection. No failure information provided by jdbc vendor.");
             }
 
             if (connectionStatus != null) {
