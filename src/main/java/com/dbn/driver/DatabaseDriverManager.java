@@ -146,7 +146,7 @@ public class DatabaseDriverManager extends ApplicationComponentBase implements P
         if (libraryFile.exists()) {
             return loadDrivers(libraryFile, false);
         } else {
-            throw new Exception("Could not find library \"" + libraryFile.getAbsolutePath() +"\".");
+            throw new Exception("Could not find driver library");
         }
     }
 
