@@ -27,6 +27,7 @@ import com.dbn.common.util.Chars;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.common.util.Unsafe;
+import com.dbn.common.util.Writers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
@@ -61,6 +62,7 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -215,14 +217,23 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     ProcessBuilder processBuilder = new ProcessBuilder(executionInput.getCommand());
                     processBuilder.environment().putAll(executionInput.getEnvironmentVars());
                     processBuilder.redirectErrorStream(true);
-                    char[] password = connection.getAuthenticationInfo().getPassword();
+
                     String lineCommand = executionInput.getLineCommand();
-                    if (Chars.isNotEmpty(password)) {
-                        lineCommand = lineCommand.replace(Chars.toString(password), "*********");
-                    }
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput("Executing command: " + lineCommand));
                     executionManager.writeLogOutput(outputContext, LogOutput.createSysOutput(""));
+
+                    // start the process
                     Process process = processBuilder.start();
+
+                    // send password over stdin
+                    char[] password = connection.getAuthenticationInfo().getPassword();
+                    if (Chars.isNotEmpty(password)) {
+                        try (BufferedWriter writer = Writers.buffered(process.getOutputStream())) {
+                            writer.write(password);
+                            writer.newLine();
+                            writer.flush();
+                        }
+                    }
 
                     outputContext.setProcess(process);
                     activeProcesses.put(sourceFile, process);

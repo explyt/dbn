@@ -18,7 +18,6 @@ package com.dbn.database.oracle;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.common.util.Chars;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.SchemaId;
@@ -40,10 +39,10 @@ import static java.lang.Character.isWhitespace;
 
 @NonNls
 public class OracleExecutionInterface implements DatabaseExecutionInterface {
-    private static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]/[PASSWORD]@[TNS_PROFILE]";
-    private static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]/[PASSWORD]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";
-    private static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]/[PASSWORD]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
-    private static final String SQLPLUS_CONNECT_PATTERN_BASIC = "[USER]/[PASSWORD]@[HOST]:[PORT]/[DATABASE]";
+    private static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]@[TNS_PROFILE]";
+    private static final String SQLPLUS_CONNECT_PATTERN_SID = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SID=[DATABASE])))\"";
+    private static final String SQLPLUS_CONNECT_PATTERN_SERVICE = "[USER]@\"(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=[HOST])(Port=[PORT]))(CONNECT_DATA=(SERVICE_NAME=[DATABASE])))\"";
+    private static final String SQLPLUS_CONNECT_PATTERN_BASIC = "[USER]@[HOST]:[PORT]/[DATABASE]";
 
     @Override
     public MethodExecutionProcessor createExecutionProcessor(DBMethod method) {
@@ -74,22 +73,22 @@ public class OracleExecutionInterface implements DatabaseExecutionInterface {
 
         String connectArg = connectPattern.
                 replace("[USER]",        nvl(authenticationInfo.getUser(),     "")).
-                replace("[PASSWORD]",    nvl(Chars.toString(authenticationInfo.getPassword()), "")).
                 replace("[HOST]",        nvl(databaseInfo.getHost(),           "")).
                 replace("[PORT]",        nvl(databaseInfo.getPort(),           "")).
                 replace("[DATABASE]",    nvl(databaseInfo.getDatabase(),       "")).
                 replace("[TNS_PROFILE]", nvl(databaseInfo.getTnsProfile(),     ""));
 
-        executionInput.addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(),      ""));
+        boolean tnsConnection = databaseInfo.getUrlType() == DatabaseUrlType.TNS;
+        if (tnsConnection) executionInput.addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(), ""));
 
         String fileArg = "\"@" + filePath + "\"";
-
-
 
         @NonNls List<String> command = executionInput.getCommand();
         command.add(cmdLineInterface.getExecutablePath());
         command.add(connectArg);
         command.add(fileArg);
+
+        if (tnsConnection) command.add("\"TNS_ADMIN=" + nvl(databaseInfo.getTnsFolder(), "") + "\"");
 
         @NonNls
         StringBuilder builder = executionInput.getContent();

@@ -18,6 +18,7 @@ package com.dbn.data.export.processor;
 
 import com.dbn.common.locale.Formatter;
 import com.dbn.common.util.Commons;
+import com.dbn.common.util.Writers;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.data.export.DataExportException;
 import com.dbn.data.export.DataExportFormat;
@@ -36,7 +37,6 @@ import java.awt.datatransfer.Transferable;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -106,7 +106,7 @@ public abstract class DataExportProcessor {
 
     @NotNull
     private static BufferedWriter createFileWriter(Path path, Charset charset) throws IOException {
-        return new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(path), charset));
+        return Writers.buffered(Files.newOutputStream(path), charset);
     }
 
     private void writeToClipboard(String content) {
