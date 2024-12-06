@@ -265,7 +265,7 @@ public abstract class TokenTypeBundleBase {
             for (String tokenId : tokenIds) {
                 SimpleTokenType tokenType = tokenTypes.get(tokenId);
                 if (tokenType == null) {
-                    System.out.println("DEBUG - [" + language.getID() + "] undefined token type: " + tokenId);
+                    log.warn("DBN - [{}] undefined token type: {}", language.getID(), tokenId);
                 } else {
                     tokenSetList.add(tokenType);
                 }

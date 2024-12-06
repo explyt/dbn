@@ -109,13 +109,7 @@ public class ElementTypeBundle {
             for(NamedElementType namedElementType : namedElementTypes.values()){
                 if (!namedElementType.isDefinitionLoaded()) {
                     namedElementType.update(unknown);
-                    //log.info("ERROR: element '" + namedElementType.getId() + "' not defined.");
-                    System.out.println("DEBUG - [" + this.languageDialect.getID() + "] undefined element type: " + namedElementType.getId());
-/*
-                    if (DatabaseNavigator.getInstance().isDebugModeEnabled()) {
-                        System.out.println("WARNING - [" + getLanguageDialect().getID() + "] undefined element type: " + namedElementType.getId());
-                    }
-*/
+                    log.warn("DBN - [{}] undefined element type: {}", this.languageDialect.getID(), namedElementType.getId());
                 }
             }
 
@@ -135,7 +129,9 @@ public class ElementTypeBundle {
                     new XMLOutputter().output(document, stringWriter);
 
                     String data = stringWriter.getBuffer().toString();
-                    System.out.println(data);
+                    log.info("LANGUAGE_DEFINITION\n" +
+                            "====================================={}\n" +
+                            "=====================================", data);
 
                     CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
                     copyPasteManager.setContents(new StringSelection(data));
