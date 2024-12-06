@@ -20,8 +20,8 @@ package com.dbn.execution.java.action;
 import com.dbn.common.icon.Icons;
 import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.execution.java.ui.JavaExecutionHistory;
-import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.action.ObjectListShowAction;
 import com.dbn.object.common.DBObject;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -52,7 +52,7 @@ public class JavaObjectRunAction extends ObjectListShowAction {
 	public List<DBObject> getObjectList() {
 		DBJavaClass program = (DBJavaClass) getSourceObject();
 		List<DBObject> objects = new ArrayList<>();
-		objects.addAll(program.getMethods());
+		objects.addAll(program.getStaticMethods());
 		return objects;
 	}
 
@@ -64,7 +64,7 @@ public class JavaObjectRunAction extends ObjectListShowAction {
 	@Override
 	public String getEmptyListMessage() {
 		DBJavaClass program = (DBJavaClass) getSourceObject();
-		return "The " + program.getQualifiedNameWithType() + " has no methods to execute.";
+		return "The " + program.getQualifiedNameWithType() + " has no static methods to execute.";
 	}
 
 
