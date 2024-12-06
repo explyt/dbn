@@ -47,6 +47,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
@@ -163,6 +164,11 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@Override
 	public List<DBJavaMethod> getMethods() {
 		return getChildObjects(JAVA_METHOD);
+	}
+
+	@Override
+	public List<DBJavaMethod> getStaticMethods() {
+		return filter(getMethods(), m -> m.isStatic());
 	}
 
 	@Override

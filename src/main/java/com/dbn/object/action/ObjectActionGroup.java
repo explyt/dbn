@@ -141,7 +141,9 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
     private void addJavaActions(DBObject object) {
         if(object instanceof DBJavaMethod){
             DBJavaMethod method = (DBJavaMethod) object;
-            add(new JavaRunAction(method, false));
+            if (method.isStatic()) {
+                add(new JavaRunAction(method, false));
+            }
         }
 
         if (object instanceof DBJavaClass) {
