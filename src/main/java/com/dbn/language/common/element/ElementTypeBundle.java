@@ -167,7 +167,6 @@ public class ElementTypeBundle {
     private void createNamedElementType(Element def) throws ElementTypeDefinitionException {
         String id = determineMandatoryAttribute(def, "id", "Invalid definition of named element type.");
         String languageId = stringAttribute(def, "language");
-        log.debug("Updating complex element definition '{}'", id);
         NamedElementType elementType = getNamedElementType(id, null);
         elementType.loadDefinition(def);
         if (elementType.is(ElementTypeAttribute.ROOT)) {
@@ -263,7 +262,6 @@ public class ElementTypeBundle {
         NamedElementType elementType = namedElementTypes.computeIfAbsent(id, i -> {
             NamedElementType namedElementType = new NamedElementType(this, i);
             builder.allElementTypes.add(namedElementType);
-            log.debug("Created named element type '{}'", i);
             return namedElementType;
         });
 
