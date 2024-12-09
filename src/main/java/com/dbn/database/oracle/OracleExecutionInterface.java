@@ -18,7 +18,6 @@ package com.dbn.database.oracle;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.SchemaId;
 import com.dbn.database.CmdLineExecutionInput;
@@ -32,10 +31,7 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.List;
-
 import static com.dbn.common.util.Commons.nvl;
-import static java.lang.Character.isWhitespace;
 
 @NonNls
 public class OracleExecutionInterface implements DatabaseExecutionInterface {
@@ -63,7 +59,7 @@ public class OracleExecutionInterface implements DatabaseExecutionInterface {
             @NotNull DatabaseInfo databaseInfo,
             @NotNull AuthenticationInfo authenticationInfo) {
 
-        CmdLineExecutionInput executionInput = new CmdLineExecutionInput(content);
+        CmdLineExecutionInput input = new CmdLineExecutionInput(content);
         DatabaseUrlType urlType = databaseInfo.getUrlType();
         String connectPattern =
                 urlType == DatabaseUrlType.TNS ? SQLPLUS_CONNECT_PATTERN_TNS :
@@ -79,34 +75,26 @@ public class OracleExecutionInterface implements DatabaseExecutionInterface {
                 replace("[TNS_PROFILE]", nvl(databaseInfo.getTnsProfile(),     ""));
 
         boolean tnsConnection = databaseInfo.getUrlType() == DatabaseUrlType.TNS;
-        if (tnsConnection) executionInput.addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(), ""));
-
-        String fileArg = "\"@" + filePath + "\"";
-
-        @NonNls List<String> command = executionInput.getCommand();
-        command.add(cmdLineInterface.getExecutablePath());
-        command.add(connectArg);
-        command.add(fileArg);
-
-        if (tnsConnection) command.add("\"TNS_ADMIN=" + nvl(databaseInfo.getTnsFolder(), "") + "\"");
-
-        @NonNls
-        StringBuilder builder = executionInput.getContent();
-        if (schemaId != null) builder.insert(0, "alter session set current_schema = " + schemaId + ";\n");
-
-        builder.insert(0, "set echo on;\n");
-        builder.insert(0, "set linesize 32000;\n");
-        builder.insert(0, "set pagesize 40000;\n");
-        builder.insert(0, "set long 50000;\n");
-
-        Strings.trim(builder);
-        char lastChr = Strings.lastChar(builder, chr -> !isWhitespace(chr));
-        if (lastChr != ';' && lastChr != '/' && lastChr != ' ') {
-            // make sure exit is not impacted by script errors
-            builder.append(";\n");
+        if (tnsConnection) {
+            input.addEnvironmentVariable("TNS_ADMIN", nvl(databaseInfo.getTnsFolder(), ""));
         }
-        builder.append("\nexit;\n");
-        return executionInput;
+
+        String executable = cmdLineInterface.getExecutablePath();
+        input.initCommand(executable);
+        input.addCommandArgument(connectArg);
+
+        if (schemaId != null) {
+            input.addStatement("alter session set current_schema = " + schemaId + ";");
+        }
+
+        input.addStatement("set echo on;");
+        input.addStatement("set linesize 32000;");
+        input.addStatement("set pagesize 40000;");
+        input.addStatement("set long 50000;");
+
+        input.addStatement("@" + filePath);
+        input.addStatement("exit");
+        return input;
     }
 
 

@@ -18,19 +18,30 @@ package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.Charset;
 
 @UtilityClass
-public class Writers {
+public class Streams {
 
-    public static BufferedWriter buffered(OutputStream stream) {
-        return new BufferedWriter(new OutputStreamWriter(stream));
+    public static BufferedWriter bufferedWriter(OutputStream outputStream) {
+        return new BufferedWriter(new OutputStreamWriter(outputStream));
     }
 
-    public static BufferedWriter buffered(OutputStream stream, Charset charset) {
-        return new BufferedWriter(new OutputStreamWriter(stream, charset));
+    public static BufferedWriter bufferedWriter(OutputStream outputStream, Charset charset) {
+        return new BufferedWriter(new OutputStreamWriter(outputStream, charset));
+    }
+
+    public static BufferedReader bufferedReader(InputStream inputStream) {
+        return new BufferedReader(new InputStreamReader(inputStream));
+    }
+
+    public static BufferedReader bufferedReader(InputStream inputStream, Charset charset) {
+        return new BufferedReader(new InputStreamReader(inputStream, charset));
     }
 }
