@@ -17,8 +17,33 @@
 package com.dbn.generator.code.java;
 
 
-import com.dbn.generator.code.shared.CodeGenerator;
+import com.dbn.common.util.Environment;
+import com.dbn.connection.context.DatabaseContext;
+import com.dbn.generator.code.CodeGeneratorType;
+import com.dbn.generator.code.java.action.JavaCodeGenerationAction;
+import com.dbn.generator.code.java.ui.JavaCodeGeneratorInputForm;
+import com.dbn.generator.code.shared.base.CodeGeneratorBase;
+import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
+import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
+import com.intellij.openapi.actionSystem.AnAction;
 
-public abstract class JavaCodeGenerator implements CodeGenerator<JavaCodeGeneratorInput, JavaCodeGeneratorResult> {
+public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R extends JavaCodeGeneratorResult<I>> extends CodeGeneratorBase<I, R> {
+    public JavaCodeGenerator(CodeGeneratorType type) {
+        super(type);
+    }
 
+    @Override
+    public boolean supports(DatabaseContext context) {
+        return Environment.hasJavaSupport();
+    }
+
+    @Override
+    public CodeGeneratorInputForm<I> createInputForm(CodeGeneratorInputDialog dialog, I input) {
+        return new JavaCodeGeneratorInputForm(dialog, input);
+    }
+
+    @Override
+    public AnAction createAction(DatabaseContext context) {
+        return new JavaCodeGenerationAction(context, getType());
+    }
 }

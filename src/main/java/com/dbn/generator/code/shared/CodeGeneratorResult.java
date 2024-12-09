@@ -16,5 +16,21 @@
 
 package com.dbn.generator.code.shared;
 
-public interface CodeGeneratorResult {
+import com.intellij.openapi.vfs.VirtualFile;
+
+import java.util.List;
+
+/**
+ * Result of the {@link CodeGenerator#generateCode(com.dbn.generator.code.CodeGeneratorContext)}
+ * @param <I> the type of {@link CodeGeneratorInput} used to produce the result
+ */
+public interface CodeGeneratorResult<I extends CodeGeneratorInput> {
+
+    /**
+     * Returns the input used to generate this result
+     * @return a {@link CodeGeneratorInput}
+     */
+    I getInput();
+
+    List<VirtualFile> getGeneratedFiles();
 }

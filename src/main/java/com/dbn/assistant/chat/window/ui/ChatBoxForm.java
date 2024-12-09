@@ -233,7 +233,7 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   public void submitPrompt(String question) {
-    Background.run(getProject(), () -> processQuery(question));
+    Background.run(() -> processQuery(question));
   }
 
   private void processQuery(String question) {
@@ -273,7 +273,7 @@ public class ChatBoxForm extends DBNFormBase {
     } catch (Exception e) {
       state.set(QUERYING, false);
       log.warn("Error processing query", e);
-      String message = manager.getPresentableMessage(connectionId, e);
+      String message = manager.getPresentableMessage(connectionId, profile.getProvider(), e);
       PersistentChatMessage errorMessage = new PersistentChatMessage(MessageType.ERROR, message, AuthorType.SYSTEM, context);
       appendMessageToChat(errorMessage);
     }
@@ -281,10 +281,10 @@ public class ChatBoxForm extends DBNFormBase {
 
 
   public void reloadProfiles() {
-    Background.run(getProject(), () -> doLoadProfiles(true));
+    Background.run(() -> doLoadProfiles(true));
   }
   public void loadProfiles() {
-    Background.run(getProject(), () -> doLoadProfiles(false));
+    Background.run(() -> doLoadProfiles(false));
   }
 
   /**

@@ -16,11 +16,26 @@
 
 package com.dbn.generator.code.shared.ui;
 
-import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.generator.code.shared.CodeGeneratorInput;
+import lombok.Getter;
 
-public abstract class CodeGeneratorForm extends DBNFormBase {
-    public CodeGeneratorForm(DBNDialog dialog) {
+@Getter
+public abstract class CodeGeneratorInputForm<I extends CodeGeneratorInput> extends DBNFormBase {
+    private final I input;
+
+    public CodeGeneratorInputForm(CodeGeneratorInputDialog dialog, I input) {
         super(dialog);
+        this.input = input;
     }
+
+    public final void applyUserInput() {
+        applyUserInput(input);
+    }
+
+    /**
+     * Expected to apply all user inputs from the input-form fields to the {@link CodeGeneratorInput}
+     * @param input the
+     */
+    protected abstract void applyUserInput(I input);
 }

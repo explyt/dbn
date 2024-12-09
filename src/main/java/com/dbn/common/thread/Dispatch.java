@@ -22,7 +22,6 @@ import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.openapi.project.Project;
 import com.intellij.util.Alarm;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
@@ -56,8 +55,9 @@ public final class Dispatch {
     }
 
     public static void run(ModalityState modalityState, Runnable runnable) {
+        ThreadInfo invoker = ThreadInfo.copy();
         modalityState = nvl(modalityState, () -> ModalityState.defaultModalityState());
-        getApplication().invokeLater(() -> Failsafe.guarded(() -> runnable.run()), modalityState);
+        getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> Failsafe.guarded(() -> runnable.run())), modalityState);
     }
 
     public static <T, E extends Throwable> T call(boolean conditional, ThrowableCallable<T, E> callable) throws E{
@@ -68,29 +68,30 @@ public final class Dispatch {
         }
     }
 
-    public static <T> void async(Project project, JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
+    public static <T> void async(JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
         if (component.isShowing()) {
-            background(project, component, supplier, consumer);
+            background(component, supplier, consumer);
             return;
         }
         // invoke when component is shown and the modality state is known
-        whenFirstShown(component, () -> background(project, component, supplier, consumer));
+        whenFirstShown(component, () -> background(component, supplier, consumer));
     }
 
-    private static <T> void background(Project project, JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
+    private static <T> void background(JComponent component, Supplier<T> supplier, Consumer<T> consumer) {
         ModalityState modalityState = ModalityState.stateForComponent(component);
-        Background.run(project, () -> {
+        Background.run(() -> {
             T value = supplier.get();
             run(modalityState, () -> consumer.accept(value));
         });
     }
 
     public static <T, E extends Throwable> T call(ThrowableCallable<T, E> callable) throws E{
+        ThreadInfo invoker = ThreadInfo.copy();
         ModalityState modalityState = ModalityState.defaultModalityState();
         AtomicReference<T> resultRef = new AtomicReference<>();
         AtomicReference<E> exceptionRef = new AtomicReference<>();
         getApplication().invokeAndWait(() -> {
-            T result = null;
+            T result;
             try {
                 result = callable.call();
                 resultRef.set(result);
@@ -98,7 +99,6 @@ public final class Dispatch {
                 Diagnostics.conditionallyLog(e);
                 exceptionRef.set((E) e);
             }
-
         }, modalityState);
         if (exceptionRef.get() != null) {
             throw exceptionRef.get();

@@ -35,7 +35,6 @@ public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
     @Override
     public void accept(InterfaceTask<?> task) {
         ThreadMonitor.surround(
-                getProject(),
                 ThreadProperty.DATABASE_INTERFACE,
                 () -> schedule(task, getQueue()));
     }
@@ -50,7 +49,7 @@ public class InterfaceQueueConsumer implements Consumer<InterfaceTask<?>>{
                     indicator -> executeTask(task, queue));
         } else {
             InterfaceThreadMonitor.start(false);
-            Background.run(project, () -> executeTask(task, queue));
+            Background.run(() -> executeTask(task, queue));
         }
     }
 

@@ -16,5 +16,15 @@
 
 package com.dbn.generator.code.shared;
 
+import com.dbn.connection.context.DatabaseContext;
+
+/**
+ * Input for the {@link CodeGenerator}, containing all necessary information for code generation to be performed
+ *
+ * @author Dan Cioca (Oracle)
+ */
 public interface CodeGeneratorInput {
+    DatabaseContext getDatabaseContext();
+
+    void prepareDestination();
 }

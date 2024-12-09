@@ -18,10 +18,8 @@ package com.dbn.common.thread;
 
 import com.dbn.common.routine.ThrowableRunnable;
 import com.intellij.openapi.progress.ProcessCanceledException;
-import com.intellij.openapi.project.Project;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
@@ -38,7 +36,7 @@ public final class Background {
     private static final Object lock = new Object();
 
 
-    public static void run(@Nullable Project project, ThrowableRunnable<Throwable> runnable) {
+    public static void run(ThrowableRunnable<Throwable> runnable) {
         try {
             Threads.delay(lock);
             ThreadInfo threadInfo = ThreadInfo.copy();
@@ -49,7 +47,6 @@ public final class Background {
                 String taskId = PooledThread.enter(future.get());
                 try {
                     ThreadMonitor.surround(
-                            project,
                             threadInfo,
                             BACKGROUND,
                             runnable);
@@ -69,7 +66,7 @@ public final class Background {
         }
     }
 
-    public static void run(@Nullable Project project, AtomicReference<PooledThread> handle, ThrowableRunnable<Throwable> runnable) {
+    public static void run(AtomicReference<PooledThread> handle, ThrowableRunnable<Throwable> runnable) {
         try {
             Threads.delay(lock);
             PooledThread current = handle.get();
@@ -86,7 +83,6 @@ public final class Background {
                     try {
                         handle.set(PooledThread.current());
                         ThreadMonitor.surround(
-                                project,
                                 threadInfo,
                                 BACKGROUND,
                                 runnable);

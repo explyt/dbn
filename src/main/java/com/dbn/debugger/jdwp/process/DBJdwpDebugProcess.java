@@ -20,8 +20,7 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.exception.ProcessDeferredException;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.thread.ThreadMonitor;
-import com.dbn.common.thread.ThreadProperty;
+import com.dbn.common.thread.ThreadPropertyGate;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -81,6 +80,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Objects;
 
+import static com.dbn.common.thread.ThreadProperty.DEBUGGER_NAVIGATION;
+import static com.dbn.common.util.Classes.simpleClassName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.intellij.debugger.impl.PrioritizedTask.Priority.LOW;
 
@@ -234,6 +235,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
 
         session.addSessionListener(new XDebugSessionListener() {
             @Override
+            @ThreadPropertyGate(DEBUGGER_NAVIGATION)
             public void sessionPaused() {
                 XSuspendContext suspendContext = session.getSuspendContext();
                 if (!shouldSuspend(suspendContext)) {
@@ -245,7 +247,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
                         if (topFrame instanceof JavaStackFrame) {
                             Location location = getLocation(topFrame);
                             VirtualFile virtualFile = getVirtualFile(location);
-                            ThreadMonitor.surround(project, ThreadProperty.DEBUGGER_NAVIGATION, () -> DBDebugUtil.openEditor(virtualFile));
+                            DBDebugUtil.openEditor(virtualFile);
                         }
                     }
                 }
@@ -348,18 +350,14 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
     protected abstract void executeTarget() throws SQLException;
 
     @Override
-    public void stop() {
+    public synchronized void stop() {
         if (canStopDebugger()) {
-            synchronized (this) {
-                if (canStopDebugger()) {
-                    set(DBDebugProcessStatus.DEBUGGER_STOPPING, true);
-                    set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, false);
-                    console.system("Stopping debugger...");
-                    getSession().stop();
-                    stopDebugger();
-                    super.stop();
-                }
-            }
+            set(DBDebugProcessStatus.DEBUGGER_STOPPING, true);
+            set(DBDebugProcessStatus.BREAKPOINT_SETTING_ALLOWED, false);
+            console.system("Stopping debugger...");
+            getSession().stop();
+            stopDebugger();
+            super.stop();
         }
     }
 
@@ -438,7 +436,7 @@ public abstract class DBJdwpDebugProcess<T extends ExecutionInput>
             }
         } catch (Exception e) {
             conditionallyLog(e);
-            getConsole().warning("Error evaluating suspend position '" + sourceUrl + "': " + Commons.nvl(e.getMessage(), e.getClass().getSimpleName()));
+            getConsole().warning("Error evaluating suspend position '" + sourceUrl + "': " + Commons.nvl(e.getMessage(), simpleClassName(e)));
         }
         return null;
     }
