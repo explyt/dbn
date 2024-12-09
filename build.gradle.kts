@@ -75,6 +75,7 @@ sourceSets{
     }
     resources {
       include(
+              "**/*.ft",
               "**/*.png",
               "**/*.jpg",
               "**/*.txt",
