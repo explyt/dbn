@@ -18,6 +18,7 @@ package com.dbn.database.common;
 
 import com.dbn.code.common.style.options.CodeStyleCaseOption;
 import com.dbn.code.common.style.options.CodeStyleCaseSettings;
+import com.dbn.common.compatibility.Exploitable;
 import com.dbn.connection.Resources;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -58,6 +59,7 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
 
     }
 
+    @Exploitable
     protected final void execute(String statementText, DBNConnection connection) throws SQLException {
         Statement statement = connection.createStatement();
         try {

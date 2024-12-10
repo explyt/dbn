@@ -16,6 +16,7 @@
 
 package com.dbn.database.sqlite;
 
+import com.dbn.common.compatibility.Exploitable;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.DatabaseAttachmentHandler;
 import com.dbn.data.sorting.SortDirection;
@@ -99,6 +100,7 @@ class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
 
     @Nullable
     @Override
+    @Exploitable
     public DatabaseAttachmentHandler getDatabaseAttachmentHandler() {
         return (connection, filePath, schemaName) -> {
             //setAutoCommit(connection, false);
