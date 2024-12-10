@@ -29,8 +29,8 @@ import com.dbn.language.common.QuotePair;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Arrays;
 import java.util.List;
 
@@ -44,6 +44,8 @@ class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
             new QuotePair('"', '"'),
             new QuotePair('[', ']'),
             new QuotePair('`', '`'));
+
+    public static final String ATTACH_DATABASE_SQL = "attach database ? as ?";
 
     @Override
     public List<DatabaseObjectTypeId> getSupportedObjectTypes() {
@@ -103,19 +105,10 @@ class SqliteCompatibilityInterface extends DatabaseCompatibilityInterfaceImpl {
     @Exploitable
     public DatabaseAttachmentHandler getDatabaseAttachmentHandler() {
         return (connection, filePath, schemaName) -> {
-            //setAutoCommit(connection, false);
-            try {
-                //connection.rollback();
-                Statement statement = connection.createStatement();
-/*
-                try {
-                    statement.execute("end transaction");
-                } catch (SQLException ignore) {}
-*/
-                statement.executeUpdate("attach database '" + filePath + "' as \"" + schemaName + "\"");
-            } finally {
-                //setAutoCommit(connection, true);
-            }
+            PreparedStatement statement = connection.prepareStatement(ATTACH_DATABASE_SQL);
+            statement.setString(1, filePath);
+            statement.setString(2, schemaName);
+            statement.executeUpdate();
         };
     }
 
