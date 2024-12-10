@@ -118,7 +118,7 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
         CodeStyleCaseOption kco = caseSettings.getKeywordCaseOption();
         CodeStyleCaseOption oco = caseSettings.getObjectCaseOption();
 
-        StringBuffer buffer = new StringBuffer();
+        StringBuilder buffer = new StringBuilder();
         QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
         String bq = "\\" + quotes.beginChar() + "?";
         String eq = "\\" + quotes.endChar() + "?";
