@@ -91,7 +91,7 @@ sourceSets{
 // Configure Gradle IntelliJ Plugin
 // Read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
 intellij {
-  version.set("242.23339.11")
+  version.set("243.21565.193")
   type.set("IC") // Target IDE Platform
 
   plugins.set(listOf("java", "copyright"))
