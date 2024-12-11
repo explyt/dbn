@@ -18,6 +18,7 @@ package com.dbn.database.oracle;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.AuthenticationType;
 import com.dbn.connection.DatabaseUrlType;
 import com.dbn.connection.SchemaId;
@@ -27,6 +28,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Commons.nvl;
+import static java.lang.Character.isWhitespace;
 
 public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
     private static final String SQLPLUS_CONNECT_PATTERN_TNS= "[USER]@[TNS_PROFILE]";
@@ -37,15 +39,25 @@ public class OracleScriptExecutionInput extends DatabaseScriptExecutionInput {
     public OracleScriptExecutionInput(
             @NotNull CmdLineInterface cmdLineInterface,
             @NotNull String filePath,
-            String content,
+            @NotNull String content,
             @Nullable SchemaId schemaId,
             @NotNull DatabaseInfo databaseInfo,
             @NotNull AuthenticationInfo authenticationInfo) {
-        super(cmdLineInterface, filePath, content, schemaId, databaseInfo, authenticationInfo);
+        super(cmdLineInterface, filePath, adjustContent(content), schemaId, databaseInfo, authenticationInfo);
+    }
+
+    private static String adjustContent(String content) {
+        content = Strings.trim(content);
+        char lastChr = Strings.lastChar(content, chr -> !isWhitespace(chr));
+        if (lastChr != ';' && lastChr != '/' && lastChr != ' ') {
+            // make sure exit command is not impacted by script errors
+            content = content + ";\n";
+        }
+        return content;
     }
 
     @Override
-    protected void initExecutable(@NotNull CmdLineInterface cmdLineInterface, @NotNull DatabaseInfo databaseInfo, @NotNull AuthenticationInfo authenticationInfo) {
+    protected void initExecutable(CmdLineInterface cmdLineInterface, DatabaseInfo databaseInfo, AuthenticationInfo authenticationInfo) {
         String connectionParam = buildConnectionParameter(databaseInfo, authenticationInfo);
 
         boolean tnsConnection = databaseInfo.getUrlType() == DatabaseUrlType.TNS;

@@ -31,12 +31,12 @@ import java.util.List;
 public class CmdLineExecutionInput {
     private GeneralCommandLine command = new GeneralCommandLine();
 
-    private final StringBuilder content;
+    private final String scriptContent;
     private final List<String> statements = new ArrayList<>();
     private char[] password;
 
-    public CmdLineExecutionInput(@NotNull String content) {
-        this.content = new StringBuilder(content);
+    public CmdLineExecutionInput(@NotNull String scriptContent) {
+        this.scriptContent = scriptContent;
     }
 
     public void addEnvironmentVariable(String key, char[] value) {
@@ -48,7 +48,7 @@ public class CmdLineExecutionInput {
     }
 
     public String getTextContent() {
-        return content.toString();
+        return scriptContent;
     }
 
     public void addStatement(String statement) {

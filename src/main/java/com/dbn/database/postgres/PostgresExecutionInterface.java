@@ -40,7 +40,13 @@ public class PostgresExecutionInterface extends DatabaseExecutionInterfaceImpl {
     }
 
     @Override
-    public CmdLineExecutionInput createScriptExecutionInput(@NotNull CmdLineInterface cmdLineInterface, @NotNull String filePath, String content, @Nullable SchemaId schemaId, @NotNull DatabaseInfo databaseInfo, @NotNull AuthenticationInfo authenticationInfo) {
+    public CmdLineExecutionInput createScriptExecutionInput(
+            @NotNull CmdLineInterface cmdLineInterface,
+            @NotNull String filePath,
+            @NotNull String content,
+            @Nullable SchemaId schemaId,
+            @NotNull DatabaseInfo databaseInfo,
+            @NotNull AuthenticationInfo authenticationInfo) {
         return new PostgresScriptExecutionInput(
                 cmdLineInterface,
                 filePath,
