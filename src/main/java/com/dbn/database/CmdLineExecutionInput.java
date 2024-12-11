@@ -16,31 +16,35 @@
 
 package com.dbn.database;
 
+import com.dbn.common.util.Chars;
+import com.dbn.common.util.Strings;
+import com.intellij.execution.configurations.GeneralCommandLine;
 import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Getter
+@Setter
 public class CmdLineExecutionInput {
+    private GeneralCommandLine command = new GeneralCommandLine();
+
     private final StringBuilder content;
-    private final List<String> command = new ArrayList<>();
     private final List<String> statements = new ArrayList<>();
-    private final Map<String, String> environmentVars = new HashMap<>();
+    private char[] password;
 
     public CmdLineExecutionInput(@NotNull String content) {
         this.content = new StringBuilder(content);
     }
 
     public void addEnvironmentVariable(String key, char[] value) {
-        environmentVars.put(key, new String(value));
+        command.withEnvironment(key, Chars.toString(value));
     }
 
     public void addEnvironmentVariable(String key, String value) {
-        environmentVars.put(key, value);
+        command.withEnvironment(key, value);
     }
 
     public String getTextContent() {
@@ -52,25 +56,26 @@ public class CmdLineExecutionInput {
     }
 
     public void initCommand(String executable) {
-        command.add(executable);
+        command.setExePath(executable);
     }
 
-    public void addCommandArgument(String argument) {
-        command.add(argument);
+    public void addParameter(String param) {
+        if (Strings.isEmpty(param)) return;
+        command.addParameter(param);
     }
 
-    public void addCommandArgument(String argument, String value) {
-        command.add(argument);
-        command.add(value);
+    public void addParameter(String param, String value) {
+        if (Strings.isEmpty(value)) return;
+        command.addParameter(param);
+        command.addParameter(value);
+    }
+    public void addKvParameter(String param, String value) {
+        if (Strings.isEmpty(value)) return;
+        command.addParameter(param + "=" + value);
     }
 
     @NotNull
-    public String getLineCommand() {
-        StringBuilder lineCommand = new StringBuilder();
-        for (String arg : command) {
-            lineCommand.append(arg).append(" ");
-        }
-
-        return lineCommand.toString();
+    public String getCommandLine() {
+        return command.getCommandLineString();
     }
 }
