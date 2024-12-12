@@ -396,6 +396,7 @@
                 m.METHOD_INDEX,
                 m.BASE_TYPE as RETURN_TYPE,
                 m.ACCESSIBILITY,
+                m.ARRAY_DEPTH,
                 decode(m.RETURN_CLASS, '-', null, m.RETURN_CLASS) as RETURN_CLASS_NAME,
                 decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
