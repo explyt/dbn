@@ -35,6 +35,8 @@ public interface DBJavaMethodMetadata extends DBObjectMetadata {
 
 	short getMethodIndex() throws SQLException;
 
+	short getArrayDepth() throws SQLException;
+
 	boolean isStatic() throws SQLException;
 
 	boolean isFinal() throws SQLException;
