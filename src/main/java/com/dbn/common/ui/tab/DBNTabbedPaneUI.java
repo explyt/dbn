@@ -507,10 +507,6 @@ public class DBNTabbedPaneUI extends BasicTabbedPaneUI {
 
     @Override
     public void paint(Graphics g, JComponent c) {
-        if (Boolean.getBoolean("use.basic.tabs.scrolling")) {
-            super.paint(g, c);
-            return;
-        }
         int selectedIndex = tabPane.getSelectedIndex();
         int tabPlacement = tabPane.getTabPlacement();
 
