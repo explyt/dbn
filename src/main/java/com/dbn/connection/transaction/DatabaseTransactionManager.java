@@ -126,7 +126,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                 String actionName = actions.get(0).getName();
 
                 String title = txt("prc.transactions.title.TransactionalActivity");
-                String description = txt("prc.transactions.info.TransactionalActivity", actionName, connectionName);
+                String description = txt("prc.transactions.message.TransactionalActivity", actionName, connectionName);
                 ProgressRunnable executor = progress -> executeActions(connection, conn, actions, callback);
 
                 if (background)
@@ -168,7 +168,7 @@ public class DatabaseTransactionManager extends ProjectComponentBase implements 
                     TransactionListener.TOPIC,
                     (listener) -> listener.beforeAction(connection, conn, action));
 
-            ProgressMonitor.setProgressDetail(txt("prc.transactions.info.TransactionalActivity", action.getName(), connectionName));
+            ProgressMonitor.setProgressDetail(txt("prc.transactions.message.TransactionalActivity", action.getName(), connectionName));
 
             action.execute(connection, conn);
             if (action.getNotificationType() != null) {
