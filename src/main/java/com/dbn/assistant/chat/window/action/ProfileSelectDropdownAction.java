@@ -64,7 +64,7 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
-        presentation.setDescription(txt("companion.chat.profile.tooltip"));
+        presentation.setDescription(txt("app.assistant.tooltip.ChooseProfile"));
         presentation.setEnabled(enabled);
         presentation.setIcon(profile == null ? null : profile.getIcon());
     }

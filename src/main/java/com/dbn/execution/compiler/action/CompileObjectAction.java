@@ -24,6 +24,7 @@ import com.dbn.execution.compiler.CompilerAction;
 import com.dbn.execution.compiler.CompilerActionSource;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.execution.compiler.options.CompilerSettings;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
@@ -34,12 +35,12 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class CompileObjectAction extends BasicAction {
-    private DBObjectRef<DBSchemaObject> objectRef;
-    private DBContentType contentType;
-    private CompileType compileType;
+    private final DBObjectRef<DBSchemaObject> objectRef;
+    private final DBContentType contentType;
+    private final CompileType compileType;
 
     public CompileObjectAction(DBSchemaObject object, DBContentType contentType, CompileType compileType) {
-        super("Compile");
+        super(NlsResources.txt("app.compiler.action.Compile"));
         this.objectRef = DBObjectRef.of(object);
         this.contentType = contentType;
         this.compileType = compileType;
@@ -70,10 +71,11 @@ public class CompileObjectAction extends BasicAction {
 
         presentation.setEnabled(isEnabled);
 
-        String text = "Compile " + object.getObjectType().getName();
-        if (compileType == CompileType.DEBUG) {
-            text += " (debug)";
-        }
+        boolean debug = compileType == CompileType.DEBUG;
+        String objectTypeName = object.getObjectType().getName();
+        String text = debug ?
+                txt("app.compiler.action.CompileObject", objectTypeName) :
+                txt("app.compiler.action.CompileObjectDebug", objectTypeName);
         presentation.setText(text);
     }
 

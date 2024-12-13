@@ -26,6 +26,7 @@ public abstract class AbstractFilterListAction extends BasicAction {
     private final DatasetFilterList filterList;
 
     protected AbstractFilterListAction(DatasetFilterList filterList) {
+        super("app.dataEditor.action.Filters");
         this.filterList = filterList;
     }
 

@@ -68,7 +68,7 @@ public class ModelSelectDropdownAction extends ComboBoxAction implements DumbAwa
 
         Presentation presentation = e.getPresentation();
         presentation.setText(getText(e));
-        presentation.setDescription(txt("companion.chat.model.tooltip"));
+        presentation.setDescription(txt("app.assistant.tooltip.ChooseModel"));
         presentation.setEnabled(enabled);
     }
 

@@ -44,6 +44,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorCodeGeneratorInput, JdbcConnectorCodeGeneratorResult> {
     public JdbcConnectorCodeGenerator(CodeGeneratorType type) {
         super(type);
@@ -153,8 +155,8 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
     @Override
     protected String getTitle(OutcomeType outcomeType) {
         switch (outcomeType) {
-            case SUCCESS: return "Success";
-            case FAILURE: return "Failure";
+            case SUCCESS: return txt("msg.shared.title.Success");
+            case FAILURE: return txt("msg.shared.title.Failure");
         }
         return "";
     }

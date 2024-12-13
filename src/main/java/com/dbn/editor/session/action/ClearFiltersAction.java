@@ -44,7 +44,7 @@ public class ClearFiltersAction extends AbstractSessionBrowserAction {
     @Override
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Clear Filter");
+        presentation.setText(txt("app.sessions.action.ClearFilter"));
         presentation.setIcon(Icons.DATASET_FILTER_CLEAR);
 
         boolean enabled = false;
