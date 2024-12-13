@@ -31,6 +31,8 @@ import com.intellij.openapi.project.Project;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.options.setting.Settings.newStateElement;
+
 @State(
     name = ObjectDependencyManager.COMPONENT_NAME,
     storages = @Storage(DatabaseNavigator.STORAGE_FILE)
@@ -63,7 +65,7 @@ public class ObjectDependencyManager extends ProjectComponentBase implements Per
 
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Settings.setEnum(element, "last-used-dependency-type", lastUserDependencyType);
         return element;
     }

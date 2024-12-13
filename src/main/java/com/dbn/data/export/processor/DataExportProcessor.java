@@ -30,6 +30,7 @@ import com.intellij.openapi.ide.CopyPasteManager;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
@@ -57,6 +58,7 @@ public abstract class DataExportProcessor {
         return Formatter.getInstance(project).clone();
     }
 
+    @NonNls
     public abstract String getFileExtension();
 
     public void export(DataExportModel model, DataExportInstructions instructions, ConnectionHandler connection)

@@ -291,7 +291,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         Project project = getProject();
         showInfoDialog(
                 project, txt("msg.connection.title.NoConnectionsAvailable"), txt("msg.connection.info.NoConnectionsAvailable"),
-                options(txt("app.connection.button.SetupConnection"), txt("app.shared.button.Cancel")), 0,
+                options(txt("app.connection.button.SetupConnection"), txt("msg.shared.button.Cancel")), 0,
                 option -> when(option == 0, () -> {
                     ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(project);
                     settingsManager.openProjectSettings(ConfigId.CONNECTIONS);
@@ -335,7 +335,7 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
                             project,
                             txt("msg.connection.title.DatabaseFileNotAvailable"),
                             txt("msg.connection.info.DatabaseFileNotAvailable", missingFiles),
-                            options(txt("app.shared.button.Create"), txt("app.shared.button.Cancel")), 0,
+                            options(txt("msg.shared.button.Create"), txt("msg.shared.button.Cancel")), 0,
                             callback);
                 }
             }

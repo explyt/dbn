@@ -95,7 +95,7 @@ public class DatabaseFileSystem extends VirtualFileSystem implements /*NonPhysic
         private final String urlToken;
         private final String presentableUrlToken;
 
-        FilePathType(String urlToken, String presentableUrlToken) {
+        FilePathType(@NonNls String urlToken, @NonNls String presentableUrlToken) {
             this.urlToken = urlToken + PS;
             this.presentableUrlToken = presentableUrlToken + PS;
         }

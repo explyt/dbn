@@ -44,8 +44,8 @@ public class DatabaseSessionDisableAction extends ProjectAction {
         ConnectionHandler connection = this.connection.ensure();
         Messages.showQuestionDialog(
                 project,
-                "Disable session support",
-                "Are you sure you want to disable the session support for connection \"" + connection.getName() + "\"\n(you can re-enable at any time in connection details settings)",
+                txt("msg.sessions.title.DisableSessionSupport"),
+                txt("msg.sessions.question.DisableSessionSupport",connection.getName()),
                 Messages.OPTIONS_YES_NO,
                 0,
                 option -> when(option == 0, () -> {
@@ -56,6 +56,6 @@ public class DatabaseSessionDisableAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        e.getPresentation().setText("Disable Session Support...");
+        e.getPresentation().setText(txt("app.sessions.action.DisableSessionSupport"));
     }
 }

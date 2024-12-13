@@ -172,8 +172,8 @@ public class ExportDataForm extends DBNFormBase {
 
         Project project = connection.getProject();
         fileLocationTextField.addBrowseFolderListener(
-                "Select Directory",
-                "Select destination directory for the exported file", project, DIRECTORY_FILE_DESCRIPTOR);
+                txt("msg.dataExport.title.SelectDirectory"),
+                txt("msg.dataExport.text.SelectDirectory"), project, DIRECTORY_FILE_DESCRIPTOR);
         
         enableDisableFields();
 
@@ -262,36 +262,41 @@ public class ExportDataForm extends DBNFormBase {
         boolean validValueSeparator = !isEmptyText(valueSeparatorTextField);
         boolean validFileName = !isEmptyText(fileNameTextField);
         boolean validFileLocation = !isEmptyText(fileLocationTextField.getTextField());
-        StringBuilder buffer = new StringBuilder();
+        StringBuilder fields = new StringBuilder();
         if (valueSeparatorTextField.isEnabled()) {
-            if (!validValueSeparator)  buffer.append("Value separator");
+            if (!validValueSeparator)  fields.append(txt("msg.dataExport.label.ValueSeparator"));
         }
         if (beginQuoteTextField.isEnabled() || endQuoteTextField.isEnabled()) {
-            if (!validOpenQuote || !validCloseQuote)  buffer.append("Quotes");
+            if (!validOpenQuote || !validCloseQuote)  {
+                if (fields.length() > 0) fields.append(", ");
+                fields.append(txt("msg.dataExport.label.Quotes"));
+            }
         }
         if (fileNameTextField.isEnabled()) {
             if (!validFileName)  {
-                if (buffer.length() > 0) buffer.append(", ");
-                buffer.append("File Name");
+                if (fields.length() > 0) fields.append(", ");
+                fields.append(txt("msg.dataExport.label.FileName"));
             }
             if (!validFileLocation) {
-                if (buffer.length() > 0) buffer.append(", ");
-                buffer.append("File Location");
+                if (fields.length() > 0) fields.append(", ");
+                fields.append(txt("msg.dataExport.label.FileLocation"));
             }
         }
 
         Project project = getProject();
-        if (buffer.length() > 0) {
-            buffer.insert(0, "Please provide values for the following fields: ");
-            Messages.showErrorDialog(project, "Required input", buffer.toString());
+        if (fields.length() > 0) {
+            Messages.showErrorDialog(project,
+                    txt("msg.dataExport.title.MissingInput"),
+                    txt("msg.dataExport.error.MissingInput", fields.toString()));
             return;
         }
 
         if (destinationFileRadioButton.isSelected()) {
             File file = getExportInstructions().getFile();
             if (file.exists()) {
-                Messages.showQuestionDialog(project, "File exists",
-                        "File " + file.getPath() + " already exists. Overwrite?",
+                Messages.showQuestionDialog(project,
+                        txt("msg.dataExport.title.FileExists"),
+                        txt("msg.dataExport.question.FileExists", file.getPath()),
                         Messages.OPTIONS_YES_NO, 0,
                         option -> when(option == 0, callback));
 

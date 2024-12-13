@@ -21,6 +21,7 @@ import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.execution.compiler.CompileType;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.execution.compiler.options.CompilerSettings;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -28,15 +29,15 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 public class CompileInvalidObjectsAction extends BasicAction {
-    private DBObjectRef<DBSchema> schemaRef;
+    private final DBObjectRef<DBSchema> schema;
     public CompileInvalidObjectsAction(DBSchema schema) {
-        super("Compile invalid objects");
-        this.schemaRef = DBObjectRef.of(schema);
+        super(NlsResources.txt("app.compiler.action.CompileInvalidObjects"));
+        this.schema = DBObjectRef.of(schema);
     }
 
     @NotNull
     public DBSchema getSchema() {
-        return DBObjectRef.ensure(schemaRef);
+        return DBObjectRef.ensure(schema);
     }
 
     @Override
@@ -51,8 +52,10 @@ public class CompileInvalidObjectsAction extends BasicAction {
     public void update(@NotNull AnActionEvent e) {
         DBSchema schema = getSchema();
         CompileType compileType = getCompilerSettings(schema.getProject()).getCompileType();
-        String text = "Compile Invalid Objects";
-        if (compileType == CompileType.DEBUG) text = text + " (Debug)";
+        String text = compileType == CompileType.DEBUG ?
+                txt("app.compiler.action.CompileInvalidObjectsDebug") :
+                txt("app.compiler.action.CompileInvalidObjects");
+
         if (compileType == CompileType.ASK) text = text + "...";
 
         e.getPresentation().setText(text);

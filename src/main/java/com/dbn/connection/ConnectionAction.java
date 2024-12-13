@@ -35,8 +35,8 @@ import static com.dbn.nls.NlsResources.txt;
 
 public abstract class ConnectionAction implements DatabaseContextBase {
     static final String[] OPTIONS_CONNECT_CANCEL = options(
-            txt("app.shared.button.Connect"),
-            txt("app.shared.button.Cancel"));
+            txt("msg.shared.button.Connect"),
+            txt("msg.shared.button.Cancel"));
 
     private final String description;
     private final boolean interactive;

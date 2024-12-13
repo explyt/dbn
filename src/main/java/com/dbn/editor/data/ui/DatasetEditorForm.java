@@ -273,7 +273,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         @Override
         public void update(@NotNull AnActionEvent e) {
             Presentation presentation = e.getPresentation();
-            presentation.setText(txt("app.shared.action.Cancel"));
+            presentation.setText(txt("msg.shared.action.Cancel"));
             presentation.setIcon(Icons.DATA_EDITOR_STOP_LOADING);
             presentation.setEnabled(!getEditorTable().getModel().isLoadCancelled());
         }

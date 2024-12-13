@@ -61,8 +61,8 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
         if (isValid(target)) {
             boolean enabled = target.getStatus().is(DBObjectStatus.ENABLED);
             String text = !enabled ?
-                    txt("app.shared.action.Enable") :
-                    txt("app.shared.action.Disable");
+                    txt("msg.shared.action.Enable") :
+                    txt("msg.shared.action.Disable");
 
             presentation.setText(text);
             presentation.setVisible(true);

@@ -16,6 +16,7 @@
 
 package com.dbn.connection.config.tns;
 
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
@@ -83,11 +84,13 @@ public class TnsProfilePattern {
         return pattern;
     }
 
+    @NonNls
     private static String block(String content) {
         return "[(]\\s*" + content + "\\s*[)]";
     }
 
-    private static String keyValue(String key, String value) {
+    @NonNls
+    private static String keyValue(@NonNls String key, @NonNls String value) {
         return key + "\\s*=\\s*" + value;
     }
 

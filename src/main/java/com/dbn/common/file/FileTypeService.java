@@ -50,6 +50,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.applicationService;
 import static com.dbn.common.file.FileTypeService.COMPONENT_NAME;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Slf4j
@@ -185,7 +186,7 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
 
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Element mappingsElement = newElement(element, "original-file-types");
 
         for (String fileExtension : originalFileAssociations.keySet()) {

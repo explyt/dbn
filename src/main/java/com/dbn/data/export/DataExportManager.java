@@ -112,13 +112,13 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
                             project,
                             txt("msg.data.title.DataExported"),
                             txt("msg.data.info.DataExportedToClipboard"),
-                            new String[]{txt("app.shared.button.OK")}, 0, null);
+                            new String[]{txt("msg.shared.button.OK")}, 0, null);
                 } else {
                     Messages.showWarningDialog(
                             project,
                             txt("msg.data.title.DataExported"),
                             txt("msg.data.warning.DataExportedToClipboard", warningsBlock),
-                            new String[]{txt("app.shared.button.OK")}, 0, null);
+                            new String[]{txt("msg.shared.button.OK")}, 0, null);
 
                 }
 
@@ -134,7 +134,7 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
                                 project,
                                 txt("msg.data.title.DataExported"),
                                 txt("msg.data.info.DataExportedToFile", filePath),
-                                new String[]{txt("app.shared.button.OK"), txt("app.shared.button.OpenFile")}, 0,
+                                new String[]{txt("msg.shared.button.OK"), txt("msg.shared.button.OpenFile")}, 0,
                                 o -> {
                                     successCallback.run();
                                     if (o == 1) openFile(project, file);
@@ -145,7 +145,7 @@ public class DataExportManager extends ProjectComponentBase implements Persisten
                                 project,
                                 txt("msg.data.title.DataExported"),
                                 txt("msg.data.warning.DataExportedToFile", filePath, warningsBlock),
-                                new String[]{txt("app.shared.button.OK"), txt("app.shared.button.OpenFile")}, 0,
+                                new String[]{txt("msg.shared.button.OK"), txt("msg.shared.button.OpenFile")}, 0,
                                 o -> {
                                     successCallback.run();
                                     if (o == 1) openFile(project, file);

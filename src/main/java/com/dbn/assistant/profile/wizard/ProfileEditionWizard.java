@@ -85,7 +85,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
     this.initialProfile = new ProfileData(profile);
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
-    finishButton.setText(txt(isUpdate ? "app.shared.button.Update" : "app.shared.button.Create"));
+    finishButton.setText(txt(isUpdate ? "msg.shared.button.Update" : "msg.shared.button.Create"));
   }
 
   @Override

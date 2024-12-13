@@ -27,6 +27,7 @@ import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.generator.statement.StatementGeneratorResult;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.sql.SQLFileType;
+import com.dbn.nls.NlsResources;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
@@ -39,14 +40,16 @@ import java.awt.datatransfer.StringSelection;
 public abstract class GenerateStatementAction extends ProjectAction implements DatabaseContextBase {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ConnectionAction.invoke("generating the statement", false, this,
+        ConnectionAction.invoke(txt("prc.codeGenerator.text.GeneratingStatement"), false, this,
                 action -> Progress.prompt(project, getConnection(), true,
-                        "Extracting statement",
-                        "Extracting " + e.getPresentation().getText(),
+                        txt("prc.codeGenerator.title.GeneratingStatement"),
+                        txt("prc.codeGenerator.message.GeneratingStatement",e.getPresentation().getText()),
                         progress -> {
                             StatementGeneratorResult result = generateStatement(project);
                             if (result.getMessages().hasErrors()) {
-                                Messages.showErrorDialog(project, "Error generating statement", result.getMessages());
+                                Messages.showErrorDialog(project,
+                                        txt("msg.codeGenerator.message.StatementGenerationError"),
+                                        result.getMessages());
                             } else {
                                 pasteStatement(result, project);
                             }
@@ -68,13 +71,15 @@ public abstract class GenerateStatementAction extends ProjectAction implements D
 
         CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
         copyPasteManager.setContents(content);
-        Messages.showInfoDialog(project, "Statement extracted", "SQL statement exported to clipboard.");
+        Messages.showInfoDialog(project,
+                NlsResources.txt("msg.codeGenerator.title.StatementGenerated"),
+                NlsResources.txt("msg.codeGenerator.message.StatementGeneratedToClipboard"));
     }
 
     private static void pasteToEditor(final Editor editor, final StatementGeneratorResult generatorResult) {
         Command.run(
                 editor.getProject(),
-                "Extract statement",
+                NlsResources.txt("prc.codeGenerator.label.ExtractStatement"),
                 () -> {
                     String statement = generatorResult.getStatement();
                     PsiUtil.moveCaretOutsideExecutable(editor);

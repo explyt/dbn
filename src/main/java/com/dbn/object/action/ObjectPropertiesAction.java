@@ -35,7 +35,8 @@ public class ObjectPropertiesAction<T extends DBObject> extends AnObjectAction<T
             @NotNull Project project,
             @NotNull DBObject object) {
 
-        Messages.showInfoDialog(project, "Not implemented!", "This feature is not implemented yet.");
+        //TODO
+        //Messages.showInfoDialog(project, "Not implemented!", "This feature is not implemented yet.");
     }
 
     @Override
@@ -45,5 +46,6 @@ public class ObjectPropertiesAction<T extends DBObject> extends AnObjectAction<T
             @NotNull Project project,
             @Nullable T target) {
         presentation.setText("Properties");
+        presentation.setVisible(false); // TODO
     }
 }

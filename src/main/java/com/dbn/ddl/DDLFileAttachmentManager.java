@@ -389,7 +389,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
                                     String.join("\n", fileUrls)));
                         }
 
-                        String[] options = {txt("app.shared.button.CreateNew"), txt("app.shared.button.Cancel")};
+                        String[] options = {txt("msg.shared.button.CreateNew"), txt("msg.shared.button.Cancel")};
                         Messages.showInfoDialog(getProject(),
                                 txt("msg.ddlFiles.title.NoDdlFilesFound"),
                                 message.toString(), options, 0,
@@ -491,7 +491,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
                 getProject(),
                 txt("msg.ddlFiles.title.NoDdlFileAssociation"),
                 txt("msg.ddlFiles.question.NoDdlFileAssociation", objectRef.getObjectType().getListName()),
-                options(txt("app.shared.button.OpenSettings"), txt("app.shared.button.Cancel")), 0,
+                options(txt("msg.shared.button.OpenSettings"), txt("msg.shared.button.Cancel")), 0,
                 option -> when(option == 0, () -> {
                     ProjectSettingsManager settingsManager = ProjectSettingsManager.getInstance(getProject());
                     settingsManager.openProjectSettings(ConfigId.DDL_FILES);

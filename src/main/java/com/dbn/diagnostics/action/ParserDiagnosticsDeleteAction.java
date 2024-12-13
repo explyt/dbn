@@ -36,8 +36,8 @@ public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsActi
         ParserDiagnosticsResult result = form.getSelectedResult();
         if (result != null) {
             Messages.showQuestionDialog(project,
-                    "Delete diagnostics result",
-                    "Are you sure you want to delete the diagnostic result " + result.getName(),
+                    txt("msg.diagnostics.title.DeleteResult"),
+                    txt("msg.diagnostics.message.DeleteResultConfirmation",result.getName()),
                     Messages.OPTIONS_YES_NO, 0,
                     option -> when(option == 0, () -> {
                         ParserDiagnosticsManager manager = getManager(project);

@@ -39,6 +39,7 @@ import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.editor.data.filter.DatasetFilterType;
 import com.dbn.editor.data.options.DataEditorSettings;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBDataset;
 import com.dbn.object.common.DBObject;
@@ -123,12 +124,12 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     public void connectAndOpenEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
         if (!isEditable(object)) return;
 
-        ConnectionAction.invoke("opening the object editor", false, object, action -> {
+        ConnectionAction.invoke(txt("prc.editor.text.OpeningObjectEditor"), false, object, action -> {
             Project project = getProject();
             if (focusEditor) {
                 Progress.prompt(project, object, true,
-                        "Opening " + object.getTypeName() + " editor",
-                        "Opening editor for " + object.getQualifiedNameWithType(),
+                        txt("prc.editor.title.OpeningObjectEditor"),
+                        txt("prc.editor.message.OpeningObjectEditor", object.getQualifiedNameWithType()),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {
                 Background.run(() -> openEditor(object, editorProviderId, scrollBrowser, false));
@@ -311,9 +312,10 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
 
         if (ddlFileSettings.isDdlFilesCreationEnabled()) {
             Messages.showQuestionDialog(
-                    project, "No DDL file found",
-                    "Could not find any DDL file for " + object.getQualifiedNameWithType() + ". Do you want to create one? \n" +
-                            "(You can disable this check in \"DDL File\" options)", Messages.OPTIONS_YES_CANCEL, 0,
+                    project,
+                    NlsResources.txt("msg.ddlFiles.title.NoDdlFileFound"),
+                    NlsResources.txt("msg.ddlFiles.question.NoDdlFileFound", object.getQualifiedNameWithType()),
+                    Messages.OPTIONS_YES_CANCEL, 0,
                     option -> {
                         when(option == 0, () -> fileAttachmentManager.createDDLFile(objectRef));
                         when(option == 1, callback);

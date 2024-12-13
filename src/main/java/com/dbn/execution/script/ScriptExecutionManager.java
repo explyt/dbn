@@ -80,6 +80,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.setting.Settings.booleanAttribute;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
@@ -399,7 +400,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         setBooleanAttribute(element, "clear-outputs", clearOutputOption);
         Element interfacesElement = newElement(element, "recently-used-interfaces");
         for (val entry : recentlyUsedInterfaces.entrySet()) {

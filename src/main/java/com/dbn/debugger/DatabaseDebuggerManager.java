@@ -222,12 +222,15 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
             } else {
                 ApplicationInfo applicationInfo = ApplicationInfo.getInstance();
                 Messages.showErrorDialog(
-                        getProject(), "Unsupported debugger",
-                        debuggerType.name() + " debugging is not supported in \"" +
-                                applicationInfo.getVersionName() + " " +
-                                applicationInfo.getFullVersion() + "\".\n" +
-                                "Do you want to use classic debugger over JDBC instead?",
-                        new String[]{"Use " + DBDebuggerType.JDBC.getName(), "Cancel"}, 0,
+                        getProject(),
+                        txt("msg.debugger.title.UnsupportedDebugger"),
+                        txt("msg.debugger.error.UnsupportedDebugger",
+                                debuggerType.getName(),
+                                applicationInfo.getVersionName(),
+                                applicationInfo.getFullVersion()),
+                        new String[]{
+                                txt("msg.debugger.button.UseDebugger",DBDebuggerType.JDBC.getName()),
+                                txt("msg.shared.button.Cancel")}, 0,
                         o -> when(o == 0, () -> debuggerStarter.accept(DBDebuggerType.JDBC)));
             }
         });

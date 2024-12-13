@@ -56,6 +56,7 @@ import static com.dbn.common.navigation.NavigationInstruction.FOCUS;
 import static com.dbn.common.navigation.NavigationInstruction.SCROLL;
 import static com.dbn.common.navigation.NavigationInstruction.SELECT;
 import static com.dbn.common.options.setting.Settings.getBoolean;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setBoolean;
 
 @State(
@@ -239,7 +240,7 @@ public class ExecutionManager extends ProjectComponentBase implements Persistent
      *            PersistentStateComponent       *
      *********************************************/
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         setBoolean(element, "retain-sticky-names", retainStickyNames);
         return element;
     }

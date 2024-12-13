@@ -26,6 +26,7 @@ import com.dbn.database.interfaces.DatabaseInterfaces;
 import com.dbn.editor.code.content.GuardedBlockMarker;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.language.common.QuotePair;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,7 +37,7 @@ import java.util.regex.Pattern;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
 public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterfaceBase implements DatabaseDataDefinitionInterface {
-    public static final String TEMP_OBJECT_NAME = "DBN_TEMPORARY_{0}_0001";
+    public static final @NonNls String TEMP_OBJECT_NAME = "DBN_TEMPORARY_{0}_0001";
 
     public static String getTempObjectName(String objectType) {
         return MessageFormat.format(TEMP_OBJECT_NAME, cachedUpperCase(objectType));
