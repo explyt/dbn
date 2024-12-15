@@ -26,6 +26,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class DatabaseConnectivityTestAction extends AbstractConnectionAction {
 
     DatabaseConnectivityTestAction(ConnectionHandler connection) {

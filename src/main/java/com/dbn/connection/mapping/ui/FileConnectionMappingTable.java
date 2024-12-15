@@ -65,6 +65,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTableModel> {
     private final FileConnectionContextManager manager;
@@ -247,7 +248,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         private final ConnectionRef connection;
         private ConnectionAction(VirtualFile virtualFile, ConnectionHandler connection) {
             super(
-                Safe.call(connection, c -> c.getName(), "No Connection"), null,
+                Safe.call(connection, c -> c.getName(), txt("app.fileContext.action.NoConnection")), null,
                 Safe.call(connection, c -> c.getIcon()));
             this.virtualFile = virtualFile;
             this.connection = ConnectionRef.of(connection);

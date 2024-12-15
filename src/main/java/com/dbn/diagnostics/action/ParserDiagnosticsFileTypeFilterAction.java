@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ParserDiagnosticsFileTypeFilterAction extends ComboBoxAction implements DumbAware {
     private final ParserDiagnosticsForm form;
 
@@ -69,7 +71,7 @@ public class ParserDiagnosticsFileTypeFilterAction extends ComboBoxAction implem
         private final String fileType;
 
         public SelectFilterValueAction(String fileType) {
-            super(Strings.isEmpty(fileType) ? "No Filter" : "*." + fileType);
+            super(Strings.isEmpty(fileType) ? txt("app.shared.action.NoFilter") : "*." + fileType);
             this.fileType = fileType;
         }
 

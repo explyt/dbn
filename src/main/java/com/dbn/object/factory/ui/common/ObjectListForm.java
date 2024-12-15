@@ -31,8 +31,10 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BoxLayout;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -103,7 +105,7 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
 
     public class CreateObjectAction extends BasicAction {
         CreateObjectAction() {
-            super("Add " + getObjectType().getName(), null, Icons.ACTION_ADD);
+            super(txt("app.objects.action.CreateObject",getObjectType().getName()), null, Icons.ACTION_ADD);
         }
 
         @Override

@@ -27,7 +27,6 @@ import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.generator.statement.StatementGeneratorResult;
 import com.dbn.language.common.psi.PsiUtil;
 import com.dbn.language.sql.SQLFileType;
-import com.dbn.nls.NlsResources;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.EditorModificationUtil;
@@ -36,6 +35,8 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import java.awt.datatransfer.StringSelection;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public abstract class GenerateStatementAction extends ProjectAction implements DatabaseContextBase {
     @Override
@@ -72,14 +73,14 @@ public abstract class GenerateStatementAction extends ProjectAction implements D
         CopyPasteManager copyPasteManager = CopyPasteManager.getInstance();
         copyPasteManager.setContents(content);
         Messages.showInfoDialog(project,
-                NlsResources.txt("msg.codeGenerator.title.StatementGenerated"),
-                NlsResources.txt("msg.codeGenerator.message.StatementGeneratedToClipboard"));
+                txt("msg.codeGenerator.title.StatementGenerated"),
+                txt("msg.codeGenerator.message.StatementGeneratedToClipboard"));
     }
 
     private static void pasteToEditor(final Editor editor, final StatementGeneratorResult generatorResult) {
         Command.run(
                 editor.getProject(),
-                NlsResources.txt("prc.codeGenerator.label.ExtractStatement"),
+                txt("prc.codeGenerator.label.ExtractStatement"),
                 () -> {
                     String statement = generatorResult.getStatement();
                     PsiUtil.moveCaretOutsideExecutable(editor);

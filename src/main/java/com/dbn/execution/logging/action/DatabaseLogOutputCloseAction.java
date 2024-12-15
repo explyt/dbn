@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction {
 
@@ -52,7 +53,7 @@ public class DatabaseLogOutputCloseAction extends AbstractDatabaseLoggingAction 
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable DatabaseLoggingResult target) {
-        presentation.setText(txt("msg.shared.action.Close"));
+        presentation.setText(txt("app.shared.action.Close"));
         presentation.setIcon(Icons.EXEC_RESULT_CLOSE);
     }
 }

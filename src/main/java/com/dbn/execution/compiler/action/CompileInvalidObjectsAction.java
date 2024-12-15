@@ -21,17 +21,18 @@ import com.dbn.connection.operation.options.OperationSettings;
 import com.dbn.execution.compiler.CompileType;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.execution.compiler.options.CompilerSettings;
-import com.dbn.nls.NlsResources;
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CompileInvalidObjectsAction extends BasicAction {
     private final DBObjectRef<DBSchema> schema;
     public CompileInvalidObjectsAction(DBSchema schema) {
-        super(NlsResources.txt("app.compiler.action.CompileInvalidObjects"));
+        super(txt("app.compiler.action.CompileInvalidObjects"));
         this.schema = DBObjectRef.of(schema);
     }
 

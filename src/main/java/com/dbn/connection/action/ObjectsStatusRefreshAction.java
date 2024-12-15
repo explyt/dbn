@@ -21,18 +21,19 @@ import com.dbn.common.action.Lookups;
 import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionRef;
-import com.dbn.nls.NlsResources;
 import com.dbn.object.status.ObjectStatusManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
+
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectsStatusRefreshAction extends BasicAction {
 
     private final ConnectionRef connection;
 
     public ObjectsStatusRefreshAction(ConnectionHandler connection) {
-        super(NlsResources.txt("app.objects.action.RefreshObjectsStatus"), "", Icons.ACTION_REFRESH);
+        super(txt("app.objects.action.RefreshObjectsStatus"), "", Icons.ACTION_REFRESH);
         this.connection = connection.ref();
     }
 

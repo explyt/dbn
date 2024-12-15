@@ -32,6 +32,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for selecting the current AI-assistant profile
  *

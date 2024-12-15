@@ -44,6 +44,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SQLConsoleOpenAction extends ProjectAction {
 
     @Override
@@ -138,7 +140,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
 
 
         SelectConsoleAction(ConnectionHandler connection, DBConsoleType consoleType) {
-            super("New " + consoleType.getName() + "...");
+            super(txt("app.editors.action.NewConsole",consoleType.getName()));
             this.connection = ConnectionRef.of(connection);
             this.consoleType = consoleType;
         }

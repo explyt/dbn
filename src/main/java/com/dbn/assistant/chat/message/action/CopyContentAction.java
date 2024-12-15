@@ -26,6 +26,8 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CopyContentAction extends BasicAction {
     private final String content;
 

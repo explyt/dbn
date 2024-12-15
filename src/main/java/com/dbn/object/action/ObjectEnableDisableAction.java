@@ -27,6 +27,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.dispose.Checks.isValid;
+import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
     ObjectEnableDisableAction(DBSchemaObject object) {
@@ -61,8 +62,8 @@ public class ObjectEnableDisableAction extends AnObjectAction<DBSchemaObject> {
         if (isValid(target)) {
             boolean enabled = target.getStatus().is(DBObjectStatus.ENABLED);
             String text = !enabled ?
-                    txt("msg.shared.action.Enable") :
-                    txt("msg.shared.action.Disable");
+                    txt("app.shared.action.Enable") :
+                    txt("app.shared.action.Disable");
 
             presentation.setText(text);
             presentation.setVisible(true);

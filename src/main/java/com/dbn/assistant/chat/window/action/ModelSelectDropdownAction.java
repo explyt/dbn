@@ -34,6 +34,8 @@ import javax.swing.JComponent;
 import java.util.Collections;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 /**
  * Action for selecting the current AI-assistant model
  *

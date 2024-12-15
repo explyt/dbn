@@ -64,6 +64,7 @@ import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 import static com.dbn.common.ui.util.ClientProperty.TAB_ICON;
 import static com.dbn.common.ui.util.ClientProperty.TAB_TOOLTIP;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -90,14 +91,6 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
 
     private void installHiddenTabButton() {
         add(hiddenTabsActionPanel = new HiddenTabsPanel());
-        AnAction hiddenTabsAction = new AnAction("Show Hidden Tabs", null, AllIcons.Actions.FindAndShowNextMatches) {
-            @Override
-            public void actionPerformed(@NotNull AnActionEvent e) {
-                showHiddenTabsPopup(e);
-            }
-        };
-        ActionToolbar actionToolbar = Actions.createActionToolbar(hiddenTabsActionPanel, "", true, hiddenTabsAction);
-        hiddenTabsActionPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
     }
 
     private final class HiddenTabsPanel extends JPanel implements UIResource {
@@ -105,7 +98,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
             super(new BorderLayout());
             setBorder(null);
 
-            AnAction hiddenTabsAction = new AnAction("Show Hidden Tabs", null, AllIcons.Actions.FindAndShowNextMatches) {
+            AnAction hiddenTabsAction = new AnAction(txt("app.shared.action.ShowHiddenTabs"), null, AllIcons.Actions.FindAndShowNextMatches) {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e) {
                     showHiddenTabsPopup(e);

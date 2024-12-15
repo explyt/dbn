@@ -28,6 +28,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseSessionDisableAction extends ProjectAction {
     private final ConnectionRef connection;

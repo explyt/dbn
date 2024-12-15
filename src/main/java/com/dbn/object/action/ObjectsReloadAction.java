@@ -23,12 +23,16 @@ import com.dbn.object.common.list.DBObjectList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectsReloadAction extends BasicAction {
 
     private final DBObjectList<?> objectList;
 
     ObjectsReloadAction(DBObjectList<?> objectList) {
-        super((objectList.isLoaded() ? "Reload " : "Load ") + objectList.getName());
+        super((objectList.isLoaded() ?
+                txt("app.objects.action.ReloadObjects", objectList.getName()) :
+                txt("app.objects.action.LoadObjects", objectList.getName())));
         this.objectList = objectList;
     }
 

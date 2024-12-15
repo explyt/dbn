@@ -236,8 +236,8 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
                                 txt("msg.execution.title.MethodExecutionError"),
                                 txt("msg.execution.message.MethodExecutionError", method.getQualifiedNameWithType(), e.getMessage()),
                                 new String[]{
-                                        txt("msg.shared.action.TryAgain"),
-                                        txt("msg.shared.action.Cancel")}, 0,
+                                        txt("msg.shared.button.TryAgain"),
+                                        txt("msg.shared.button.Cancel")}, 0,
                                 option -> when(option == 0, () ->
                                         startMethodExecution(input, DBDebuggerType.NONE)));
                     }

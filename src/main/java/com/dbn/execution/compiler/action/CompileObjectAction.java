@@ -24,7 +24,6 @@ import com.dbn.execution.compiler.CompilerAction;
 import com.dbn.execution.compiler.CompilerActionSource;
 import com.dbn.execution.compiler.DatabaseCompilerManager;
 import com.dbn.execution.compiler.options.CompilerSettings;
-import com.dbn.nls.NlsResources;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
@@ -34,13 +33,15 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class CompileObjectAction extends BasicAction {
     private final DBObjectRef<DBSchemaObject> objectRef;
     private final DBContentType contentType;
     private final CompileType compileType;
 
     public CompileObjectAction(DBSchemaObject object, DBContentType contentType, CompileType compileType) {
-        super(NlsResources.txt("app.compiler.action.Compile"));
+        super(txt("app.compiler.action.Compile"));
         this.objectRef = DBObjectRef.of(object);
         this.contentType = contentType;
         this.compileType = compileType;
