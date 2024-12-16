@@ -113,8 +113,8 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
     private class KillSessionAction extends BasicAction {
         private KillSessionAction(boolean multiple) {
             super(multiple ?
-                txt("app.sessions.action.KillSessions"):
-                txt("app.sessions.action.KillSession"), null,
+                txt("app.sessionBrowser.action.KillSessions"):
+                txt("app.sessionBrowser.action.KillSession"), null,
                     Icons.ACTION_KILL_SESSION);
         }
 
@@ -133,8 +133,8 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
     private class DisconnectSessionAction extends BasicAction {
         private DisconnectSessionAction(boolean multiple) {
             super(multiple ?
-                txt("app.sessions.action.DisconnectSessions") :
-                txt("app.sessions.action.DisconnectSession"), null, Icons.ACTION_DISCONNECT_SESSION);
+                txt("app.sessionBrowser.action.DisconnectSessions") :
+                txt("app.sessionBrowser.action.DisconnectSession"), null, Icons.ACTION_DISCONNECT_SESSION);
         }
 
         @Override
@@ -163,7 +163,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
         private final SessionBrowserFilterType filterType;
         private final String name;
         private FilterByAction(SessionBrowserFilterType filterType, String name) {
-            super(txt("app.sessions.action.FilterBy", cachedLowerCase(filterType.name()) + " \"" + name + "\""), null, Icons.DATASET_FILTER);
+            super(txt("app.sessionBrowser.action.FilterBy", cachedLowerCase(filterType.name()) + " \"" + name + "\""), null, Icons.DATASET_FILTER);
             this.filterType = filterType;
             this.name = name;
         }
@@ -190,7 +190,7 @@ public class SessionBrowserTableActionGroup extends DefaultActionGroup {
 
         @Override
         public void update(AnActionEvent e) {
-            e.getPresentation().setText(txt("app.sessions.action.FilterBy", cachedLowerCase(filterType.name()) + " \"" + name + "\""), false);
+            e.getPresentation().setText(txt("app.sessionBrowser.action.FilterBy", cachedLowerCase(filterType.name()) + " \"" + name + "\""), false);
         }
     }
 }

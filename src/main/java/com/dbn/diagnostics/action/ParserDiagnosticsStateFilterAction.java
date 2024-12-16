@@ -57,7 +57,7 @@ public class ParserDiagnosticsStateFilterAction extends ComboBoxAction implement
 
         ParserDiagnosticsFilter resultFilter = getResultFilter();
         StateTransition.Category stateCategory = resultFilter.getStateCategory();
-        presentation.setText(stateCategory == null ? "state" : stateCategory.name(), false);
+        presentation.setText(stateCategory == null ? txt("app.diagnostics.action.StateFilter") : stateCategory.name(), false);
     }
 
     private ParserDiagnosticsFilter getResultFilter() {

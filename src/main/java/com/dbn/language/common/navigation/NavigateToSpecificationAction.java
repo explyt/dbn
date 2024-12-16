@@ -22,11 +22,10 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 
-import static com.dbn.common.util.Naming.capitalize;
 import static com.dbn.nls.NlsResources.txt;
 
 public class NavigateToSpecificationAction extends NavigationAction{
     public NavigateToSpecificationAction(DBObject parentObject, @NotNull BasePsiElement navigationElement, @NotNull DBObjectType objectType) {
-        super(txt("app.objects.action.GoToSpecification",  capitalize(objectType.getName())), Icons.NAVIGATION_GO_TO_SPEC, parentObject, navigationElement);
+        super(txt("app.codeEditor.action.GoToSpecification",  objectType.getCapitalizedName()), Icons.NAVIGATION_GO_TO_SPEC, parentObject, navigationElement);
     }
 }

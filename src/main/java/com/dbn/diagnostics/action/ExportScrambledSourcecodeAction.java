@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 
+import static com.dbn.nls.NlsResources.txt;
+
 @Slf4j
 public class ExportScrambledSourcecodeAction extends ProjectAction {
     public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false).
@@ -56,7 +58,7 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
         presentation.setVisible(Diagnostics.isBulkActionsEnabled());
-        presentation.setText("Export Scrambled Sourcecode");
+        presentation.setText(txt("app.diagnostics.action.ExportScrambledSourcecode"));
     }
 
 

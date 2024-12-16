@@ -73,7 +73,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
             add(revertChangesAction);
         }
 
-        DefaultActionGroup filterActionGroup = new DefaultActionGroup("Filter", true);
+        DefaultActionGroup filterActionGroup = new DefaultActionGroup(txt("app.dataEditor.action.Filter"), true);
         filterActionGroup.getTemplatePresentation().setIcon(Icons.DATASET_FILTER_NEW);
         //filterActionGroup.getTemplatePresentation().setIcon(Icons.DATASET_FILTER);
         filterActionGroup.add(new CreateFilterAction(false));
@@ -103,7 +103,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
         add(filterActionGroup);
 
         if (columnInfo.isSortable()) {
-            DefaultActionGroup sortingActionGroup = new DefaultActionGroup("Sort", true);
+            DefaultActionGroup sortingActionGroup = new DefaultActionGroup(txt("app.dataEditor.action.Sort"), true);
             //sortingActionGroup.getTemplatePresentation().setIcon(Icons.COMMON_SORTING);
             sortingActionGroup.add(new SortAscendingAction());
             sortingActionGroup.add(new SortDescendingAction());
@@ -132,7 +132,7 @@ public class DatasetEditorTableActionGroup extends DefaultActionGroup {
 
         addSeparator();
 
-        DefaultActionGroup columnPropertiesActionGroup = new DefaultActionGroup("Column Info", true);
+        DefaultActionGroup columnPropertiesActionGroup = new DefaultActionGroup(txt("app.dataEditor.action.ColumnInfo"), true);
         columnPropertiesActionGroup.add(new NavigateToObjectAction(column));
         for (DBObjectNavigationList navigationList : column.getNavigationLists()) {
             if (!navigationList.isLazy()) {

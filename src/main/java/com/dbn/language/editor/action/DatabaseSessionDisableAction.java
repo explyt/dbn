@@ -57,6 +57,6 @@ public class DatabaseSessionDisableAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        e.getPresentation().setText(txt("app.sessions.action.DisableSessionSupport"));
+        e.getPresentation().setText(txt("app.codeEditor.action.DisableSessionSupport"));
     }
 }

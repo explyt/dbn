@@ -26,6 +26,8 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ReloadObjectsAction extends ProjectAction {
 
     private final DBObjectList objectList;
@@ -37,7 +39,9 @@ public class ReloadObjectsAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText(objectList.isLoaded() ? "Reload" : "Load");
+        presentation.setText(objectList.isLoaded() ?
+                txt("app.objects.action.Reload") :
+                txt("app.objects.action.Load"));
         presentation.setIcon(Icons.ACTION_REFRESH);
     }
 

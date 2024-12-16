@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.dbn.common.util.Actions.SEPARATOR;
+import static com.dbn.nls.NlsResources.txt;
 
 @BackgroundUpdate
 public class ProgramMethodRunAction extends ProjectPopupAction {
@@ -88,7 +89,7 @@ public class ProgramMethodRunAction extends ProjectPopupAction {
 
 
     @Override
-    public void update(@NotNull AnActionEvent e, Project project) {
+    public void update(@NotNull AnActionEvent e, @NotNull Project project) {
         DBSourceCodeVirtualFile sourceCodeFile = getSourcecodeFile(e);
         Presentation presentation = e.getPresentation();
         boolean visible = false;
@@ -100,11 +101,11 @@ public class ProgramMethodRunAction extends ProjectPopupAction {
         }
 
         presentation.setVisible(visible);
-        presentation.setText("Run Method");
+        presentation.setText(txt("app.codeEditor.action.RunMethod"));
         presentation.setIcon(Icons.METHOD_EXECUTION_RUN);
     }
 
-    public class RunMethodAction extends AnObjectAction<DBMethod> {
+    public static class RunMethodAction extends AnObjectAction<DBMethod> {
         RunMethodAction(DBMethod method) {
             super(method);
         }

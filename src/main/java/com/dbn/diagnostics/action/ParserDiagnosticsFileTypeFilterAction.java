@@ -60,7 +60,7 @@ public class ParserDiagnosticsFileTypeFilterAction extends ComboBoxAction implem
 
         ParserDiagnosticsFilter resultFilter = getResultFilter();
         String fileType = resultFilter.getFileType();
-        presentation.setText(Strings.isEmpty(fileType) ? "file type" : "*." + fileType, false);
+        presentation.setText(Strings.isEmpty(fileType) ? txt("app.diagnostics.action.FileTypeFilter") : "*." + fileType, false);
     }
 
     private ParserDiagnosticsFilter getResultFilter() {

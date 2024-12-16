@@ -60,14 +60,14 @@ public class TimedReloadComboBoxAction extends ComboBoxAction implements DumbAwa
     public void update(AnActionEvent e) {
         Presentation presentation = e.getPresentation();
         Icon icon = Icons.ACTION_TIMED_REFRESH_OFF;
-        String text = "No Refresh";
+        String text = txt("app.sessionBrowser.action.NoRefresh");
 
 
         SessionBrowser sessionBrowser = getSessionBrowser(e);
         if (sessionBrowser != null) {
             int refreshInterval = sessionBrowser.getRefreshInterval();
             if (refreshInterval > 0) {
-                text = refreshInterval + " seconds";
+                text = txt("app.sessionBrowser.action.RefreshSeconds", refreshInterval);
                 if (sessionBrowser.isPreventLoading(false)) {
                     icon = Icons.ACTION_TIMED_REFRESH_INTERRUPTED;
                 } else {

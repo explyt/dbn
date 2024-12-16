@@ -54,7 +54,7 @@ public class ParserDiagnosticsDeleteAction extends AbstractParserDiagnosticsActi
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Presentation presentation, @NotNull Project project, @Nullable ParserDiagnosticsForm form) {
-        presentation.setText("Delete Result");
+        presentation.setText(txt("app.diagnostics.action.DeleteResult"));
         presentation.setIcon(Icons.ACTION_DELETE);
         if (form != null) {
             ParserDiagnosticsResult result = form.getSelectedResult();

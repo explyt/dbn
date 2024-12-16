@@ -73,15 +73,15 @@ public class ProfileSelectDropdownAction extends ComboBoxAction implements DumbA
 
     private String getText(@NotNull AnActionEvent e) {
         ChatBoxForm chatBox = e.getData(DataKeys.ASSISTANT_CHAT_BOX);
-        if (chatBox == null) return "Profile";
+        if (chatBox == null) return txt("app.assistant.action.Profile");
 
         String text = getSelectedProfileName(e);
         if (text != null) return text;
 
         List<DBAIProfile> profiles = chatBox.getProfiles();
-        if (!profiles.isEmpty()) return "Select Profile";
+        if (!profiles.isEmpty()) return txt("app.assistant.action.SelectProfile");
 
-        return "Profile";
+        return txt("app.assistant.action.Profile");
     }
 
     @Nullable

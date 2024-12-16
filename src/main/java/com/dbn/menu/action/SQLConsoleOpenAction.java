@@ -51,7 +51,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Open SQL Console...");
+        presentation.setText(txt("app.menu.action.OpenSqlConsole"));
         presentation.setIcon(Icons.SQL_CONSOLE);
     }
 

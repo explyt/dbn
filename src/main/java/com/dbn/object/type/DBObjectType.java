@@ -21,6 +21,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Characters;
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Naming;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -227,6 +228,14 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
 
     public Icon getDisabledIcon() {
         return nvl(disabledIcon, icon);
+    }
+
+    public String getCapitalizedName() {
+        return Naming.capitalizeWords(name);
+    }
+
+    public String getCapitalizedListName() {
+        return Naming.capitalizeWords(listName);
     }
 
     public boolean isLeaf() {

@@ -100,7 +100,7 @@ public class ConnectionContextActions {
         @Override
         protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
             Presentation presentation = e.getPresentation();
-            presentation.setText("Setup New Connection");
+            presentation.setText(txt("app.connection.action.SetupNewConnection"));
             presentation.setIcon(Icons.CONNECTION_NEW);
         }
 
@@ -204,7 +204,7 @@ public class ConnectionContextActions {
         private final ConnectionRef connection;
 
         SessionCreateAction(VirtualFile file, ConnectionHandler connection) {
-            super(txt("app.sessions.action.NewSession"));
+            super(txt("app.connection.action.NewSession"));
             this.file = VirtualFileRef.of(file);
             this.connection = connection.ref();
         }
