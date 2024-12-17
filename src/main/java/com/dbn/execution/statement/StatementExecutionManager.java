@@ -98,6 +98,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.notification.NotificationGroup.EXECUTION;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = StatementExecutionManager.COMPONENT_NAME,
@@ -271,7 +272,7 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
                     virtualFile,
                     dataContext,
                     () -> ConnectionAction.invoke(
-                            "the statement execution", false,
+                            txt("msg.execution.title.StatementExecution"), false,
                             contextManager.getConnection(virtualFile),
                             action -> promptExecutionDialogs(executionProcessors, DBDebuggerType.NONE,
                                     () -> executeStatements(executionProcessors))));
@@ -288,8 +289,8 @@ public class StatementExecutionManager extends ProjectComponentBase implements P
             if (context.isNot(ExecutionStatus.EXECUTING) && context.isNot(ExecutionStatus.QUEUED)) {
                 if (sessionId == SessionId.POOL) {
                     Progress.background(getProject(), executionInput, true,
-                            "Executing statement",
-                            "Executing " + executionInput.getStatementDescription(),
+                            txt("prc.execution.title.ExecutingStatement"),
+                            txt("prc.execution.text.ExecutingStatement", executionInput.getStatementDescription()),
                             progress -> process(executionProcessor));
                 } else {
                     StatementExecutionQueue queue = getExecutionQueue(connectionId, sessionId);

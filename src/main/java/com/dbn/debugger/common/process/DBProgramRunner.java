@@ -98,10 +98,10 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
         ConnectionHandler connection = runProfile.getConnection();
         if (connection == null) return null;
 
-        ConnectionAction.invoke(txt("prc.debugger.message.DebugExecution"), false, connection,
+        ConnectionAction.invoke(txt("msg.debugger.title.DebugExecution"), false, connection,
                 action -> Progress.prompt(project, connection, true,
                         txt("prc.debugger.title.CheckingPrivileges"),
-                        txt("prc.debugger.message.CheckingPrivileges",connection.getUserName()),
+                        txt("prc.debugger.text.CheckingPrivileges",connection.getUserName()),
                         progress -> performPrivilegeCheck(
                                 project,
                                 cast(runProfile.getExecutionInput()),
@@ -164,7 +164,7 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
         Project project = connection.getProject();
         Progress.prompt(project, connection, true,
                 txt("prc.debugger.title.InitializingEnvironment"),
-                txt("prc.debugger.message.LoadingMethodDependencies"),
+                txt("prc.debugger.text.LoadingMethodDependencies"),
                 progress -> {
                     if (progress.isCanceled()) return;
                     DatabaseDebuggerManager debuggerManager = DatabaseDebuggerManager.getInstance(project);
@@ -209,14 +209,14 @@ public abstract class DBProgramRunner<T extends ExecutionInput> extends GenericP
             if (selectedDependencies.length > 0) {
                 Progress.prompt(project, connection, true,
                         txt("prc.debugger.title.CompilingDependencies"),
-                        txt("prc.debugger.message.CompilingDependencies"),
+                        txt("prc.debugger.text.CompilingDependencies"),
                         progress -> {
                     DatabaseCompilerManager compilerManager = DatabaseCompilerManager.getInstance(project);
                     for (DBObjectRef<DBSchemaObject> objectRef : selectedDependencies) {
                         DBSchemaObject schemaObject = objectRef.ensure();
                         progress.checkCanceled();
 
-                        progress.setText2(txt("prc.debugger.message.CompilingDependency", objectRef.getQualifiedNameWithType()));
+                        progress.setText2(txt("prc.debugger.text.CompilingDependency", objectRef.getQualifiedNameWithType()));
                         DBContentType contentType = schemaObject.getContentType();
                         CompilerAction compilerAction = new CompilerAction(CompilerActionSource.BULK_COMPILE, contentType);
                         compilerManager.compileObject(schemaObject, CompileType.DEBUG, compilerAction);

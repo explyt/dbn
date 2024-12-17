@@ -60,6 +60,7 @@ import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = ProjectSettingsManager.COMPONENT_NAME,

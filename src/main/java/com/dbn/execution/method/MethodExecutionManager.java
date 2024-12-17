@@ -67,6 +67,7 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = MethodExecutionManager.COMPONENT_NAME,
@@ -127,10 +128,10 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
         Project project = executionInput.getProject();
         DBObjectRef<DBMethod> methodRef = executionInput.getMethodRef();
 
-        ConnectionAction.invoke(txt("prc.execution.text.MethodExecution"), false, executionInput,
+        ConnectionAction.invoke(txt("msg.execution.title.MethodExecution"), false, executionInput,
                 action -> Progress.prompt(project, action, true,
                         txt("prc.execution.title.LoadingMethodDetails"),
-                        txt("prc.execution.message.LoadingMethodDetails", methodRef.getQualifiedNameWithType()),
+                        txt("prc.execution.text.LoadingMethodDetails", methodRef.getQualifiedNameWithType()),
                         progress -> {
                             ConnectionHandler connection = action.getConnection();
                             String methodIdentifier = methodRef.getPath();
@@ -166,7 +167,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
         Project project = getProject();
         Progress.prompt(project, selection, true,
                 txt("prc.execution.title.LoadingDataDictionary"),
-                txt("prc.execution.message.LoadingMethodExecutionHistory"),
+                txt("prc.execution.text.LoadingMethodExecutionHistory"),
                 progress -> {
                     MethodExecutionInput selectedInput = Commons.nvln(selection, executionHistory.getLastSelection());
                     if (selectedInput != null) {
@@ -216,8 +217,8 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
             MethodExecutionProcessor executionProcessor = executionInterface.createExecutionProcessor(method);
 
             Progress.prompt(project, method, true,
-                    txt("msg.execution.title.ExecutingMethod"),
-                    txt("msg.execution.message.ExecutingMethod", method.getQualifiedNameWithType()),
+                    txt("prc.execution.title.ExecutingMethod"),
+                    txt("prc.execution.text.ExecutingMethod", method.getQualifiedNameWithType()),
                     progress -> {
                 try {
                     executionProcessor.execute(input, DBDebuggerType.NONE);
@@ -289,7 +290,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
 
         Progress.prompt(getProject(), executionInput, true,
                 txt("prc.execution.title.LoadingDataDictionary"),
-                txt("prc.execution.message.LoadingExecutableElements"),
+                txt("prc.execution.text.LoadingExecutableElements"),
                 progress -> {
                     Project project = getProject();
                     MethodExecutionManager executionManager = MethodExecutionManager.getInstance(project);

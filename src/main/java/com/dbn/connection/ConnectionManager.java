@@ -61,6 +61,7 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
+import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -84,6 +85,7 @@ import static com.dbn.common.util.Messages.showInfoDialog;
 import static com.dbn.common.util.Messages.showWarningDialog;
 import static com.dbn.connection.transaction.TransactionAction.actions;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @Getter
@@ -166,8 +168,8 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
     public void testConnection(ConnectionHandler connection, SchemaId schemaId, SessionId sessionId, boolean showSuccessMessage, boolean showErrorMessage) {
         Project project = connection.getProject();
         Progress.prompt(project, connection, true,
-                txt("msg.connection.title.TestingConnection"),
-                txt("msg.connection.info.TestingConnection", connection.getQualifiedName()),
+                txt("prc.connection.title.TestingConnection"),
+                txt("prc.connection.text.TestingConnection", connection.getQualifiedName()),
                 progress -> {
                     ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
                     String connectionName = connection.getName();
@@ -235,8 +237,8 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         String connectionName = databaseSettings.getName();
 
         Progress.modal(project, null, true,
-                txt("msg.connection.title.ConnectingToDatabase"),
-                txt("msg.connection.info.AttemptingConnectionToDatabase", connectionName),
+                txt("prc.connection.title.ConnectingToDatabase"),
+                txt("prc.connection.text.AttemptingConnectionToDatabase", connectionName),
                 progress -> {
             try {
                 DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authentication, SessionId.TEST, false, null);
@@ -267,8 +269,8 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
             databaseSettings.validate();
             ensureAuthenticationProvided(databaseSettings, (authenticationInfo) ->
                     Progress.modal(project, null, false,
-                            txt("msg.connection.title.ConnectingToDatabase"),
-                            txt("msg.connection.info.ConnectingToDatabase", connectionName),
+                            txt("prc.connection.title.ConnectingToDatabase"),
+                            txt("prc.connection.text.ConnectingToDatabase", connectionName),
                             progress -> {
                                 try {
                                     DBNConnection connection = ConnectionUtil.connect(connectionSettings, null, authenticationInfo, SessionId.TEST, false, null);
@@ -342,14 +344,12 @@ public class ConnectionManager extends ProjectComponentBase implements Persisten
         }
     }
 
-    public void promptConnectDialog(ConnectionHandler connection, @Nullable String actionDesc, MessageCallback callback) {
+     public void promptConnectDialog(ConnectionHandler connection, @Nullable @DialogTitle String title, MessageCallback callback) {
         String connectionName = connection.getName();
         showInfoDialog(
                 connection.getProject(),
-                txt("msg.connection.title.NotConnectedToDatabase"),
-                actionDesc == null ?
-                        txt("msg.connection.info.NotConnectedToDatabase", connectionName) :
-                        txt("msg.connection.info.NotConnectedToDatabaseWithAction", connectionName, actionDesc),
+                title == null ? txt("msg.connection.title.NotConnectedToDatabase") : title,
+                txt("msg.connection.info.NotConnectedToDatabase", connectionName),
                 ConnectionAction.OPTIONS_CONNECT_CANCEL, 0,
                 callback);
     }

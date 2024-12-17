@@ -312,7 +312,7 @@ public class DatasetEditor extends DisposableUserDataHolderBase implements
 
     public void loadData(final DatasetLoadInstructions instructions) {
         if (status.isNot(LOADING)) {
-            ConnectionAction.invoke(txt("prc.dataEditor.text.LoadingTableData"), false, this,
+            ConnectionAction.invoke(txt("msg.dataEditor.title.LoadingTableData"), false, this,
                     (action) -> {
                         setLoading(true);
                         Project project = getProject();

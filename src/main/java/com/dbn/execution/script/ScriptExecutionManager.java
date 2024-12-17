@@ -85,6 +85,7 @@ import static com.dbn.common.options.setting.Settings.setBooleanAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @Getter
@@ -153,15 +154,15 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                 clearOutputOption = executionInput.isClearOutput();
 
                 Progress.background(project, connection, true,
-                        "Executing script",
-                        "Executing database script \"" + virtualFile.getName() + "\"",
+                        txt("prc.execution.title.ExecutingScript"),
+                        txt("prc.execution.text.ExecutingScript",virtualFile.getName()),
                         progress -> {
                             try {
                                 doExecuteScript(executionInput);
                             } catch (Exception e) {
                                 conditionallyLog(e);
-                                Messages.showErrorDialog(getProject(), "Error",
-                                        "Error executing SQL Script \"" + virtualFile.getPath() + "\". " + e.getMessage());
+                                Messages.showErrorDialog(getProject(),
+                                        txt("msg.execution.error.ErrorExecutingScript", virtualFile.getPath(), e.getMessage()));
                             }
                         });
             }
@@ -259,7 +260,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     Messages.showErrorDialog(project,
                             "Script execution timeout",
                             "The script execution has timed out",
-                            new String[]{"Retry", "Cancel"}, 0,
+                            Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
 
                 }
@@ -269,7 +270,7 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
                     Messages.showErrorDialog(project,
                             "Script execution error",
                             "Error executing SQL script \"" + sourceFile.getPath() + "\". \nDetails: " + e.getMessage(),
-                            new String[]{"Retry", "Cancel"}, 0,
+                            Messages.OPTIONS_RETRY_CANCEL, 0,
                             option -> when(option == 0, () -> executeScript(sourceFile)));
                 }
             }.start();

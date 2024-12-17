@@ -44,8 +44,8 @@ public class ExportScrambledSourcecodeAction extends ProjectAction {
         VirtualFile[] virtualFiles = FileChooser.chooseFiles(FILE_CHOOSER_DESCRIPTOR, project, null);
         if (virtualFiles.length == 1) {
             Progress.modal(project, null, true,
-                    "Scrambling code",
-                    "Running project code scrambler",
+                    txt("prc.diagnostics.title.ScramblingCode"),
+                    txt("prc.diagnostics.text.RunningCodeScrambler"),
                     progress -> {
                         progress.setIndeterminate(false);
                         ParserDiagnosticsManager manager = ParserDiagnosticsManager.get(project);

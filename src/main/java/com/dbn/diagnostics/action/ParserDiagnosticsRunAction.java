@@ -35,13 +35,14 @@ public class ParserDiagnosticsRunAction extends AbstractParserDiagnosticsAction 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ParserDiagnosticsForm form) {
         Progress.prompt(project, null, true,
-                "Running diagnostics",
-                "Running parser diagnostics", progress -> {
-            progress.setIndeterminate(false);
-            ParserDiagnosticsManager manager = getManager(project);
-            ParserDiagnosticsResult result = manager.runParserDiagnostics(progress);
-            Dispatch.run(() -> manager.openParserDiagnostics(result));
-        });
+                txt("prc.diagnostics.title.RunningDiagnostics"),
+                txt("prc.diagnostics.text.RunningParserDiagnostics"),
+                progress -> {
+                    progress.setIndeterminate(false);
+                    ParserDiagnosticsManager manager = getManager(project);
+                    ParserDiagnosticsResult result = manager.runParserDiagnostics(progress);
+                    Dispatch.run(() -> manager.openParserDiagnostics(result));
+                });
     }
 
     @Override

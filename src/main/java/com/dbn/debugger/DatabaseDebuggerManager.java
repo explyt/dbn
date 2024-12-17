@@ -84,6 +84,7 @@ import static com.dbn.common.util.Commons.list;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.database.DatabaseFeature.DEBUGGING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = DatabaseDebuggerManager.COMPONENT_NAME,
@@ -254,7 +255,7 @@ public class DatabaseDebuggerManager extends ProjectComponentBase implements Per
                         boolean added = addToCompileList(compileList, schemaObject);
                         if (added) {
                             String objectName = schemaObject.getQualifiedNameWithType();
-                            setProgressDetail(txt("prc.debugger.message.LoadingDependencies", objectName));
+                            setProgressDetail(txt("prc.debugger.text.LoadingDependencies", objectName));
                             schemaObject.getReferencedObjects();
                         }
                     }

@@ -89,6 +89,7 @@ import static com.dbn.connection.ConnectionType.MAIN;
 import static com.dbn.connection.ConnectionType.POOL;
 import static com.dbn.connection.ConnectionType.SESSION;
 import static com.dbn.connection.mapping.ConnectionContextActions.ConnectionSelectAction;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = FileConnectionContextManager.COMPONENT_NAME,
@@ -371,10 +372,10 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         ConnectionHandler connection = getConnection(file);
         if (connection == null) return;
 
-        ConnectionAction.invoke(txt("prc.fileContext.text.SelectingSchema"), true, connection,
+        ConnectionAction.invoke(txt("msg.fileContext.title.SelectingSchema"), true, connection,
                 action -> Progress.prompt(project, connection, true,
                         txt("prc.debugger.title.LoadingSchemas"),
-                        txt("prc.debugger.message.LoadingSchemas", connection.getName()),
+                        txt("prc.debugger.text.LoadingSchemas", connection.getName()),
                         progress -> {
                             List<AnAction> actions = new ArrayList<>();
                             if (isLiveConnection(connection)) {
@@ -395,7 +396,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
      ***************************************************/
     public void promptSessionSelector(VirtualFile file, DataContext dataContext, Runnable callback) throws IncorrectOperationException {
         ConnectionAction.invoke(
-                txt("prc.fileContext.text.SelectingSession"), true,
+                txt("msg.fileContext.title.SelectingSession"), true,
                 getConnection(file),
                 (action) -> {
                     List<AnAction> actions = new ArrayList<>();
@@ -446,7 +447,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
     public void loadComponentState(@NotNull Element element) {
         Progress.background(getProject(), null, false,
                 txt("prc.fileContext.title.RestoringContext"),
-                txt("prc.fileContext.message.RestoringContext"),
+                txt("prc.fileContext.text.RestoringContext"),
                 indicator -> loadFileMappings(element, indicator));
     }
 

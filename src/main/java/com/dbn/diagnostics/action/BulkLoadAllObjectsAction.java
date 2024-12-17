@@ -39,8 +39,8 @@ public class BulkLoadAllObjectsAction extends AbstractConnectionAction {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project, @NotNull ConnectionHandler connection) {
         Progress.prompt(project, connection, true,
-                "Loading data dictionary",
-                "Loading all objects of " + connection.getName(),
+                txt("prc.diagnostics.title.LoadingDataDictionary"),
+                txt("prc.diagnostics.text.LoadingAllObjectsOf", connection.getName()),
                 progress -> {
                     DBObjectListContainer objectListContainer = connection.getObjectBundle().getObjectLists();
                     objectListContainer.visit(DBObjectRecursiveLoaderVisitor.INSTANCE, false);

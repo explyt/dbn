@@ -49,6 +49,9 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.util.List;
 
+import static com.dbn.common.util.Naming.capitalizeWords;
+import static com.dbn.nls.NlsResources.txt;
+
 @Getter
 @Setter
 public abstract class ObjectListShowAction extends BasicAction {
@@ -76,10 +79,11 @@ public abstract class ObjectListShowAction extends BasicAction {
         DBObject sourceObject = getSourceObject();
         Project project = sourceObject.getProject();
         String listName = getListName();
-        ConnectionAction.invoke("loading " + listName, true, sourceObject,
+        String title = txt("msg.objects.title.LoadingObjects", capitalizeWords(listName));
+        ConnectionAction.invoke(title, true, sourceObject,
                 action -> Progress.prompt(project, sourceObject, true,
-                        "Loading objects",
-                        "Loading " + listName,
+                        txt("prc.objects.title.LoadingObjects"),
+                        txt("prc.objects.text.LoadingObjects", listName),
                         progress -> showObjectList(e.getDataContext(), action)));
     }
 

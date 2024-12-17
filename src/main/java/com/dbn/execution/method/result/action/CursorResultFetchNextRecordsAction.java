@@ -42,8 +42,8 @@ public class CursorResultFetchNextRecordsAction extends MethodExecutionCursorRes
 
         ResultSetDataModel model = resultSetTable.getModel();
         Progress.prompt(project, model, false,
-                "Loading cursor result",
-                "Loading method execution cursor result",
+                txt("prc.execution.title.LoadingCursorResult"),
+                txt("prc.execution.text.LoadingMethodCursorResult"),
                 progress -> {
                     try {
                         if (!model.isResultSetExhausted()) {

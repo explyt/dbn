@@ -117,6 +117,7 @@ import static com.dbn.common.util.Naming.unquote;
 import static com.dbn.common.util.Strings.toLowerCase;
 import static com.dbn.database.DatabaseFeature.OBJECT_CHANGE_MONITORING;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.file.status.DBFileStatus.LOADING;
 import static com.dbn.vfs.file.status.DBFileStatus.SAVING;
 import static com.intellij.openapi.fileEditor.FileEditorManagerListener.FILE_EDITOR_MANAGER;
@@ -217,8 +218,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         } else {
             DBSchemaObject object = databaseFile.getObject();
             Progress.prompt(getProject(), object, false,
-                    "Loading source code",
-                    "Reloading object source code for " + object.getQualifiedNameWithType(),
+                    txt("prc.codeEditor.title.LoadingSourceCode"),
+                    txt("prc.codeEditor.text.ReloadingSourceCodeOf", object.getQualifiedNameWithType()),
                     progress -> reloadAndUpdateEditors(databaseFile));
         }
     }
@@ -286,7 +287,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
             DBSchemaObject object = sourceCodeFile.getObject();
             String objectQualifiedName = object.getQualifiedNameWithType();
-            ProgressMonitor.setProgressDetail(txt("prc.codeEditor.message.CheckingThirdPartyChanges", objectQualifiedName));
+            ProgressMonitor.setProgressDetail(txt("prc.codeEditor.text.CheckingThirdPartyChanges", objectQualifiedName));
 
             boolean changedInDatabase = sourceCodeFile.isChangedInDatabase(true);
             if (changedInDatabase && sourceCodeFile.isMergeRequired()) {
@@ -303,8 +304,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
                         option -> {
                             if (option == 0) {
                                 Progress.prompt(project, object, false,
-                                        "Loading source code",
-                                        "Loading database source code for " + objectQualifiedName,
+                                        txt("prc.codeEditor.title.LoadingSourceCode"),
+                                        txt("prc.codeEditor.text.LoadingSourceCodeOf", objectQualifiedName),
                                         progress -> openCodeMergeDialog(sourceCodeFile, fileEditor));
                             } else {
                                 sourceCodeFile.set(SAVING, false);
@@ -644,8 +645,8 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         Project project = getProject();
         DBSchemaObject object = sourceCodeFile.getObject();
         Progress.prompt(project, object, false,
-                "Saving source code",
-                "Saving sources of " + object.getQualifiedNameWithType() + " to database",
+                txt("prc.codeEditor.title.SavingSourceCode"),
+                txt("prc.codeEditor.text.SavingSourceCodeOf", object.getQualifiedNameWithType()),
                 progress -> {
                     try {
                         sourceCodeFile.saveSourceToDatabase();
@@ -740,16 +741,16 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
     }
 
     public void loadSourceCode(@NotNull DBSourceCodeVirtualFile sourceCodeFile, boolean force) {
-        ConnectionAction.invoke("loading the source code", false, sourceCodeFile,
+        ConnectionAction.invoke(txt("msg.codeEditor.title.LoadingSourceCode"), false, sourceCodeFile,
                 action -> Background.run(() -> loadSourceFromDatabase(sourceCodeFile, force, false)));
     }
 
     public void saveSourceCode(@NotNull DBSourceCodeVirtualFile sourceCodeFile, @Nullable SourceCodeEditor fileEditor, Runnable successCallback) {
         DBSchemaObject object = sourceCodeFile.getObject();
-        ConnectionAction.invoke("saving the source code", false, sourceCodeFile,
+        ConnectionAction.invoke(txt("msg.codeEditor.title.SavingSourceCode"), false, sourceCodeFile,
                 action -> Progress.prompt(getProject(), object, false,
-                        "Saving source code",
-                        "Saving source code for " + object.getQualifiedNameWithType(),
+                        txt("prc.codeEditor.title.SavingSourceCode"),
+                        txt("prc.codeEditor.text.SavingSourceCodeOf", object.getQualifiedNameWithType()),
                         progress -> saveSourceToDatabase(sourceCodeFile, fileEditor, successCallback)));
     }
 
@@ -786,10 +787,10 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
 
     public void saveSourceCodeChanges(@NotNull DBEditableObjectVirtualFile databaseFile, Runnable successCallback) {
         DBSchemaObject object = databaseFile.getObject();
-        ConnectionAction.invoke("saving the source code", false, databaseFile,
+        ConnectionAction.invoke(txt("msg.codeEditor.title.SavingSourceCode"), false, databaseFile,
                 action -> Progress.prompt(getProject(), object, false,
-                        "Saving source code",
-                        "Saving source code for " + object.getQualifiedNameWithType(),
+                        txt("prc.codeEditor.title.SavingSourceCode"),
+                        txt("prc.codeEditor.text.SavingSourceCodeOf", object.getQualifiedNameWithType()),
                         progress -> {
                             List<DBSourceCodeVirtualFile> sourceCodeFiles = databaseFile.getSourceCodeFiles();
                             for (DBSourceCodeVirtualFile sourceCodeFile : sourceCodeFiles) {

@@ -190,8 +190,8 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
 
         Project project = connection.getProject();
         Progress.modal(project, connection, true,
-                "Loading data dictionary",
-                "Loading schemas",
+                txt("prc.fileContext.title.LoadingDataDictionary"),
+                txt("prc.fileContext.text.LoadingSchemas"),
                 progress -> {
                     List<DBSchema> schemas = connection.getObjectBundle().getSchemas();
 

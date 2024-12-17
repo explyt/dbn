@@ -38,11 +38,12 @@ public class ObjectsReloadAction extends BasicAction {
 
     @Override
     public void actionPerformed(@NotNull AnActionEvent e) {
-        String listName = objectList.getName();
-        boolean loaded = objectList.isLoaded();
+        String listName = objectList.getCapitalizedName();
 
-        String description = loaded ? "reloading the " + listName : "loading the " + listName;
-        ConnectionAction.invoke(description, true, objectList, action -> reloadObjectList());
+        String title = objectList.isLoaded() ?
+                txt("msg.objects.title.ReloadingObjects", listName) :
+                txt("msg.objects.title.LoadingObjects", listName);
+        ConnectionAction.invoke(title, true, objectList, action -> reloadObjectList());
     }
 
     private void reloadObjectList() {

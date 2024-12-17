@@ -50,6 +50,7 @@ import static com.dbn.common.Priority.HIGHEST;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 public class DatabaseObjectFactory extends ProjectComponentBase {
 
@@ -144,7 +145,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 txt("msg.objects.question.DropObject", object.getQualifiedNameWithType()),
                 Messages.OPTIONS_YES_NO, 0,
                 option -> when(option == 0, () ->
-                        ConnectionAction.invoke(txt("prc.objects.text.DroppingObject"), false, object, action -> {
+                        ConnectionAction.invoke(txt("msg.objects.title.DroppingObject"), false, object, action -> {
                             Project project = getProject();
                             DatabaseFileManager databaseFileManager = DatabaseFileManager.getInstance(project);
                             databaseFileManager.closeFile(object);
@@ -158,7 +159,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                             // TODO old implementation (implement appropriate ObjectManagementServices and cleanup)
                             Progress.prompt(project, object, false,
                                     txt("prc.objects.title.DroppingObject"),
-                                    txt("prc.objects.message.DroppingObject", object.getQualifiedNameWithType()),
+                                     txt("prc.objects.text.DroppingObject", object.getQualifiedNameWithType()),
                                     progress -> doDropObject(object));
                         })));
 
@@ -169,7 +170,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         try {
             DatabaseInterfaceInvoker.execute(HIGHEST,
                     txt("prc.objects.title.DroppingObject"),
-                    txt("prc.objects.message.DroppingObject", object.getQualifiedNameWithType()),
+                    txt("prc.objects.text.DroppingObject", object.getQualifiedNameWithType()),
                     object.getProject(),
                     object.getConnectionId(),
                     conn -> {

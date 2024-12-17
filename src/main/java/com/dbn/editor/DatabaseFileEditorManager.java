@@ -39,7 +39,6 @@ import com.dbn.editor.data.filter.DatasetFilter;
 import com.dbn.editor.data.filter.DatasetFilterManager;
 import com.dbn.editor.data.filter.DatasetFilterType;
 import com.dbn.editor.data.options.DataEditorSettings;
-import com.dbn.nls.NlsResources;
 import com.dbn.object.DBConsole;
 import com.dbn.object.DBDataset;
 import com.dbn.object.common.DBObject;
@@ -78,6 +77,7 @@ import static com.dbn.common.thread.ThreadProperty.EDITOR_LOAD;
 import static com.dbn.common.thread.ThreadProperty.WORKSPACE_RESTORE;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.editor.DatabaseFileEditorManager.COMPONENT_NAME;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
 
 @State(
@@ -124,12 +124,12 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
     public void connectAndOpenEditor(@NotNull DBObject object, @Nullable EditorProviderId editorProviderId, boolean scrollBrowser, boolean focusEditor) {
         if (!isEditable(object)) return;
 
-        ConnectionAction.invoke(txt("prc.editor.text.OpeningObjectEditor"), false, object, action -> {
+        ConnectionAction.invoke(txt("msg.editor.title.OpeningObjectEditor"), false, object, action -> {
             Project project = getProject();
             if (focusEditor) {
                 Progress.prompt(project, object, true,
                         txt("prc.editor.title.OpeningObjectEditor"),
-                        txt("prc.editor.message.OpeningObjectEditor", object.getQualifiedNameWithType()),
+                        txt("prc.editor.text.OpeningObjectEditor", object.getQualifiedNameWithType()),
                         progress -> openEditor(object, editorProviderId, scrollBrowser, true));
             } else {
                 Background.run(() -> openEditor(object, editorProviderId, scrollBrowser, false));
@@ -313,8 +313,8 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
         if (ddlFileSettings.isDdlFilesCreationEnabled()) {
             Messages.showQuestionDialog(
                     project,
-                    NlsResources.txt("msg.ddlFiles.title.NoDdlFileFound"),
-                    NlsResources.txt("msg.ddlFiles.question.NoDdlFileFound", object.getQualifiedNameWithType()),
+                    txt("msg.ddlFiles.title.NoDdlFileFound"),
+                    txt("msg.ddlFiles.question.NoDdlFileFound", object.getQualifiedNameWithType()),
                     Messages.OPTIONS_YES_CANCEL, 0,
                     option -> {
                         when(option == 0, () -> fileAttachmentManager.createDDLFile(objectRef));

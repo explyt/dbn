@@ -47,13 +47,16 @@ public class ReloadObjectsAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        String listName = objectList.getName();
+        String listName = objectList.getCapitalizedName();
 
+        String title =  objectList.isLoaded() ?
+                txt("msg.objects.title.ReloadingObjects", listName) :
+                txt("msg.objects.title.LoadingObjects", listName);
         ConnectionAction.invoke(
-                objectList.isLoaded() ? "reloading the " + listName : "loading the " + listName, true, objectList,
+                title, true, objectList,
                 action -> Progress.prompt(project, objectList, true,
-                        "Loading objects",
-                        "Reloading " + objectList.getContentDescription(),
+                        txt("prc.objects.title.LoadingObjects"),
+                        txt("prc.objects.text.ReloadingObjects", objectList.getContentDescription()),
                         progress -> {
                             objectList.getConnection().getMetaDataCache().reset();
                             objectList.reload();

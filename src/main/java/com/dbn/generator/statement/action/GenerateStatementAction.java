@@ -41,10 +41,10 @@ import static com.dbn.nls.NlsResources.txt;
 public abstract class GenerateStatementAction extends ProjectAction implements DatabaseContextBase {
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ConnectionAction.invoke(txt("prc.codeGenerator.text.GeneratingStatement"), false, this,
+        ConnectionAction.invoke(txt("msg.codeGenerator.title.GeneratingStatement"), false, this,
                 action -> Progress.prompt(project, getConnection(), true,
                         txt("prc.codeGenerator.title.GeneratingStatement"),
-                        txt("prc.codeGenerator.message.GeneratingStatement",e.getPresentation().getText()),
+                        txt("prc.codeGenerator.text.GeneratingStatement",e.getPresentation().getText()),
                         progress -> {
                             StatementGeneratorResult result = generateStatement(project);
                             if (result.getMessages().hasErrors()) {

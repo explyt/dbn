@@ -48,8 +48,8 @@ public class ExecutionResultVariablesDialogAction extends AbstractExecutionResul
                 executionProcessor,
                 DBDebuggerType.NONE,
                 () -> Progress.prompt(project, executionProcessor, true,
-                        "Executing statement",
-                        "Executing " + statementName,
+                        txt("prc.execution.title.ExecutingStatement"),
+                        txt("prc.execution.text.ExecutingStatement", statementName),
                         progress -> {
                             try {
                                 executionProcessor.execute();

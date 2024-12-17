@@ -96,6 +96,7 @@ import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.vfs.DatabaseFileSystem.isFileOpened;
 
 @State(
@@ -368,8 +369,8 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         Progress.prompt(
                 getProject(),
                 objectRef, true,
-                txt("msg.ddlFiles.title.AttachingDdlFiles"),
-                txt("msg.ddlFiles.info.AttachingDdlFiles", objectRef.getQualifiedNameWithType()), t -> {
+                txt("prc.ddlFiles.title.AttachingDdlFiles"),
+                txt("prc.ddlFiles.text.AttachingDdlFiles", objectRef.getQualifiedNameWithType()), t -> {
                     DDLFileNameProvider ddlFileNameProvider = getDDLFileNameProvider(objectRef);
                     if (ddlFileNameProvider == null) return;
 
@@ -409,8 +410,8 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         Progress.prompt(
                 getProject(),
                 objectRef, true,
-                txt("msg.ddlFiles.title.DetachingDdlFiles"),
-                txt("msg.ddlFiles.info.DetachingDdlFiles", objectRef.getQualifiedNameWithType()),
+                txt("prc.ddlFiles.title.DetachingDdlFiles"),
+                txt("prc.ddlFiles.text.DetachingDdlFiles", objectRef.getQualifiedNameWithType()),
                 t -> {
                     List<VirtualFile> files = getAttachedDDLFiles(objectRef);
                     if (files == null) return;
