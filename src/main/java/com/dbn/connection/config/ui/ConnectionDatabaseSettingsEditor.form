@@ -117,6 +117,7 @@
               <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
+              <labelFor value="a20c9"/>
               <text resource-bundle="messages/DBNResources" key="cfg.connection.label.Type"/>
             </properties>
           </component>
