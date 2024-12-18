@@ -203,14 +203,14 @@ public class UserInterface {
         }
     }
 
-    public static void repaint(JComponent component) {
+    public static void repaint(Component component) {
         Dispatch.run(true, () -> {
             component.revalidate();
             component.repaint();
         });
     }
 
-    public static void repaintAndFocus(JComponent component) {
+    public static void repaintAndFocus(Component component) {
         Dispatch.run(true, () -> {
             component.revalidate();
             component.repaint();
