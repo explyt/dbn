@@ -18,6 +18,7 @@ package com.dbn.diagnostics.ui;
 
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.ClientProperty;
@@ -32,7 +33,6 @@ import com.dbn.diagnostics.data.StateTransition;
 import com.dbn.diagnostics.ui.model.ParserDiagnosticsTableModel;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBScrollPane;
 import lombok.Getter;
@@ -147,7 +147,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
 
     private class ResultListCellRenderer extends ColoredListCellRenderer<ParserDiagnosticsResult> {
         @Override
-        protected void customizeCellRenderer(@NotNull JList list, ParserDiagnosticsResult value, int index, boolean selected, boolean hasFocus) {
+        protected void customize(@NotNull JList<? extends ParserDiagnosticsResult> list, ParserDiagnosticsResult value, int index, boolean selected, boolean hasFocus) {
             append(value.getName() + " - ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
             ParserDiagnosticsResult previous = manager.getPreviousResult(value);
             if (previous == null) {
