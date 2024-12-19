@@ -16,6 +16,7 @@
 
 package com.dbn.common.ui.util;
 
+import com.intellij.openapi.actionSystem.ActionToolbar;
 import lombok.experimental.UtilityClass;
 
 import javax.swing.JComponent;
@@ -28,6 +29,14 @@ import javax.swing.JComponent;
  */
 @UtilityClass
 public class Accessibility {
+
+    public static void setAccessibleName(ActionToolbar toolbar, String name) {
+        setAccessibleName(toolbar.getComponent(), name);
+    }
+
+    public static void setAccessibleDescription(ActionToolbar toolbar, String description) {
+        setAccessibleDescription(toolbar.getComponent(), description);
+    }
 
     public static void setAccessibleName(JComponent component, String name) {
         component.getAccessibleContext().setAccessibleName(name);

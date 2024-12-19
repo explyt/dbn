@@ -62,7 +62,7 @@ public class DatasetColumnSetupForm extends DBNFormBase {
         columnList = new CheckBoxList<>(columnStateSel, true);
         columnListScrollPane.setViewportView(columnList);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel,"", false,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, false,
                 new SelectAllColumnsAction(columnList),
                 Actions.SEPARATOR,
                 new MoveUpAction(columnList),

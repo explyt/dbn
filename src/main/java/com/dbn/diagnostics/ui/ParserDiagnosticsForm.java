@@ -47,6 +47,8 @@ import java.awt.BorderLayout;
 import java.awt.Font;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class ParserDiagnosticsForm extends DBNFormBase {
     private JPanel mainPanel;
     private JPanel detailsPanel;
@@ -73,10 +75,11 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         detailsLabel.setText("No result selected");
         stateTransitionLabel.setText("");
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.ParserDiagnostics", "", false);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.ParserDiagnostics");
+        setAccessibleName(actionToolbar, txt("app.diagnostics.aria.ParserDiagnosticActions"));
         actionsPanel.add(actionToolbar.getComponent());
 
-        ActionToolbar filterActionToolbar = Actions.createActionToolbar(filtersPanel,"", true,
+        ActionToolbar filterActionToolbar = Actions.createActionToolbar(filtersPanel, true,
                 new ParserDiagnosticsStateFilterAction(this),
                 new ParserDiagnosticsFileTypeFilterAction(this));
         filtersPanel.add(filterActionToolbar.getComponent(), BorderLayout.WEST);

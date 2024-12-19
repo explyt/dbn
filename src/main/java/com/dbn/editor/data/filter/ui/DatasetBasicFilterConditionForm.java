@@ -68,9 +68,7 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
     public DatasetBasicFilterConditionForm(DBDataset dataset, DatasetBasicFilterCondition condition) {
         super(condition);
         this.dataset = DBObjectRef.of(dataset);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.DataEditor.SimpleFilter.Condition", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new EnableDisableBasicFilterConditionAction(this),
                 new DeleteBasicFilterConditionAction(this));
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);

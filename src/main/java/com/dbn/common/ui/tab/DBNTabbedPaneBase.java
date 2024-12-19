@@ -97,7 +97,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
                 showHiddenTabsPopup(e);
             }
         };
-        ActionToolbar actionToolbar = Actions.createActionToolbar(hiddenTabsActionPanel, "", true, hiddenTabsAction);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(hiddenTabsActionPanel, true, hiddenTabsAction);
         hiddenTabsActionPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
     }
 
@@ -112,7 +112,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
                     showHiddenTabsPopup(e);
                 }
             };
-            ActionToolbar actionToolbar = Actions.createActionToolbar(this, "", true, hiddenTabsAction);
+            ActionToolbar actionToolbar = Actions.createActionToolbar(this, true, hiddenTabsAction);
             JComponent toolbarComponent = actionToolbar.getComponent();
             setPreferredSize(toolbarComponent.getPreferredSize());
             add(toolbarComponent, BorderLayout.CENTER);

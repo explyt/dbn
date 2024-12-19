@@ -235,7 +235,7 @@ public class DataSearchComponent extends DBNFormBase implements SelectionListene
         DefaultActionGroup actionsGroup = new DefaultActionGroup("Search Bar", false);
         actionsGroup.add(new PrevOccurrenceAction(this, searchField, true));
         actionsGroup.add(new NextOccurrenceAction(this, searchField, true));
-        actionsToolbar = Actions.createActionToolbar(actionsPanel, "SearchBar", true, actionsGroup);
+        actionsToolbar = Actions.createActionToolbar(actionsPanel, true, actionsGroup);
         actionsPanel.add(actionsToolbar.getComponent(), BorderLayout.CENTER);
 
 

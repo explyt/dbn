@@ -57,7 +57,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
         sortingItemsList.setFont(Fonts.getLabelFont());
         ActionToolbar actionToolbar = Actions.createActionToolbar(
                 actionPanel,
-                "", true,
+                true,
                 new MoveUpAction(sortingItemsList, settings),
                 new MoveDownAction(sortingItemsList, settings));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);

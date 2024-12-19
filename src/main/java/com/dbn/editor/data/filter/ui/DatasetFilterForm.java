@@ -38,10 +38,12 @@ import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JList;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
@@ -64,9 +66,7 @@ public class DatasetFilterForm extends ConfigurationEditorForm<DatasetFilterGrou
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
 
         DatasetFilterList filters = getFilterList();
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.DataEditor.FiltersList", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
                 new CreateFilterAction(filters),
                 new DeleteFilterAction(filters),
                 new MoveFilterUpAction(filters),

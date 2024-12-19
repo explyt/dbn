@@ -587,7 +587,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
                     ActionGroup actionGroup = new DatasetEditorTableActionGroup(getDatasetEditor(), cell, columnInfo);
                     progress.checkCanceled();
 
-                    ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(DatasetEditorTable.this, "", actionGroup);
+                    ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(DatasetEditorTable.this, actionGroup);
                     JPopupMenu popupMenu = actionPopupMenu.getComponent();
                     Dispatch.run(() -> {
                         Component component = (Component) e.getSource();

@@ -97,7 +97,7 @@ public abstract class ChatMessageForm extends DBNFormBase {
 
     protected void initActionToolbar() {
         JPanel actionPanel = getActionPanel();
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, "", true, createActions());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionPanel, true, createActions());
 
         JComponent component = actionToolbar.getComponent();
         component.setOpaque(false);

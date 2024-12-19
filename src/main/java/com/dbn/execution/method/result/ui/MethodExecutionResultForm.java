@@ -52,6 +52,7 @@ import javax.swing.JTree;
 import java.awt.BorderLayout;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
 
 public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExecutionResult> {
@@ -209,7 +210,8 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
 
 
     private void createActionsPanel() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.MethodExecutionResult", "DBNavigator.MethodExecutionResult.Controls", false);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.MethodExecutionResult");
+        setAccessibleName(actionToolbar, txt("app.execution.aria.MethodExecutionResultActions"));
         actionsPanel.add(actionToolbar.getComponent());
     }
 

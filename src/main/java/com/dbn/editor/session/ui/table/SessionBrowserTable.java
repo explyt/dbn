@@ -195,7 +195,7 @@ public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
 
         SessionBrowser sessionBrowser = getSessionBrowser();
         ActionGroup actionGroup = new SessionBrowserTableActionGroup(sessionBrowser, cell, columnInfo);
-        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(SessionBrowserTable.this, "", actionGroup);
+        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(SessionBrowserTable.this, actionGroup);
         JPopupMenu popupMenu = actionPopupMenu.getComponent();
         popupMenu.addPopupMenuListener(new PopupMenuListenerAdapter() {
             @Override
