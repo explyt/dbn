@@ -33,7 +33,7 @@ public class ${CLASS_NAME}  {
      * @return a new {@link Connection}
      * @throws Exception if something goes wrong
      */
-    public Connection connect() throws Exception {
+    public Connection connect(String password) throws Exception {
         Properties properties = new Properties();
 
         // JDBC URL
@@ -55,10 +55,24 @@ public class ${CLASS_NAME}  {
         return driver.connect(jdbcUrl, properties);
     }
 
+	/**
+	* #if (${PASSWORD_SOURCE} == 'ENVIRONMENT_VARIABLE')
+     * Set the environment variable JDBC_DB_PASSWORD to the password for ${USER_NAME} if you are using
+     * password authentication.
+     *#end
+     */
     public static void main(String[] args) {
         ${CLASS_NAME} connector = new ${CLASS_NAME}();
+  
+        #if (${AUTH_TYPE} == 'USER_PASSWORD')
+        #if (${PASSWORD_SOURCE} == 'ENVIRONMENT_VARIABLE')
+        String password = System.getenv("JDBC_DB_PASSWORD");
+        #else
+   	    String password = "thisisnotasecret";
+        #end
+        #end
 
-        try (Connection connection = connector.connect()) {
+        try (Connection connection = connector.connect(password)) {
             connection.isValid(10);
             System.out.println("INFO: Successfully connected and validated");
 

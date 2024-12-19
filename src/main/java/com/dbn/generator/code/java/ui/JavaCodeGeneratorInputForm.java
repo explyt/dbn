@@ -37,10 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.jps.model.java.JavaSourceRootType;
 
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
@@ -59,6 +56,8 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     private JComboBox<VirtualFilePresentable> contentRootComboBox;
     private JTextField packageTextField;
     private JTextField classNameTextField;
+    private JLabel lblPasswordSource;
+    private JComboBox cboPasswordSource;
 
     public JavaCodeGeneratorInputForm(CodeGeneratorInputDialog dialog, I input) {
         super(dialog, input);
@@ -125,6 +124,17 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         input.setContentRoot(getSelectedContentPath());
         input.setPackageName(getPackageName());
         input.setClassName(getClassName());
+        input.setPasswordSource(getPasswordSource());
+    }
+
+    private JavaCodeGeneratorInput.PasswordSource getPasswordSource() {
+        String selectedItem = (String) cboPasswordSource.getSelectedItem();
+        switch(selectedItem) {
+            case "Environment Variable":
+                return JavaCodeGeneratorInput.PasswordSource.ENVIRONMENT_VARIABLE;
+            default:
+                throw new RuntimeException("Unhandled enum");
+        }
     }
 
     @Nullable

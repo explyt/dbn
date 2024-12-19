@@ -80,14 +80,19 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addInputProperties(input, properties);
         addConnectionProperties(context, properties);
 
-        PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, input.getClassName(), properties, directory);
-        reformatClass(project, javaClass);
-
-        VirtualFile javaFile = javaClass.getContainingFile().getVirtualFile();
-
-        JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);
-        result.addGeneratedFile(javaFile);
-        return result;
+        try {
+            PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, input.getClassName(), properties, directory);
+            reformatClass(project, javaClass);
+    
+            VirtualFile javaFile = javaClass.getContainingFile().getVirtualFile();
+    
+            JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);
+            result.addGeneratedFile(javaFile);
+            return result;
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private static void reformatClass(Project project, PsiElement javaClass) {
@@ -100,6 +105,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
     private static void addInputProperties(JdbcConnectorCodeGeneratorInput input, Properties properties) throws ConfigurationException {
         addProperty(properties, "CLASS_NAME", input.getClassName());
         addProperty(properties, "PACKAGE_NAME", input.getPackageName());
+        addProperty(properties, "PASSWORD_SOURCE", input.getPasswordSource().toString());
     }
 
     private static void addConnectionProperties(DatabaseContext context, Properties properties) {
