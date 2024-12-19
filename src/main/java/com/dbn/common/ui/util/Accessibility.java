@@ -19,6 +19,7 @@ package com.dbn.common.ui.util;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import lombok.experimental.UtilityClass;
 
+import javax.accessibility.AccessibleContext;
 import javax.swing.JComponent;
 
 /**
@@ -39,10 +40,14 @@ public class Accessibility {
     }
 
     public static void setAccessibleName(JComponent component, String name) {
-        component.getAccessibleContext().setAccessibleName(name);
+        String friendlyName = name.replace("_", " ");
+        AccessibleContext accessibleContext = component.getAccessibleContext();
+        accessibleContext.setAccessibleName(friendlyName);
     }
 
     public static void setAccessibleDescription(JComponent component, String description) {
-        component.getAccessibleContext().setAccessibleDescription(description);
+        String friendlyDescription = description.replace("_", " ");
+        AccessibleContext accessibleContext = component.getAccessibleContext();
+        accessibleContext.setAccessibleDescription(friendlyDescription);
     }
 }
