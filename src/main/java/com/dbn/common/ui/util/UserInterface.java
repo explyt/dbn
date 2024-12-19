@@ -376,8 +376,11 @@ public class UserInterface {
      * @return the first component matching the given criteria
      */
     @Nullable
-    public static <T extends JComponent> T findChildComponent(JComponent rootComponent, Class<T> componentType, Predicate<JComponent> check) {
-        Component[] components = rootComponent.getComponents();
+    public static <T extends JComponent> T findChildComponent(Component rootComponent, Class<T> componentType, Predicate<JComponent> check) {
+        if (!(rootComponent instanceof JComponent)) return null;
+        JComponent component = cast(rootComponent);
+
+        Component[] components = component.getComponents();
         for (Component child : components) {
             if (!(child instanceof JComponent)) continue;
 
@@ -392,5 +395,17 @@ public class UserInterface {
             }
         }
         return null;
+    }
+
+    public static <T extends JComponent> T findChildComponent(Component rootComponent, Predicate<JComponent> check) {
+        return cast(findChildComponent(rootComponent, JComponent.class, check));
+    }
+
+    public static <T extends JComponent> boolean hasChildComponent(Component rootComponent, Class<T> componentType, Predicate<JComponent> check) {
+        return findChildComponent(rootComponent, componentType, check) != null;
+    }
+
+    public static <T extends JComponent> boolean hasChildComponent(Component rootComponent, Predicate<JComponent> check) {
+        return hasChildComponent(rootComponent, JComponent.class, check);
     }
 }

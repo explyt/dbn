@@ -78,6 +78,7 @@ public class MethodExecutionResultForm extends ExecutionResultFormBase<MethodExe
 
 
         outputTabs = new DBNTabbedPane<>(this);
+        outputTabs.enableFocusInheritance();
         createActionsPanel();
         updateOutputTabs();
 
