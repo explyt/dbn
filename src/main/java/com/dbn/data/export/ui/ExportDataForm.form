@@ -381,16 +381,16 @@
   </grid>
   <buttonGroups>
     <group name="formatButtonGroup">
-      <member id="5cb26"/>
-      <member id="7fbcf"/>
       <member id="a7ba6"/>
-      <member id="e4493"/>
+      <member id="28d1c"/>
       <member id="7cfb8"/>
       <member id="9d2fc"/>
       <member id="37f79"/>
-      <member id="8d63c"/>
-      <member id="28d1c"/>
       <member id="f6316"/>
+      <member id="e4493"/>
+      <member id="8d63c"/>
+      <member id="7fbcf"/>
+      <member id="5cb26"/>
     </group>
     <group name="scopeButtonGroup">
       <member id="ac713"/>
