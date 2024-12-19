@@ -44,6 +44,8 @@ import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.accessibility.AccessibleContext;
+import javax.accessibility.AccessibleRole;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -61,6 +63,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 @Getter
@@ -104,6 +107,7 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         addMouseListener(createMouseListener());
         setFocusable(true);
         setAccessibleName(this, text);
+        setAccessibleDescription(this, text);
 
 
         label = new JLabel(text, cropIcon(icon), SwingConstants.LEFT);
@@ -120,6 +124,20 @@ public abstract class ValueSelector<T extends Presentable> extends JPanel{
         setMinimumSize(new Dimension(0, 30));
         addFocusListener(createFocusListener());
     }
+
+    @Override
+    public AccessibleContext getAccessibleContext() {
+        if (accessibleContext == null) {
+            accessibleContext = new AccessibleJPanel() {
+                @Override
+                public AccessibleRole getAccessibleRole() {
+                    return AccessibleRole.PUSH_BUTTON;
+                }
+            };
+        }
+        return accessibleContext;
+    }
+
 
     private static FocusListener createFocusListener() {
         return new ToggleBorderOnFocusListener(DEFAULT_BORDER, FOCUS_BORDER);

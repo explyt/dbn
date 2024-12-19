@@ -32,4 +32,8 @@ public class Accessibility {
     public static void setAccessibleName(JComponent component, String name) {
         component.getAccessibleContext().setAccessibleName(name);
     }
+
+    public static void setAccessibleDescription(JComponent component, String description) {
+        component.getAccessibleContext().setAccessibleDescription(description);
+    }
 }
