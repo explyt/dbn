@@ -28,10 +28,12 @@ import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGeneratorInput;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
+import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -41,6 +43,9 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
@@ -71,6 +76,33 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         initSelectionListener(moduleComboBox, s -> initContentRoots());
         initStatePersistence();
         initModules();
+        initValidation(dialog);
+    }
+
+    
+    private void initValidation(final CodeGeneratorInputDialog dialog) {
+        DocumentListener textListener = new com.intellij.ui.DocumentAdapter() {
+            @Override
+            protected void textChanged(@NotNull DocumentEvent e) {
+                dialog.validateInputs();
+            }
+        };
+        this.packageTextField.getDocument().addDocumentListener(textListener);
+        this.classNameTextField.getDocument().addDocumentListener(textListener);
+    }
+
+    @Override
+    public ValidationInfo doValidate() {
+        String packageName = this.packageTextField.getText();
+        if (!JavaCodeGeneratorInput.isValidPackageName(packageName)) {
+            return new ValidationInfo("Invalid package name", this.packageTextField);
+        }
+        String className = this.classNameTextField.getText();
+        if (!JavaCodeGeneratorInput.isValidClassName(className)) {
+            return new ValidationInfo("Invalid class name", this.classNameTextField);
+        }
+        
+        return null;
     }
 
     @Override

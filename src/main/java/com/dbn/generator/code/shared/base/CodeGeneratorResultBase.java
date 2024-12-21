@@ -23,6 +23,8 @@ import com.intellij.openapi.vfs.VirtualFile;
 import lombok.Getter;
 import lombok.Setter;
 
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +34,8 @@ public class CodeGeneratorResultBase<I extends CodeGeneratorInput> implements Co
     private final I input;
     private TitledMessage message;
     private final List<VirtualFile> generatedFiles = new ArrayList<>();
+    private boolean success;
+    private Throwable failureThrowable;
 
     public CodeGeneratorResultBase(I input) {
         this.input = input;
@@ -39,6 +43,30 @@ public class CodeGeneratorResultBase<I extends CodeGeneratorInput> implements Co
 
     public void addGeneratedFile(VirtualFile virtualFile) {
         generatedFiles.add(virtualFile);
+    }
+
+    @Override
+    public List<VirtualFile> getGeneratedFiles() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public final void setSuccess(boolean success) {
+        this.success = success;
+    }
+
+    @Override
+    public boolean isSuccess() {
+        return this.success;
+    }
+
+    public final void setFailureThrowable(Throwable failureThrowable) {
+        this.failureThrowable = failureThrowable;
+    }
+
+    @Override
+    public Throwable getFailureThrowable() {
+        return this.failureThrowable;
     }
 
 }

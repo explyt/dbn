@@ -47,4 +47,6 @@ public abstract class CodeGeneratorInputBase implements CodeGeneratorInput {
     protected void fail(String message) throws ConfigurationException {
         throw new ConfigurationException(message);
     }
+    
+    
 }

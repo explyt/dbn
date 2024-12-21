@@ -23,6 +23,7 @@ import com.dbn.generator.code.shared.base.CodeGeneratorInputBase;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.roots.ModuleRootManager;
+import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
@@ -129,12 +130,11 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         }
     }
 
-    private static boolean isValidPackageName(String packageName) {
+    public static boolean isValidPackageName(String packageName) {
         return PACKAGE_NAME_PATTERN.matcher(packageName).matches();
     }
 
-    private static boolean isValidClassName(String className) {
+    public static boolean isValidClassName(String className) {
         return CLASS_NAME_PATTERN.matcher(className).matches();
     }
-
 }

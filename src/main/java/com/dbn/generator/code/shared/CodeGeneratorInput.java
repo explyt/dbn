@@ -27,4 +27,5 @@ public interface CodeGeneratorInput {
     DatabaseContext getDatabaseContext();
 
     void prepareDestination();
+
 }

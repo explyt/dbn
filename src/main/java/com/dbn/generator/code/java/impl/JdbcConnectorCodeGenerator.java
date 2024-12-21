@@ -35,14 +35,22 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
+import com.intellij.util.IncorrectOperationException;
 
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
+
+import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+
+import org.jetbrains.annotations.Nullable;
 
 public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorCodeGeneratorInput, JdbcConnectorCodeGeneratorResult> {
     public JdbcConnectorCodeGenerator(CodeGeneratorType type) {
@@ -80,6 +88,19 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addInputProperties(input, properties);
         addConnectionProperties(context, properties);
 
+        String name = input.getClassName()+"."+template.getExtension();
+        @Nullable
+        PsiFile file = directory.findFile(name);
+        if (file != null) {
+            int showConfirmDialog = 
+                JOptionPane.showConfirmDialog(null, "Java file already exists. Overwrite?");
+            if (showConfirmDialog == JOptionPane.CANCEL_OPTION || showConfirmDialog == JOptionPane.NO_OPTION) {
+                JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);
+                result.setSuccess(false);
+                return result;
+            }
+            file.delete();
+        }
         PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, input.getClassName(), properties, directory);
         reformatClass(project, javaClass);
 
