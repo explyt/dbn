@@ -26,5 +26,7 @@ import javax.swing.JComponent;
 public interface DBNForm extends DBNComponent, DataProviderDelegate, NlsSupport {
 
     @Nullable
-    default JComponent getPreferredFocusedComponent() {return null;}
+    default JComponent getPreferredFocusedComponent() {
+        return null;
+    }
 }

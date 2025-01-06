@@ -45,6 +45,8 @@ import javax.swing.text.JTextComponent;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.initAccessibilityGroups;
+import static com.dbn.common.ui.util.UserInterface.findChildComponent;
+import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 
 public abstract class DBNFormBase
@@ -72,6 +74,11 @@ public abstract class DBNFormBase
     public final JComponent getComponent() {
         initialize();
         return getMainComponent();
+    }
+
+    @Override
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return findChildComponent(getMainComponent(), c -> isFocusableComponent(c));
     }
 
     /**

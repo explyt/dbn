@@ -34,8 +34,10 @@ import com.dbn.connection.transaction.TransactionAction;
 import com.dbn.connection.transaction.TransactionListener;
 import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -100,6 +102,11 @@ public class ResourceMonitorForm extends DBNFormBase {
     @Override
     public JPanel getMainComponent() {
         return mainPanel;
+    }
+
+    @Override
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return connectionsList;
     }
 
     private void showChangesForm(ConnectionHandler connection) {
