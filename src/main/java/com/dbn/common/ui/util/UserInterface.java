@@ -19,6 +19,7 @@ package com.dbn.common.ui.util;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.lookup.Visitor;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.ValueSelector;
 import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.intellij.ide.ui.UISettings;
@@ -197,6 +198,7 @@ public class UserInterface {
         return
             component instanceof JTextComponent ||
             component instanceof AbstractButton ||
+            component instanceof ValueSelector ||
             component instanceof JComboBox ||
             component instanceof JList<?> ||
             component instanceof JTable;
