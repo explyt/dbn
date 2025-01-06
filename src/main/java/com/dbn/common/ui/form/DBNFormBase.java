@@ -69,7 +69,7 @@ public abstract class DBNFormBase
     @NotNull
     @Override
     public final JComponent getComponent() {
-        if (!initialized) initialize();
+        initialize();
         return getMainComponent();
     }
 
@@ -93,7 +93,10 @@ public abstract class DBNFormBase
     }
 
     private void initialize() {
+        if (initialized) return;
         initialized = true;
+
+        initAccessibility();
         JComponent mainComponent = getMainComponent();
         DataProviders.register(mainComponent, this);
         UserInterface.updateScrollPaneBorders(mainComponent);
@@ -102,6 +105,8 @@ public abstract class DBNFormBase
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
         //GuiUtils.replaceJSplitPaneWithIDEASplitter(mainComponent);
     }
+
+    protected void initAccessibility() {}
 
     protected void lookAndFeelChanged() {
 

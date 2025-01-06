@@ -18,9 +18,14 @@ package com.dbn.common.ui.util;
 
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nls;
 
 import javax.accessibility.AccessibleContext;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+
+import static com.dbn.common.ui.util.UserInterface.getComponentLabel;
 
 /**
  * Component accessibility utilities
@@ -49,5 +54,25 @@ public class Accessibility {
         String friendlyDescription = description.replace("_", " ");
         AccessibleContext accessibleContext = component.getAccessibleContext();
         accessibleContext.setAccessibleDescription(friendlyDescription);
+    }
+
+    public static void setAccessibleUnit(JTextField textField, @Nls String unit, @Nls String ... qualifiers) {
+        JLabel label = getComponentLabel(textField);
+        if (label != null) setAccessibleUnit(label, unit, qualifiers);
+    }
+
+    private static void setAccessibleUnit(JLabel label, @Nls String unit, @Nls String ... qualifiers) {
+        AccessibleContext accessibleContext = label.getAccessibleContext();
+
+        StringBuilder accessibleName = new StringBuilder(accessibleContext.getAccessibleName());
+        accessibleName.append(" (");
+        accessibleName.append(unit);
+        if (qualifiers.length > 0) {
+            accessibleName.append(" - ");
+            accessibleName.append(String.join(", ", qualifiers));
+        }
+
+        accessibleName.append("(");
+        accessibleContext.setAccessibleName(accessibleName.toString());
     }
 }

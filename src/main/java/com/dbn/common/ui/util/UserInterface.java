@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -376,7 +377,7 @@ public class UserInterface {
      * @return the first component matching the given criteria
      */
     @Nullable
-    public static <T extends JComponent> T findChildComponent(Component rootComponent, Class<T> componentType, Predicate<JComponent> check) {
+    public static <T extends JComponent> T findChildComponent(Component rootComponent, Class<T> componentType, Predicate<T> check) {
         if (!(rootComponent instanceof JComponent)) return null;
         JComponent component = cast(rootComponent);
 
@@ -385,7 +386,7 @@ public class UserInterface {
             if (!(child instanceof JComponent)) continue;
 
             JComponent childComponent = (JComponent) child;
-            if (componentType.isAssignableFrom(childComponent.getClass()) && check.test(childComponent)) {
+            if (componentType.isAssignableFrom(childComponent.getClass()) && check.test(cast(childComponent))) {
                 return cast(child);
             }
 
@@ -401,11 +402,17 @@ public class UserInterface {
         return cast(findChildComponent(rootComponent, JComponent.class, check));
     }
 
-    public static <T extends JComponent> boolean hasChildComponent(Component rootComponent, Class<T> componentType, Predicate<JComponent> check) {
+    public static <T extends JComponent> boolean hasChildComponent(Component rootComponent, Class<T> componentType, Predicate<T> check) {
         return findChildComponent(rootComponent, componentType, check) != null;
     }
 
     public static <T extends JComponent> boolean hasChildComponent(Component rootComponent, Predicate<JComponent> check) {
         return hasChildComponent(rootComponent, JComponent.class, check);
+    }
+
+    @Nullable
+    public static JLabel getComponentLabel(JComponent component) {
+        Container parentComponent = component.getParent();
+        return UserInterface.findChildComponent(parentComponent, JLabel.class, l -> l.getLabelFor() == component);
     }
 }

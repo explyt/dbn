@@ -39,6 +39,7 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.UserInterface.createToolbarDecorator;
 
 public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptExecutionSettings> {
@@ -65,6 +66,11 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         cmdLineInterfacesTable.getParent().setBackground(cmdLineInterfacesTable.getBackground());
         executionTimeoutTextField.setText(String.valueOf(settings.getExecutionTimeout()));
         registerComponents(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(executionTimeoutTextField, txt("app.shared.unit.Seconds"), txt("app.shared.hint.ZeroForNoTimeout"));
     }
 
     private void showNewInterfacePopup(DataContext dataContext, RelativePoint point) {
