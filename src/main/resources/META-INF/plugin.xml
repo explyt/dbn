@@ -54,6 +54,7 @@
                 <li>Oracle token authentication ("OCI API Key" and "OCI Interactive")
                 <li>Oracle OJVM support (early preview)
                 <li>Password storage in native keychain
+                <li>Tool accessibility enhancements
                 <li>Support for latest IDE versions (2024.3.x)
                 <li>Bug fixes
             </ul>
