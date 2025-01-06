@@ -44,6 +44,7 @@ import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Accessibility.propagateAccessibilityTitles;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 
 public abstract class DBNFormBase
@@ -96,8 +97,11 @@ public abstract class DBNFormBase
         if (initialized) return;
         initialized = true;
 
-        initAccessibility();
         JComponent mainComponent = getMainComponent();
+
+        initAccessibility();
+        propagateAccessibilityTitles(mainComponent);
+
         DataProviders.register(mainComponent, this);
         UserInterface.updateScrollPaneBorders(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);

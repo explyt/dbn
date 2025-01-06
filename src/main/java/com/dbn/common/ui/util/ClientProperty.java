@@ -37,7 +37,8 @@ public enum ClientProperty {
     TAB_COLOR,
     TAB_TOOLTIP,
     TAB_CONTENT,
-    FOCUS_INHERITANCE;
+    FOCUS_INHERITANCE,
+    GROUP_QUALIFIER;
 
 
     public boolean is(Component component) {

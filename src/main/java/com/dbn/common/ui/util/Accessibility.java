@@ -16,16 +16,22 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nls;
+import org.jetbrains.annotations.Nullable;
 
 import javax.accessibility.AccessibleContext;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
+import java.awt.Component;
+import java.awt.Container;
 
 import static com.dbn.common.ui.util.UserInterface.getComponentLabel;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 /**
  * Component accessibility utilities
@@ -36,7 +42,16 @@ import static com.dbn.common.ui.util.UserInterface.getComponentLabel;
 @UtilityClass
 public class Accessibility {
 
-    public static void setAccessibleName(ActionToolbar toolbar, String name) {
+    public static String getAccessibleName(Component component) {
+        AccessibleContext accessibleContext = component.getAccessibleContext();
+        return accessibleContext.getAccessibleName();
+    }
+
+    public static boolean hasAccessibleName(Component component) {
+        return Strings.isNotEmpty(getAccessibleName(component));
+    }
+
+    public static void setAccessibleName(ActionToolbar toolbar, @Nullable String name) {
         setAccessibleName(toolbar.getComponent(), name);
     }
 
@@ -44,7 +59,9 @@ public class Accessibility {
         setAccessibleDescription(toolbar.getComponent(), description);
     }
 
-    public static void setAccessibleName(JComponent component, String name) {
+    public static void setAccessibleName(JComponent component, @Nullable String name) {
+        if (name == null) return;
+
         String friendlyName = name.replace("_", " ");
         AccessibleContext accessibleContext = component.getAccessibleContext();
         accessibleContext.setAccessibleName(friendlyName);
@@ -75,4 +92,30 @@ public class Accessibility {
         accessibleName.append("(");
         accessibleContext.setAccessibleName(accessibleName.toString());
     }
+
+    /**
+     * Propagates the accessibility name of parent panel to its child panels if not already set
+     * @param root the root panel to propagate accessibility titles for
+     */
+    public static void propagateAccessibilityTitles(JComponent root) {
+        UserInterface.visitRecursively(root, JPanel.class, p -> propagateAccessibilityTitle(p));
+    }
+
+    private static void propagateAccessibilityTitle(JPanel p) {
+        if (hasAccessibleName(p)) return;
+        setAccessibleName(p, findAccessibilityTitle(p));
+    }
+
+    private static String findAccessibilityTitle(JPanel panel) {
+        Container parent = panel.getParent();
+        if (parent instanceof JPanel) {
+            JPanel parentPanel = (JPanel) parent;
+            String accessibleName = parentPanel.getAccessibleContext().getAccessibleName();
+            if (isNotEmpty(accessibleName)) return accessibleName;
+            return findAccessibilityTitle(parentPanel);
+        }
+        return null;
+    }
 }
+
+
