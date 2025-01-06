@@ -36,7 +36,9 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.AbstractButton;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -48,6 +50,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.table.TableCellEditor;
+import javax.swing.text.JTextComponent;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -376,13 +379,16 @@ public class UserInterface {
      * @return the first component matching the given criteria
      */
     @Nullable
-    public static <T extends JComponent> T findChildComponent(JComponent rootComponent, Class<T> componentType, Predicate<JComponent> check) {
-        Component[] components = rootComponent.getComponents();
+    public static <T extends JComponent> T findChildComponent(Component rootComponent, Class<T> componentType, Predicate<T> check) {
+        if (!(rootComponent instanceof JComponent)) return null;
+        JComponent component = cast(rootComponent);
+
+        Component[] components = component.getComponents();
         for (Component child : components) {
             if (!(child instanceof JComponent)) continue;
 
             JComponent childComponent = (JComponent) child;
-            if (componentType.isAssignableFrom(childComponent.getClass()) && check.test(childComponent)) {
+            if (componentType.isAssignableFrom(childComponent.getClass()) && check.test(cast(childComponent))) {
                 return cast(child);
             }
 
@@ -392,5 +398,45 @@ public class UserInterface {
             }
         }
         return null;
+    }
+
+    public static <T extends JComponent> T findChildComponent(Component rootComponent, Predicate<JComponent> check) {
+        return cast(findChildComponent(rootComponent, JComponent.class, check));
+    }
+
+    public static <T extends JComponent> boolean hasChildComponent(Component rootComponent, Class<T> componentType, Predicate<T> check) {
+        return findChildComponent(rootComponent, componentType, check) != null;
+    }
+
+    public static <T extends JComponent> boolean hasChildComponent(Component rootComponent, Predicate<JComponent> check) {
+        return hasChildComponent(rootComponent, JComponent.class, check);
+    }
+
+    @Nullable
+    public static JLabel getComponentLabel(JComponent component) {
+        Container parentComponent = component.getParent();
+        return UserInterface.findChildComponent(parentComponent, JLabel.class, l -> l.getLabelFor() == component);
+    }
+
+    @Nullable
+    public static String getComponentText(@Nullable JComponent component) {
+        if (component == null) return null;
+
+        if (component instanceof JLabel) {
+            JLabel label = (JLabel) component;
+            return label.getText();
+        }
+
+        if (component instanceof AbstractButton) {
+            AbstractButton button = (AbstractButton) component;
+            return button.getText();
+        }
+
+        if (component instanceof JTextComponent) {
+            JTextComponent textComponent = (JTextComponent) component;
+            return textComponent.getText();
+        }
+
+        return component.getName();
     }
 }

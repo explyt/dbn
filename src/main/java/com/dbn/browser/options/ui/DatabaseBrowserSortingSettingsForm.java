@@ -104,7 +104,9 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                 @Override
                 protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
                     SortingType sortingType = (SortingType) value;
-                    append(sortingType.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                    String name = sortingType == null ? "" : sortingType.getName();
+
+                    append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
                     setBorder(SELECTION_BORDER);
                 }
             });

@@ -23,6 +23,7 @@ import com.dbn.assistant.credential.local.LocalCredentialSettings;
 import com.dbn.common.action.BasicActionButton;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.credentials.Secret;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -72,6 +73,11 @@ public class LocalCredentialsSettingsForm extends ConfigurationEditorForm<LocalC
         credentialsTablePanel.add(panel, BorderLayout.CENTER);
         credentialsTable.getParent().setBackground(credentialsTable.getBackground());
         registerComponents(mainPanel);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        Accessibility.setAccessibleName(credentialsTable, "Credentials");
     }
 
     @NotNull
