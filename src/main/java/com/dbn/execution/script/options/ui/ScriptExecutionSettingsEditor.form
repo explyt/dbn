@@ -54,7 +54,7 @@
           <text value="seconds (0 = no timeout)"/>
         </properties>
       </component>
-      <component id="cae11" class="javax.swing.JLabel">
+      <component id="cae11" class="javax.swing.JLabel" binding="cmdLineInterfaceLabel">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>

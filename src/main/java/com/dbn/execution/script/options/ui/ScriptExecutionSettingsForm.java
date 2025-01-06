@@ -34,6 +34,7 @@ import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.awt.RelativePoint;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
@@ -46,6 +47,7 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
     private JPanel mainPanel;
     private JPanel cmdLineInterfacesTablePanel;
     private JTextField executionTimeoutTextField;
+    private JLabel cmdLineInterfaceLabel;
     private final CmdLineInterfacesTable cmdLineInterfacesTable;
 
     public ScriptExecutionSettingsForm(ScriptExecutionSettings settings) {
@@ -65,6 +67,7 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         cmdLineInterfacesTablePanel.add(panel, BorderLayout.CENTER);
         cmdLineInterfacesTable.getParent().setBackground(cmdLineInterfacesTable.getBackground());
         executionTimeoutTextField.setText(String.valueOf(settings.getExecutionTimeout()));
+        cmdLineInterfaceLabel.setLabelFor(cmdLineInterfacesTable);
         registerComponents(mainPanel);
     }
 
