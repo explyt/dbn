@@ -23,6 +23,7 @@ import com.dbn.code.common.completion.options.sorting.action.MoveUpAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.dbn.object.type.DBObjectType;
@@ -61,6 +62,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
                 new MoveUpAction(sortingItemsList, settings),
                 new MoveDownAction(sortingItemsList, settings));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
+        Accessibility.setAccessibleName(sortingItemsList, "Code completion sorting elements");
         registerComponent(mainPanel);
     }
 
