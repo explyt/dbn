@@ -18,7 +18,6 @@ package com.dbn.common.ui.list;
 
 import com.dbn.common.color.Colors;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.ui.util.UserInterface;
 import com.intellij.ui.scale.JBUIScale;
@@ -51,7 +50,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -112,7 +113,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
     public boolean isSelected(T presentable) {
         for (int i=0; i<getModel().getSize(); i++) {
             Entry<T> entry = (Entry<T>) getModel().getElementAt(i);
-            if (entry.getPresentable().equals(presentable)) {
+            if (entry.getSelectable().equals(presentable)) {
                 return entry.isSelected();
             }
         }
@@ -153,7 +154,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
         }
         if (comparator == null)
             Collections.sort(entries); else
-            Collections.sort(entries, (o1, o2) -> comparator.compare(o1.presentable, o2.presentable));
+            Collections.sort(entries, (o1, o2) -> comparator.compare(o1.selectable, o2.selectable));
         DefaultListModel newModel = new DefaultListModel();
         for (Entry<T> entry : entries) {
             newModel.addElement(entry);
@@ -189,7 +190,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
 
     public T getElementAt(int index) {
         Entry<T> entry = (Entry<T>) getModel().getElementAt(index);
-        return entry.presentable;
+        return entry.selectable;
     }
 
 
@@ -197,7 +198,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
     static class Entry<T extends Selectable> extends JPanel implements Comparable<Entry<T>> {
         private final JCheckBox checkBox;
         private final JLabel label;
-        private final T presentable;
+        private final T selectable;
         private final WeakRef<CheckBoxList> list;
 
         @Override
@@ -209,7 +210,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
             super(new BorderLayout(JBUIScale.scale(8), 0));
             this.list = WeakRef.of(list);
             setBackground(Colors.getListBackground());
-            this.presentable = selectable;
+            this.selectable = selectable;
             checkBox = new JCheckBox("", selectable.isSelected());
             checkBox.setOpaque(false);
 
@@ -217,12 +218,24 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
             label.setOpaque(false);
             add(checkBox, BorderLayout.WEST);
             add(label, BorderLayout.CENTER);
-            Accessibility.setAccessibleName(this, selectable.getName());
+
+            initAccessibility();
+        }
+
+        private void initAccessibility() {
+            setAccessibleName(this, createAccessibleName());
+            checkBox.addActionListener(e -> setAccessibleName(this, createAccessibleName()));
+        }
+
+        private @NotNull String createAccessibleName() {
+            return selectable.getName() + " (" + (checkBox.isSelected() ?
+                    txt("app.shared.hint.Checked") :
+                    txt("app.shared.hint.Unchecked")) + ")";
         }
 
         private boolean updatePresentable() {
-            boolean changed = presentable.isSelected() != checkBox.isSelected();
-            presentable.setSelected(checkBox.isSelected());
+            boolean changed = selectable.isSelected() != checkBox.isSelected();
+            selectable.setSelected(checkBox.isSelected());
             return changed;
         }
 
@@ -240,7 +253,7 @@ public class CheckBoxList<T extends Selectable> extends JList<CheckBoxList.Entry
 
         @Override
         public int compareTo(@NotNull Entry<T> o) {
-            return presentable.compareTo(o.presentable);
+            return selectable.compareTo(o.selectable);
         }
     }
 }
