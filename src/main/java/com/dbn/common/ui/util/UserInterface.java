@@ -36,6 +36,7 @@ import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -49,6 +50,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.AncestorEvent;
 import javax.swing.event.AncestorListener;
 import javax.swing.table.TableCellEditor;
+import javax.swing.text.JTextComponent;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
@@ -414,5 +416,27 @@ public class UserInterface {
     public static JLabel getComponentLabel(JComponent component) {
         Container parentComponent = component.getParent();
         return UserInterface.findChildComponent(parentComponent, JLabel.class, l -> l.getLabelFor() == component);
+    }
+
+    @Nullable
+    public static String getComponentText(@Nullable JComponent component) {
+        if (component == null) return null;
+
+        if (component instanceof JLabel) {
+            JLabel label = (JLabel) component;
+            return label.getText();
+        }
+
+        if (component instanceof AbstractButton) {
+            AbstractButton button = (AbstractButton) component;
+            return button.getText();
+        }
+
+        if (component instanceof JTextComponent) {
+            JTextComponent textComponent = (JTextComponent) component;
+            return textComponent.getText();
+        }
+
+        return component.getName();
     }
 }

@@ -44,7 +44,7 @@ import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.util.Set;
 
-import static com.dbn.common.ui.util.Accessibility.propagateAccessibilityTitles;
+import static com.dbn.common.ui.util.Accessibility.initAccessibilityGroups;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 
 public abstract class DBNFormBase
@@ -97,17 +97,24 @@ public abstract class DBNFormBase
         if (initialized) return;
         initialized = true;
 
+
+        initFormAccessibility();
+
         JComponent mainComponent = getMainComponent();
-
-        initAccessibility();
-        propagateAccessibilityTitles(mainComponent);
-
         DataProviders.register(mainComponent, this);
         UserInterface.updateScrollPaneBorders(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
         //GuiUtils.replaceJSplitPaneWithIDEASplitter(mainComponent);
+    }
+
+    private void initFormAccessibility() {
+        JComponent mainComponent = getMainComponent();
+
+        initAccessibility();
+        initAccessibilityGroups(mainComponent);
+        //...
     }
 
     protected void initAccessibility() {}
