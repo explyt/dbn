@@ -44,7 +44,7 @@ public class FileConnectionMappingForm extends DBNFormBase {
         FileConnectionMappingTableModel model = new FileConnectionMappingTableModel(mappings);
         mappingsTable = new FileConnectionMappingTable(this, model);
 
-        mappingsTable.accommodateColumnsSize();
+        mappingsTable.adjustColumnWidths();
         mappingsTableScrollPane.setViewportView(mappingsTable);
 
     }

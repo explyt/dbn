@@ -84,7 +84,6 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
         public SortingTypeTable(DBNForm parent, Collection<DBObjectComparator> comparators) {
             super(parent, new SortingTypeTableModel(comparators), true);
             setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            adjustRowHeight(3);
 
             setDefaultRenderer(DBObjectType.class, new DBNColoredTableCellRenderer() {
                 @Override
@@ -96,7 +95,6 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                     } else {
                         append("");
                     }
-                    setBorder(SELECTION_BORDER);
                 }
             });
 
@@ -107,7 +105,6 @@ public class DatabaseBrowserSortingSettingsForm extends ConfigurationEditorForm<
                     String name = sortingType == null ? "" : sortingType.getName();
 
                     append(name, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    setBorder(SELECTION_BORDER);
                 }
             });
 

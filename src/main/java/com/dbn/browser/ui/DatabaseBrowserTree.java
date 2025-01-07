@@ -91,7 +91,6 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
 
         setToggleClickCount(0);
         setRootVisible(true);
-        setRowHeight(Math.max(getRowHeight(), 22));
         setShowsRootHandles(true);
         setAutoscrolls(true);
         setBorder(Borders.EMPTY_BORDER);

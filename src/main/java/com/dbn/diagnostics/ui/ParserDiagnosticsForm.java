@@ -44,7 +44,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -69,7 +68,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         manager = ParserDiagnosticsManager.get(ensureProject());
 
         diagnosticsTable = new ParserDiagnosticsTable(this, new ParserDiagnosticsTableModel(null, null));
-        diagnosticsTable.accommodateColumnsSize();
+        diagnosticsTable.adjustColumnWidths();
         diagnosticsTableScrollPane.setViewportView(diagnosticsTable);
 
         detailsLabel.setText("No result selected");
@@ -100,7 +99,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         ParserDiagnosticsDeltaResult deltaResult = current == null ? null : current.delta(previous);
         ParserDiagnosticsTableModel tableModel = new ParserDiagnosticsTableModel(deltaResult, manager.getResultFilter());
         diagnosticsTable.setModel(tableModel);
-        diagnosticsTable.accommodateColumnsSize();
+        diagnosticsTable.adjustColumnWidths();
 
         detailsLabel.setText(deltaResult == null ? "No result selected" : deltaResult.getName());
 
@@ -109,8 +108,8 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         stateTransitionLabel.setText(previous == null ? current == null ? "" : "INITIAL" : stateTransition.name());
         stateTransitionLabel.setForeground(category.getColor());
         stateTransitionLabel.setFont(category.isBold() ?
-                Fonts.deriveFont(Fonts.getLabelFont(), Font.BOLD) :
-                Fonts.getLabelFont());
+                Fonts.regularBold() :
+                Fonts.regular());
     }
 
     public void refreshResult() {
