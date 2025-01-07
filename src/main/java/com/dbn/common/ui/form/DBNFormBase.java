@@ -44,6 +44,9 @@ import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Accessibility.initAccessibilityGroups;
+import static com.dbn.common.ui.util.UserInterface.findChildComponent;
+import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 
 public abstract class DBNFormBase
@@ -69,8 +72,13 @@ public abstract class DBNFormBase
     @NotNull
     @Override
     public final JComponent getComponent() {
-        if (!initialized) initialize();
+        initialize();
         return getMainComponent();
+    }
+
+    @Override
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return findChildComponent(getMainComponent(), c -> isFocusableComponent(c));
     }
 
     /**
@@ -93,7 +101,12 @@ public abstract class DBNFormBase
     }
 
     private void initialize() {
+        if (initialized) return;
         initialized = true;
+
+
+        initFormAccessibility();
+
         JComponent mainComponent = getMainComponent();
         DataProviders.register(mainComponent, this);
         UserInterface.updateScrollPaneBorders(mainComponent);
@@ -102,6 +115,16 @@ public abstract class DBNFormBase
         ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
         //GuiUtils.replaceJSplitPaneWithIDEASplitter(mainComponent);
     }
+
+    private void initFormAccessibility() {
+        JComponent mainComponent = getMainComponent();
+
+        initAccessibility();
+        initAccessibilityGroups(mainComponent);
+        //...
+    }
+
+    protected void initAccessibility() {}
 
     protected void lookAndFeelChanged() {
 

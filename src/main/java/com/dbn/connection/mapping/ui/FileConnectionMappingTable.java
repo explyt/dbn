@@ -25,7 +25,6 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.DBNTableTransferHandler;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Context;
 import com.dbn.common.util.Editors;
@@ -64,6 +63,7 @@ import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -77,12 +77,12 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
         setCellSelectionEnabled(true);
-        adjustRowHeight(2);
         getRowSorter().toggleSortOrder(2);
-        accommodateColumnsSize();
+        adjustColumnWidths();
         addMouseListener(new MouseListener());
         manager = FileConnectionContextManager.getInstance(getProject());
 
+        setAccessibleName(this, "File Connection Mappings");
     }
 
     @Override
@@ -131,7 +131,6 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
             SimpleTextAttributes textAttributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
             String presentableValue = model.getPresentableValue(entry, column);
             append(presentableValue, textAttributes);
-            setBorder(Borders.TEXT_FIELD_INSETS);
         }
     }
 

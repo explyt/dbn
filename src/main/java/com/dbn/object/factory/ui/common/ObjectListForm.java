@@ -52,9 +52,7 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         this.connection = connection.ref();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,
-                "DBNavigator.ObjectFactory.AddElement", true,
-                new CreateObjectAction());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new CreateObjectAction());
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
 
         newLabel.setText("Add " + getObjectType().getName());

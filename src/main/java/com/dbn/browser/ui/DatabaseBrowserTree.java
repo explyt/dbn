@@ -92,7 +92,6 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
 
         setToggleClickCount(0);
         setRootVisible(true);
-        setRowHeight(Math.max(getRowHeight(), 22));
         setShowsRootHandles(true);
         setAutoscrolls(true);
         setBorder(Borders.EMPTY_BORDER);
@@ -412,7 +411,7 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
 
     private void showPopupMenu(ActionGroup actionGroup, int x, int y) {
         if (actionGroup == null) return;
-        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, "", actionGroup);
+        ActionPopupMenu actionPopupMenu = Actions.createActionPopupMenu(this, actionGroup);
         JPopupMenu popupMenu = actionPopupMenu.getComponent();
         Dispatch.run(() -> {
             if (!isShowing()) return;

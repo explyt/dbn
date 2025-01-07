@@ -63,6 +63,7 @@ import java.util.List;
 import static com.dbn.common.ui.util.ClientProperty.TAB_CONTENT;
 import static com.dbn.common.ui.util.ClientProperty.TAB_ICON;
 import static com.dbn.common.ui.util.ClientProperty.TAB_TOOLTIP;
+import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -104,7 +105,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
                     showHiddenTabsPopup(e);
                 }
             };
-            ActionToolbar actionToolbar = Actions.createActionToolbar(this, "", true, hiddenTabsAction);
+            ActionToolbar actionToolbar = Actions.createActionToolbar(this, true, hiddenTabsAction);
             JComponent toolbarComponent = actionToolbar.getComponent();
             setPreferredSize(toolbarComponent.getPreferredSize());
             add(toolbarComponent, BorderLayout.CENTER);
@@ -153,8 +154,16 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
             if (isCloseTabEvent(e)) {
                 removeTabAt(index);
                 e.consume();
+            } else if (isSelectTabEvent(e)) {
+                focusTab(index);
             }
         }));
+    }
+
+    private void focusTab(int index) {
+        Component content = getComponentAt(index);
+        JComponent focusable = findChildComponent(content, c -> c.isFocusable());
+        if (focusable != null)  focusable.requestFocus();
     }
 
     private static boolean isCloseTabEvent(MouseEvent e) {
@@ -162,6 +171,10 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         if (e.isShiftDown() && SwingUtilities.isLeftMouseButton(e)) return true;
 
         return false;
+    }
+
+    private static boolean isSelectTabEvent(MouseEvent e) {
+        return SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 1;
     }
 
     @Override

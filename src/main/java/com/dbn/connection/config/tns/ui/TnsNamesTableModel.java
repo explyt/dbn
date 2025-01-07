@@ -95,6 +95,8 @@ public class TnsNamesTableModel extends StatefulDisposableBase implements DBNRea
 
     @Override
     public String getPresentableValue(TnsProfile tnsProfile, int column) {
+        if (tnsProfile == null) return "";
+
         switch (column) {
             case 0: return tnsProfile.getProfile();
             case 1: return tnsProfile.getProtocol();
