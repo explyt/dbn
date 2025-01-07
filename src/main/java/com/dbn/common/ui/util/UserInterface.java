@@ -19,6 +19,7 @@ package com.dbn.common.ui.util;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.lookup.Visitor;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.ValueSelector;
 import com.dbn.common.util.Environment;
 import com.dbn.common.util.Strings;
 import com.intellij.ide.ui.UISettings;
@@ -37,6 +38,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.AbstractButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -187,6 +189,19 @@ public class UserInterface {
             }
         }
         return false;
+    }
+
+    public static boolean isFocusableComponent(Component component) {
+        if (!component.isFocusable()) return false;
+        if (!component.isEnabled()) return false;
+
+        return
+            component instanceof JTextComponent ||
+            component instanceof AbstractButton ||
+            component instanceof ValueSelector ||
+            component instanceof JComboBox ||
+            component instanceof JList<?> ||
+            component instanceof JTable;
     }
 
     public static void updateTitledBorder(JPanel panel) {
@@ -394,7 +409,7 @@ public class UserInterface {
 
             childComponent = findChildComponent(childComponent, componentType, check);
             if (childComponent != null) {
-                return cast(child);
+                return cast(childComponent);
             }
         }
         return null;
