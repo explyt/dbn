@@ -25,7 +25,6 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.DBNTableTransferHandler;
-import com.dbn.common.ui.util.Borders;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Context;
 import com.dbn.common.util.Editors;
@@ -77,9 +76,8 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
         setCellSelectionEnabled(true);
-        adjustRowHeight(2);
         getRowSorter().toggleSortOrder(2);
-        accommodateColumnsSize();
+        adjustColumnWidths();
         addMouseListener(new MouseListener());
         manager = FileConnectionContextManager.getInstance(getProject());
 
@@ -132,7 +130,6 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
             SimpleTextAttributes textAttributes = SimpleTextAttributes.REGULAR_ATTRIBUTES;
             String presentableValue = model.getPresentableValue(entry, column);
             append(presentableValue, textAttributes);
-            setBorder(Borders.TEXT_FIELD_INSETS);
         }
     }
 

@@ -117,7 +117,7 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
                         renderer.setFont(font);
                     }
                 }
-                accommodateColumnsSize();
+                adjustColumnWidths();
             }
 
         });
@@ -288,7 +288,7 @@ public class BasicTable<T extends BasicDataModel<?, ?>> extends DBNTableWithGutt
         if (firstRow == -1 && lastRow == -1) return;
 
         if (firstRow != lastRow) {
-            accommodateColumnsSize();
+            adjustColumnWidths();
             resetTableGutter();
         }
 

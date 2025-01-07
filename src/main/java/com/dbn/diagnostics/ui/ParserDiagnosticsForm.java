@@ -68,7 +68,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         manager = ParserDiagnosticsManager.get(ensureProject());
 
         diagnosticsTable = new ParserDiagnosticsTable(this, new ParserDiagnosticsTableModel(null, null));
-        diagnosticsTable.accommodateColumnsSize();
+        diagnosticsTable.adjustColumnWidths();
         diagnosticsTableScrollPane.setViewportView(diagnosticsTable);
 
         detailsLabel.setText("No result selected");
@@ -99,7 +99,7 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         ParserDiagnosticsDeltaResult deltaResult = current == null ? null : current.delta(previous);
         ParserDiagnosticsTableModel tableModel = new ParserDiagnosticsTableModel(deltaResult, manager.getResultFilter());
         diagnosticsTable.setModel(tableModel);
-        diagnosticsTable.accommodateColumnsSize();
+        diagnosticsTable.adjustColumnWidths();
 
         detailsLabel.setText(deltaResult == null ? "No result selected" : deltaResult.getName());
 
