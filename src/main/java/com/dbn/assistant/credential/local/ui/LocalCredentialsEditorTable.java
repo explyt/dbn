@@ -29,6 +29,8 @@ import javax.swing.table.TableColumn;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 /**
  * Table model for provider credentials information
  * The template credential stored locally.
@@ -53,6 +55,8 @@ public class LocalCredentialsEditorTable extends DBNEditableTable<LocalCredentia
         adjustColumnSizes();
       }
     });
+
+    setAccessibleName(this, "Credentials");
   }
 
   @NotNull

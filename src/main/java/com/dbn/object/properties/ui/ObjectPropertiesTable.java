@@ -39,6 +39,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Borderless{
     ObjectPropertiesTable(DBNForm parent, DBNTableModel tableModel) {
         super(parent, tableModel, false);
@@ -49,6 +51,8 @@ public class ObjectPropertiesTable extends DBNTable<DBNTableModel> implements Bo
 
         addMouseListener(mouseListener);
         addKeyListener(keyListener);
+
+        setAccessibleName(this, "Object Properties");
     }
 
     private final MouseListener mouseListener = Mouse.listener().onClick(e -> {

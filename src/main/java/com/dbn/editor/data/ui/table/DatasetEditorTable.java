@@ -84,6 +84,7 @@ import java.sql.SQLException;
 import java.util.EventObject;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.editor.data.DatasetLoadInstruction.DELIBERATE_ACTION;
 import static com.dbn.editor.data.DatasetLoadInstruction.PRESERVE_CHANGES;
@@ -122,6 +123,7 @@ public class DatasetEditorTable extends ResultSetTable<DatasetEditorModel> {
         ActionUtil.registerDataProvider(this, dataProvider, false);
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
 */
+        setAccessibleName(this, "Dataset Editor");
     }
 
     @Override

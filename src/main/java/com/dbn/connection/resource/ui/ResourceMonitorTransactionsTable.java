@@ -33,6 +33,8 @@ import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTransactionsTableModel> {
 
     ResourceMonitorTransactionsTable(@NotNull DBNComponent parent, ResourceMonitorTransactionsTableModel model) {
@@ -43,6 +45,8 @@ public class ResourceMonitorTransactionsTable extends DBNTable<ResourceMonitorTr
         adjustRowHeight(2);
         accommodateColumnsSize();
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
+
+        setAccessibleName(this, "Resource Monitor Transactions");
     }
 
     private void clickEvent(MouseEvent e) {

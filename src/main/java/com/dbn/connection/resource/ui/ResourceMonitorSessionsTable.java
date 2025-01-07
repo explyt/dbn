@@ -31,6 +31,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.ListSelectionModel;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTableModel> {
     ResourceMonitorSessionsTable(@NotNull DBNComponent parent, ResourceMonitorSessionsTableModel tableModel) {
         super(parent, tableModel, true);
@@ -40,6 +42,8 @@ class ResourceMonitorSessionsTable extends DBNTable<ResourceMonitorSessionsTable
         setRowSelectionAllowed(true);
         adjustRowHeight(2);
         accommodateColumnsSize();
+
+        setAccessibleName(this, "Resource Monitor Sessions");
     }
 
 

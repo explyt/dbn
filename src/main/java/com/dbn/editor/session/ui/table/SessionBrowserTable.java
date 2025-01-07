@@ -47,6 +47,7 @@ import java.awt.event.MouseEvent;
 import java.util.EventObject;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 
 public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
     private final WeakRef<SessionBrowser> sessionBrowser;
@@ -64,6 +65,7 @@ public class SessionBrowserTable extends ResultSetTable<SessionBrowserModel> {
         ActionUtil.registerDataProvider(this, dataProvider, false);
         ActionUtil.registerDataProvider(getTableHeader(), dataProvider, false);
 */
+        setAccessibleName(this, "Session Browser");
     }
 
     @NotNull

@@ -64,6 +64,7 @@ import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 
 public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTableModel> {
@@ -82,6 +83,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         addMouseListener(new MouseListener());
         manager = FileConnectionContextManager.getInstance(getProject());
 
+        setAccessibleName(this, "File Connection Mappings");
     }
 
     @Override

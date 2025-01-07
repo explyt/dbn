@@ -39,7 +39,6 @@ import javax.swing.table.TableCellEditor;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
-import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 
 public class EnvironmentSettingsForm extends ConfigurationEditorForm<EnvironmentSettings> {
@@ -91,7 +90,6 @@ public class EnvironmentSettingsForm extends ConfigurationEditorForm<Environment
 
     @Override
     protected void initAccessibility() {
-        setAccessibleName(environmentTypesTable, "Environment Types");
         COMPONENT_GROUP_QUALIFIER.set(environmentColorsLabel, true);
     }
 

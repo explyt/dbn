@@ -29,6 +29,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import java.awt.Component;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class SessionDetailsTable extends DBNTable<SessionDetailsTableModel> {
 
     public SessionDetailsTable(@NotNull DBNComponent parent) {
@@ -36,6 +38,8 @@ public class SessionDetailsTable extends DBNTable<SessionDetailsTableModel> {
         setDefaultRenderer(Object.class, cellRenderer);
         setCellSelectionEnabled(true);
         adjustRowHeight(3);
+
+        setAccessibleName(this, "Session Details");
     }
 
     private final TableCellRenderer cellRenderer = new DefaultTableCellRenderer() {

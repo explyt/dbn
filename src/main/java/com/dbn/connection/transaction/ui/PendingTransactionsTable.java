@@ -41,6 +41,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableModel> {
     public PendingTransactionsTable(@NotNull PendingTransactionsDetailForm parent, @NotNull PendingTransactionsTableModel model) {
         super(parent, model, false);
@@ -51,6 +53,8 @@ public class PendingTransactionsTable extends DBNTable<PendingTransactionsTableM
         adjustRowHeight(2);
         accommodateColumnsSize();
         addMouseListener(Mouse.listener().onClick(e -> clickEvent(e)));
+
+        setAccessibleName(this, "Pending Transactions");
     }
 
     private void clickEvent(MouseEvent e) {
