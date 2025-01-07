@@ -35,6 +35,8 @@ import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTypesTableModel> {
 
     EnvironmentTypesEditorTable(DBNComponent parent, EnvironmentTypeBundle environmentTypes) {
@@ -54,6 +56,8 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
         setFixedWidth(columnModel.getColumn(4), 60);
 
         addMouseListener(mouseListener);
+
+        setAccessibleName(this, "Environment Types");
     }
 
     @NotNull

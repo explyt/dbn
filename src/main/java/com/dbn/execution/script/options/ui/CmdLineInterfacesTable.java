@@ -44,6 +44,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
 
 public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel> {
@@ -65,6 +66,8 @@ public class CmdLineInterfacesTable extends DBNTable<CmdLineInterfacesTableModel
 
         putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
         addMouseListener(mouseListener);
+
+        setAccessibleName(this, "Command Line Interfaces");
     }
 
     private final MouseListener mouseListener = Mouse.listener().onClick(e -> {

@@ -32,6 +32,8 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.ListSelectionModel;
 import javax.swing.table.TableModel;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class DiagnosticsTable<T extends AbstractDiagnosticsTableModel> extends DBNTable<T> implements Borderless{
 
     DiagnosticsTable(@NotNull DBNComponent parent, T model) {
@@ -44,6 +46,8 @@ public class DiagnosticsTable<T extends AbstractDiagnosticsTableModel> extends D
         adjustRowHeight(2);
         initTableSorter();
         accommodateColumnsSize();
+
+        setAccessibleName(this, "Diagnostic Results");
     }
 
     @Override

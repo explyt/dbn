@@ -25,6 +25,8 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.table.TableColumn;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+
 public class DatabaseFilesTable extends DBNEditableTable<DatabaseFilesTableModel> {
 
     public DatabaseFilesTable(@NotNull DBNComponent parent, DatabaseFileBundle databaseFiles) {
@@ -34,6 +36,8 @@ public class DatabaseFilesTable extends DBNEditableTable<DatabaseFilesTableModel
         FileBrowserTableCellEditor fileChooser = new FileBrowserTableCellEditor(fileChooserDescriptor);
         getColumnModel().getColumn(0).setCellEditor(fileChooser);
         setFixedWidth(columnModel.getColumn(1), 100);
+
+        setAccessibleName(this, "Database Files");
     }
 
     public void setFilePaths(DatabaseFileBundle filesBundle) {
