@@ -24,7 +24,6 @@ import com.dbn.common.color.Colors;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.ui.util.Accessibility;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -55,7 +54,6 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
         super(settings);
         resetFormChanges();
         sortingItemsList.setCellRenderer(LIST_CELL_RENDERER);
-        sortingItemsList.setFont(Fonts.getLabelFont());
         ActionToolbar actionToolbar = Actions.createActionToolbar(
                 actionPanel,
                 true,

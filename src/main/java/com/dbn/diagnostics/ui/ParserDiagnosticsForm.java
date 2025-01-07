@@ -44,7 +44,6 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import java.awt.BorderLayout;
-import java.awt.Font;
 import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
@@ -109,8 +108,8 @@ public class ParserDiagnosticsForm extends DBNFormBase {
         stateTransitionLabel.setText(previous == null ? current == null ? "" : "INITIAL" : stateTransition.name());
         stateTransitionLabel.setForeground(category.getColor());
         stateTransitionLabel.setFont(category.isBold() ?
-                Fonts.deriveFont(Fonts.getLabelFont(), Font.BOLD) :
-                Fonts.getLabelFont());
+                Fonts.regularBold() :
+                Fonts.regular());
     }
 
     public void refreshResult() {

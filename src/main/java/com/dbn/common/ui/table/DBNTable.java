@@ -92,8 +92,6 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
         this.parentComponent = WeakRef.of(nd(parent));
 
         setGridColor(Colors.getTableGridColor());
-        Font font = getFont();//UIUtil.getListFont();
-        setFont(font);
         setBackground(Colors.getListBackground());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
 
