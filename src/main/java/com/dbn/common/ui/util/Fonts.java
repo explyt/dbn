@@ -44,7 +44,7 @@ public final class Fonts {
 
     public static Font regular(int sizeDeviation) {
         Font font = regular();
-        return deriveFont(font, font.getSize() + scaleFontSize(sizeDeviation));
+        return deriveFont(font, adjustedSize(font, sizeDeviation));
     }
 
     public static Font regularBold() {
@@ -53,7 +53,7 @@ public final class Fonts {
 
     public static Font regularBold(int sizeDeviation) {
         Font font = regularBold();
-        return deriveFont(font, font.getSize() + scaleFontSize(sizeDeviation));
+        return deriveFont(font, adjustedSize(font, sizeDeviation));
     }
 
     public static Font editor() {
@@ -66,12 +66,15 @@ public final class Fonts {
 
     public static Font editor(int sizeDeviation) {
         Font font = editor();
-        return deriveFont(font, font.getSize() + scaleFontSize(sizeDeviation));
+        return deriveFont(font, adjustedSize(font, sizeDeviation));
+    }
+
+    private static float adjustedSize(Font font, int deviation) {
+        return font.getSize() + scaleFontSize(deviation);
     }
 
 
     public static Font deriveFont(Font font, float size) {
-        size = scaleFontSize(size);
         Map<Float, Font> cache = SIZE_DERIVATIONS.computeIfAbsent(font, f -> new ConcurrentHashMap<>());
         return cache.computeIfAbsent(size, s -> font.deriveFont(s));
     }
