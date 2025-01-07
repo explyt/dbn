@@ -39,6 +39,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.codeStyle.CodeStyleManager;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.Map;
 import java.util.Properties;
@@ -147,7 +148,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         addProperty(properties, "PROPERTIES", propsCsv);
     }
 
-    private static void addProperty(Properties properties, String key, Object value) {
+    private static void addProperty(Properties properties, @NonNls String key, Object value) {
         if (value == null) return;
         properties.put(key, value.toString());
     }

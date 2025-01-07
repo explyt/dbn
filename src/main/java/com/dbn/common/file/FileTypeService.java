@@ -38,6 +38,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -168,19 +169,19 @@ public class FileTypeService extends ApplicationComponentBase implements Persist
         });
     }
 
-    private void associate(FileType fileType, String extension) {
+    private void associate(FileType fileType, @NonNls String extension) {
         FileType currentFileType = getCurrentFileType(extension);
         if (currentFileType == fileType) return;
 
         Write.run(() -> withSilentContext(() -> FileTypeManager.getInstance().associateExtension(fileType, extension)));
     }
 
-    private void dissociate(FileType fileType, String fileExtension) {
+    private void dissociate(FileType fileType, @NonNls String fileExtension) {
         Write.run(() -> withSilentContext(() -> FileTypeManager.getInstance().removeAssociatedExtension(fileType, fileExtension)));
     }
 
     @NotNull
-    public FileType getCurrentFileType(String extension) {
+    public FileType getCurrentFileType(@NonNls String extension) {
         return Unsafe.silent(UnknownFileType.INSTANCE, extension, e -> FileTypeManager.getInstance().getFileTypeByExtension(e));
     }
 

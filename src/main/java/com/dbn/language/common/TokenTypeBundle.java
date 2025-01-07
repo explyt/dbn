@@ -30,6 +30,7 @@ import java.util.Set;
 
 @Slf4j
 @Getter
+@NonNls
 public class TokenTypeBundle extends TokenTypeBundleBase {
     private final DBLanguage baseLanguage;
 

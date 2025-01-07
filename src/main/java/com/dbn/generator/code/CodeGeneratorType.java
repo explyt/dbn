@@ -21,6 +21,7 @@ import org.jetbrains.annotations.NonNls;
 
 import static com.dbn.generator.code.CodeGeneratorCategory.JAVA;
 
+@NonNls
 @Getter
 public enum CodeGeneratorType {
     DATABASE_CONNECTOR(              JAVA, "JdbcConnector", "JDBC Connector",                   "DBN - JDBC Connector.java"),

@@ -36,6 +36,7 @@ import java.util.regex.Pattern;
 
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
+@NonNls
 public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterfaceBase implements DatabaseDataDefinitionInterface {
     public static final @NonNls String TEMP_OBJECT_NAME = "DBN_TEMPORARY_{0}_0001";
 

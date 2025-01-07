@@ -86,6 +86,7 @@ import com.intellij.psi.PsiFile;
 import com.intellij.util.text.DateFormatUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jdom.Element;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -568,6 +569,7 @@ public class SourceCodeManager extends ProjectComponentBase implements Persisten
         return ChangeTimestamp.now();
     }
 
+    @NonNls
     private static String getContentQualifier(DBObjectType objectType, DBContentType contentType) {
         switch (objectType) {
             case JAVA_CLASS:       return "JAVA SOURCE";

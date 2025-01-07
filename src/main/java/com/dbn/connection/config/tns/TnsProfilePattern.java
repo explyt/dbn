@@ -21,10 +21,11 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Pattern;
 
+@NonNls
 public class TnsProfilePattern {
     public static TnsProfilePattern INSTANCE = new TnsProfilePattern();
 
-    private Pattern pattern;
+    private final Pattern pattern;
 
     private TnsProfilePattern() {
         pattern = initPattern();

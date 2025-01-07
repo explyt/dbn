@@ -18,6 +18,7 @@ package com.dbn.database.common.execution;
 
 import com.dbn.execution.method.MethodExecutionInput;
 import com.dbn.object.DBFunction;
+import org.jetbrains.annotations.NonNls;
 
 public class SimpleFunctionExecutionProcessor extends MethodExecutionProcessorImpl {
     public SimpleFunctionExecutionProcessor(DBFunction function) {
@@ -26,6 +27,7 @@ public class SimpleFunctionExecutionProcessor extends MethodExecutionProcessorIm
 
     @Override
     public String buildExecutionCommand(MethodExecutionInput executionInput) {
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         buffer.append("{? = call ");
         buffer.append(getMethod().getQualifiedName());

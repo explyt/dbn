@@ -22,9 +22,11 @@ import com.dbn.editor.DBContentType;
 import com.dbn.editor.code.content.SourceCodeContent;
 import com.dbn.object.factory.MethodFactoryInput;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 
+@NonNls
 public interface DatabaseDataDefinitionInterface extends DatabaseInterface{
 
     String createDDLStatement(Project project, DatabaseObjectTypeId objectTypeId, String userName, String schemaName, String objectName, DBContentType contentType, String code, String alternativeDelimiter);
