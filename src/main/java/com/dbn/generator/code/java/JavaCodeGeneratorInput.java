@@ -18,6 +18,7 @@ package com.dbn.generator.code.java;
 
 import com.dbn.common.project.Modules;
 import com.dbn.common.thread.Read;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.shared.base.CodeGeneratorInputBase;
 import com.intellij.openapi.module.Module;
@@ -115,7 +116,8 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
     }
 
     public static boolean isValidPackageName(String packageName) {
-        return PACKAGE_NAME_PATTERN.matcher(packageName).matches();
+        // allow empty package names
+        return Strings.isEmpty(packageName) || PACKAGE_NAME_PATTERN.matcher(packageName).matches();
     }
 
     public static boolean isValidClassName(String className) {

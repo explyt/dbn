@@ -21,15 +21,8 @@ import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.generator.code.CodeGeneratorContext;
 import com.dbn.generator.code.CodeGeneratorManager;
-import com.intellij.openapi.ui.ValidationInfo;
-
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
 
 import javax.swing.Action;
 
@@ -46,17 +39,6 @@ public class CodeGeneratorInputDialog extends DBNDialog<CodeGeneratorInputForm> 
         init();
     }
 
-    public void validateInputs() {
-        ValidationInfo validationInfo = doValidate();
-        setErrorInfoAll(validationInfo == null ? Collections.emptyList() : List.of(validationInfo));
-        setOKActionEnabled(validationInfo == null);
-    }
-
-    @Override
-    public ValidationInfo doValidate() {
-        return getForm().doValidate();
-    }
-    
     @NotNull
     @Override
     protected CodeGeneratorInputForm createForm() {

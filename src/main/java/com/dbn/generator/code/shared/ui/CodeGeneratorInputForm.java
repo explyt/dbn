@@ -18,24 +18,19 @@ package com.dbn.generator.code.shared.ui;
 
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.generator.code.shared.CodeGeneratorInput;
-import com.intellij.openapi.ui.ValidationInfo;
-
 import lombok.Getter;
 
 @Getter
 public abstract class CodeGeneratorInputForm<I extends CodeGeneratorInput> extends DBNFormBase {
     private final I input;
-    private CodeGeneratorInputDialog dialog;
 
     public CodeGeneratorInputForm(CodeGeneratorInputDialog dialog, I input) {
         super(dialog);
         this.input = input;
-        this.dialog = dialog;
     }
 
     public final void applyUserInput() {
         applyUserInput(input);
-        //this.dialog.validate();
     }
 
     /**
@@ -43,6 +38,4 @@ public abstract class CodeGeneratorInputForm<I extends CodeGeneratorInput> exten
      * @param input the
      */
     protected abstract void applyUserInput(I input);
-    
-    public abstract ValidationInfo doValidate();
 }

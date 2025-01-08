@@ -20,7 +20,6 @@ import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.ComboBoxes;
-import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorCategory;
 import com.dbn.generator.code.CodeGeneratorManager;
@@ -33,7 +32,6 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ModuleRootManager;
-import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -43,8 +41,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +50,8 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidClassName;
+import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidPackageName;
 
 public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extends CodeGeneratorInputForm<I> {
     private JPanel headerPanel;
@@ -75,33 +73,12 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
         initSelectionListener(moduleComboBox, s -> initContentRoots());
         initStatePersistence();
         initModules();
-        initValidation(dialog);
+        initValidation();
     }
 
-    
-    private void initValidation(final CodeGeneratorInputDialog dialog) {
-        DocumentListener textListener = new com.intellij.ui.DocumentAdapter() {
-            @Override
-            protected void textChanged(@NotNull DocumentEvent e) {
-                dialog.validateInputs();
-            }
-        };
-        this.packageTextField.getDocument().addDocumentListener(textListener);
-        this.classNameTextField.getDocument().addDocumentListener(textListener);
-    }
-
-    @Override
-    public ValidationInfo doValidate() {
-        String packageName = this.packageTextField.getText();
-        if (Strings.isNotEmpty(packageName) && !JavaCodeGeneratorInput.isValidPackageName(packageName)) {
-            return new ValidationInfo("Invalid package name", this.packageTextField);
-        }
-        String className = this.classNameTextField.getText();
-        if (!JavaCodeGeneratorInput.isValidClassName(className)) {
-            return new ValidationInfo("Invalid class name", this.classNameTextField);
-        }
-        
-        return null;
+    private void initValidation() {
+        formValidator.addTextValidation(packageTextField, p -> isValidPackageName(p), "Invalid package name");
+        formValidator.addTextValidation(classNameTextField, p -> isValidClassName(p), "Invalid class name");
     }
 
     @Override
