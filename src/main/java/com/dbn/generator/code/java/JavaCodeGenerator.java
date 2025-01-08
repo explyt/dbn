@@ -18,6 +18,7 @@ package com.dbn.generator.code.java;
 
 
 import com.dbn.common.util.Environment;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.action.JavaCodeGenerationAction;
@@ -35,8 +36,6 @@ import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import lombok.SneakyThrows;
-
-import javax.swing.JOptionPane;
 
 import static com.dbn.common.options.Configs.fail;
 import static com.dbn.common.util.Strings.isEmpty;
@@ -111,17 +110,25 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
 
     @SneakyThrows
     private boolean handleDestinationOverwrite(I input) {
-        String name = input.getClassName() + ".java";
+        String className = input.getClassName();
+        String fileName = className + ".java";
 
         PsiDirectory directory = input.getTargetDirectory();
-        PsiFile file = directory.findFile(name);
+        PsiFile file = directory.findFile(fileName);
         if (file == null) return true;
 
-        int showConfirmDialog = JOptionPane.showConfirmDialog(null, "Java file already exists. Overwrite?");
-        if (showConfirmDialog == JOptionPane.CANCEL_OPTION || showConfirmDialog == JOptionPane.NO_OPTION) {
-            return false; // signal operation cancelled
+        Project project = input.getProject();
+        int overwrite = Messages.showConfirmationDialog(
+                project,
+                "Overwrite Class",
+                "A class named \"" + className + "\" already exists in the target location. Do you want to overwrite it?",
+                Messages.OPTIONS_YES_NO, 0);
+
+        if (overwrite == 0) {
+            file.delete();
+            return true;
         }
-        file.delete();
-        return true;
+
+        return false;
     }
 }
