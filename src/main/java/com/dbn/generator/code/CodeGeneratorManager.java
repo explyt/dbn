@@ -68,10 +68,7 @@ public class CodeGeneratorManager extends ProjectComponentBase implements Persis
 
     public void openCodeGenerator(CodeGeneratorType type, DatabaseContext databaseContext) {
         CodeGeneratorContext context = createContext(type, databaseContext);
-        Dialogs.show(() -> new CodeGeneratorInputDialog(context)
-        {
-    
-        });
+        Dialogs.show(() -> new CodeGeneratorInputDialog(context));
     }
 
     @NotNull
