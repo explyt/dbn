@@ -26,6 +26,13 @@ import com.dbn.generator.code.shared.base.CodeGeneratorBase;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.PsiDirectory;
+import lombok.SneakyThrows;
+
+import static com.dbn.common.options.Configs.fail;
+import static com.dbn.common.util.Strings.isEmpty;
 
 public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R extends JavaCodeGeneratorResult<I>> extends CodeGeneratorBase<I, R> {
     public JavaCodeGenerator(CodeGeneratorType type) {
@@ -45,5 +52,35 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
     @Override
     public AnAction createAction(DatabaseContext context) {
         return new JavaCodeGenerationAction(context, getType());
+    }
+
+
+    /**
+     * Prepares the destination directory structure for a specified input, creating the necessary
+     * package directories if they do not already exist.
+     * (moved from {@link JavaCodeGeneratorInput})
+     *
+     * @param input the input object containing generator destination information, such as the module,
+     *              content root, and package name required to determine and create the target directories
+     */
+    @SneakyThrows
+    public void prepareDestination(I input) {
+        Module module = input.findModule();
+        VirtualFile file = input.findContentRoot(module);
+        PsiDirectory directory = input.findContentRootDirectory(file);
+
+        String packageName = input.getPackageName();
+        if (isEmpty(packageName)) return;
+
+        String[] packageTokens = packageName.trim().split("\\.");
+        for (String packageToken : packageTokens) {
+            PsiDirectory subdirectory = directory.findSubdirectory(packageToken);
+            if (subdirectory == null)  {
+                directory.createSubdirectory(packageToken);
+                subdirectory = directory.findSubdirectory(packageToken);
+                if (subdirectory == null) fail("Cannot create package directory " + packageToken);
+            }
+            directory = subdirectory;
+        }
     }
 }

@@ -18,7 +18,6 @@ package com.dbn.generator.code.java.impl;
 
 import com.dbn.common.database.AuthenticationInfo;
 import com.dbn.common.database.DatabaseInfo;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.outcome.OutcomeType;
 import com.dbn.connection.AuthenticationTokenType;
 import com.dbn.connection.AuthenticationType;
@@ -40,6 +39,7 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
+import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JOptionPane;
@@ -70,31 +70,23 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
 
     @Nullable
     @Override
-    public JdbcConnectorCodeGeneratorResult generateCode(JdbcConnectorCodeGeneratorInput input, DatabaseContext context) throws Exception {
+    public JdbcConnectorCodeGeneratorResult generateCode(JdbcConnectorCodeGeneratorInput input) throws Exception {
         String templateName = getType().getTemplate();
 
-        Project project = Failsafe.nd(context.getProject());
+        Project project = input.getProject();
         FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
         FileTemplate template = templateManager.getTemplate(templateName);
 
+        boolean resolved = resolveTargetOverwrite(input, template);
+        if (!resolved) return null;
 
+        DatabaseContext context = input.getDatabaseContext();
         PsiDirectory directory = input.getTargetDirectory();
         Properties properties = new Properties();
 
         addInputProperties(input, properties);
         addConnectionProperties(context, properties);
 
-        String name = input.getClassName()+"."+template.getExtension();
-        @Nullable
-        PsiFile file = directory.findFile(name);
-        if (file != null) {
-            int showConfirmDialog = 
-                JOptionPane.showConfirmDialog(null, "Java file already exists. Overwrite?");
-            if (showConfirmDialog == JOptionPane.CANCEL_OPTION || showConfirmDialog == JOptionPane.NO_OPTION) {
-                return null; // signal operation cancelled
-            }
-            file.delete();
-        }
         PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, input.getClassName(), properties, directory);
         reformatClass(project, javaClass);
 
@@ -103,6 +95,24 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);
         result.addGeneratedFile(javaFile);
         return result;
+    }
+
+    @SneakyThrows
+    private boolean resolveTargetOverwrite(JdbcConnectorCodeGeneratorInput input, FileTemplate template) {
+        // TODO move to CodeGenerator.prepareDestination(...)
+        String name = input.getClassName() + "." + template.getExtension();
+
+        PsiDirectory directory = input.getTargetDirectory();
+        PsiFile file = directory.findFile(name);
+        if (file == null) return true;
+
+        int showConfirmDialog = JOptionPane.showConfirmDialog(null, "Java file already exists. Overwrite?");
+        if (showConfirmDialog == JOptionPane.CANCEL_OPTION || showConfirmDialog == JOptionPane.NO_OPTION) {
+            return false; // signal operation cancelled
+        }
+        file.delete();
+
+        return true;
     }
 
     private static void reformatClass(Project project, PsiElement javaClass) {

@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.code.shared;
+package com.dbn.common.options;
 
-import com.dbn.connection.context.DatabaseContext;
+import com.intellij.openapi.options.ConfigurationException;
+import lombok.experimental.UtilityClass;
 
 /**
- * Input for the {@link CodeGenerator}, containing all necessary information for code generation to be performed
+ * Utility class for handling configuration issues and related exceptions.
  *
  * @author Dan Cioca (Oracle)
  */
-public interface CodeGeneratorInput {
-    DatabaseContext getDatabaseContext();
+@UtilityClass
+public class Configs {
+
+    /**
+     * Throws a {@link ConfigurationException} with the specified message.
+     *
+     * @param message the detail message expressing the problem with the configuration data
+     * @throws ConfigurationException if a configuration error occurs
+     */
+    public static void fail(String message) throws ConfigurationException {
+        throw new ConfigurationException(message);
+    }
 }
