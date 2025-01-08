@@ -35,22 +35,17 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
-import com.intellij.util.IncorrectOperationException;
+import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JOptionPane;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
-
-import javax.swing.JOptionPane;
-import javax.swing.UIManager;
-
-import org.jetbrains.annotations.Nullable;
 
 public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorCodeGeneratorInput, JdbcConnectorCodeGeneratorResult> {
     public JdbcConnectorCodeGenerator(CodeGeneratorType type) {
@@ -73,6 +68,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         return new JdbcConnectorCodeGeneratorInput(databaseContext);
     }
 
+    @Nullable
     @Override
     public JdbcConnectorCodeGeneratorResult generateCode(JdbcConnectorCodeGeneratorInput input, DatabaseContext context) throws Exception {
         String templateName = getType().getTemplate();
@@ -95,9 +91,7 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
             int showConfirmDialog = 
                 JOptionPane.showConfirmDialog(null, "Java file already exists. Overwrite?");
             if (showConfirmDialog == JOptionPane.CANCEL_OPTION || showConfirmDialog == JOptionPane.NO_OPTION) {
-                JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);
-                result.setSuccess(false);
-                return result;
+                return null; // signal operation cancelled
             }
             file.delete();
         }

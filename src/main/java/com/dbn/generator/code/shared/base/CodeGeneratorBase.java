@@ -27,6 +27,7 @@ import com.dbn.generator.code.shared.CodeGenerator;
 import com.dbn.generator.code.shared.CodeGeneratorInput;
 import com.dbn.generator.code.shared.CodeGeneratorResult;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Stub implementation of a {@link CodeGenerator}
@@ -51,6 +52,13 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
         OutcomeHandlers outcomeHandlers = context.getOutcomeHandlers();
         try {
             R result = generateCode(input, input.getDatabaseContext());
+            if (result == null) {
+                // overwrite result with null in the context if set by previous attempts
+                // do not call outcome handlers (input dialog will remain open)
+                context.setResult(null);
+                return;
+            }
+
             Outcome outcome = createOutcome(OutcomeType.SUCCESS, result, null);
             outcomeHandlers.handle(outcome);
             context.setResult(result);
@@ -70,5 +78,17 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
 
     protected abstract String getMessage(OutcomeType outcomeType);
 
+    /**
+     * Main code generation utility returning a {@link CodeGeneratorResult} if code generation was successful
+     * Expected behavior:
+     *  <li> operation succeeded: the method returns a non-null result
+     *  <li> operation cancelled: the method returns empty (null)
+     *  <li> operation failed: the method throws an exception
+     * @param input the {@link CodeGeneratorInput} passed in
+     * @param context the {@link DatabaseContext} under which the code generation is performed
+     * @return an implementation of {@link CodeGeneratorResult} or null if code generation was cancelled
+     * @throws Exception if code generation failed
+     */
+    @Nullable
     protected abstract R generateCode(I input, DatabaseContext context) throws Exception;
 }
