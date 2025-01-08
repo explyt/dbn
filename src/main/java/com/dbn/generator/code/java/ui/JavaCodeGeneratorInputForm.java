@@ -20,6 +20,7 @@ import com.dbn.common.file.VirtualFilePresentable;
 import com.dbn.common.project.ModulePresentable;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.util.ComboBoxes;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorCategory;
 import com.dbn.generator.code.CodeGeneratorManager;
@@ -28,7 +29,6 @@ import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.JavaCodeGeneratorInput;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
-import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
@@ -45,7 +45,6 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-
 import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Set;
@@ -94,7 +93,7 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     @Override
     public ValidationInfo doValidate() {
         String packageName = this.packageTextField.getText();
-        if (!JavaCodeGeneratorInput.isValidPackageName(packageName)) {
+        if (Strings.isNotEmpty(packageName) && !JavaCodeGeneratorInput.isValidPackageName(packageName)) {
             return new ValidationInfo("Invalid package name", this.packageTextField);
         }
         String className = this.classNameTextField.getText();
