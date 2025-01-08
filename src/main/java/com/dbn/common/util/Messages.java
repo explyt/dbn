@@ -136,6 +136,10 @@ public class Messages {
         showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_INFORMATION, callback, null);
     }
 
+    public static int showConfirmationDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex) {
+        return Dispatch.call(() -> com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, null, null));
+    }
+
     private static void showDialog(
             @Nullable Project project,
             String message,

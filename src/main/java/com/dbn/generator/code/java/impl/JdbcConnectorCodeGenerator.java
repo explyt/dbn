@@ -31,18 +31,12 @@ import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.ide.fileTemplates.FileTemplateUtil;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
-import com.intellij.psi.codeStyle.CodeStyleManager;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JOptionPane;
 import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
@@ -77,49 +71,22 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
         FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
         FileTemplate template = templateManager.getTemplate(templateName);
 
-        boolean resolved = resolveTargetOverwrite(input, template);
-        if (!resolved) return null;
-
         DatabaseContext context = input.getDatabaseContext();
-        PsiDirectory directory = input.getTargetDirectory();
-        Properties properties = new Properties();
 
+        Properties properties = new Properties();
         addInputProperties(input, properties);
         addConnectionProperties(context, properties);
 
-        PsiElement javaClass = FileTemplateUtil.createFromTemplate(template, input.getClassName(), properties, directory);
-        reformatClass(project, javaClass);
+        PsiElement javaClass = FileTemplateUtil.createFromTemplate(
+                template,
+                input.getClassName(),
+                properties,
+                input.getTargetDirectory());
+
+        reformatClass(javaClass);
 
         VirtualFile javaFile = javaClass.getContainingFile().getVirtualFile();
-
-        JdbcConnectorCodeGeneratorResult result = new JdbcConnectorCodeGeneratorResult(input);
-        result.addGeneratedFile(javaFile);
-        return result;
-    }
-
-    @SneakyThrows
-    private boolean resolveTargetOverwrite(JdbcConnectorCodeGeneratorInput input, FileTemplate template) {
-        // TODO move to CodeGenerator.prepareDestination(...)
-        String name = input.getClassName() + "." + template.getExtension();
-
-        PsiDirectory directory = input.getTargetDirectory();
-        PsiFile file = directory.findFile(name);
-        if (file == null) return true;
-
-        int showConfirmDialog = JOptionPane.showConfirmDialog(null, "Java file already exists. Overwrite?");
-        if (showConfirmDialog == JOptionPane.CANCEL_OPTION || showConfirmDialog == JOptionPane.NO_OPTION) {
-            return false; // signal operation cancelled
-        }
-        file.delete();
-
-        return true;
-    }
-
-    private static void reformatClass(Project project, PsiElement javaClass) {
-        WriteCommandAction.runWriteCommandAction(project, () -> {
-            CodeStyleManager codeStyleManager = CodeStyleManager.getInstance(project);
-            codeStyleManager.reformat(javaClass);
-        });
+        return new JdbcConnectorCodeGeneratorResult(input, javaFile);
     }
 
     private static void addInputProperties(JdbcConnectorCodeGeneratorInput input, Properties properties) throws ConfigurationException {

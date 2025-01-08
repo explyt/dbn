@@ -26,10 +26,17 @@ import com.dbn.generator.code.shared.base.CodeGeneratorBase;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleManager;
 import lombok.SneakyThrows;
+
+import javax.swing.JOptionPane;
 
 import static com.dbn.common.options.Configs.fail;
 import static com.dbn.common.util.Strings.isEmpty;
@@ -54,6 +61,24 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
         return new JavaCodeGenerationAction(context, getType());
     }
 
+    /**
+     * Utility to reformat code for a given java class.
+     * Can be invoked from within code generator logic before releasing the generator result
+     * @param javaClass the java class to be formatted
+     */
+    protected static void reformatClass(PsiElement javaClass) {
+        Project project = javaClass.getProject();
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+            CodeStyleManager codeStyleManager = CodeStyleManager.getInstance(project);
+            codeStyleManager.reformat(javaClass);
+        });
+    }
+
+
+    public boolean prepareDestination(I input) {
+        prepareDestinationFolder(input);
+        return handleDestinationOverwrite(input);
+    }
 
     /**
      * Prepares the destination directory structure for a specified input, creating the necessary
@@ -64,7 +89,7 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
      *              content root, and package name required to determine and create the target directories
      */
     @SneakyThrows
-    public void prepareDestination(I input) {
+    private void prepareDestinationFolder(I input) {
         Module module = input.findModule();
         VirtualFile file = input.findContentRoot(module);
         PsiDirectory directory = input.findContentRootDirectory(file);
@@ -82,5 +107,21 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
             }
             directory = subdirectory;
         }
+    }
+
+    @SneakyThrows
+    private boolean handleDestinationOverwrite(I input) {
+        String name = input.getClassName() + ".java";
+
+        PsiDirectory directory = input.getTargetDirectory();
+        PsiFile file = directory.findFile(name);
+        if (file == null) return true;
+
+        int showConfirmDialog = JOptionPane.showConfirmDialog(null, "Java file already exists. Overwrite?");
+        if (showConfirmDialog == JOptionPane.CANCEL_OPTION || showConfirmDialog == JOptionPane.NO_OPTION) {
+            return false; // signal operation cancelled
+        }
+        file.delete();
+        return true;
     }
 }

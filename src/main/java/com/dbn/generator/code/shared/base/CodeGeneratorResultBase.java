@@ -35,8 +35,9 @@ public class CodeGeneratorResultBase<I extends CodeGeneratorInput> implements Co
     private boolean success;
     private Throwable failureThrowable;
 
-    public CodeGeneratorResultBase(I input) {
+    public CodeGeneratorResultBase(I input, VirtualFile ... files) {
         this.input = input;
+        this.generatedFiles.addAll(List.of(files));
     }
 
     public void addGeneratedFile(VirtualFile virtualFile) {

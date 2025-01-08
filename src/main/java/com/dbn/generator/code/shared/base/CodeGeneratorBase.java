@@ -47,7 +47,9 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
     @Override
     public final void generateCode(CodeGeneratorContext<I, R> context) {
         I input = context.getInput();
-        prepareDestination(input);
+
+        boolean destinationPrepared = prepareDestination(input);
+        if (!destinationPrepared) return; // do not continue with code generation
 
         OutcomeHandlers outcomeHandlers = context.getOutcomeHandlers();
         try {
@@ -78,8 +80,9 @@ public abstract class CodeGeneratorBase<I extends CodeGeneratorInput, R extends 
      * Implementations should do all necessary preparations of the code generation destination location.
      * e.g. create directories, prompt overwrite confirmations aso...
      * @param input the input to prepare destination for
+     * @return true if destination is prepared and code generation can proceed, false otherwise
      */
-    protected abstract void prepareDestination(I input) ;
+    protected abstract boolean prepareDestination(I input);
 
     protected abstract String getTitle(OutcomeType outcomeType);
 
