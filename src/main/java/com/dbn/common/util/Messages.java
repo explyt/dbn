@@ -23,6 +23,7 @@ import com.dbn.common.message.MessageCallback;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.messages.DBNMessageDialog;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -148,11 +149,19 @@ public class Messages {
         Dispatch.run(getModalityState(), () -> {
             if (project != null) nd(project);
             closeProgressDialogs();
-            int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);
+
+            int option = showDialog(project, message, title, options, defaultOptionIndex, icon, doNotAskOption);
+            //int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);
             if (callback != null) {
                 callback.accept(option);
             }
         });
+    }
+
+    public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable DoNotAskOption doNotAskOption) {
+        DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, doNotAskOption);
+        messageDialog.show();
+        return messageDialog.getExitCode();
     }
 
     public static String[] options(String ... options) {
