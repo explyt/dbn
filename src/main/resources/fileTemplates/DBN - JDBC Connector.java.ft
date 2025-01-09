@@ -23,6 +23,7 @@
 import java.sql.Connection;
 import java.sql.Driver;
 import java.util.Properties;
+import java.util.Scanner;
 
 #parse("DBN - JDBC Doc ${DATABASE_TYPE}.java")
 public class ${CLASS_NAME}  {
@@ -33,11 +34,7 @@ public class ${CLASS_NAME}  {
      * @return a new {@link Connection}
      * @throws Exception if something goes wrong
      */
-    #if (${AUTH_TYPE} == 'USER_PASSWORD')
-    public Connection connect(String password) throws Exception {
-    #else
     public Connection connect() throws Exception {
-    #end
         Properties properties = new Properties();
 
         // JDBC URL
@@ -59,33 +56,14 @@ public class ${CLASS_NAME}  {
         return driver.connect(jdbcUrl, properties);
     }
 
-	/**
-	* #if (${PASSWORD_SOURCE} == 'ENVIRONMENT_VARIABLE')
-     * Set the environment variable JDBC_DB_PASSWORD to the password for ${USER_NAME} if you are using
-     * password authentication.
-     *#end
-     */
     public static void main(String[] args) {
-        ${CLASS_NAME} connector = new ${CLASS_NAME}();
-  
         #if (${AUTH_TYPE} == 'USER_PASSWORD')
-        String password = System.getenv("JDBC_DB_PASSWORD");
-        
-        // if no environment var set, prompt from user
-        if (password == null) {
-            // IntelliJ might not create a console tty for your
-            if (System.console() != null) {
-                password = new String(System.console().readPassword("Enter your password: "));
-            }
-            else {
-                throw new UnsupportedOperationException("You need to supply a password");
-            }
-        }
+        // init password
+        readPassword();
+        #end
 
-        try (Connection connection = connector.connect(password)) {
-		#else 
+        ${CLASS_NAME} connector = new ${CLASS_NAME}();
         try (Connection connection = connector.connect()) {
-		#end
             connection.isValid(10);
             System.out.println("INFO: Successfully connected and validated");
 
@@ -93,4 +71,22 @@ public class ${CLASS_NAME}  {
             System.out.println("ERROR: Failed to connect. Cause:  " + e.getMessage());
         }
     }
+
+    #if (${AUTH_TYPE} == 'USER_PASSWORD')
+    /**
+     * Load password from system environment or prompt for
+     * password entry if not provided
+     */
+    private static void readPassword() {
+        String password = System.getenv(JDBC_DB_PASSWORD);
+
+        if (password == null) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter your password: ");
+            password = scanner.nextLine();
+        }
+        System.setProperty(JDBC_DB_PASSWORD, password);
+    }
+    #end
+
 }
