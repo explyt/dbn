@@ -158,7 +158,7 @@ public class Messages {
         });
     }
 
-    private static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable DoNotAskOption doNotAskOption) {
+    public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable DoNotAskOption doNotAskOption) {
         DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, doNotAskOption);
         messageDialog.show();
         return messageDialog.getExitCode();
