@@ -2,7 +2,11 @@
 #set($urlPatternHtml = $urlPattern.replace("<", "&lt;").replace(">", "&gt;"))
 /**
  * Oracle JDBC Connector<br>
+ #if (${AUTH_TYPE} == 'USER_PASSWORD')
+ * This is generated code. The {@link ${CLASS_NAME}#connect(String)} method is implemented to connect to the
+ #else
  * This is generated code. The {@link ${CLASS_NAME}#connect()} method is implemented to connect to the
+ #end
  * Oracle Database using the appropriate JDBC Driver.
  *
  * <p><u>DRIVER LIBRARIES</u></p>

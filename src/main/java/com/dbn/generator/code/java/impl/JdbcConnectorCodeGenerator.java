@@ -105,7 +105,6 @@ public class JdbcConnectorCodeGenerator extends JavaCodeGenerator<JdbcConnectorC
     private static void addInputProperties(JdbcConnectorCodeGeneratorInput input, Properties properties) throws ConfigurationException {
         addProperty(properties, "CLASS_NAME", input.getClassName());
         addProperty(properties, "PACKAGE_NAME", input.getPackageName());
-        addProperty(properties, "PASSWORD_SOURCE", input.getPasswordSource().toString());
     }
 
     private static void addConnectionProperties(DatabaseContext context, Properties properties) {

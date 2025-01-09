@@ -49,11 +49,7 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
     private String contentRoot;
     private String packageName;
     private String className;
-    private PasswordSource passwordSource;
 
-    public enum PasswordSource {
-        ENVIRONMENT_VARIABLE;
-    }
     protected JavaCodeGeneratorInput(DatabaseContext databaseContext) {
         super(databaseContext);
     }
@@ -142,12 +138,5 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         return CLASS_NAME_PATTERN.matcher(className).matches();
     }
 
-    public void setPasswordSource(JavaCodeGeneratorInput.PasswordSource passwordSource) {
-        this.passwordSource = passwordSource;
-    }
-
-    public PasswordSource getPasswordSource() {
-        return this.passwordSource;
-    }
 }
 

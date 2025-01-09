@@ -33,7 +33,11 @@ public class ${CLASS_NAME}  {
      * @return a new {@link Connection}
      * @throws Exception if something goes wrong
      */
+    #if (${AUTH_TYPE} == 'USER_PASSWORD')
     public Connection connect(String password) throws Exception {
+    #else
+    public Connection connect() throws Exception {
+    #end
         Properties properties = new Properties();
 
         // JDBC URL
@@ -65,14 +69,23 @@ public class ${CLASS_NAME}  {
         ${CLASS_NAME} connector = new ${CLASS_NAME}();
   
         #if (${AUTH_TYPE} == 'USER_PASSWORD')
-        #if (${PASSWORD_SOURCE} == 'ENVIRONMENT_VARIABLE')
         String password = System.getenv("JDBC_DB_PASSWORD");
-        #else
-   	    String password = "thisisnotasecret";
-        #end
-        #end
+        
+        // if no environment var set, prompt from user
+        if (password == null) {
+            // IntelliJ might not create a console tty for your
+            if (System.console() != null) {
+                password = new String(System.console().readPassword("Enter your password: "));
+            }
+            else {
+                throw new UnsupportedOperationException("You need to supply a password");
+            }
+        }
 
         try (Connection connection = connector.connect(password)) {
+		#else 
+        try (Connection connection = connector.connect()) {
+		#end
             connection.isValid(10);
             System.out.println("INFO: Successfully connected and validated");
 

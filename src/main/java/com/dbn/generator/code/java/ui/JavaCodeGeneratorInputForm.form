@@ -98,24 +98,6 @@
             </constraints>
             <properties/>
           </component>
-          <component id="c9735" class="javax.swing.JLabel" binding="lblPasswordSource">
-            <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text value="Password Source"/>
-            </properties>
-          </component>
-          <component id="d8f98" class="javax.swing.JComboBox" binding="cboPasswordSource">
-            <constraints>
-              <grid row="4" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <model>
-                <item value="Environment Variable"/>
-              </model>
-            </properties>
-          </component>
         </children>
       </grid>
     </children>
