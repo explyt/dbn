@@ -38,6 +38,7 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
+import com.intellij.openapi.actionSystem.impl.PresentationFactory;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.components.JBTabbedPane;
@@ -107,7 +108,8 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
                     showHiddenTabsPopup(e.getDataContext());
                 }
             };
-            Presentation presentation = action.getTemplatePresentation();
+            PresentationFactory presentationFactory = new PresentationFactory();
+            Presentation presentation = presentationFactory.getPresentation(action);
             ActionButton actionButton = new ActionButton(
                     action,
                     presentation,
