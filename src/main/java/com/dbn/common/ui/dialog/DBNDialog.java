@@ -54,7 +54,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     private @Getter boolean rememberSelection;
     private @Getter Dimension defaultSize;
 
-    protected DBNDialog(Project project, String title, boolean canBeParent) {
+    protected DBNDialog(@Nullable Project project, String title, boolean canBeParent) {
         super(project, canBeParent);
         this.project = ProjectRef.of(project);
         setTitle(Titles.signed(title));
@@ -102,7 +102,7 @@ public abstract class DBNDialog<F extends DBNForm> extends DialogWrapper impleme
     }
 
     @Override
-    public final void show() {
+    public void show() {
         super.show();
         listeners.notify(l -> l.onAction(DBNDialogListener.Action.OPEN));
     }
