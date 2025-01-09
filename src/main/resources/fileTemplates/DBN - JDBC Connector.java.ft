@@ -23,7 +23,6 @@
 import java.sql.Connection;
 import java.sql.Driver;
 import java.util.Properties;
-import java.util.Scanner;
 
 #parse("DBN - JDBC Doc ${DATABASE_TYPE}.java")
 public class ${CLASS_NAME}  {
@@ -79,11 +78,10 @@ public class ${CLASS_NAME}  {
      */
     private static void readPassword() {
         String password = System.getenv(JDBC_DB_PASSWORD);
-
         if (password == null) {
-            Scanner scanner = new Scanner(System.in);
-            System.out.print("Enter your password: ");
-            password = scanner.nextLine();
+            throw new AssertionError(
+                "If you are using password authentication, " +
+                "you must set the value on the JDBC_DB_PASSWORD environment variable");
         }
         System.setProperty(JDBC_DB_PASSWORD, password);
     }
