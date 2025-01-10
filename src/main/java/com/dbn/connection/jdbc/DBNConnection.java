@@ -69,7 +69,6 @@ public class DBNConnection extends DBNConnectionBase {
     private final ProjectRef project;
     private final String name;
     private final ConnectionType type;
-    private final ConnectionId id;
     private final SessionId sessionId;
     private final ConnectionProperties properties;
 
@@ -168,11 +167,10 @@ public class DBNConnection extends DBNConnectionBase {
             };
 
     private DBNConnection(Project project, Connection connection, String name, ConnectionType type, ConnectionId id, SessionId sessionId) throws SQLException {
-        super(connection);
+        super(connection, id);
         this.project = ProjectRef.of(project);
         this.name = name;
         this.type = type;
-        this.id = id;
         this.sessionId = sessionId;
         this.properties = new ConnectionProperties(connection);
     }
@@ -312,6 +310,7 @@ public class DBNConnection extends DBNConnectionBase {
 
     @Nullable
     public ConnectionHandler getConnectionHandler() {
+        ConnectionId id = getConnectionId();
         if (id == null) return null; // not yet initialised
         return ConnectionHandler.get(id);
     }
@@ -393,10 +392,16 @@ public class DBNConnection extends DBNConnectionBase {
         }
     }
 
+    @NotNull
+    @Override
+    public DBNConnection getConnection() {
+        return this;
+    }
+
     private void notifyStatusChange() {
         ProjectEvents.notify(getProject(),
                 ConnectionStatusListener.TOPIC,
-                l -> l.statusChanged(id, sessionId));
+                l -> l.statusChanged(getConnectionId(), sessionId));
     }
 
     /********************************************************************

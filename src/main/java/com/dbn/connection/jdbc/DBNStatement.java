@@ -52,12 +52,12 @@ public class DBNStatement<T extends Statement> extends DBNResource<T> implements
     private String sql;
 
     DBNStatement(T inner, DBNConnection connection) {
-        super(inner, ResourceType.STATEMENT);
+        super(inner, ResourceType.STATEMENT, connection.getConnectionId());
         this.connection = WeakRef.of(connection);
     }
 
-    @Override
     @Nullable
+    @Override
     public DBNConnection getConnection() {
         return connection.get();
     }

@@ -37,6 +37,7 @@ import com.dbn.connection.context.DatabaseContextBase;
 import com.dbn.connection.info.ConnectionInfo;
 import com.dbn.connection.interceptor.DatabaseInterceptorBundle;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.security.DatabaseSecurityMonitor;
 import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.database.DatabaseCompatibility;
 import com.dbn.database.interfaces.DatabaseInterfaceQueue;
@@ -152,6 +153,9 @@ public interface ConnectionHandler extends StatefulDisposable, EnvironmentTypePr
     ConnectionPool getConnectionPool();
 
     DatabaseInterfaceQueue getInterfaceQueue();
+
+    @NotNull
+    DatabaseSecurityMonitor getSecurityMonitor();
 
     @Nullable
     SchemaId getUserSchema();
