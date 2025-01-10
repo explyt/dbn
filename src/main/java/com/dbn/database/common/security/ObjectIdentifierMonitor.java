@@ -77,9 +77,10 @@ public class ObjectIdentifierMonitor<T> implements InvocationHandler {
      * @return The proxy instance, which is a dynamic proxy wrapping the provided target object.
      */
     public static <S> S install(S target, DBNResource resource) {
+        Class<?> targetClass = target.getClass();
         Object proxy = Proxy.newProxyInstance(
-                target.getClass().getClassLoader(),
-                new Class<?>[]{target.getClass()},
+                targetClass.getClassLoader(),
+                targetClass.getInterfaces(),
                 new ObjectIdentifierMonitor<>(target, resource));
         return  (S) proxy;
     }
