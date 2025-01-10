@@ -73,14 +73,13 @@ public class ${CLASS_NAME}  {
 
     #if (${AUTH_TYPE} == 'USER_PASSWORD')
     /**
-     * Load password from system environment or prompt for
-     * password entry if not provided
+     * Load password from system environment
      */
     private static void readPassword() {
         String password = System.getenv(JDBC_DB_PASSWORD);
         if (password == null) {
             throw new AssertionError(
-                "If you are using password authentication, " +
+                "Your connection is using password authentication, " +
                 "you must set the value on the JDBC_DB_PASSWORD environment variable");
         }
         System.setProperty(JDBC_DB_PASSWORD, password);
