@@ -26,6 +26,7 @@ import lombok.SneakyThrows;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
@@ -57,12 +58,30 @@ public class ObjectIdentifierMonitor<T> implements InvocationHandler {
     private final DatabaseSecurityMonitor securityMonitor;
     private final DBNStatement statement;
 
-    public ObjectIdentifierMonitor(T target, DBNResource resource) {
+    private ObjectIdentifierMonitor(T target, DBNResource resource) {
         this.target = target;
         this.resource = resource;
 
         this.securityMonitor = initSecurityMonitor();
         this.statement = initStatement();
+    }
+
+    /**
+     * Installs a dynamic proxy on the provided target object, using the given DBNResource
+     * to monitor and manage method invocations. The resulting proxy wraps the target object,
+     * intercepting calls and applying custom behaviors defined by the associated {@code ObjectIdentifierMonitor}.
+     *
+     * @param <S> The type of the target object.
+     * @param target The original object to be wrapped by a dynamic proxy.
+     * @param resource The {@code DBNResource} instance used to manage and monitor the proxy behavior.
+     * @return The proxy instance, which is a dynamic proxy wrapping the provided target object.
+     */
+    public static <S> S install(S target, DBNResource resource) {
+        Object proxy = Proxy.newProxyInstance(
+                target.getClass().getClassLoader(),
+                new Class<?>[]{target.getClass()},
+                new ObjectIdentifierMonitor<>(target, resource));
+        return  (S) proxy;
     }
 
     private DatabaseSecurityMonitor initSecurityMonitor() {
