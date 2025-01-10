@@ -16,38 +16,23 @@
 
 package com.dbn.object;
 
-import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.type.DBJavaAccessibility;
-import com.dbn.object.type.DBJavaClassKind;
-import org.jetbrains.annotations.NotNull;
-
-import java.util.List;
 
 
-public interface DBJavaClass extends DBSchemaObject {
+public interface DBJavaField extends DBOrderedObject {
+	short getIndex();
 
-	@NotNull
-	String getName();
-
-	DBJavaClassKind getKind();
+	String getClassName();
 
 	DBJavaAccessibility getAccessibility();
 
 	boolean isFinal();
 
-	boolean isAbstract();
-
 	boolean isStatic();
 
-	boolean isInner();
+	short getArrayDepth();
 
-    List<DBJavaMethod> getMethods();
+	String getType();
 
-	List<DBJavaMethod> getStaticMethods();
-
-    DBJavaMethod getMethod(String name);
-
-	List<DBJavaField> getFields();
-
-	DBJavaField getField(String name);
+	DBJavaClass getFieldClass();
 }
