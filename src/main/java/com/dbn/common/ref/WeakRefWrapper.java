@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-package com.dbn.generator.code.shared;
+package com.dbn.common.ref;
 
-import com.dbn.connection.context.DatabaseContext;
+import org.jetbrains.annotations.NotNull;
 
 /**
- * Input for the {@link CodeGenerator}, containing all necessary information for code generation to be performed
+ * This Wrapper class provides a generic mechanism to wrap and manage a reference to a target object
+ * held as a {@link WeakRef}. This ensures that the target can be garbage collected when there are no
+ * strong references to it, preventing memory leaks.
  *
- * @author Dan Cioca (Oracle)
+ * @param <T> The type of the target object.
  */
-public interface CodeGeneratorInput {
-    DatabaseContext getDatabaseContext();
+public class WeakRefWrapper<T> {
+    private final WeakRef<T> target;
+
+    public WeakRefWrapper(@NotNull T target) {
+        this.target = WeakRef.of(target);
+    }
+
+    @NotNull
+    public T getTarget() {
+        return WeakRef.ensure(target);
+    }
 }

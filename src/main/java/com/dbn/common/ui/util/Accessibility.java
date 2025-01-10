@@ -63,7 +63,7 @@ public class Accessibility {
         setAccessibleDescription(toolbar.getComponent(), description);
     }
 
-    public static void setAccessibleName(JComponent component, @Nullable String name) {
+    public static void setAccessibleName(Component component, @Nullable String name) {
         if (name == null) return;
 
         String friendlyName = name.replace("_", " ");
@@ -71,7 +71,7 @@ public class Accessibility {
         accessibleContext.setAccessibleName(friendlyName);
     }
 
-    public static void setAccessibleDescription(JComponent component, String description) {
+    public static void setAccessibleDescription(Component component, String description) {
         String friendlyDescription = description.replace("_", " ");
         AccessibleContext accessibleContext = component.getAccessibleContext();
         accessibleContext.setAccessibleDescription(friendlyDescription);

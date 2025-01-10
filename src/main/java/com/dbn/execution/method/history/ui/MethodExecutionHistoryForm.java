@@ -96,7 +96,8 @@ public class MethodExecutionHistoryForm extends DBNFormBase {
     }
 
     @NotNull
-    MethodExecutionHistoryDialog getParentDialog() {
+    @Override
+    public MethodExecutionHistoryDialog getParentDialog() {
         return ensureParentComponent();
     }
 
