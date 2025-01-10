@@ -20,6 +20,7 @@ import com.dbn.common.project.Modules;
 import com.dbn.common.thread.Read;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
+import com.dbn.generator.code.java.ui.JavaCodeGeneratorInputForm;
 import com.dbn.generator.code.shared.base.CodeGeneratorInputBase;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.ConfigurationException;
@@ -124,3 +125,4 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         return CLASS_NAME_PATTERN.matcher(className).matches();
     }
 }
+
