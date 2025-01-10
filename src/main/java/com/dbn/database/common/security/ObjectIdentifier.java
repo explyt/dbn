@@ -14,23 +14,21 @@
  * limitations under the License.
  */
 
-package com.dbn.database.common.metadata.def;
+package com.dbn.database.common.security;
 
-import com.dbn.database.common.metadata.DBObjectMetadata;
-import com.dbn.database.common.security.ObjectIdentifier;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import java.sql.SQLException;
-
-public interface DBIndexMetadata extends DBObjectMetadata {
-
-    @ObjectIdentifier
-    String getIndexName() throws SQLException;
-
-    @ObjectIdentifier
-    String getTableName() throws SQLException;
-
-    boolean isUnique() throws SQLException;
-
-    boolean isValid() throws SQLException;
-
+/**
+ * Indicates that the annotated method returns a database object identifier.
+ * The output of these methods should be quoted using Statement.enquoteIdentifier()
+ * to prevent SQL injection through maliciously crafter identifier names.
+ *
+ *  * @author Dan Cioca (Oracle)
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface ObjectIdentifier {
 }
