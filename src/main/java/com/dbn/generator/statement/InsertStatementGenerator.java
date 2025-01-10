@@ -50,14 +50,14 @@ public class InsertStatementGenerator extends StatementGenerator {
         StringBuilder statement = new StringBuilder();
 
         statement.append(kco.format("insert into "));
-        statement.append(oco.format(table.getQuotedName(false)));
+        statement.append(oco.format(table.getQuotedName()));
         statement.append(" (\n");
 
         Iterator<DBColumn> columnIterator = table.getColumns().iterator();
         while (columnIterator.hasNext()) {
             DBColumn column = columnIterator.next();
             statement.append("    ");
-            statement.append(oco.format(column.getQuotedName(false)));
+            statement.append(oco.format(column.getQuotedName()));
             if (columnIterator.hasNext()) {
                 statement.append(",\n");
             } else {

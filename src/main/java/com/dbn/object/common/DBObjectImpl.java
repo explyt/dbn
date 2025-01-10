@@ -38,6 +38,7 @@ import com.dbn.connection.DatabaseEntity;
 import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.config.ConnectionDatabaseSettings;
+import com.dbn.connection.security.DatabaseSecurityMonitor;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.common.metadata.DBObjectMetadata;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
@@ -199,6 +200,12 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     @NotNull
     public String getName() {
         return ref.getObjectName();
+    }
+
+    @Override
+    public String getQuotedName() {
+        DatabaseSecurityMonitor securityMonitor = getConnection().getSecurityMonitor();
+        return securityMonitor.getQuotedIdentifier(getName());
     }
 
     @Override

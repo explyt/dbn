@@ -72,6 +72,7 @@ public interface DBObject extends
 
     DBLanguageDialect getLanguageDialect(DBLanguage language);
 
+    String getQuotedName();
     String getQuotedName(boolean quoteAlways);
     boolean needsNameQuoting();
     String getQualifiedNameWithType();
