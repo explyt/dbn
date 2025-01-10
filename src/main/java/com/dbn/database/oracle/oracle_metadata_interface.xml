@@ -384,6 +384,7 @@
             where
                 OWNER = {0}
             order by
+                NAME,
                 FIELD_INDEX
         </statement>
     </statement-execution-processor>
