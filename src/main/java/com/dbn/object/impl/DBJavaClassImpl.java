@@ -58,8 +58,8 @@ import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
-import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
+import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 
 @Getter
 public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> implements DBJavaClass {
@@ -219,14 +219,14 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@NotNull
 	public List<BrowserTreeNode> buildPossibleTreeChildren() {
 		return DatabaseBrowserUtils.createList(
-				getChildObjectList(JAVA_METHOD),
-				getChildObjectList(JAVA_FIELD));
+				getChildObjectList(JAVA_FIELD),
+				getChildObjectList(JAVA_METHOD));
 	}
 
 	@Override
 	public boolean hasVisibleTreeChildren() {
 		ObjectTypeFilterSettings settings = getObjectTypeFilterSettings();
-		return settings.isVisible(JAVA_METHOD) ||
-				settings.isVisible(JAVA_FIELD) ;
+		return settings.isVisible(JAVA_FIELD) ||
+				settings.isVisible(JAVA_METHOD) ;
 	}
 }
