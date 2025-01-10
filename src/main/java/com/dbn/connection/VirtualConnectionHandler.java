@@ -32,6 +32,7 @@ import com.dbn.connection.console.DatabaseConsoleBundle;
 import com.dbn.connection.info.ConnectionInfo;
 import com.dbn.connection.interceptor.DatabaseInterceptorBundle;
 import com.dbn.connection.jdbc.DBNConnection;
+import com.dbn.connection.security.DatabaseSecurityMonitor;
 import com.dbn.connection.session.DatabaseSessionBundle;
 import com.dbn.database.DatabaseCompatibility;
 import com.dbn.database.interfaces.DatabaseInterfaceQueue;
@@ -356,6 +357,12 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
     @Override
     @NotNull
     public ConnectionPool getConnectionPool() {
+        return unsupported();
+    }
+
+    @Override
+    @NotNull
+    public DatabaseSecurityMonitor getSecurityMonitor() {
         return unsupported();
     }
 
