@@ -30,7 +30,9 @@ import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.LocalExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
-import com.dbn.object.*;
+import com.dbn.object.DBJavaField;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -39,7 +41,11 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.Map;
+import java.util.List;
+import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
@@ -140,12 +146,12 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return connection != null && !connection.getSettings().isActive();
     }
 
-    public void setInputValue(@NotNull DBJavaParameter argument, String typeAttribute, String value) {
-        ArgumentValue argumentValue = getArgumentValue(argument, typeAttribute);
+    public void setInputValue(@NotNull DBJavaParameter argument, String value) {
+        ArgumentValue argumentValue = getArgumentValue(argument);
         argumentValue.setValue(value);
     }
 
-    public void setInputValue(@NotNull DBJavaParameter argument, String value) {
+    public void setInputValue(@NotNull DBJavaField argument, String value) {
         ArgumentValue argumentValue = getArgumentValue(argument);
         argumentValue.setValue(value);
     }
@@ -155,13 +161,15 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return (String) argumentValue.getValue();
     }
 
-    public List<String> getInputValueHistory(@NotNull DBJavaParameter argument, @Nullable String typeAttribute) {
-        ArgumentValue argumentValue =
-                typeAttribute == null ?
-                        getArgumentValue(argument) :
-                        getArgumentValue(argument, typeAttribute);
+    public String getInputValue(@NotNull DBJavaField argument) {
+        ArgumentValue argumentValue = getArgumentValue(argument);
+        return (String) argumentValue.getValue();
+    }
 
-        ArgumentValueHolder valueStore = argumentValue.getValueHolder();
+    public List<String> getInputValueHistory(@NotNull DBJavaField argument) {
+        ArgumentValue argumentValue = getArgumentValue(argument);
+
+        ArgumentValueHolder<?> valueStore = argumentValue.getValueHolder();
         if (valueStore instanceof JavaExecutionArgumentValue) {
             JavaExecutionArgumentValue executionVariable = (JavaExecutionArgumentValue) valueStore;
             return executionVariable.getValueHistory();
@@ -169,9 +177,15 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return Collections.emptyList();
     }
 
-    public String getInputValue(DBJavaParameter argument, String typeAttribute) {
-        ArgumentValue argumentValue = getArgumentValue(argument, typeAttribute);
-        return (String) argumentValue.getValue();
+    public List<String> getInputValueHistory(@NotNull DBJavaParameter argument) {
+        ArgumentValue argumentValue = getArgumentValue(argument) ;
+
+        ArgumentValueHolder<?> valueStore = argumentValue.getValueHolder();
+        if (valueStore instanceof JavaExecutionArgumentValue) {
+            JavaExecutionArgumentValue executionVariable = (JavaExecutionArgumentValue) valueStore;
+            return executionVariable.getValueHistory();
+        }
+        return Collections.emptyList();
     }
 
     private ArgumentValue getArgumentValue(@NotNull DBJavaParameter argument) {
@@ -186,14 +200,14 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return argumentValue;
     }
 
-    private ArgumentValue getArgumentValue(DBJavaParameter argument, String attribute) {
+    private ArgumentValue getArgumentValue(@NotNull DBJavaField argument) {
         for (ArgumentValue argumentValue : argumentValues) {
             if (argumentValue.matches(argument)) {
                 return argumentValue;
             }
         }
 
-        ArgumentValue argumentValue = new ArgumentValue(argument, attribute, null);
+        ArgumentValue argumentValue = new ArgumentValue(argument, null);
         argumentValue.setValueHolder(getExecutionVariable(argumentValue.getName()));
         argumentValues.add(argumentValue);
         return argumentValue;

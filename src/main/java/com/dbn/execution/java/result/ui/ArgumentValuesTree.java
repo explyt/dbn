@@ -23,9 +23,10 @@ import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.util.TextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
-import com.dbn.data.type.DBDataType;
 import com.dbn.execution.java.ArgumentValue;
-import com.dbn.object.*;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.SimpleTextAttributes;
@@ -71,12 +72,12 @@ class ArgumentValuesTree extends DBNTree{
             if (userValue instanceof ArgumentValue) {
                 ArgumentValue argumentValue = (ArgumentValue) userValue;
                 DBJavaParameter argument = argumentValue.getArgument();
-//                if (argument == null || !argument.isOutput()) return;
+                if (argument == null) return;
 
-//                Object value = argumentValue.getValue();
-//                if (value instanceof ResultSet || argumentValue.isLargeObject() || argumentValue.isLargeValue()) {
-//                    getParentForm().selectArgumentOutputTab(argument);
-//                }
+                Object value = argumentValue.getValue();
+                if (value instanceof ResultSet || argumentValue.isLargeObject() || argumentValue.isLargeValue()) {
+                    getParentForm().selectArgumentOutputTab(argument);
+                }
             }
         };
     }
@@ -108,35 +109,34 @@ class ArgumentValuesTree extends DBNTree{
             if (userValue instanceof ArgumentValue) {
                 ArgumentValue argumentValue = (ArgumentValue) userValue;
                 DBJavaParameter argument = argumentValue.getArgument();
-                String attribute = argumentValue.getAttribute();
                 Object originalValue = argumentValue.getValue();
                 String displayValue = originalValue instanceof ResultSet || argumentValue.isLargeObject() || argumentValue.isLargeValue() ? "" : String.valueOf(originalValue);
+                String argumentName;
+                String dataType;
 
-                if (attribute == null) {
-                    if (argument == null) {
-                        setIcon(DBObjectType.ARGUMENT.getIcon());
-                        append("[unknown]", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                        append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    } else{
-                        setIcon(argument.getIcon());
-                        append(argument.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                        append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                        String dataType = argument.getParameterType();
-                        if (dataType != null) {
-                            append("{" + cachedLowerCase(dataType) + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
-                        }
+                setIcon(DBObjectType.ARGUMENT.getIcon());
+
+                if (argument == null) {
+                    DBJavaField field = argumentValue.getField();
+
+                    if(field == null) {
+                        argumentName = "[unknown]";
+                        dataType = null;
+                    } else {
+                        argumentName = field.getName();
+                        dataType = field.getType();
                     }
-                    append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
                 } else {
-//                    setIcon(attribute.getIcon());
-                    append(attribute, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-//                    DBDataType dataType = attribute.getDataType();
-//                    if (dataType != null) {
-//                        append("{" + dataType.getName() + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
-//                    }
-                    append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                    argumentName = argument.getName();
+                    dataType = argument.getParameterType();
                 }
+
+                append(argumentName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                if (dataType != null) {
+                    append("{" + cachedLowerCase(dataType) + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
+                }
+                append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
             }
         }
     }

@@ -17,6 +17,7 @@
 
 package com.dbn.execution.java;
 
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import lombok.Getter;
@@ -31,34 +32,43 @@ import java.util.Objects;
 @Setter
 public class ArgumentValue {
     private final DBObjectRef<DBJavaParameter> argumentRef;
-    private String attributeRef;
+    private final DBObjectRef<DBJavaField> fieldRef;
     private ArgumentValueHolder valueHolder;
-
-    public ArgumentValue(@NotNull DBJavaParameter argument, @Nullable String attribute, ArgumentValueHolder valueHolder) {
-        this.argumentRef = DBObjectRef.of(argument);
-        this.attributeRef =attribute;
-        this.valueHolder = valueHolder;
-    }
+    private boolean isComplexClass;
 
     public ArgumentValue(@NotNull DBJavaParameter argument, ArgumentValueHolder valueHolder) {
         this.argumentRef = DBObjectRef.of(argument);
+        this.fieldRef = null;
         this.valueHolder = valueHolder;
+        this.isComplexClass = false;
+    }
+
+    public ArgumentValue(@NotNull DBJavaField argument, ArgumentValueHolder valueHolder) {
+        this.argumentRef = null;
+        this.fieldRef = DBObjectRef.of(argument);
+        this.valueHolder = valueHolder;
+        this.isComplexClass = argument.getType().equals("class") && argument.getFieldClass() != null;
     }
 
     @Nullable
     public DBJavaParameter getArgument() {
+        if(argumentRef == null)
+            return null;
         return argumentRef.get();
     }
 
-    public String getAttribute() {
-        return attributeRef;
+    @Nullable
+    public DBJavaField getField() {
+        if(fieldRef == null)
+            return null;
+        return fieldRef.get();
     }
 
     public String getName() {
-        return
-            attributeRef == null ?
-            argumentRef.getObjectName() :
-            argumentRef.getObjectName() + '.' + attributeRef;
+        if(argumentRef == null){
+            return fieldRef.getObjectName();
+        }
+        return argumentRef.getObjectName();
     }
 
     public Object getValue() {
@@ -66,12 +76,7 @@ public class ArgumentValue {
     }
 
     public boolean isLargeObject() {
-        DBJavaParameter argument = getArgument();
-        if (argument == null) return false;
-
-        String dataType = argument.getParameterType();
         return false;
-//        return dataType.isNative() && dataType.getNativeType().isLargeObject();
     }
 
     public  boolean isLargeValue() {
@@ -87,12 +92,14 @@ public class ArgumentValue {
     }
 
     public boolean matches(DBJavaParameter argument) {
-        return Objects.equals(argument.ref(), this.argumentRef);
+        return Objects.equals(argument.ref(), this.argumentRef)
+                || Objects.equals(argument.ref(), this.fieldRef);
     }
 
-//    public boolean matches(String attribute) {
-//        return Objects.equals(attribute, this.attributeRef);
-//    }
+    public boolean matches(DBJavaField argument) {
+        return Objects.equals(argument.ref(), this.argumentRef)
+                || Objects.equals(argument.ref(), this.fieldRef);
+    }
 
     public boolean isCursor() {
         return getValue() instanceof ResultSet;
@@ -103,6 +110,9 @@ public class ArgumentValue {
     }
 
     public String toString() {
+        if(argumentRef == null){
+            return fieldRef.getObjectName() + " = " + getValue();
+        }
         return argumentRef.getObjectName() + " = " + getValue();
     }
 

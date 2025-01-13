@@ -30,10 +30,16 @@ import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionStatus;
 import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
+import com.dbn.execution.java.wrapper.Parser;
+import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.JavaComplexType;
+import com.dbn.execution.java.wrapper.SqlComplexType;
+import com.dbn.execution.java.wrapper.Utils;
 import com.dbn.execution.logging.DatabaseLoggingManager;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBOrderedObject;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
@@ -42,20 +48,23 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
-import static com.dbn.database.oracle.execution.OracleJavaExecutionProcessor.dataTypeMap;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcessor {
 	private final DBObjectRef<DBJavaMethod> method;
+	Set<String> addedTypes = new HashSet<>();
 
-	private static final Set<String> parameterNames = new HashSet<>();
 	protected JavaExecutionProcessorImpl(DBJavaMethod method) {
 		this.method = DBObjectRef.of(method);
 	}
@@ -69,12 +78,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	public List<DBJavaParameter> getArguments() {
 		DBJavaMethod method = getMethod();
 		List<DBJavaParameter> parameter = method.getParameters();
-		List<DBJavaParameter> reverseParameter = new ArrayList<>();
-		for(DBJavaParameter param:parameter){
-			reverseParameter.add(0,param);
-		}
-		return reverseParameter;
-
+		parameter.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
+		return parameter;
 	}
 
 	protected int getArgumentsCount() {
@@ -108,9 +113,18 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setDebuggerType(debuggerType);
 		context.set(ExecutionStatus.EXECUTING, true);
 
+		Parser parser = new Parser();
+		Wrapper wrapper;
+		try {
+			wrapper = parser.parse(getMethod());
+		} catch (Exception e) {
+			conditionallyLog(e);
+			return;
+		}
+
 		try {
 			// create java wrapper
-			initCreateWrapperCommand(context);
+			initCreateWrapperCommand(context, wrapper);
 			initTimeout(context);
 			execute(context);
 
@@ -118,12 +132,12 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			initCommand(context);
 			initLogging(context);
 			initTimeout(context);
-			if(isQuery())
-				initParameters(context);
+			if (isQuery())
+				initParameters(context, wrapper);
 			execute(context);
 
 			// drop java wrapper
-			initDropWrapperCommand(context);
+			initDropWrapperCommand(context, wrapper);
 			initTimeout(context);
 			execute(context);
 		} catch (SQLException e) {
@@ -132,7 +146,6 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			throw e;
 		} finally {
 			release(context);
-			parameterNames.clear();
 		}
 	}
 
@@ -149,115 +162,268 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			Resources.commitSilently(conn);
 		}
 
-		if (conn.isDebugConnection()) {
-			Resources.close(conn);
+		Resources.close(conn);
 
-		} else if (conn.isPoolConnection()) {
+		if (conn.isPoolConnection()) {
 			connection.freePoolConnection(conn);
 		}
 	}
 
-	private static void appendVariableName(StringBuilder buffer, String argument) {
-		String variableName = "var_" + argument;
+	private List<String> createSQLTypes(Wrapper wrapper) {
+		List<String> sqlTypes = new ArrayList<>();
+		Properties properties = new Properties();
 
-		// if a method has repeated data type ( int, int, int ), then name it as ( var_int, var_int1, var_int2 )
-		int index = 1;
-		while(parameterNames.contains(variableName)){
-			variableName = "var_" + argument + index;
-			index++;
+		addedTypes.clear();
+
+		String code;
+		for (JavaComplexType jct : wrapper.getArgumentJavaComplexTypes()) {
+			SqlComplexType sct = jct.getCorrespondingSqlType();
+			if (addedTypes.contains(sct.getName()))
+				continue;
+			addedTypes.add(sct.getName());
+
+			String fields = sct.getFields().stream()
+					.sorted(Comparator.comparingInt(SqlComplexType.Field::getFieldIndex))
+					.map(e -> e.getName() + " " + e.getType())
+					.collect(Collectors.joining(",\n\t"));
+
+			properties.setProperty("TYPENAME", sct.getName());
+			properties.setProperty("FIELDS", fields);
+			properties.setProperty("IS_ARRAY", String.valueOf(sct.isArray()));
+			if (sct.getContainedTypeName() != null)
+				properties.setProperty("ARRAY_TYPE", sct.getContainedTypeName());
+
+			code = Utils.parseTemplate("DBN - SQL Type.sql", properties, getProject());
+			sqlTypes.add(code);
 		}
-		parameterNames.add(variableName);
-		buffer.append(variableName);
+		return sqlTypes;
 	}
 
-	private static void appendSQLType(StringBuilder buffer, String javaType){
-		buffer.append(" ").append(dataTypeMap.get(javaType));
+	private List<String> createSQLToJava(Wrapper wrapper) {
+		List<String> javaMethods = new ArrayList<>();
+		Set<String> addedJavaTypes = new HashSet<>();
+
+		AtomicInteger idx = new AtomicInteger(0);
+		for (JavaComplexType jct : wrapper.getArgumentJavaComplexTypes()) {
+			if (jct.getAttributeDirection() == JavaComplexType.AttributeDirection.RETURN) continue;
+
+			if (addedJavaTypes.contains(jct.getCorrespondingSqlType().getName()))
+				continue;
+			addedJavaTypes.add(jct.getCorrespondingSqlType().getName());
+
+			Properties properties = new Properties();
+
+			properties.setProperty("JAVA_COMPLEX_TYPE", Parser.convertClassNameToDotNotation(jct.getTypeName()));
+			String code;
+			if (jct.isArray()) {
+				properties.setProperty("TYPECAST_START", jct.getFields().get(0).getTypeCastStart());
+				properties.setProperty("TYPECAST_END", jct.getFields().get(0).getTypeCastEnd());
+				code = Utils.parseTemplate("DBN - SQLArrayToJava.java", properties, getProject());
+			} else {
+				properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
+				properties.setProperty("WRAPPER_METHOD_SIGNATURE", "java.sql.Struct arg" + idx.getAndIncrement());
+
+				String allFieldsCsv = "";
+				if (jct.getFields() != null)
+					allFieldsCsv = jct.getFields()
+							.stream()
+							.map(e -> {
+								if (e.isComplexType()) {
+									return e.getName() + ";" + e.getType() + "toJava( (java.sql.Struct) objArray[ " + e.getFieldIndex() + " ]" + ");";
+								}
+								return e.getName() + ";" + e.getTypeCastStart() + " objArray[ " + e.getFieldIndex() + " ]" + e.getTypeCastEnd();
+							})
+							.collect(Collectors.joining(","));
+
+				properties.setProperty("FIELDS", allFieldsCsv);
+
+				code = Utils.parseTemplate("DBN - SQLObjectToJava.java", properties, getProject());
+			}
+			javaMethods.add(code);
+		}
+		return javaMethods;
 	}
 
-	private void initCreateWrapperCommand(JavaExecutionContext context) throws SQLException{
-		DBNConnection conn = context.getConnection();
+	private List<String> createJavaToSQL(Wrapper wrapper) {
+		List<String> javaMethods = new ArrayList<>();
+		if (wrapper.getReturnType() == null) return javaMethods;
 
-		DBJavaMethod javaMethod = getMethod();
-		String wrapperName = javaMethod.getName().split("#")[0] + "_wrapper";
+		boolean isComplexReturnType = wrapper.getReturnType().isComplexType();
+		if (!isComplexReturnType) return javaMethods;
 
-		String returnArgument = getReturnArgument();
-		List<DBJavaParameter> arguments = getArguments();
+		Properties properties = new Properties();
 
-		boolean isProcedure = returnArgument.equals("void");
-		StringBuilder buffer = new StringBuilder();
-		StringBuilder methodParameterBuffer = new StringBuilder();
+		for (JavaComplexType jct : wrapper.getArgumentJavaComplexTypes()) {
+			if (jct.getAttributeDirection() == JavaComplexType.AttributeDirection.ARGUMENT) continue;
+			properties.setProperty("JAVA_COMPLEX_TYPE", jct.getTypeName());
+			properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
 
-		buffer.append("CREATE OR REPLACE ")
-				.append(isProcedure ? "PROCEDURE " : "FUNCTION ")
-				.append(wrapperName)
-				.append("(");
+			String code;
+			if (wrapper.getReturnType().isArray()) {
+				code = Utils.parseTemplate("DBN - JavaArrayToSQL.java", properties, getProject());
+			} else {
+				properties.setProperty("TOTAL_FIELDS", String.valueOf(jct.getFields().size()));
+				String allFieldsCsv = jct.getFields()
+						.stream()
+						.map(e -> {
+							if (e.isComplexType()) {
+								return e.getFieldIndex() + ";" + e.getName() + ";" + e.getType();
+							}
+							return e.getFieldIndex() + ";" + e.getName() + ";" + " ";
+						})
+						.collect(Collectors.joining(","));
+				properties.setProperty("FIELDS", allFieldsCsv);
 
-		for (DBJavaParameter argument : arguments) {
-			appendVariableName(buffer, argument.getParameterType());
-			appendSQLType(buffer,argument.getParameterType());
+				code = Utils.parseTemplate("DBN - JavaObjectToSQL.java", properties, getProject());
+			}
 
-			methodParameterBuffer.append(argument.getParameterType());
+			javaMethods.add(code);
+		}
+		return javaMethods;
+	}
 
-			boolean isLast = arguments.indexOf(argument) == arguments.size() - 1;
-			if (!isLast) {
-				buffer.append(", ");
-				methodParameterBuffer.append(", ");
+	private String createJavaWrapper(Wrapper wrapper) {
+		List<String> sqlMethods = createSQLToJava(wrapper);
+		List<String> javaMethods = createJavaToSQL(wrapper);
+
+		Properties properties = new Properties();
+
+		properties.setProperty("SQL_CONVERSION_METHOD", String.join("@", sqlMethods));
+		properties.setProperty("JAVA_CONVERSION_METHOD", String.join("@", javaMethods));
+
+		properties.setProperty("JAVA_CLASS", wrapper.getFullyQualifiedClassName());
+		properties.setProperty("JAVA_METHOD", wrapper.getWrappedJavaMethodName());
+
+		AtomicInteger idx = new AtomicInteger(0);
+		String javaSignature = wrapper.getJavaSignature(true);
+		properties.setProperty("WRAPPER_METHOD_SIGNATURE", javaSignature);
+
+		String sqlTypeToJavaType = wrapper.getMethodArguments()
+				.stream()
+				.map(e -> {
+					if (e.isArray()) {
+						return e.getTypeName() + "[]" + ";" + e.getCorrespondingSqlTypeName() + ";" + "arg" + idx.getAndIncrement();
+					} else if (e.isComplexType()) {
+						return e.getTypeName() + ";" + e.getCorrespondingSqlTypeName() + ";" + "arg" + idx.getAndIncrement();
+					} else {
+						idx.getAndIncrement();
+						return "";
+					}
+				})
+				.collect(Collectors.joining(","));
+
+		idx.set(0);
+		String callArgs = wrapper.getMethodArguments()
+				.stream()
+				.map(e -> {
+					if (e.isComplexType()) {
+						return "java_" + "arg" + idx.getAndIncrement();
+					} else {
+						return "arg" + idx.getAndIncrement();
+					}
+				})
+				.collect(Collectors.joining(", "));
+
+		properties.setProperty("CONVERT_OBJECTS", sqlTypeToJavaType);
+		properties.setProperty("CALL_ARGS", callArgs);
+
+		boolean isArrayReturn = false;
+		boolean isComplexReturnType = false;
+		String returnType = "";
+		String returnConversionMethod = "";
+		String arrayConversionMethod = "";
+		if (wrapper.getReturnType() != null) {
+			isComplexReturnType = wrapper.getReturnType().isComplexType();
+			if (wrapper.getReturnType().isArray()) {
+				isArrayReturn = true;
+				returnType = "java.sql.Array";
+				arrayConversionMethod = wrapper.getReturnType().getCorrespondingSqlTypeName();
+			} else if (isComplexReturnType) {
+				returnType = "java.sql.Struct";
+				returnConversionMethod = wrapper.getReturnType().getCorrespondingSqlTypeName();
+			} else {
+				returnType = wrapper.getReturnType().getTypeName();
 			}
 		}
-		buffer.append(")");
 
-		// Remove all empty parentheses "()"
-		int index = buffer.indexOf("()");
-		if (index != -1) {
-			buffer.delete(index, index + 2);
+		properties.setProperty("METHOD_RETURN_TYPE", returnType);
+		properties.setProperty("IS_ARRAY_RETURN", String.valueOf(isArrayReturn));
+		properties.setProperty("ARRAY_RETURN_JAVA_CONVERSION", arrayConversionMethod);
+		properties.setProperty("IS_COMPLEX_RETURN", String.valueOf(isComplexReturnType));
+		properties.setProperty("RETURN_JAVA_CONVERSION", returnConversionMethod);
+
+		return Utils.parseTemplate("DBN - Java Wrapper.java", properties, getProject());
+	}
+
+	private String createSQLWrapper(Wrapper wrapper) {
+		Properties properties = new Properties();
+		boolean isFunction = wrapper.getReturnType() != null && wrapper.getReturnType().getTypeName() != null;
+		properties.setProperty("TYPE", isFunction ? "FUNCTION" : "PROCEDURE");
+		properties.setProperty("METHOD", wrapper.getWrappedJavaMethodName());
+
+		AtomicInteger idx = new AtomicInteger(0);
+		String sqlSignature = wrapper.getMethodArguments()
+				.stream()
+				.map(e -> "arg_" + idx.getAndIncrement() + " " + e.getCorrespondingSqlTypeName())
+				.collect(Collectors.joining(", "));
+
+		String javaSignature = wrapper.getJavaSignature(false);
+
+		properties.setProperty("SQL_SIGNATURE", sqlSignature);
+		properties.setProperty("RETURN", isFunction ? wrapper.getReturnType().getCorrespondingSqlTypeName() : "");
+
+		properties.setProperty("JAVA_METHOD_ARGS", javaSignature);
+
+		String methodReturnType = "";
+		if (wrapper.getReturnType() != null) {
+			if (wrapper.getReturnType().isArray())
+				methodReturnType = "java.sql.Array";
+			else if (wrapper.getReturnType().isComplexType())
+				methodReturnType = "java.sql.Struct";
+			else
+				methodReturnType = wrapper.getReturnType().getTypeName();
+		}
+		properties.setProperty("JAVA_METHOD_RETURN", methodReturnType);
+
+		return Utils.parseTemplate("DBN - SQL Wrapper.sql", properties, getProject());
+	}
+
+	private void initCreateWrapperCommand(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
+		List<String> sqlTypes = createSQLTypes(wrapper);
+		String javaCode = createJavaWrapper(wrapper);
+		String sqlWrapper = createSQLWrapper(wrapper);
+
+		String sqlCode = "BEGIN" + "\n";
+		if (!sqlTypes.isEmpty()) {
+			sqlCode += String.join("\n", sqlTypes);
+			sqlCode += "\n";
 		}
 
-		String returnClass = javaMethod.getReturnType();
-
-		if(returnClass.equals("class")){
-			returnClass = javaMethod.getReturnClass().getName().replace("/",".");
+		if (!javaCode.isEmpty()) {
+			sqlCode += javaCode;
+			sqlCode += "\n";
 		}
 
-		if(!isProcedure) {
-			buffer.append(" RETURN ");
-			appendSQLType(buffer, returnClass);
-		}
+		sqlCode += sqlWrapper;
+		sqlCode += "END;";
 
-		buffer.append("\n");
-		buffer.append("AS LANGUAGE JAVA NAME ");
-
-		String schemaName = javaMethod.getSchemaName();
-		String methodNameWithoutSchema = javaMethod.getQualifiedName().replace(schemaName + ".","");
-		String methodNameWithoutOverload = methodNameWithoutSchema.split("#")[0];
-		buffer.append("'")
-				.append(methodNameWithoutOverload)
-				.append("(")
-				.append(methodParameterBuffer)
-				.append(")")
-				.append(isProcedure ? "" : " return " + returnClass)
-				.append("'");
-
-		buffer.append(";");
-
-		DBNPreparedStatement<?> statement = conn.prepareCall(buffer.toString());
+		DBNConnection conn = context.getConnection();
+		DBNPreparedStatement<?> statement = conn.prepareCall(sqlCode);
 		context.setStatement(statement);
 	}
 
-	private void initDropWrapperCommand(JavaExecutionContext context) throws SQLException{
+	private void initDropWrapperCommand(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
+		Properties properties = new Properties();
 		DBNConnection conn = context.getConnection();
 
-		DBJavaMethod javaMethod = getMethod();
-		String wrapperName = javaMethod.getName().split("#")[0] + "_wrapper";
+		boolean isFunction = wrapper.getReturnType() != null && wrapper.getReturnType().getTypeName() != null;
+		properties.setProperty("TYPE", isFunction ? "FUNCTION" : "PROCEDURE");
 
-		String returnArgument = getReturnArgument();
+		String allTypes = String.join(",", addedTypes);
+		properties.setProperty("SQLTYPES", allTypes);
 
-		boolean isProcedure = returnArgument.equals("void");
-
-		String buffer = "DROP " +
-				(isProcedure ? "PROCEDURE " : "FUNCTION ") +
-				wrapperName;
-
-		DBNPreparedStatement<?> statement = conn.prepareCall(buffer);
+		String cleanup = Utils.parseTemplate("DBN - SQL Cleanup.sql", properties, getProject());
+		DBNPreparedStatement<?> statement = conn.prepareCall(cleanup);
 		context.setStatement(statement);
 	}
 
@@ -290,10 +456,10 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setLogging(logging);
 	}
 
-	private void initParameters(JavaExecutionContext context) throws SQLException {
+	private void initParameters(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
 		JavaExecutionInput executionInput = context.getInput();
 		DBNPreparedStatement<?> statement = context.getStatement();
-		bindParameters(executionInput, statement);
+		bindParameters(executionInput, statement, wrapper);
 	}
 
 	private void initTimeout(JavaExecutionContext context) throws SQLException {
@@ -364,13 +530,13 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return getArgumentsCount() > 0;
 	}
 
-	protected void bindParameters(JavaExecutionInput executionInput, DBNPreparedStatement<?> preparedStatement) throws SQLException {
+	protected void bindParameters(JavaExecutionInput executionInput, DBNPreparedStatement<?> preparedStatement, Wrapper wrapper) {
 
 	}
 
 	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
 		for (DBJavaParameter argument : getArguments()) {
-			if (/*argument.isOutput() &&*/ preparedStatement instanceof CallableStatement) {
+			if (preparedStatement instanceof CallableStatement) {
 				CallableStatement callableStatement = (CallableStatement) preparedStatement;
 				Object result = callableStatement.getObject(argument.getPosition());
 				executionResult.addArgumentValue(argument, result);

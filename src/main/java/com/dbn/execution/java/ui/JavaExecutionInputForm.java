@@ -31,6 +31,9 @@ import com.dbn.execution.common.ui.ExecutionOptionsForm;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBJavaField;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBOrderedObject;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
@@ -51,8 +54,8 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class JavaExecutionInputForm extends DBNFormBase {
@@ -70,6 +73,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
     private DBNScrollPane argumentsScrollPane;
 
     private final List<JavaExecutionInputArgumentForm> argumentForms = DisposableContainers.list(this);
+    private final List<JavaExecutionComplexInputArgumentForm> complexArgumentForms = DisposableContainers.list(this);
     private final ExecutionOptionsForm executionOptionsForm;
     private final Listeners<ChangeListener> changeListeners = Listeners.create(this);
 
@@ -105,9 +109,6 @@ public class JavaExecutionInputForm extends DBNFormBase {
         collapsiblePanel.setExpanded(executionInput.isContextExpanded());
         collapsiblePanel.addToggleListener(expanded -> executionInput.setContextExpanded(expanded));
         executionOptionsPanel.add(collapsiblePanel.getComponent());
-        //executionOptionsPanel.add(executionOptionsForm.getComponent());
-
-        //objectPanel.add(new ObjectDetailsPanel(method).getComponent(), BorderLayout.NORTH);
 
         if (showHeader) {
             DBNHeaderForm headerForm = new DBNHeaderForm(this, methodRef);
@@ -149,33 +150,45 @@ public class JavaExecutionInputForm extends DBNFormBase {
 
         boolean noArguments = true;
         for (DBJavaParameter argument: arguments) {
-//            if (argument.isInput()) {
-                metrics = addArgumentPanel(argument, metrics);
-                noArguments = false;
-//            }
+			if (argument.getParameterType().equals("class")) {
+                List<DBJavaField> fields = argument.getParameterClass().getFields();
+                String parentClass = getInnerClassName("", argument.getParameterClass());
+                DBNCollapsiblePanel panel = addTreeArgumentPanel(fields, parentClass, argument.getName());
+
+                argumentsPanel.add(panel.getMainComponent());
+			} else {
+				metrics = addArgumentPanel(argument, metrics);
+			}
+            noArguments = false;
         }
         noArgumentsLabel.setVisible(noArguments);
 
         for (JavaExecutionInputArgumentForm component : argumentForms) {
             component.adjustMetrics(metrics);
+            component.addDocumentListener(documentListener);
         }
 
-        if (argumentForms.isEmpty()) {
+        for (JavaExecutionComplexInputArgumentForm component : complexArgumentForms) {
+            component.addDocumentListener(documentListener);
+        }
+
+        if (argumentForms.isEmpty() && complexArgumentForms.isEmpty()) {
             argumentsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
             Dimension preferredSize = argumentsScrollPane.getViewport().getView().getPreferredSize();
             preferredSize.setSize(preferredSize.getWidth(), preferredSize.getHeight() + 2);
             argumentsScrollPane.setMinimumSize(preferredSize);
-        } else {
-            JavaExecutionInputArgumentForm firstArgumentForm = argumentForms.get(0);
-            int scrollUnitIncrement = firstArgumentForm.getScrollUnitIncrement();
+        } else if(complexArgumentForms.isEmpty()) {
+            int scrollUnitIncrement = argumentForms.get(0).getScrollUnitIncrement();
             Dimension minSize = new Dimension(-1, Math.min(argumentForms.size(), 10) * scrollUnitIncrement + 2);
+            argumentsScrollPane.setMinimumSize(minSize);
+            argumentsScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+        } else {
+            int scrollUnitIncrement = complexArgumentForms.get(0).getScrollUnitIncrement();
+            Dimension minSize = new Dimension(-1, Math.min(complexArgumentForms.size(), 10) * scrollUnitIncrement + 2);
             argumentsScrollPane.setMinimumSize(minSize);
             argumentsScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
         }
 
-        for (JavaExecutionInputArgumentForm argumentComponent : argumentForms){
-            argumentComponent.addDocumentListener(documentListener);
-        }
         updatePreferredSize();
     }
 
@@ -193,13 +206,23 @@ public class JavaExecutionInputForm extends DBNFormBase {
         if( method == null ){
             return Collections.emptyList();
         } else {
-            List<DBJavaParameter> parameter = method.getParameters();
-            List<DBJavaParameter> reverseParameter = new ArrayList<>();
-            for(DBJavaParameter param:parameter){
-                reverseParameter.add(0,param);
+            List<DBJavaParameter> parameters = method.getParameters();
+            parameters.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
+            for (DBJavaParameter parameter : parameters) {
+                loadJavaFields(parameter.getParameterClass());
             }
 
-            return reverseParameter;
+            return parameters;
+        }
+    }
+
+    private void loadJavaFields(DBJavaClass dbJavaClass){
+        if(dbJavaClass == null) return;
+        for (DBJavaField field : dbJavaClass.getFields()) {
+            DBJavaClass innerClass = field.getFieldClass();
+            if(innerClass != null){
+                loadJavaFields(innerClass);
+            }
         }
     }
 
@@ -227,8 +250,42 @@ public class JavaExecutionInputForm extends DBNFormBase {
         return argumentComponent.getMetrics(gridMetrics);
    }
 
+   private String getInnerClassName(String parentClass, DBJavaClass javaClass){
+       String[] parts = javaClass.getName().split("/");
+       if(parentClass.isEmpty()){
+           return parts[parts.length - 1];
+       }
+       return parentClass + "." + parts[parts.length - 1];
+   }
+
+	private DBNCollapsiblePanel addTreeArgumentPanel(List<DBJavaField> arguments, String parentClass, String fieldName) {
+        List<JavaExecutionComplexInputArgumentForm> list = DisposableContainers.list(this);
+        DBNCollapsiblePanel cp;
+        DBNCollapsiblePanel childPanel = null;
+        String panelTitle = parentClass + " -> " + fieldName;
+        for(DBJavaField argument : arguments) {
+            if (argument.getType().equals("class") && argument.getFieldClass() != null) {
+                String innerClass = getInnerClassName(parentClass, argument.getFieldClass());
+                childPanel = addTreeArgumentPanel(argument.getFieldClass().getFields(), innerClass, argument.getName());
+            } else {
+                JavaExecutionComplexInputArgumentForm argumentComponent = new JavaExecutionComplexInputArgumentForm(this, argument);
+                complexArgumentForms.add(argumentComponent);
+                list.add(argumentComponent);
+            }
+        }
+        JavaExecutionComplexInputForm cf = new JavaExecutionComplexInputForm(this, panelTitle, list);
+        cp = new DBNCollapsiblePanel(this, cf,true);
+        if(childPanel != null) {
+            cp.addChild(childPanel);
+        }
+        return cp;
+    }
+
     public void updateExecutionInput() {
         for (JavaExecutionInputArgumentForm argumentComponent : argumentForms) {
+            argumentComponent.updateExecutionInput();
+        }
+        for (JavaExecutionComplexInputArgumentForm argumentComponent : complexArgumentForms) {
             argumentComponent.updateExecutionInput();
         }
         executionOptionsForm.updateExecutionInput();
@@ -249,10 +306,5 @@ public class JavaExecutionInputForm extends DBNFormBase {
     private void notifyChangeListeners() {
         ChangeEvent changeEvent = new ChangeEvent(this);
         changeListeners.notify(l -> l.stateChanged(changeEvent));
-    }
-
-    @Deprecated
-    public void touch() {
-        executionOptionsForm.touch();
     }
 }
