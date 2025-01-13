@@ -205,7 +205,12 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     @Override
     public String getQuotedName() {
         DatabaseSecurityMonitor securityMonitor = getConnection().getSecurityMonitor();
-        return securityMonitor.getQuotedIdentifier(getName());
+        String quotedIdentifier = securityMonitor.getQuotedIdentifier(getName());
+        if (quotedIdentifier == null) {
+            quotedIdentifier = getQuotedName(true);
+        }
+
+        return quotedIdentifier;
     }
 
     @Override
