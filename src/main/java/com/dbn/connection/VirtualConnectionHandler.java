@@ -75,7 +75,6 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
     private final ConnectionInstructions instructions = new ConnectionInstructions();
 
     private final DatabaseCompatibility compatibility = DatabaseCompatibility.noFeatures();
-    private final DatabaseSessionBundle sessionBundle = new DatabaseSessionBundle(this);
 
     private DatabaseInterfaces interfaces;
 
