@@ -42,7 +42,7 @@ public class DatabaseSecurityMonitor extends ConnectionComponentBase {
         return quotedIdentifiers.get(identifier);
     }
 
-    public void recordIdentifier(String identifier, Function<String, String> identifierQuoter) {
+    public void registerIdentifier(String identifier, Function<String, String> identifierQuoter) {
         quotedIdentifiers.computeIfAbsent(identifier, identifierQuoter);
     }
 

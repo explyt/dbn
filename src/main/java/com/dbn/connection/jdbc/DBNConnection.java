@@ -79,6 +79,7 @@ public class DBNConnection extends DBNConnectionBase {
     private final Set<DBNStatement> activeStatements = ConcurrentHashMap.newKeySet();
     private final Set<DBNResultSet> activeCursors = ConcurrentHashMap.newKeySet();
     private final Map<String, DBNPreparedStatement> cachedStatements = new ConcurrentHashMap<>();
+    private transient DBNStatement enquoteStatement;
 
     private final IncrementalResourceStatusAdapter<DBNConnection> active =
             IncrementalResourceStatusAdapter.create(
@@ -331,6 +332,11 @@ public class DBNConnection extends DBNConnectionBase {
     @NotNull
     public Project getProject() {
         return project.ensure();
+    }
+
+    public String enquoteIdentifier(String identifier) throws SQLException {
+        if (enquoteStatement == null) enquoteStatement = createStatement();
+        return enquoteStatement.enquoteIdentifier(identifier, true);
     }
 
     /********************************************************************

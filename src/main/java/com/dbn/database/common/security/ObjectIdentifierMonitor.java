@@ -18,9 +18,6 @@ package com.dbn.database.common.security;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.connection.jdbc.DBNResource;
-import com.dbn.connection.jdbc.DBNResultSet;
-import com.dbn.connection.jdbc.DBNStatement;
 import com.dbn.connection.security.DatabaseSecurityMonitor;
 import lombok.SneakyThrows;
 
@@ -34,36 +31,22 @@ import static com.dbn.common.dispose.Failsafe.nd;
  * The {@code ObjectIdentifierMonitor} class acts as an {@link InvocationHandler} for dynamic proxy objects
  * to monitor and manage method calls that return specific object identifiers, particularly
  * those decorated with the {@code @ObjectIdentifier} annotation. It integrates with database security
- * mechanisms to handle and record quoted identifiers for secure usage.
- * <p>
- * Responsibilities:
- * <ul>
- *   <li>Intercepts method calls on a proxied object.</li>
- *   <li>Monitors return values of methods annotated with {@code @ObjectIdentifier}.</li>
- *   <li>Integrates with a {@link DatabaseSecurityMonitor} to record and manage quoted identifiers.</li>
- * </ul>
- * <p>
- * Dependencies:
- * <ul>
- *   <li>Relies on a {@link DBNResource} instance to initialize database-related operations.</li>
- *   <li>Requires {@link DatabaseSecurityMonitor} and {@link DBNStatement} for identifier quoting and record management.</li>
- * </ul>
+ * mechanisms to handle and register quoted identifiers for secure usage.
  *
  * @param <T> The type of the proxied target object.
  * @author Dan Cioca (Oracle)
  */
 public class ObjectIdentifierMonitor<T> implements InvocationHandler {
     private final T target;
-    private final DBNResource resource;
+    private final DBNConnection connection;
     private final DatabaseSecurityMonitor securityMonitor;
-    private final DBNStatement statement;
 
-    private ObjectIdentifierMonitor(T target, DBNResource resource) {
+    private ObjectIdentifierMonitor(T target, DBNConnection connection) {
         this.target = target;
-        this.resource = resource;
+        this.connection = connection;
 
-        this.securityMonitor = initSecurityMonitor();
-        this.statement = initStatement();
+        ConnectionHandler handler = nd(connection.getConnectionHandler());
+        this.securityMonitor = handler.getSecurityMonitor();
     }
 
     /**
@@ -76,7 +59,7 @@ public class ObjectIdentifierMonitor<T> implements InvocationHandler {
      * @param resource The {@code DBNResource} instance used to manage and monitor the proxy behavior.
      * @return The proxy instance, which is a dynamic proxy wrapping the provided target object.
      */
-    public static <S> S install(S target, DBNResource resource) {
+    public static <S> S install(S target, DBNConnection resource) {
         Class<?> targetClass = target.getClass();
         Object proxy = Proxy.newProxyInstance(
                 targetClass.getClassLoader(),
@@ -85,48 +68,30 @@ public class ObjectIdentifierMonitor<T> implements InvocationHandler {
         return  (S) proxy;
     }
 
-    private DatabaseSecurityMonitor initSecurityMonitor() {
-        DBNConnection conn = nd(resource.getConnection());
-        ConnectionHandler connection = nd(conn.getConnectionHandler());
-        return connection.getSecurityMonitor();
-    }
-
-    @SneakyThrows
-    private DBNStatement initStatement() {
-        if (resource instanceof DBNStatement) {
-            return (DBNStatement) resource;
-        }
-
-        if (resource instanceof DBNResultSet) {
-            DBNResultSet resultSet = (DBNResultSet) resource;
-            return nd(resultSet.getStatement());
-        }
-
-        DBNConnection connection = nd(resource.getConnection());
-        return connection.createStatement();
-    }
-
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         Object result = method.invoke(target, args);
+        return registerIdentifier(method, result);
+    }
+
+    private Object registerIdentifier(Method method, Object result) {
         if (!isIdentifier(result)) return result;
 
         ObjectIdentifier annotation = method.getAnnotation(ObjectIdentifier.class);
         if (annotation == null) return result;
 
         String identifier = (String) result;
-        securityMonitor.recordIdentifier(identifier, i -> quoteIdentifier(identifier));
+        securityMonitor.registerIdentifier(identifier, i -> enquoteIdentifier(identifier));
 
         return result;
+    }
+
+    @SneakyThrows
+    private String enquoteIdentifier(String identifier) {
+        return connection.enquoteIdentifier(identifier);
     }
 
     private boolean isIdentifier(Object result) {
         return result instanceof String;
     }
-
-    @SneakyThrows
-    private String quoteIdentifier(String identifier) {
-        return statement.enquoteIdentifier(identifier, true);
-    }
-
 }

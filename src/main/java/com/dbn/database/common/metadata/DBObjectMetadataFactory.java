@@ -17,7 +17,7 @@
 package com.dbn.database.common.metadata;
 
 import com.dbn.common.content.DynamicContentType;
-import com.dbn.connection.jdbc.DBNResultSet;
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.database.common.metadata.impl.DBArgumentMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBCharsetMetadataImpl;
 import com.dbn.database.common.metadata.impl.DBClusterMetadataImpl;
@@ -63,7 +63,7 @@ public class DBObjectMetadataFactory {
 
     private DBObjectMetadataFactory() {}
 
-    public <M extends DBObjectMetadata> M create(DynamicContentType contentType, ResultSet resultSet) {
+    public <M extends DBObjectMetadata> M create(DynamicContentType contentType, ResultSet resultSet, DBNConnection connection) {
         M metadata = null;
         if (contentType instanceof DBObjectType) {
             DBObjectType objectType = (DBObjectType) contentType;
@@ -74,9 +74,8 @@ public class DBObjectMetadataFactory {
             metadata = (M) createMetadata(relationType, resultSet);
         }
 
-        if (metadata != null && resultSet instanceof DBNResultSet) {
-            DBNResultSet resource = (DBNResultSet) resultSet;
-            metadata = ObjectIdentifierMonitor.install(metadata, resource);
+        if (metadata != null) {
+            metadata = ObjectIdentifierMonitor.install(metadata, connection);
         }
 
 
