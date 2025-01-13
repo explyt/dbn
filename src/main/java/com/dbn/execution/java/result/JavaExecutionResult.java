@@ -34,7 +34,8 @@ import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.ui.JavaExecutionResultForm;
 import com.dbn.language.common.DBLanguagePsiFile;
-import com.dbn.object.*;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import lombok.Getter;
@@ -85,23 +86,6 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
             cursorModels.put(DBObjectRef.of(argument), dataModel);
         }
     }
-
-    public void addArgumentValue(DBJavaParameter argument, DBTypeAttribute attribute, Object value) {
-        ArgumentValueHolder<Object> valueStore = ArgumentValue.createBasicValueHolder(value);
-        ArgumentValue argumentValue = new ArgumentValue(argument, attribute.getName(), valueStore);
-        argumentValues.add(argumentValue);
-    }
-
-
-    public ArgumentValue getArgumentValue(DBObjectRef<DBArgument> argumentRef) {
-        for (ArgumentValue argumentValue : argumentValues) {
-            if (argumentValue.getArgumentRef().equals(argumentRef)) {
-                return argumentValue;
-            }
-        }
-        return null;
-    }
-
 
     @Nullable
     @Override
@@ -157,23 +141,6 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
         return null;
     }
 
-    public boolean hasCursorResults() {
-        for (ArgumentValue argumentValue: argumentValues) {
-            if (argumentValue.isCursor()) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public boolean hasSimpleResults() {
-        for (ArgumentValue argumentValue: argumentValues) {
-            if (!argumentValue.isCursor()) {
-                return true;
-            }
-        }
-        return false;
-    }
 
     public ResultSetDataModel getTableModel(DBJavaParameter argument) {
         return cursorModels.get(argument.ref());

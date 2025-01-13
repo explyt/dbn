@@ -19,6 +19,7 @@ package com.dbn.execution.java.result.ui;
 
 import com.dbn.execution.java.ArgumentValue;
 import com.dbn.object.common.DBObject;
+import lombok.Getter;
 
 import javax.swing.tree.TreeNode;
 import java.util.ArrayList;
@@ -26,6 +27,7 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+@Getter
 public class ArgumentValuesTreeNode implements TreeNode{
     private final Object userValue;
     private final ArgumentValuesTreeNode parent;
@@ -39,15 +41,7 @@ public class ArgumentValuesTreeNode implements TreeNode{
         this.userValue = userValue;
     }
 
-    public Object getUserValue() {
-        return userValue;
-    }
-
-    public List<ArgumentValuesTreeNode> getChildren() {
-        return children;
-    }
-
-    public void dispose() {
+	public void dispose() {
         for (ArgumentValuesTreeNode treeNode : children) {
             treeNode.dispose();
         }

@@ -17,15 +17,26 @@
 
 package com.dbn.database.oracle.execution;
 
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
+import com.dbn.connection.SessionId;
+import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
+import com.dbn.execution.java.wrapper.Parser;
+import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import lombok.SneakyThrows;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.List;
 
 public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
@@ -38,44 +49,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	protected void preHookExecutionCommand(StringBuilder buffer) {}
 	protected void postHookExecutionCommand(StringBuilder buffer) {}
 
-	public static final HashMap<String, String> dataTypeMap = new HashMap<>();
-
-	// see link
-	// https://docs.oracle.com/en/database/oracle/oracle-database/21/jjdbc/accessing-and-manipulating-Oracle-data.html#GUID-1AF80C90-DFE6-4A3E-A407-52E805726778
-	static {
-		dataTypeMap.put("String", "VARCHAR2");
-		dataTypeMap.put("java.lang.String", "VARCHAR2");
-		dataTypeMap.put("boolean", "NUMBER");
-		dataTypeMap.put("byte", "NUMBER");
-		dataTypeMap.put("char", "VARCHAR2");
-		dataTypeMap.put("short", "NUMBER");
-		dataTypeMap.put("int", "NUMBER");
-		dataTypeMap.put("long", "NUMBER");
-		dataTypeMap.put("float", "NUMBER");
-		dataTypeMap.put("double", "BINARY_DOUBLE");
-		dataTypeMap.put("byte[]", "RAW");
-		
-		dataTypeMap.put("java.sql.Date", "DATE");
-		dataTypeMap.put("java.sql.Time", "DATE");
-		dataTypeMap.put("java.math.BigDecimal", "NUMBER");
-		dataTypeMap.put("java.math.BigInteger", "NUMBER");
-
-		//some Java Wrapper Types
-		dataTypeMap.put("java.lang.Boolean", "NUMBER");
-		dataTypeMap.put("java.lang.Byte", "NUMBER");
-		dataTypeMap.put("java.lang.Character", "CHAR");
-		dataTypeMap.put("java.lang.Short", "NUMBER");
-		dataTypeMap.put("java.lang.Integer", "NUMBER");
-		dataTypeMap.put("java.lang.Long", "NUMBER");
-		dataTypeMap.put("java.lang.Float", "NUMBER");
-		dataTypeMap.put("java.lang.Double", "BINARY_DOUBLE");
-
-	}
-
 	@Override
 	public String buildExecutionCommand(JavaExecutionInput executionInput) throws SQLException {
-		DBJavaMethod javaMethod = getMethod();
-		String wrapperName = javaMethod.getName().split("#")[0] + "_wrapper";
+		String wrapperName = "DBN_OJVM_SQL_WRAPPER";
 
 		String returnArgument = getReturnArgument();
 		List<DBJavaParameter> arguments = getArguments();
@@ -86,32 +62,30 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		StringBuilder methodCallPrepare = new StringBuilder();
 
 		for (DBJavaParameter argument : arguments) {
-				methodCallPrepare.append("?");
+			methodCallPrepare.append("?");
 
-				boolean isLast = arguments.indexOf(argument) == arguments.size() - 1;
-				if (!isLast) {
-					methodCallPrepare.append(", ");
-				}
+			boolean isLast = arguments.indexOf(argument) == arguments.size() - 1;
+			if (!isLast) {
+				methodCallPrepare.append(", ");
+			}
 		}
 
 		buffer.append("declare\n");
 		buffer.append("begin \n");
+		buffer.append("dbms_java.set_output(100000);\n");
 
 		preHookExecutionCommand(buffer);
 
 		if(isProcedure){
-			buffer.append(wrapperName)
-					.append("(")
+			buffer.append(wrapperName);
+			if(!methodCallPrepare.toString().isEmpty()) {
+				buffer.append("(")
 					.append(methodCallPrepare)
-					.append(");\n");
-
-			// Remove all empty parentheses "()"
-			int index = buffer.lastIndexOf("()");
-			if (index != -1) {
-				buffer.delete(index, index + 2);
+					.append(");");
 			}
+			buffer.append("\n");
 		} else {
-			buffer.append("    dbms_output.put_line(")
+			buffer.append("dbms_output.put_line(")
 					.append(wrapperName)
 					.append("(")
 					.append(methodCallPrepare)
@@ -120,42 +94,38 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		}
 		postHookExecutionCommand(buffer);
 		buffer.append("end;\n");
-
 		return buffer.toString();
 	}
 
+	@SneakyThrows
 	@Override
-	protected void bindParameters(JavaExecutionInput executionInput, DBNPreparedStatement<?> callableStatement) throws SQLException {
+	protected void bindParameters(JavaExecutionInput executionInput, DBNPreparedStatement<?> callableStatement, Wrapper wrapper) {
 
 		// bind input variables
 		int parameterIndex = 1;
 		for (DBJavaParameter argument : getArguments()) {
 
 			String clazz = argument.getParameterType();
-			String value = executionInput.getInputValue(argument, "");
-			if(clazz.equals("String")) callableStatement.setString(parameterIndex, value); else
-			if(clazz.equals("byte")) callableStatement.setByte(parameterIndex, Byte.parseByte(value)); else
-			if(clazz.equals("short")) callableStatement.setShort(parameterIndex, Short.parseShort(value)); else
-			if(clazz.equals("int")) callableStatement.setInt(parameterIndex, Integer.parseInt(value)); else
-			if(clazz.equals("long")) callableStatement.setLong(parameterIndex, Long.parseLong(value)); else
-			if(clazz.equals("float")) callableStatement.setFloat(parameterIndex, Float.parseFloat(value)); else
-			if(clazz.equals("double")) callableStatement.setDouble(parameterIndex, Double.parseDouble(value)); else
-			if(clazz.equals("boolean")) callableStatement.setBoolean(parameterIndex, Boolean.getBoolean(value)); else
-				callableStatement.setObject(parameterIndex, value);
+			if(clazz.equals("class")) {
+				String objectName = wrapper.getMethodArguments().get(parameterIndex- 1).getCorrespondingSqlTypeName();
+				Object structObj = getStructObject(executionInput, argument.getParameterClass().getFields(), wrapper, objectName);
+				callableStatement.setObject(parameterIndex, structObj);
 
+			} else {
+				String value = executionInput.getInputValue(argument);
+				if (clazz.equals("String")) callableStatement.setString(parameterIndex, value);
+				else if (clazz.equals("byte")) callableStatement.setByte(parameterIndex, Byte.parseByte(value));
+				else if (clazz.equals("short")) callableStatement.setShort(parameterIndex, Short.parseShort(value));
+				else if (clazz.equals("int")) callableStatement.setInt(parameterIndex, Integer.parseInt(value));
+				else if (clazz.equals("long")) callableStatement.setLong(parameterIndex, Long.parseLong(value));
+				else if (clazz.equals("float")) callableStatement.setFloat(parameterIndex, Float.parseFloat(value));
+				else if (clazz.equals("double")) callableStatement.setDouble(parameterIndex, Double.parseDouble(value));
+				else if (clazz.equals("boolean"))
+					callableStatement.setBoolean(parameterIndex, Boolean.getBoolean(value));
+				else
+					callableStatement.setObject(parameterIndex, value);
 
-//			DBType type = dataType.getDeclaredType();
-//			if (dataType.isPurelyDeclared()) {
-//				List<DBTypeAttribute> attributes = type.getAttributes();
-//				for (DBTypeAttribute attribute : attributes) {
-//					String stringValue = executionInput.getInputValue(argument, "");
-//					String dataType = clazz;
-//					System.out.println("--");
-//					System.out.println(stringValue);
-//					setParameterValue(callableStatement, parameterIndex, dataType, value);
-//					parameterIndex++;
-//				}
-//			}
+			}
 			parameterIndex++;
 		}
 	}
@@ -163,5 +133,61 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	@Override
 	public void loadValues(JavaExecutionResult executionResult, DBNPreparedStatement<?> preparedStatement) throws SQLException {
 
+	}
+
+	@SneakyThrows
+	private Object getStructObject(JavaExecutionInput executionInput, List<DBJavaField> fields, Wrapper wrapper, String objectName){
+		ConnectionHandler connection = getMethod().getConnection();
+		SessionId targetSessionId = executionInput.getTargetSessionId();
+		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
+		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
+
+		fields.sort(Comparator.comparingInt(DBJavaField::getIndex));
+		Object[] customTypeAttributes = new Object[fields.size()];
+		int i = 0;
+		for (DBJavaField field : fields) {
+			String value = executionInput.getInputValue(field);
+			switch(field.getType()){
+				case "int":
+					customTypeAttributes[i] = Integer.parseInt(value);
+					break;
+				case "float":
+					customTypeAttributes[i] = Float.parseFloat(value);
+					break;
+				case "double":
+					customTypeAttributes[i] = Double.parseDouble(value);
+					break;
+				case "byte":
+					customTypeAttributes[i] = Byte.parseByte(value);
+					break;
+				case "short":
+					customTypeAttributes[i] = Short.parseShort(value);
+					break;
+				case "long":
+					customTypeAttributes[i] = Long.parseLong(value);
+					break;
+				case "boolean":
+					customTypeAttributes[i] = Boolean.parseBoolean(value);
+					break;
+				case "class":
+					int typeNumber = wrapper.getComplexTypeConversion().get(field.getFieldClass().getName());
+					String innerObjectName = Parser.newSqlTypePrepend + typeNumber;
+					customTypeAttributes[i] = getStructObject(executionInput, field.getFieldClass().getFields(), wrapper, innerObjectName);
+					break;
+				default:
+					customTypeAttributes[i] = value;
+			}
+			i++;
+		}
+
+		ClassLoader cl =  conn.getInner().getClass().getClassLoader();
+		Class<?> structDescriptorClass = Class.forName("oracle.sql.StructDescriptor",true, cl);
+		Method createDescriptorMethod = structDescriptorClass.getMethod("createDescriptor", String.class, Connection.class);
+		Object structDescriptor =  createDescriptorMethod.invoke(null, objectName, conn.getInner());
+
+		Class<?> structClass = Class.forName("oracle.sql.STRUCT", true, cl);
+		Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object[].class);
+
+		return structCtr.newInstance(structDescriptor, conn.getInner(), customTypeAttributes);
 	}
 }

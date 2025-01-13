@@ -18,17 +18,14 @@
 package com.dbn.execution.java.result.ui;
 
 import com.dbn.execution.java.ArgumentValue;
-import com.dbn.object.*;
-import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.DBJavaMethod;
 import lombok.Getter;
 
 import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 public class ArgumentValuesTreeModel implements TreeModel {
@@ -42,23 +39,10 @@ public class ArgumentValuesTreeModel implements TreeModel {
     }
 
     private static void createArgumentValueNodes(ArgumentValuesTreeNode parentNode, List<ArgumentValue> inputArgumentValues) {
-        Map<DBObjectRef<DBJavaParameter>, ArgumentValuesTreeNode> nodeMap = new HashMap<>();
         for (ArgumentValue argumentValue : inputArgumentValues) {
-            DBObjectRef<DBJavaParameter> argumentRef = argumentValue.getArgumentRef();
-            String attribute = argumentValue.getAttribute();
-
-            if (attribute == null) {
-                // single value
-                new ArgumentValuesTreeNode(parentNode, argumentValue);
-            } else {
-                // multiple attribute values
-                ArgumentValuesTreeNode treeNode = nodeMap.get(argumentRef);
-                if (treeNode == null) {
-                    treeNode = new ArgumentValuesTreeNode(parentNode, argumentRef);
-                    nodeMap.put(argumentRef, treeNode);
-                }
-                new ArgumentValuesTreeNode(treeNode, argumentValue);
-            }
+            if(argumentValue.isComplexClass())
+                continue;
+            new ArgumentValuesTreeNode(parentNode, argumentValue);
         }
     }
 

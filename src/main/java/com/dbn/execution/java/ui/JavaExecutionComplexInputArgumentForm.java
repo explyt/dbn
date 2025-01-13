@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.dbn.execution.java.ui;
@@ -29,7 +28,7 @@ import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.method.MethodExecutionArgumentValue;
 import com.dbn.execution.method.MethodExecutionArgumentValueHistory;
 import com.dbn.execution.method.MethodExecutionManager;
-import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
@@ -37,12 +36,13 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.event.DocumentListener;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class JavaExecutionInputArgumentForm extends DBNFormBase {
+public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 	private JPanel mainPanel;
 	private JLabel argumentLabel;
 	private JLabel argumentTypeLabel;
@@ -52,16 +52,16 @@ public class JavaExecutionInputArgumentForm extends DBNFormBase {
 	private JTextField inputTextField;
 	private UserValueHolderImpl<String> userValueHolder;
 
-	private final DBObjectRef<DBJavaParameter> argument;
+	private final DBObjectRef<DBJavaField> argument2;
 
-	JavaExecutionInputArgumentForm(JavaExecutionInputForm parentForm, final DBJavaParameter argument) {
+	JavaExecutionComplexInputArgumentForm(JavaExecutionInputForm parentForm, final DBJavaField argument) {
 		super(parentForm);
-		this.argument = DBObjectRef.of(argument);
+		this.argument2 = DBObjectRef.of(argument);
 		String argumentName = argument.getName();
 		argumentLabel.setText(argumentName);
 		argumentLabel.setIcon(argument.getIcon());
 
-		String dataType = argument.getParameterType();
+		String dataType = argument.getType();
 
 		argumentTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 
@@ -99,8 +99,8 @@ public class JavaExecutionInputArgumentForm extends DBNFormBase {
 			}
 
 			@Override
-			public List<String> getValues() {
-				DBJavaParameter argument = getArgument();
+			public java.util.List<String> getValues() {
+				DBJavaField argument = getArgument2();
 				if (argument != null) {
 					JavaExecutionInput executionInput = getParentForm().getExecutionInput();
 					return executionInput.getInputValueHistory(argument);
@@ -110,8 +110,8 @@ public class JavaExecutionInputArgumentForm extends DBNFormBase {
 			}
 
 			@Override
-			public List<String> getSecondaryValues() {
-				DBJavaParameter argument = getArgument();
+			public java.util.List<String> getSecondaryValues() {
+				DBJavaField argument = getArgument2();
 				if (argument != null) {
 					ConnectionHandler connection = argument.getConnection();
 					ConnectionId connectionId = connection.getConnectionId();
@@ -129,8 +129,8 @@ public class JavaExecutionInputArgumentForm extends DBNFormBase {
 		};
 	}
 
-	public DBJavaParameter getArgument() {
-		return DBObjectRef.get(argument);
+	public DBJavaField getArgument2() {
+		return DBObjectRef.get(argument2);
 	}
 
 	@NotNull
@@ -140,7 +140,7 @@ public class JavaExecutionInputArgumentForm extends DBNFormBase {
 	}
 
 	public void updateExecutionInput() {
-		DBJavaParameter argument = getArgument();
+		DBJavaField argument = getArgument2();
 		if (argument != null) {
 			JavaExecutionInput executionInput = getParentForm().getExecutionInput();
 			if (userValueHolder != null) {
@@ -153,18 +153,6 @@ public class JavaExecutionInputArgumentForm extends DBNFormBase {
 		}
 	}
 
-	protected int[] getMetrics(int[] metrics) {
-		return new int[]{
-				Math.max(metrics[0], (int) argumentLabel.getPreferredSize().getWidth()),
-				Math.max(metrics[1], (int) inputFieldPanel.getPreferredSize().getWidth()),
-				Math.max(metrics[2], (int) argumentTypeLabel.getPreferredSize().getWidth())};
-	}
-
-	protected void adjustMetrics(int[] metrics) {
-		argumentLabel.setPreferredSize(new Dimension(metrics[0], argumentLabel.getHeight()));
-		inputFieldPanel.setPreferredSize(new Dimension(metrics[1], inputFieldPanel.getHeight()));
-		argumentTypeLabel.setPreferredSize(new Dimension(metrics[2], argumentTypeLabel.getHeight()));
-	}
 
 	public void addDocumentListener(DocumentListener documentListener) {
 		TextFields.addDocumentListener(inputTextField, documentListener);
