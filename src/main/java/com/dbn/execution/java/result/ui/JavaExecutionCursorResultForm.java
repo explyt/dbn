@@ -32,7 +32,6 @@ import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.data.record.RecordViewInfo;
 import com.dbn.execution.java.result.JavaExecutionResult;
-import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -40,9 +39,10 @@ import com.intellij.ui.JBColor;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 import javax.swing.text.JTextComponent;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Dimension;
 
 public class JavaExecutionCursorResultForm extends DBNFormBase implements SearchableDataComponent {
     private JPanel actionsPanel;
@@ -76,7 +76,7 @@ public class JavaExecutionCursorResultForm extends DBNFormBase implements Search
         resultScrollPane.setViewportView(resultTable);
         resultTable.initTableGutter();
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.MethodExecutionCursorResult", "", true);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.MethodExecutionCursorResult");
         actionsPanel.add(actionToolbar.getComponent());
         DataProviders.register(actionToolbar.getComponent(), this);
     }

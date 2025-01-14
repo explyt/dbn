@@ -44,10 +44,12 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.JTree;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.TreeSelectionListener;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.util.List;
 import java.util.Map;
 
@@ -69,7 +71,12 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 	JavaExecutionHistoryForm(JavaExecutionHistoryDialog parent, JavaExecutionInput selectedExecutionInput, boolean debug) {
 		super(parent);
 		this.debug = debug;
-		ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "", true, new ShowGroupedTreeAction(), new DeleteHistoryEntryAction(), Actions.SEPARATOR, new ProjectSettingsOpenAction());
+		ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true,
+				new ShowGroupedTreeAction(),
+				new DeleteHistoryEntryAction(),
+				Actions.SEPARATOR,
+				new ProjectSettingsOpenAction());
+
 		actionsPanel.add(actionToolbar.getComponent());
 		makeRegular(contentSplitPane);
 
@@ -87,7 +94,7 @@ public class JavaExecutionHistoryForm extends DBNFormBase {
 		return JavaExecutionManager.getInstance(ensureProject()).getExecutionHistory();
 	}
 
-	@NotNull JavaExecutionHistoryDialog getParentDialog() {
+	@NotNull public JavaExecutionHistoryDialog getParentDialog() {
 		return ensureParentComponent();
 	}
 

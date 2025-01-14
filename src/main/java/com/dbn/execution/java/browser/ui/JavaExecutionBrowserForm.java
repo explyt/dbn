@@ -40,11 +40,11 @@ import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JPanel;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreePath;
-import java.awt.*;
+import java.awt.BorderLayout;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
@@ -56,7 +56,7 @@ public class JavaExecutionBrowserForm extends DBNFormBase {
 
     JavaExecutionBrowserForm(JavaExecutionBrowserDialog parent, ObjectTreeModel model, boolean debug) {
         super(parent);
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,"", true,
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel,true,
                 new ConnectionSelectDropdownAction(this, debug),
                 new SchemaSelectDropdownAction(this),
                 Actions.SEPARATOR,

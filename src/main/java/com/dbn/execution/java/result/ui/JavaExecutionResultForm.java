@@ -46,8 +46,11 @@ import com.intellij.util.ui.tree.TreeUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTree;
+import java.awt.BorderLayout;
 import java.util.List;
 
 import static com.dbn.common.util.Commons.nvl;
@@ -204,7 +207,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
 
 
     private void createActionsPanel() {
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.JavaExecutionResult", "DBNavigator.JavaExecutionResult.Controls", false);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, false, "DBNavigator.ActionGroup.JavaExecutionResult");
         actionsPanel.add(actionToolbar.getComponent());
     }
 
