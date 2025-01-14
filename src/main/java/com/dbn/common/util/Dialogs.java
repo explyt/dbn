@@ -86,6 +86,7 @@ public class Dialogs {
     public static void resizeToFitContent(JComponent component) {
         JComponent rootPane = UserInterface.getParent(component, c -> c.getParent() instanceof Window);
         if (rootPane == null) return;
+        UserInterface.repaint(component);
 
         Window window = (Window) rootPane.getParent();
         window.setSize(rootPane.getPreferredSize());
