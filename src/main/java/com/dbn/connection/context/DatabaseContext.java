@@ -52,6 +52,9 @@ public interface DatabaseContext extends DatabaseInterfacesProvider {
     String getSchemaName();
 
     @Nullable
+    String getQuotedSchemaName();
+
+    @Nullable
     DatabaseSession getSession();
 
     @Nullable

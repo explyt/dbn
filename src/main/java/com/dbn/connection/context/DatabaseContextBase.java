@@ -83,6 +83,12 @@ public interface DatabaseContextBase extends DatabaseContext {
     }
 
     @Nullable
+    default String getQuotedSchemaName() {
+        DBSchema schema = getSchema();
+        return schema == null ? null : schema.getQuotedName();
+    }
+
+    @Nullable
     ConnectionHandler getConnection();
 
     @NotNull

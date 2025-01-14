@@ -174,27 +174,25 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     conn -> {
                         DBContentType contentType = object.getContentType();
 
-                        String schemaName = object.getSchemaName();
-                        String objectName = object.getName();
+                        String schemaName = object.getQuotedSchemaName();
+                        String objectName = object.getQuotedName();
 
-                        // TODO use schemaName, objectName instead of qualified name
-                        String objectQualifiedName = object.getQualifiedName();
                         String objectTypeName = object.getTypeName();
                         DatabaseDataDefinitionInterface dataDefinition = object.getDataDefinitionInterface();
                         DBObjectList<?> objectList = (DBObjectList<?>) object.getParent();
                         if (contentType == DBContentType.CODE_SPEC_AND_BODY) {
                             DBObjectStatusHolder objectStatus = object.getStatus();
                             if (objectStatus.is(DBContentType.CODE_BODY, DBObjectStatus.PRESENT)) {
-                                dataDefinition.dropObjectBody(objectTypeName, objectQualifiedName, conn);
+                                dataDefinition.dropObjectBody(objectTypeName, schemaName, objectName, conn);
                             }
 
                             if (objectStatus.is(DBContentType.CODE_SPEC, DBObjectStatus.PRESENT)) {
-                                dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
+                                dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
                             }
                         } else if(object.getObjectType() == DBObjectType.JAVA_CLASS) {
                             dataDefinition.dropJavaClass(schemaName, objectName, conn);
                         } else {
-                            dataDefinition.dropObject(objectTypeName, objectQualifiedName, conn);
+                            dataDefinition.dropObject(objectTypeName, schemaName, objectName, conn);
                         }
 
                         objectList.reload();

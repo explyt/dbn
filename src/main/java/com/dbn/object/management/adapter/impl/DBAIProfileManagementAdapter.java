@@ -36,8 +36,8 @@ public class DBAIProfileManagementAdapter extends ObjectManagementAdapterFactory
     @Override
     protected void createObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        String profileName = object.getName();
-        String profileOwner = object.getSchemaName();
+        String profileName = object.getQuotedName();
+        String profileOwner = object.getQuotedSchemaName();
         String description = object.getDescription();
 
         String attributes = object.getAttributesJson();
@@ -55,8 +55,8 @@ public class DBAIProfileManagementAdapter extends ObjectManagementAdapterFactory
     @Override
     protected void updateObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        String profileName = object.getName();
-        String profileOwner = object.getSchemaName();
+        String profileName = object.getQuotedName();
+        String profileOwner = object.getQuotedSchemaName();
 
         String attributes = object.getAttributesJson();
         databaseInterface.updateProfile(conn, profileName, attributes);
@@ -71,18 +71,24 @@ public class DBAIProfileManagementAdapter extends ObjectManagementAdapterFactory
     @Override
     protected void deleteObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        databaseInterface.deleteProfile(conn, object.getSchemaName(), object.getName());
+        databaseInterface.deleteProfile(conn,
+                object.getQuotedSchemaName(),
+                object.getQuotedName());
     }
 
     @Override
     protected void enableObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        databaseInterface.enableProfile(conn, object.getSchemaName(), object.getName());
+        databaseInterface.enableProfile(conn,
+                object.getQuotedSchemaName(),
+                object.getQuotedName());
     }
 
     @Override
     protected void disableObject(ConnectionHandler connection, DBNConnection conn, DBAIProfile object) throws SQLException {
         DatabaseAssistantInterface databaseInterface = connection.getAssistantInterface();
-        databaseInterface.disableProfile(conn, object.getSchemaName(), object.getName());
+        databaseInterface.disableProfile(conn,
+                object.getQuotedSchemaName(),
+                object.getQuotedName());
     }
 }

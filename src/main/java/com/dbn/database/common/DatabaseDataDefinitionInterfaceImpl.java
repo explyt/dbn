@@ -88,13 +88,13 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
     *                   DROP statements                     *
     *********************************************************/
    @Override
-   public void dropObject(String objectType, String objectName, DBNConnection connection) throws SQLException {
-       executeUpdate(connection, "drop-object", objectType, objectName);
+   public void dropObject(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
+       executeUpdate(connection, "drop-object", objectType, ownerName, objectName);
    }
 
    @Override
-   public void dropObjectBody(String objectType, String objectName, DBNConnection connection) throws SQLException {
-       executeUpdate(connection, "drop-object-body", objectType, objectName);
+   public void dropObjectBody(String objectType, String ownerName, String objectName, DBNConnection connection) throws SQLException {
+       executeUpdate(connection, "drop-object-body", objectType, ownerName, objectName);
    }
 
     @Override
