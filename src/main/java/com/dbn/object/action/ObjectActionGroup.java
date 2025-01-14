@@ -28,8 +28,8 @@ import com.dbn.execution.method.action.ProgramMethodRunAction;
 import com.dbn.generator.statement.action.GenerateStatementActionGroup;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConsole;
-import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBProgram;
 import com.dbn.object.DBSchema;
@@ -64,11 +64,6 @@ import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
 import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
-import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
-import static com.dbn.object.common.property.DBObjectProperty.DISABLEABLE;
-import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
-import static com.dbn.object.common.property.DBObjectProperty.REFERENCEABLE;
-import static com.dbn.object.common.property.DBObjectProperty.SCHEMA_OBJECT;
 
 public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
 
@@ -76,6 +71,7 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
         addObjectManagementActions(object);
         addMethodActions(object);
         addProgramActions(object);
+        addJavaActions(object);
         addDependencyActions(object);
         addNavigationActions(object);
         addConsoleActions(object);
@@ -140,6 +136,20 @@ public class ObjectActionGroup extends DefaultActionGroup implements DumbAware {
                 add(new ProgramMethodDebugAction((DBProgram) object));
             }
         }
+        if(object instanceof DBJavaMethod){
+            DBJavaMethod method = (DBJavaMethod) object;
+            if (method.isStatic()) {
+                add(new JavaRunAction(method, false));
+            }
+        }
+
+        if (object instanceof DBJavaClass) {
+            addSeparator();
+            add(new JavaObjectRunAction((DBJavaClass) object));
+        }
+    }
+
+    private void addJavaActions(DBObject object) {
         if(object instanceof DBJavaMethod){
             DBJavaMethod method = (DBJavaMethod) object;
             if (method.isStatic()) {
