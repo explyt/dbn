@@ -30,13 +30,13 @@ import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionStatus;
 import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
-import com.dbn.execution.java.wrapper.Parser;
-import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.JavaComplexType;
+import com.dbn.execution.java.wrapper.Parser;
 import com.dbn.execution.java.wrapper.SqlComplexType;
 import com.dbn.execution.java.wrapper.Utils;
+import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.execution.logging.DatabaseLoggingManager;
-import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBOrderedObject;
@@ -48,9 +48,9 @@ import org.jetbrains.annotations.Nullable;
 import java.sql.CallableStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -193,7 +193,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			if (sct.getContainedTypeName() != null)
 				properties.setProperty("ARRAY_TYPE", sct.getContainedTypeName());
 
-			code = Utils.parseTemplate("DBN - SQL Type.sql", properties, getProject());
+			code = Utils.parseTemplate("DBN - OJVM SQLType.sql", properties, getProject());
 			sqlTypes.add(code);
 		}
 		return sqlTypes;
@@ -218,7 +218,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			if (jct.isArray()) {
 				properties.setProperty("TYPECAST_START", jct.getFields().get(0).getTypeCastStart());
 				properties.setProperty("TYPECAST_END", jct.getFields().get(0).getTypeCastEnd());
-				code = Utils.parseTemplate("DBN - SQLArrayToJava.java", properties, getProject());
+				code = Utils.parseTemplate("DBN - OJVM SQLArrayToJava.java", properties, getProject());
 			} else {
 				properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
 				properties.setProperty("WRAPPER_METHOD_SIGNATURE", "java.sql.Struct arg" + idx.getAndIncrement());
@@ -237,7 +237,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 				properties.setProperty("FIELDS", allFieldsCsv);
 
-				code = Utils.parseTemplate("DBN - SQLObjectToJava.java", properties, getProject());
+				code = Utils.parseTemplate("DBN - OJVM SQLObjectToJava.java", properties, getProject());
 			}
 			javaMethods.add(code);
 		}
@@ -260,7 +260,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 			String code;
 			if (wrapper.getReturnType().isArray()) {
-				code = Utils.parseTemplate("DBN - JavaArrayToSQL.java", properties, getProject());
+				code = Utils.parseTemplate("DBN - OJVM JavaArrayToSQL.java", properties, getProject());
 			} else {
 				properties.setProperty("TOTAL_FIELDS", String.valueOf(jct.getFields().size()));
 				String allFieldsCsv = jct.getFields()
@@ -274,7 +274,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 						.collect(Collectors.joining(","));
 				properties.setProperty("FIELDS", allFieldsCsv);
 
-				code = Utils.parseTemplate("DBN - JavaObjectToSQL.java", properties, getProject());
+				code = Utils.parseTemplate("DBN - OJVM JavaObjectToSQL.java", properties, getProject());
 			}
 
 			javaMethods.add(code);
@@ -352,7 +352,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		properties.setProperty("IS_COMPLEX_RETURN", String.valueOf(isComplexReturnType));
 		properties.setProperty("RETURN_JAVA_CONVERSION", returnConversionMethod);
 
-		return Utils.parseTemplate("DBN - Java Wrapper.java", properties, getProject());
+		return Utils.parseTemplate("DBN - OJVM JavaWrapper.java", properties, getProject());
 	}
 
 	private String createSQLWrapper(Wrapper wrapper) {
@@ -385,7 +385,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		}
 		properties.setProperty("JAVA_METHOD_RETURN", methodReturnType);
 
-		return Utils.parseTemplate("DBN - SQL Wrapper.sql", properties, getProject());
+		return Utils.parseTemplate("DBN - OJVM SQLWrapper.sql", properties, getProject());
 	}
 
 	private void initCreateWrapperCommand(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
@@ -422,7 +422,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		String allTypes = String.join(",", addedTypes);
 		properties.setProperty("SQLTYPES", allTypes);
 
-		String cleanup = Utils.parseTemplate("DBN - SQL Cleanup.sql", properties, getProject());
+		String cleanup = Utils.parseTemplate("DBN - OJVM SQLCleanup.sql", properties, getProject());
 		DBNPreparedStatement<?> statement = conn.prepareCall(cleanup);
 		context.setStatement(statement);
 	}

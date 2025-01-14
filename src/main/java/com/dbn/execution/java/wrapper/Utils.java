@@ -19,6 +19,7 @@ package com.dbn.execution.java.wrapper;
 import com.intellij.ide.fileTemplates.FileTemplate;
 import com.intellij.ide.fileTemplates.FileTemplateManager;
 import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 
 import java.io.IOException;
 import java.util.Properties;
@@ -26,7 +27,7 @@ import java.util.Properties;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class Utils {
-	public static String parseTemplate(String templateName, Properties properties, Project project){
+	public static String parseTemplate(@NonNls String templateName, Properties properties, Project project){
 		FileTemplateManager templateManager = FileTemplateManager.getInstance(project);
 		FileTemplate template = templateManager.getCodeTemplate(templateName);
 

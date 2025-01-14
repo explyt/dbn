@@ -22,7 +22,12 @@ import com.intellij.openapi.components.Service;
 import com.intellij.openapi.project.Project;
 
 import java.security.MessageDigest;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -32,7 +37,7 @@ public final class TypeMappingsManager {
     private final AtomicReference<String> lastFileHash = new AtomicReference<>("");
     private volatile Map<String, SqlType> dataTypeMap = Collections.emptyMap();
     private volatile Set<String> unsupportedTypes = Collections.emptySet();
-    private static final String TEMPLATE_NAME = "DBN - Java Type Map";
+    private static final String TEMPLATE_NAME = "DBN - OJVM TypeDefinitions";
     private final Project project;
 
     private TypeMappingsManager(Project project) {
