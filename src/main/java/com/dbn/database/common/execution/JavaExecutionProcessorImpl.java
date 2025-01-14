@@ -17,6 +17,7 @@
 
 package com.dbn.database.common.execution;
 
+import com.dbn.common.template.TemplateUtilities;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.Resources;
@@ -34,7 +35,6 @@ import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.JavaComplexType;
 import com.dbn.execution.java.wrapper.Parser;
 import com.dbn.execution.java.wrapper.SqlComplexType;
-import com.dbn.execution.java.wrapper.Utils;
 import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.execution.logging.DatabaseLoggingManager;
 import com.dbn.object.DBJavaMethod;
@@ -59,6 +59,7 @@ import java.util.stream.Collectors;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
+import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcessor {
@@ -113,16 +114,10 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setDebuggerType(debuggerType);
 		context.set(ExecutionStatus.EXECUTING, true);
 
-		Parser parser = new Parser();
-		Wrapper wrapper;
 		try {
-			wrapper = parser.parse(getMethod());
-		} catch (Exception e) {
-			conditionallyLog(e);
-			return;
-		}
+			Parser parser = new Parser();
+			Wrapper wrapper = parser.parse(getMethod());
 
-		try {
 			// create java wrapper
 			initCreateWrapperCommand(context, wrapper);
 			initTimeout(context);
@@ -144,6 +139,9 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			conditionallyLog(e);
 			Resources.cancel(context.getStatement());
 			throw e;
+		} catch (Exception e) {
+			conditionallyLog(e);
+			throw toSqlException(e);
 		} finally {
 			release(context);
 		}
@@ -175,7 +173,6 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 		addedTypes.clear();
 
-		String code;
 		for (JavaComplexType jct : wrapper.getArgumentJavaComplexTypes()) {
 			SqlComplexType sct = jct.getCorrespondingSqlType();
 			if (addedTypes.contains(sct.getName()))
@@ -193,7 +190,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			if (sct.getContainedTypeName() != null)
 				properties.setProperty("ARRAY_TYPE", sct.getContainedTypeName());
 
-			code = Utils.parseTemplate("DBN - OJVM SQLType.sql", properties, getProject());
+			String code = generateCode("DBN - OJVM SQLType.sql", properties);
 			sqlTypes.add(code);
 		}
 		return sqlTypes;
@@ -218,7 +215,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			if (jct.isArray()) {
 				properties.setProperty("TYPECAST_START", jct.getFields().get(0).getTypeCastStart());
 				properties.setProperty("TYPECAST_END", jct.getFields().get(0).getTypeCastEnd());
-				code = Utils.parseTemplate("DBN - OJVM SQLArrayToJava.java", properties, getProject());
+				code = generateCode("DBN - OJVM SQLArrayToJava.java", properties);
 			} else {
 				properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
 				properties.setProperty("WRAPPER_METHOD_SIGNATURE", "java.sql.Struct arg" + idx.getAndIncrement());
@@ -236,8 +233,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 							.collect(Collectors.joining(","));
 
 				properties.setProperty("FIELDS", allFieldsCsv);
-
-				code = Utils.parseTemplate("DBN - OJVM SQLObjectToJava.java", properties, getProject());
+				code = generateCode("DBN - OJVM SQLObjectToJava.java", properties);
 			}
 			javaMethods.add(code);
 		}
@@ -260,7 +256,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 			String code;
 			if (wrapper.getReturnType().isArray()) {
-				code = Utils.parseTemplate("DBN - OJVM JavaArrayToSQL.java", properties, getProject());
+				code = generateCode("DBN - OJVM JavaArrayToSQL.java", properties);
 			} else {
 				properties.setProperty("TOTAL_FIELDS", String.valueOf(jct.getFields().size()));
 				String allFieldsCsv = jct.getFields()
@@ -273,8 +269,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 						})
 						.collect(Collectors.joining(","));
 				properties.setProperty("FIELDS", allFieldsCsv);
-
-				code = Utils.parseTemplate("DBN - OJVM JavaObjectToSQL.java", properties, getProject());
+				code = generateCode("DBN - OJVM JavaObjectToSQL.java", properties);
 			}
 
 			javaMethods.add(code);
@@ -352,7 +347,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		properties.setProperty("IS_COMPLEX_RETURN", String.valueOf(isComplexReturnType));
 		properties.setProperty("RETURN_JAVA_CONVERSION", returnConversionMethod);
 
-		return Utils.parseTemplate("DBN - OJVM JavaWrapper.java", properties, getProject());
+		return generateCode("DBN - OJVM JavaWrapper.java", properties);
 	}
 
 	private String createSQLWrapper(Wrapper wrapper) {
@@ -385,7 +380,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		}
 		properties.setProperty("JAVA_METHOD_RETURN", methodReturnType);
 
-		return Utils.parseTemplate("DBN - OJVM SQLWrapper.sql", properties, getProject());
+		return generateCode("DBN - OJVM SQLWrapper.sql", properties);
 	}
 
 	private void initCreateWrapperCommand(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
@@ -422,7 +417,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		String allTypes = String.join(",", addedTypes);
 		properties.setProperty("SQLTYPES", allTypes);
 
-		String cleanup = Utils.parseTemplate("DBN - OJVM SQLCleanup.sql", properties, getProject());
+		String cleanup = generateCode("DBN - OJVM SQLCleanup.sql", properties);
 		DBNPreparedStatement<?> statement = conn.prepareCall(cleanup);
 		context.setStatement(statement);
 	}
@@ -550,4 +545,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 	}
 
 	public abstract String buildExecutionCommand(JavaExecutionInput executionInput) throws SQLException;
+	
+	private String generateCode(String templateName, Properties properties) {
+		return TemplateUtilities.generateCode(getProject(), templateName, properties);
+	}
 }
