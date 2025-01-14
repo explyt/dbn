@@ -60,6 +60,7 @@ import java.util.stream.Collectors;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.exception.Exceptions.toSqlException;
+import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcessor {
@@ -118,23 +119,29 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			Parser parser = new Parser();
 			Wrapper wrapper = parser.parse(getMethod());
 
-			// create java wrapper
-			initCreateWrapperCommand(context, wrapper);
-			initTimeout(context);
-			execute(context);
+			try {
+				// create java wrapper
+				setProgressDetail("Initializing java execution environment");
+				initCreateWrapperCommand(context, wrapper);
+				initTimeout(context);
+				execute(context);
 
-			// call java wrapper
-			initCommand(context);
-			initLogging(context);
-			initTimeout(context);
-			if (isQuery())
-				initParameters(context, wrapper);
-			execute(context);
+				// call java wrapper
+				setProgressDetail("Executing java method");
+				initCommand(context);
+				initLogging(context);
+				initTimeout(context);
+				if (isQuery())
+					initParameters(context, wrapper);
+				execute(context);
 
-			// drop java wrapper
-			initDropWrapperCommand(context, wrapper);
-			initTimeout(context);
-			execute(context);
+			} finally {
+				// drop java wrapper
+				setProgressDetail("Releasing java execution environment");
+				initDropWrapperCommand(context, wrapper);
+				initTimeout(context);
+				execute(context);
+			}
 		} catch (SQLException e) {
 			conditionallyLog(e);
 			Resources.cancel(context.getStatement());

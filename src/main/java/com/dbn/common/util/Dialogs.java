@@ -20,13 +20,16 @@ import com.dbn.common.Reflection;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.dialog.DBNDialog;
+import com.dbn.common.ui.util.UserInterface;
 import com.intellij.ui.PopupBorder;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
 import javax.swing.JRootPane;
 import javax.swing.border.Border;
+import java.awt.Window;
 import java.util.function.Supplier;
 
 import static com.dbn.common.dispose.Checks.isNotValid;
@@ -74,6 +77,20 @@ public class Dialogs {
             Reflection.invokeMethod("com.intellij.ui.WindowRoundedCornersManager", "configure", dialog);
         }
     }
+
+    /**
+     * Adjusts the size of the window containing the specified component to fit the preferred size of its root pane.
+     *
+     * @param component the {@link JComponent} whose root pane's preferred size is used to resize the window
+     */
+    public static void resizeToFitContent(JComponent component) {
+        JComponent rootPane = UserInterface.getParent(component, c -> c.getParent() instanceof Window);
+        if (rootPane == null) return;
+
+        Window window = (Window) rootPane.getParent();
+        window.setSize(rootPane.getPreferredSize());
+    }
+
 
     @FunctionalInterface
     public interface DialogCallback<T extends DBNDialog<?>> {
