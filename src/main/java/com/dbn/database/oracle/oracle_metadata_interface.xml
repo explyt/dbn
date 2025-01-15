@@ -2337,7 +2337,7 @@
 
     <statement-execution-processor id="compile-java-object">
         <statement>
-            alter JAVA SOURCE {0}."{1}" compile
+            alter JAVA SOURCE {0}.{1} compile
         </statement>
     </statement-execution-processor>
 
