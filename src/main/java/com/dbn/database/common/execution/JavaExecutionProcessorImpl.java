@@ -128,7 +128,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 				// call java wrapper
 				setProgressDetail("Executing java method");
-				initCommand(context);
+				initCommand(context, wrapper);
 				initLogging(context);
 				initTimeout(context);
 				if (isQuery())
@@ -232,10 +232,19 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 					allFieldsCsv = jct.getFields()
 							.stream()
 							.map(e -> {
-								if (e.isComplexType()) {
-									return e.getName() + ";" + e.getType() + "toJava( (java.sql.Struct) objArray[ " + e.getFieldIndex() + " ]" + ");";
+								String setterMethod = e.getSetter() ;
+								String end;
+								if(setterMethod == null || setterMethod.isEmpty()){
+									setterMethod = e.getName() + " = ";
+									end = " ";
+								} else {
+									setterMethod += "(";
+									end = ")";
 								}
-								return e.getName() + ";" + e.getTypeCastStart() + " objArray[ " + e.getFieldIndex() + " ]" + e.getTypeCastEnd();
+								if (e.isComplexType()) {
+									return setterMethod + ";" + e.getType() + "toJava( (java.sql.Struct) objArray[ " + e.getFieldIndex() + " ]" + ")" + ";" + end;
+								}
+								return setterMethod + ";" + e.getTypeCastStart() + " objArray[ " + e.getFieldIndex() + " ]" + e.getTypeCastEnd() + ";" + end;
 							})
 							.collect(Collectors.joining(","));
 
@@ -258,7 +267,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 		for (JavaComplexType jct : wrapper.getArgumentJavaComplexTypes()) {
 			if (jct.getAttributeDirection() == JavaComplexType.AttributeDirection.ARGUMENT) continue;
-			properties.setProperty("JAVA_COMPLEX_TYPE", jct.getTypeName());
+			properties.setProperty("JAVA_COMPLEX_TYPE", Parser.convertClassNameToDotNotation(jct.getTypeName()));
 			properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
 
 			String code;
@@ -269,10 +278,16 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 				String allFieldsCsv = jct.getFields()
 						.stream()
 						.map(e -> {
-							if (e.isComplexType()) {
-								return e.getFieldIndex() + ";" + e.getName() + ";" + e.getType();
+							String getterMethod = e.getGetter();
+							if(getterMethod == null || getterMethod.isEmpty()){
+								getterMethod = e.getName();
+							} else {
+								getterMethod += "()";
 							}
-							return e.getFieldIndex() + ";" + e.getName() + ";" + " ";
+							if (e.isComplexType()) {
+								return e.getFieldIndex() + ";" + getterMethod + ";" + e.getType();
+							}
+							return e.getFieldIndex() + ";" + getterMethod + ";" + " ";
 						})
 						.collect(Collectors.joining(","));
 				properties.setProperty("FIELDS", allFieldsCsv);
@@ -429,9 +444,9 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setStatement(statement);
 	}
 
-	private void initCommand(JavaExecutionContext context) throws SQLException {
+	private void initCommand(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
 		JavaExecutionInput executionInput = context.getInput();
-		String command = buildExecutionCommand(executionInput);
+		String command = buildExecutionCommand(executionInput, wrapper);
 		DBNConnection conn = context.getConnection();
 		DBNPreparedStatement<?> statement = isQuery() ?
 				conn.prepareStatement(command) :
@@ -551,8 +566,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return method.getProject();
 	}
 
-	public abstract String buildExecutionCommand(JavaExecutionInput executionInput) throws SQLException;
-	
+	public abstract String buildExecutionCommand(JavaExecutionInput executionInput, Wrapper wrapper) throws SQLException;
+
 	private String generateCode(String templateName, Properties properties) {
 		return TemplateUtilities.generateCode(getProject(), templateName, properties);
 	}

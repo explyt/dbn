@@ -535,14 +535,28 @@ public class Parser {
 		if (dbJavaClass == null) return null;
 
 		final String setterName = "set" + capitalize(fieldName);
-		DBJavaMethod methodSet = dbJavaClass.getMethod(setterName);
+		List<DBJavaMethod> methods = dbJavaClass.getMethods();
+		DBJavaMethod methodSet = null;
+		for(DBJavaMethod method : methods){
+			if(setterName.equals(method.getName().split("#")[0])){
+				methodSet = method;
+				break;
+			}
+		}
+
 		if (methodSet != null) {
 			List<DBJavaParameter> setMethodParameters = methodSet.getParameters();
 			if (setMethodParameters.size() == 1) {
 				try {
 					DBJavaParameter param = setMethodParameters.get(0);
-					if (getParameterType(param).equals(fieldParameter) && param.getArrayDepth() == arrayDepth) {
-						return methodSet.getName();
+					String targetFieldClass;
+					if(dbJavaClass.getField(fieldName) != null && dbJavaClass.getField(fieldName).getFieldClass() != null){
+						targetFieldClass = convertClassNameToDotNotation(dbJavaClass.getField(fieldName).getFieldClass().getQualifiedName());
+					} else {
+						targetFieldClass = fieldParameter;
+					}
+					if (getParameterType(param).equals(targetFieldClass) && param.getArrayDepth() == arrayDepth) {
+						return methodSet.getName().split("#")[0];
 					}
 				} catch (Exception e) {
 					log.error("Could not get Setter method for Field {} in class {}", fieldName, dbJavaClass, e);
@@ -560,12 +574,20 @@ public class Parser {
 		if (dbJavaClass == null) return null;
 
 		final String getterName = "get" + capitalize(fieldName);
-		DBJavaMethod methodGet = dbJavaClass.getMethod(getterName);
+		List<DBJavaMethod> methods = dbJavaClass.getMethods();
+		DBJavaMethod methodGet = null;
+		for(DBJavaMethod method : methods){
+			if(getterName.equals(method.getName().split("#")[0])){
+				methodGet = method;
+				break;
+			}
+		}
+
 		if (methodGet != null) {
 			try {
 				final String methodReturn = getParameterType(methodGet.getReturnType(), methodGet.getClassName());
 				if (methodReturn.equals(fieldParameter) && methodGet.getArrayDepth() == arrayDepth && methodGet.getParameters().isEmpty()) {
-					return methodGet.getName();
+					return methodGet.getName().split("#")[0];
 				}
 			} catch (Exception e) {
 				log.error("Could not get Getter method for Field {} in class {}", fieldName, dbJavaClass, e);

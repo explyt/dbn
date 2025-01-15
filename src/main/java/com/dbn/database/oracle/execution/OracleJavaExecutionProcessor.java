@@ -50,7 +50,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	protected void postHookExecutionCommand(StringBuilder buffer) {}
 
 	@Override
-	public String buildExecutionCommand(JavaExecutionInput executionInput) throws SQLException {
+	public String buildExecutionCommand(JavaExecutionInput executionInput, Wrapper wrapper) throws SQLException {
 		String wrapperName = "DBN_OJVM_SQL_WRAPPER";
 
 		String returnArgument = getReturnArgument();
@@ -71,6 +71,12 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		}
 
 		buffer.append("declare\n");
+		if(! isProcedure){
+			buffer.append("output_arg ")
+					.append(wrapper.getReturnType().getCorrespondingSqlTypeName())
+					.append(";")
+					.append("\n");
+		}
 		buffer.append("begin \n");
 		buffer.append("dbms_java.set_output(100000);\n");
 
@@ -85,11 +91,10 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			}
 			buffer.append("\n");
 		} else {
-			buffer.append("dbms_output.put_line(")
+			buffer.append("output_arg :=")
 					.append(wrapperName)
 					.append("(")
 					.append(methodCallPrepare)
-					.append(")")
 					.append(");\n");
 		}
 		postHookExecutionCommand(buffer);

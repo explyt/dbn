@@ -17,7 +17,8 @@ public static ${JAVA_COMPLEX_TYPE} ${SQL_OBJECT_TYPE}toJava(java.sql.Struct obj)
             #set($tokens = $prop.split(";"))
             #set($name = $tokens[0])
             #set($value = $tokens[1])
-            javaObj.$name = ${value};
+            #set($end = $tokens[2])
+            javaObj.$name ${value} ${end};
         #end
     #end
 
