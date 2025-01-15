@@ -44,8 +44,9 @@ public class DatasetFilterUtil {
             SortDirection sortDirection = sortingInstruction.getDirection();
             DBColumn column = dataset.getColumn(sortingInstruction.getColumnName());
             if (isValid(column) && !sortDirection.isIndefinite()) {
+                String columnName = column.getName(true);
                 DatabaseCompatibilityInterface compatibility = column.getCompatibilityInterface();
-                String orderByClause = compatibility.getOrderByClause(column.getQuotedName(false), sortDirection, nullsFirst);
+                String orderByClause = compatibility.getOrderByClause(columnName, sortDirection, nullsFirst);
                 buffer.append(instructionAdded ? ", " : "");
                 buffer.append(orderByClause);
                 instructionAdded = true;
@@ -60,14 +61,11 @@ public class DatasetFilterUtil {
             if (index > 0) {
                 buffer.append(", ");
             }
-            buffer.append(column.getQuotedName(false));
+            buffer.append(column.getName(true));
             index++;
         }
         buffer.append(" from ");
-        buffer.append(dataset.getSchema().getQuotedName(true));
-        buffer.append(".");
-        buffer.append(dataset.getQuotedName(true));
-
+        buffer.append(dataset.getQualifiedName(true));
     }
 
     public static void createSimpleSelectStatement(DBDataset dataset, StringBuilder buffer) {
@@ -75,20 +73,15 @@ public class DatasetFilterUtil {
         // TODO not implemented yet - returning always true at the moment
         boolean aliased = compatibility.isSupported(JdbcProperty.SQL_DATASET_ALIASING);
 
-        String schemaName = dataset.getSchema().getQuotedName(true);
-        String datasetName = dataset.getQuotedName(true);
+        String datasetName = dataset.getQualifiedName(true);
 
         if (aliased) {
             // IMPORTANT oracle jdbc seems to create readonly result-set if dataset is not aliased
             buffer.append("select a.* from ");
-            buffer.append(schemaName);
-            buffer.append(".");
             buffer.append(datasetName);
             buffer.append(" a");
         } else {
             buffer.append("select * from ");
-            buffer.append(schemaName);
-            buffer.append(".");
             buffer.append(datasetName);
         }
     }
