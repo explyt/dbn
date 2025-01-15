@@ -56,9 +56,9 @@ public class DatasetEditorUtils {
             DBDataset dataset = column.getDataset();
             DatabaseMetadataInterface metadata = column.getMetadataInterface();
             resultSet = metadata.getDistinctValues(
-                    dataset.getQuotedSchemaName(),
-                    dataset.getQuotedName(),
-                    column.getQuotedName(),
+                    dataset.getSchemaName(true),
+                    dataset.getName(true),
+                    column.getName(true),
                     conn);
 
             while (resultSet.next()) {

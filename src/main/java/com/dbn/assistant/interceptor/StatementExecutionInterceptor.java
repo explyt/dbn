@@ -82,6 +82,6 @@ public class StatementExecutionInterceptor implements Interceptor<StatementExecu
         }
 
         DatabaseAssistantInterface assistantInterface = connection.getAssistantInterface();
-        assistantInterface.setCurrentProfile(conn, profile.getQuotedName());
+        assistantInterface.setCurrentProfile(conn, profile.getName(true));
     }
 }

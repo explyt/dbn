@@ -62,8 +62,8 @@ public class DatasetCustomFilterForm extends ConfigurationEditorForm<DatasetCust
         Project project = dataset.getProject();
 
         StringBuilder selectStatement = new StringBuilder("select * from ");
-        selectStatement.append(dataset.getSchema().getQuotedName()).append('.');
-        selectStatement.append(dataset.getQuotedName());
+        selectStatement.append(dataset.getSchemaName(true)).append('.');
+        selectStatement.append(dataset.getName(true));
         selectStatement.append(" where \n");
         conditionStartOffset = selectStatement.length();
 

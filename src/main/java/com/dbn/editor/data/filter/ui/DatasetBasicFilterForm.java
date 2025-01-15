@@ -187,8 +187,8 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
         updateGeneratedName();
         StringBuilder selectStatement = new StringBuilder("select * from ");
-        selectStatement.append(dataset.getSchema().getQuotedName()).append('.');
-        selectStatement.append(dataset.getQuotedName());
+        selectStatement.append(dataset.getSchemaName(true)).append('.');
+        selectStatement.append(dataset.getName(true));
         selectStatement.append(" where\n    ");
 
         boolean addJoin = false;

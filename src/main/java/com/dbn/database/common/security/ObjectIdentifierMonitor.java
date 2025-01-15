@@ -18,7 +18,7 @@ package com.dbn.database.common.security;
 
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.jdbc.DBNConnection;
-import com.dbn.connection.security.DatabaseSecurityMonitor;
+import com.dbn.connection.security.DatabaseIdentifierCache;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.InvocationHandler;
@@ -39,14 +39,14 @@ import static com.dbn.common.dispose.Failsafe.nd;
 public class ObjectIdentifierMonitor<T> implements InvocationHandler {
     private final T target;
     private final DBNConnection connection;
-    private final DatabaseSecurityMonitor securityMonitor;
+    private final DatabaseIdentifierCache identifierCache;
 
     private ObjectIdentifierMonitor(T target, DBNConnection connection) {
         this.target = target;
         this.connection = connection;
 
         ConnectionHandler handler = nd(connection.getConnectionHandler());
-        this.securityMonitor = handler.getSecurityMonitor();
+        this.identifierCache = handler.getIdentifierCache();
     }
 
     /**
@@ -81,7 +81,7 @@ public class ObjectIdentifierMonitor<T> implements InvocationHandler {
         if (annotation == null) return result;
 
         String identifier = (String) result;
-        securityMonitor.registerIdentifier(identifier, i -> enquoteIdentifier(identifier));
+        identifierCache.registerIdentifier(identifier, i -> enquoteIdentifier(identifier));
 
         return result;
     }

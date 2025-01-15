@@ -133,7 +133,7 @@ class DBViewImpl extends DBDatasetImpl<DBViewMetadata> implements DBView {
                 conn -> {
                     ConnectionHandler connection = getConnection();
                     DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-                    dataDefinition.updateView(getQuotedName(), newCode, conn);
+                    dataDefinition.updateView(getName(true), newCode, conn);
                 });
     }
 

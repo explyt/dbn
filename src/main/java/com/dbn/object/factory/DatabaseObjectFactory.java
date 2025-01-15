@@ -174,8 +174,8 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                     conn -> {
                         DBContentType contentType = object.getContentType();
 
-                        String schemaName = object.getQuotedSchemaName();
-                        String objectName = object.getQuotedName();
+                        String schemaName = object.getSchemaName(true);
+                        String objectName = object.getName(true);
 
                         String objectTypeName = object.getTypeName();
                         DatabaseDataDefinitionInterface dataDefinition = object.getDataDefinitionInterface();

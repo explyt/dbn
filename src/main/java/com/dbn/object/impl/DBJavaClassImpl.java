@@ -184,7 +184,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 				conn -> {
 					ConnectionHandler connection = getConnection();
 					DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-					dataDefinition.updateJavaClass(getQuotedName(), newCode, conn);
+					dataDefinition.updateJavaClass(getName(true), newCode, conn);
 				});
 	}
 

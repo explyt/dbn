@@ -85,8 +85,8 @@ class DBDatasetTriggerImpl extends DBTriggerImpl implements DBDatasetTrigger {
 
     @NotNull
     @Override
-    public String getQualifiedName() {
-        return getSchemaName() + '.' + getName();
+    public String getQualifiedName(boolean quoted) {
+        return getSchemaName(quoted) + '.' + getName(quoted);
     }
 
     @Override

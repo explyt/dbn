@@ -31,21 +31,18 @@ import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.environment.EnvironmentType;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.routine.Consumer;
+import com.dbn.common.string.StringDeBuilder;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseEntity;
-import com.dbn.connection.DatabaseType;
 import com.dbn.connection.SchemaId;
-import com.dbn.connection.config.ConnectionDatabaseSettings;
-import com.dbn.connection.security.DatabaseSecurityMonitor;
+import com.dbn.connection.security.DatabaseIdentifierCache;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.common.metadata.DBObjectMetadata;
-import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.language.common.DBLanguage;
 import com.dbn.language.common.DBLanguageDialect;
-import com.dbn.language.common.QuotePair;
 import com.dbn.language.sql.SQLLanguage;
 import com.dbn.object.DBSchema;
 import com.dbn.object.DBUser;
@@ -203,33 +200,14 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
     }
 
     @Override
-    public String getQuotedName() {
-        DatabaseSecurityMonitor securityMonitor = getConnection().getSecurityMonitor();
-        String quotedIdentifier = securityMonitor.getQuotedIdentifier(getName());
-        if (quotedIdentifier == null) {
-            quotedIdentifier = getQuotedName(true);
+    @NotNull
+    public String getName(boolean quoted) {
+        String objectName = ref.getObjectName();
+        if (quoted) {
+            DatabaseIdentifierCache identifierCache = getConnection().getIdentifierCache();
+            return identifierCache.getQuotedIdentifier(objectName);
         }
-
-        return quotedIdentifier;
-    }
-
-    @Override
-    public String getQuotedName(boolean quoteAlways) {
-        String name = getName();
-        if (quoteAlways || needsNameQuoting()) {
-            ConnectionHandler connection = this.getConnection();
-            ConnectionDatabaseSettings databaseSettings = connection.getSettings().getDatabaseSettings();
-            if (databaseSettings.getDatabaseType() == DatabaseType.GENERIC) {
-                String identifierQuotes = connection.getCompatibility().getIdentifierQuote();
-                return identifierQuotes + name + identifierQuotes;
-            } else {
-                DatabaseCompatibilityInterface compatibility = getCompatibilityInterface();
-                QuotePair quotes = compatibility.getDefaultIdentifierQuotes();
-                return quotes.quote(name);
-            }
-        } else {
-            return name;
-        }
+        return objectName;
     }
 
     @Override
@@ -250,7 +228,22 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
 
     @NotNull
     @Override
-    public String getQualifiedName() {
+    public String getQualifiedName(boolean quoted) {
+        if (quoted) {
+            DBObject parent = getParentObject();
+            if (parent == null) {
+                return getName(true);
+            } else {
+                StringDeBuilder builder = new StringDeBuilder();
+                builder.append(getName(true));
+                while(parent != null) {
+                    builder.prepend('.');
+                    builder.prepend(parent.getName(true));
+                    parent = parent.getParentObject();
+                }
+                return builder.toString();
+            }
+        }
         return ref.getPath();
     }
 

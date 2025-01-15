@@ -82,10 +82,17 @@ public interface DatabaseContextBase extends DatabaseContext {
         return schemaId == null ? null : schemaId.getName();
     }
 
+    @Override
     @Nullable
-    default String getQuotedSchemaName() {
-        DBSchema schema = getSchema();
-        return schema == null ? null : schema.getQuotedName();
+    default String getSchemaName(boolean quoted) {
+        SchemaId schemaId = getSchemaId();
+        if (schemaId == null) return null;
+
+        if (quoted) {
+            DBSchema schema = getSchema();
+            return schema == null ? null : schema.getName(true);
+        }
+        return schemaId.getName();
     }
 
     @Nullable
