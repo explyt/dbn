@@ -24,7 +24,7 @@ import java.lang.annotation.Target;
 /**
  * Indicates that the annotated method returns a database object identifier.
  * The output of these methods should be quoted using Statement.enquoteIdentifier()
- * to prevent SQL injection through maliciously crafter identifier names.
+ * to prevent SQL injection through maliciously crafted identifier names.
  *
  *  * @author Dan Cioca (Oracle)
  */
