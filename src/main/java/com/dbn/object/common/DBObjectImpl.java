@@ -226,6 +226,11 @@ public abstract class DBObjectImpl<M extends DBObjectMetadata> extends DBObjectT
         return getObjectType().getIcon();
     }
 
+    @Override
+    public String getQualifiedName() {
+        return ref.getPath();
+    }
+
     @NotNull
     @Override
     public String getQualifiedName(boolean quoted) {
