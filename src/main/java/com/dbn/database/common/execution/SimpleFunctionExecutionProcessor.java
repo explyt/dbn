@@ -28,7 +28,7 @@ public class SimpleFunctionExecutionProcessor extends MethodExecutionProcessorIm
     public String buildExecutionCommand(MethodExecutionInput executionInput) {
         StringBuilder buffer = new StringBuilder();
         buffer.append("{? = call ");
-        buffer.append(getMethod().getQualifiedName());
+        buffer.append(getMethod().getQualifiedName(true));
         buffer.append("(");
         for (int i=1; i< getArgumentsCount(); i++) {
             if (i>1) buffer.append(",");

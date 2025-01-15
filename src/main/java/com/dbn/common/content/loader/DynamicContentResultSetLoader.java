@@ -186,7 +186,7 @@ public abstract class DynamicContentResultSetLoader<E extends DynamicContentElem
                 String identifier = DBNResultSet.getIdentifier(resultSet);
 
                 DynamicContentType<?> contentType = content.getContentType();
-                M metadata = DBObjectMetadataFactory.INSTANCE.create(contentType, resultSet);
+                M metadata = DBObjectMetadataFactory.INSTANCE.create(contentType, resultSet, conn);
 
                 Diagnostics.databaseLag(QUERY);
                 LoaderCache loaderCache = new LoaderCache();

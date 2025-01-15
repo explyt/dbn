@@ -38,7 +38,7 @@ public final class StatementExecutorContext {
         DiagnosticsManager diagnosticsManager = DiagnosticsManager.getInstance(connection.getProject());
 
         this.connection = connection;
-        this.diagnostics =  diagnosticsManager.getMetadataInterfaceDiagnostics(connection.getId());
+        this.diagnostics =  diagnosticsManager.getMetadataInterfaceDiagnostics(connection.getConnectionId());
         this.identifier = identifier;
         this.timeout = timeout;
     }

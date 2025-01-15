@@ -27,6 +27,7 @@ import com.dbn.editor.data.filter.DatasetFilterInput;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
 import com.intellij.openapi.Disposable;
+import lombok.Getter;
 
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -35,6 +36,7 @@ import java.util.Map;
 
 import static com.dbn.common.util.Lists.isLast;
 
+@Getter
 public class DatasetRecord implements Disposable {
     private DatasetFilterInput filterInput;
     private Map<String, Object> values = new HashMap<>();
@@ -44,10 +46,6 @@ public class DatasetRecord implements Disposable {
         loadRecordValues(filterInput);
     }
 
-    public DatasetFilterInput getFilterInput() {
-        return filterInput;
-    }
-
     private void loadRecordValues(DatasetFilterInput filterInput) throws SQLException {
         DBDataset dataset = getDataset();
         StringBuilder selectStatement = new StringBuilder();
@@ -55,19 +53,19 @@ public class DatasetRecord implements Disposable {
 
         List<DBColumn> columns = dataset.getColumns();
         for (DBColumn column : columns) {
-            selectStatement.append(column.getName());
+            selectStatement.append(column.getName(true));
             if (!isLast(columns, column)) {
                 selectStatement.append(", ");
             }
         }
 
         selectStatement.append(" from ");
-        selectStatement.append(dataset.getQualifiedName());
+        selectStatement.append(dataset.getQualifiedName(true));
         selectStatement.append(" where ");
 
         List<DBColumn> filterColumns = filterInput.getColumns();
         for (DBColumn column : filterColumns) {
-            selectStatement.append(column.getName());
+            selectStatement.append(column.getName(true));
             selectStatement.append(" = ? ");
             if (!isLast(filterColumns, column)) {
                 selectStatement.append(" and ");

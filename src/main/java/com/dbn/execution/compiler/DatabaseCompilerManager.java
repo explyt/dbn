@@ -211,8 +211,8 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
             debug = objectStatus.is(DBObjectStatus.DEBUG);
         }
 
-        String schemaName = object.getSchemaName();
-        String objectName = object.getName();
+        String schemaName = object.getSchemaName(true);
+        String objectName = object.getName(true);
         String objectTypeName = cachedUpperCase(object.getTypeName());
 
         if (object.getObjectType() == DBObjectType.JAVA_CLASS) {
