@@ -146,4 +146,9 @@ public abstract class DatabaseDataDefinitionInterfaceImpl extends DatabaseInterf
             content.setText(sourceCode);
         }
     }
+
+    protected String quoted(String identifier) {
+        QuotePair quotes = getInterfaces().getCompatibilityInterface().getDefaultIdentifierQuotes();
+        return quotes.quote(identifier);
+    }
 }
