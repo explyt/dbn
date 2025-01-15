@@ -16,6 +16,7 @@
 
 package com.dbn.connection.security;
 
+import com.dbn.common.collections.ConcurrentStringInternMap;
 import com.dbn.connection.ConnectionComponentBase;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.DatabaseType;
@@ -23,8 +24,6 @@ import com.dbn.connection.config.ConnectionDatabaseSettings;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.language.common.QuotePair;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
@@ -36,7 +35,7 @@ import java.util.function.Function;
  * @author Dan Cioca (Oracle)
  */
 public class DatabaseIdentifierCache extends ConnectionComponentBase {
-    private final Map<String, String> quotedIdentifiers = new ConcurrentHashMap<>();
+    private final ConcurrentStringInternMap quotedIdentifiers = new ConcurrentStringInternMap();
 
     public DatabaseIdentifierCache(ConnectionHandler connection) {
         super(connection);
