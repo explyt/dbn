@@ -18,6 +18,7 @@ package com.dbn.common.ui.util;
 
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
@@ -106,6 +107,24 @@ public class Accessibility {
     public static void initAccessibilityGroups(JComponent component) {
         visitRecursively(component, JPanel.class, p -> initAccessibilityGroup(p));
         visitRecursively(component, JPanel.class, p -> propagateAccessibility(p));
+    }
+
+
+    /**
+     * Initializes accessibility for custom components within the given container by correctly associating
+     * {@link JLabel} components with the appropriate child components they label.
+     * The method works recursively, visiting all child components of the provided container.
+     *
+     * @param component the root {@link JComponent} whose child components will be initialized for accessibility.
+     */
+    public static void initCustomComponentAccessibility(JComponent component) {
+        visitRecursively(component, JLabel.class, l -> {
+            Component targetComponent = l.getLabelFor();
+            if (targetComponent instanceof ComponentWithBrowseButton) {
+                ComponentWithBrowseButton customComponent = (ComponentWithBrowseButton) targetComponent;
+                l.setLabelFor(customComponent.getChildComponent());
+            }
+        });
     }
 
     private static void propagateAccessibility(JPanel panel) {
