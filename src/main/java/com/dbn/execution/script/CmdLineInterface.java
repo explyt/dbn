@@ -48,7 +48,7 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
     private String name;
     private String description;
 
-    public interface Defaults {
+    private interface Defaults {
         String extension = SystemInfo.isWindows ? ".exe" : "";
         CmdLineInterface ORACLE = new CmdLineInterface(DEFAULT_ID, DatabaseType.ORACLE, "sqlplus", NlsResources.txt("app.execution.const.CmdLineInterface_ORACLE"), "sqlplus" + extension);
         CmdLineInterface MYSQL = new CmdLineInterface(DEFAULT_ID, DatabaseType.MYSQL, "mysql", NlsResources.txt("app.execution.const.CmdLineInterface_MYSQL"), "mysql" + extension);
@@ -67,6 +67,17 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
             }
         }
         return Defaults.GENERIC;
+    }
+
+    public static DatabaseType resolveDatabaseType(String executableName) {
+        for (DatabaseType databaseType : DatabaseType.nativelySupported()) {
+            CmdLineInterface cmdLineInterface = getDefault(databaseType);
+            String executablePath = cmdLineInterface.getExecutablePath();
+            if (Strings.containsIgnoreCase(executableName, executablePath)) {
+                return databaseType;
+            }
+        }
+        return DatabaseType.GENERIC;
     }
 
     public CmdLineInterface() {
