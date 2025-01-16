@@ -34,6 +34,7 @@ import com.dbn.common.ui.dialog.SelectionListDialog;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Dialogs.DialogCallback;
 import com.dbn.common.util.Documents;
+import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.Files;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
@@ -297,7 +298,7 @@ public class DDLFileAttachmentManager extends ProjectComponentBase implements Pe
         Project project = getProject();
 
         if (fileNameProvider != null) {
-            FileChooserDescriptor descriptor = new FileChooserDescriptor(false, true, false, false, false, false);
+            FileChooserDescriptor descriptor = FileChoosers.singleFolder();
             descriptor.setTitle(txt("msg.ddlFiles.title.SelectNewFileLocation"));
 
             VirtualFile[] selectedDirectories = FileChooser.chooseFiles(descriptor, project, null);

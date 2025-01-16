@@ -51,7 +51,7 @@ public class SourceCodeSaveAction extends AbstractCodeEditorAction {
         ConfirmationOptionHandler optionHandler = confirmationSettings.getSaveChanges();
 
         String objectName = fileEditor.getObject().getQualifiedNameWithType();
-        boolean canContinue = optionHandler.resolve(objectName);
+        boolean canContinue = optionHandler.resolve(project, objectName);
         if (!canContinue) return;
 
         SourceCodeManager sourceCodeManager = SourceCodeManager.getInstance(project);

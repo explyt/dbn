@@ -24,6 +24,7 @@ import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponentBase;
+import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.options.general.GeneralProjectSettings;
@@ -32,6 +33,7 @@ import com.intellij.ide.ui.LafManagerListener;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.containers.ContainerUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -42,12 +44,15 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
+import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.initAccessibilityGroups;
+import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
+import static com.dbn.common.util.Unsafe.cast;
 
 public abstract class DBNFormBase
         extends DBNComponentBase
@@ -56,6 +61,8 @@ public abstract class DBNFormBase
     private boolean initialized;
     private final Set<JComponent> enabled = ContainerUtil.createWeakSet();
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
+
+    protected final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
 
     public DBNFormBase(@Nullable Disposable parent) {
         super(parent);
@@ -118,10 +125,17 @@ public abstract class DBNFormBase
 
     private void initFormAccessibility() {
         JComponent mainComponent = getMainComponent();
-
         initAccessibility();
         initAccessibilityGroups(mainComponent);
+        initCustomComponentAccessibility(mainComponent);
         //...
+    }
+
+
+
+    @Override
+    public final List<ValidationInfo> validate(JComponent... components) {
+        return formValidator.validateForm(components);
     }
 
     protected void initAccessibility() {}
@@ -143,6 +157,25 @@ public abstract class DBNFormBase
     @Nullable
     @Override
     public Object getData(@NotNull String dataId) {
+        return null;
+    }
+
+
+    /**
+     * Retrieves the parent dialog associated with the current form or component, if present.
+     * The method attempts to determine the parent dialog by navigating the hierarchy of parent components.
+     *
+     * @param <D> the type of the parent dialog, extending from {@link DBNDialog}
+     * @return the parent dialog instance if available; otherwise, returns {@code null}
+     */
+    @Override
+    public <D extends DBNDialog> D getParentDialog() {
+        Disposable parent = getParentComponent();
+        if (parent instanceof DBNDialog) return cast(parent);
+        if (parent instanceof DBNForm) {
+            DBNForm form = (DBNForm) parent;
+            return form.getParentDialog();
+        }
         return null;
     }
 

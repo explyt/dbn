@@ -23,6 +23,7 @@ import com.dbn.common.message.MessageCallback;
 import com.dbn.common.message.TitledMessage;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.messages.DBNMessageDialog;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
@@ -47,7 +48,7 @@ public class Messages {
 
     public static final String[] OPTIONS_OK = options("OK");
     public static final String[] OPTIONS_YES_NO = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"));
-    public static final String[] OPTIONS_YES_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"), txt("msg.shared.button.Cancel"));
+    public static final String[] OPTIONS_YES_NO_CANCEL = options(txt("msg.shared.button.Yes"), txt("msg.shared.button.No"), txt("msg.shared.button.Cancel"));
     public static final String[] OPTIONS_RETRY_CANCEL = options(txt("msg.shared.button.Retry"), txt("msg.shared.button.Cancel"));
     public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("msg.shared.button.Continue"), txt("msg.shared.button.Cancel"));
 
@@ -139,6 +140,10 @@ public class Messages {
         showDialog(project, message, title, options, defaultOptionIndex, Icons.DIALOG_INFORMATION, callback, null);
     }
 
+    public static int showConfirmationDialog(@Nullable Project project, String title, String message, String[] options, int defaultOptionIndex) {
+        return Dispatch.call(() -> showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, Icons.DIALOG_QUESTION, null));
+    }
+
     private static void showDialog(
             @Nullable Project project,
             @DialogMessage String message,
@@ -152,11 +157,19 @@ public class Messages {
         Dispatch.run(getModalityState(), () -> {
             if (project != null) nd(project);
             closeProgressDialogs();
-            int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);
+
+            int option = showDialog(project, message, title, options, defaultOptionIndex, icon, doNotAskOption);
+            //int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);
             if (callback != null) {
                 callback.accept(option);
             }
         });
+    }
+
+    public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable DoNotAskOption doNotAskOption) {
+        DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, doNotAskOption);
+        messageDialog.show();
+        return messageDialog.getExitCode();
     }
 
     public static @Button String[] options(String ... options) {

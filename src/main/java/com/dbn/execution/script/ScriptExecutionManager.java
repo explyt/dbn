@@ -23,6 +23,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.thread.CancellableDatabaseCall;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.FileChoosers;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
@@ -322,10 +323,9 @@ public class ScriptExecutionManager extends ProjectComponentBase implements Pers
 
     @Nullable
     public VirtualFile selectCmdLineExecutable(@NotNull DatabaseType databaseType, @Nullable String selectedExecutable) {
-        FileChooserDescriptor fileChooserDescriptor = new FileChooserDescriptor(true, false, false, false, false, false);
         CmdLineInterface defaultCli = CmdLineInterface.getDefault(databaseType);
         String extension = OS.isWindows() ? ".exe" : "";
-        fileChooserDescriptor.
+        FileChooserDescriptor fileChooserDescriptor = FileChoosers.singleFile().
                 withTitle("Select Command-Line Client").
                 withDescription("Select Command-Line Interface executable (" + defaultCli.getExecutablePath() + extension + ")").
                 withShowHiddenFiles(true);

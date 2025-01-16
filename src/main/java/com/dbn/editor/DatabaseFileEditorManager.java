@@ -315,7 +315,7 @@ public class DatabaseFileEditorManager extends ProjectComponentBase {
                     project,
                     txt("msg.ddlFiles.title.NoDdlFileFound"),
                     txt("msg.ddlFiles.question.NoDdlFileFound", object.getQualifiedNameWithType()),
-                    Messages.OPTIONS_YES_CANCEL, 0,
+                    Messages.OPTIONS_YES_NO_CANCEL, 0,
                     option -> {
                         when(option == 0, () -> fileAttachmentManager.createDDLFile(objectRef));
                         when(option == 1, callback);

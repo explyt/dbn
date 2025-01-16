@@ -18,6 +18,7 @@ package com.dbn.diagnostics.action;
 
 import com.dbn.common.action.ProjectAction;
 import com.dbn.common.thread.Progress;
+import com.dbn.common.util.FileChoosers;
 import com.dbn.diagnostics.Diagnostics;
 import com.dbn.diagnostics.ParserDiagnosticsManager;
 import com.intellij.openapi.actionSystem.AnActionEvent;
@@ -35,7 +36,7 @@ import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 public class ExportScrambledSourcecodeAction extends ProjectAction {
-    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false).
+    public static final FileChooserDescriptor FILE_CHOOSER_DESCRIPTOR = FileChoosers.singleFolder().
             withTitle("Select Destination Directory").
             withDescription("Select destination directory for the scrambled sources");
 

@@ -31,6 +31,7 @@ public final class Titles {
     public static final String TITLE_PREFIX = PRODUCT_NAME + " - ";
 
     public static String signed(String title) {
+        if (title.startsWith(TITLE_PREFIX)) return title;
         return TITLE_PREFIX + title;
     }
 

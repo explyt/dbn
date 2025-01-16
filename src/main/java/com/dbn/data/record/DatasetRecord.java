@@ -55,19 +55,19 @@ public class DatasetRecord implements Disposable {
 
         List<DBColumn> columns = dataset.getColumns();
         for (DBColumn column : columns) {
-            selectStatement.append(column.getName());
+            selectStatement.append(column.getName(true));
             if (!isLast(columns, column)) {
                 selectStatement.append(", ");
             }
         }
 
         selectStatement.append(" from ");
-        selectStatement.append(dataset.getQualifiedName());
+        selectStatement.append(dataset.getQualifiedName(true));
         selectStatement.append(" where ");
 
         List<DBColumn> filterColumns = filterInput.getColumns();
         for (DBColumn column : filterColumns) {
-            selectStatement.append(column.getName());
+            selectStatement.append(column.getName(true));
             selectStatement.append(" = ? ");
             if (!isLast(filterColumns, column)) {
                 selectStatement.append(" and ");
