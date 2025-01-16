@@ -32,7 +32,6 @@ import java.awt.Component;
 import java.awt.Container;
 
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
-import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static com.dbn.common.ui.util.UserInterface.getComponentLabel;
 import static com.dbn.common.ui.util.UserInterface.getComponentText;
 import static com.dbn.common.ui.util.UserInterface.visitRecursively;
@@ -104,7 +103,7 @@ public class Accessibility {
      * It also propagates the accessibility name of parent panels to their child panels if not already set
      * @param component the root component to perform accessibility initialization for
      */
-    public static void initAccessibilityGroups(JComponent component) {
+    public static void initComponentGroupsAccessibility(JComponent component) {
         visitRecursively(component, JPanel.class, p -> initAccessibilityGroup(p));
         visitRecursively(component, JPanel.class, p -> propagateAccessibility(p));
     }
@@ -134,10 +133,13 @@ public class Accessibility {
 
     private static void initAccessibilityGroup(JPanel panel) {
         if (hasAccessibleName(panel)) return;
-
-        JComponent groupQualifier = findChildComponent(panel, c -> COMPONENT_GROUP_QUALIFIER.is(c));
-        String groupName = getComponentText(groupQualifier);
-        setAccessibleName(panel, groupName);
+        for (Component component : panel.getComponents()) {
+            if (COMPONENT_GROUP_QUALIFIER.is(component)) {
+                String groupName = getComponentText(component);
+                setAccessibleName(panel, groupName);
+                return;
+            }
+        }
     }
 
     private static String findAccessibilityTitle(JPanel panel) {

@@ -152,8 +152,6 @@ public class Messages {
 
         Dispatch.run(getModalityState(), () -> {
             if (project != null) nd(project);
-            closeProgressDialogs();
-
             int option = showDialog(project, message, title, options, defaultOptionIndex, icon, doNotAskOption);
             //int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);
             if (callback != null) {
@@ -163,6 +161,7 @@ public class Messages {
     }
 
     public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable DoNotAskOption doNotAskOption) {
+        closeProgressDialogs();
         DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, doNotAskOption);
         messageDialog.show();
         return messageDialog.getExitCode();

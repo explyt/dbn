@@ -94,7 +94,7 @@ public class ProgressDialogHandler {
         builder.setProject(getProject());
         builder.setNormalWindowLevel(true);
         builder.setMovable(true);
-        builder.setResizable(true);
+        builder.setResizable(false);
         builder.setTitle(title);
         builder.setCancelOnClickOutside(false);
         builder.setRequestFocus(true);
