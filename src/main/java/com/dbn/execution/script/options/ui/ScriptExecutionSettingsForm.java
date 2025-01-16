@@ -40,6 +40,7 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.UserInterface.createToolbarDecorator;
 
@@ -63,8 +64,10 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         decorator.setMoveUpAction(anActionButton -> cmdLineInterfacesTable.moveRowUp());
         decorator.setMoveDownAction(anActionButton -> cmdLineInterfacesTable.moveRowDown());
         decorator.setPreferredSize(new Dimension(-1, 300));
-        JPanel panel = decorator.createPanel();
-        cmdLineInterfacesTablePanel.add(panel, BorderLayout.CENTER);
+        JPanel actionToolbar = decorator.createPanel();
+        setAccessibleName(actionToolbar, txt("cfg.execution.aria.CommandLineInterfaceConfigActions"));
+
+        cmdLineInterfacesTablePanel.add(actionToolbar, BorderLayout.CENTER);
         cmdLineInterfacesTable.getParent().setBackground(cmdLineInterfacesTable.getBackground());
         executionTimeoutTextField.setText(String.valueOf(settings.getExecutionTimeout()));
         cmdLineInterfaceLabel.setLabelFor(cmdLineInterfacesTable);
