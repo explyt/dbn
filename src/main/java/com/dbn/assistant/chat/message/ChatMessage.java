@@ -116,7 +116,7 @@ public class ChatMessage {
     private boolean isSelectStatement() {
         return
             StringUtil.startsWithIgnoreCase(content, "select") ||
-            StringUtil.startsWithIgnoreCase(content, "§with");
+            StringUtil.startsWithIgnoreCase(content, "with");
     }
 
     private boolean isSqlCodeContent() {
