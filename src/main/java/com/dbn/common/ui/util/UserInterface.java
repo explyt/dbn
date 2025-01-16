@@ -434,7 +434,7 @@ public class UserInterface {
     }
 
     @Nullable
-    public static String getComponentText(@Nullable JComponent component) {
+    public static String getComponentText(@Nullable Component component) {
         if (component == null) return null;
 
         if (component instanceof JLabel) {
