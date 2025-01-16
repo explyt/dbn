@@ -34,6 +34,7 @@ import java.awt.event.KeyEvent;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static com.dbn.common.ui.util.UserInterface.matchesText;
 import static com.dbn.common.util.Dialogs.resizeToFitContent;
 
 public class ProgressDialogForm extends DBNFormBase {
@@ -84,9 +85,14 @@ public class ProgressDialogForm extends DBNFormBase {
             return;
         }
 
+        String text = handler.getText();
+        String text2 = handler.getText2();
+        if (matchesText(progressTextLabel, text) &&
+                matchesText(progressText2Label, text2)) return;
+
         Dispatch.run(mainPanel, () -> {
-            progressTextLabel.setText(handler.getText());
-            progressText2Label.setText(handler.getText2());
+            progressTextLabel.setText(text);
+            progressText2Label.setText(text2);
             resizeToFitContent(mainPanel);
         });
     }

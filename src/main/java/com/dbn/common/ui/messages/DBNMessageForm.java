@@ -20,7 +20,6 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Fonts;
-import com.dbn.common.util.Dialogs;
 import com.intellij.openapi.util.NlsContexts.DialogMessage;
 import com.intellij.openapi.util.NlsContexts.DialogTitle;
 import com.intellij.ui.MouseDragHelper;
@@ -64,8 +63,6 @@ public class DBNMessageForm extends DBNFormBase {
         initTitle();
         initMessage();
         initDragging();
-
-        whenShown(() -> Dialogs.resizeToFitContent(mainPanel));
     }
 
     private void initIcon() {

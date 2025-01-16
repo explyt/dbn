@@ -29,6 +29,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 import javax.swing.JRootPane;
 import javax.swing.border.Border;
+import java.awt.Point;
 import java.awt.Window;
 import java.util.function.Supplier;
 
@@ -80,16 +81,28 @@ public class Dialogs {
 
     /**
      * Adjusts the size of the window containing the specified component to fit the preferred size of its root pane.
+     * It also adjusts the position of the window to stretch relative to the middle of the dialog.
      *
      * @param component the {@link JComponent} whose root pane's preferred size is used to resize the window
      */
     public static void resizeToFitContent(JComponent component) {
         JComponent rootPane = UserInterface.getParent(component, c -> c.getParent() instanceof Window);
         if (rootPane == null) return;
-        UserInterface.repaint(component);
 
         Window window = (Window) rootPane.getParent();
+        int oldWidth = window.getSize().width;
+
+        component.doLayout();
+        component.revalidate();
+
+        int newWidth = component.getPreferredSize().width;
+        int delta = newWidth - oldWidth;
+        if (delta < 0) return; // do not shrink to avoid too much screen "noise"
+
         window.setSize(rootPane.getPreferredSize());
+        Point location = window.getLocation();
+        location.move(location.x - (delta / 2), location.y);
+        window.setLocation(location);
     }
 
 
