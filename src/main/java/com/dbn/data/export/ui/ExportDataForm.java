@@ -35,7 +35,6 @@ import com.dbn.object.DBTable;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.lookup.DBObjectRef;
-import com.intellij.openapi.fileChooser.FileChooserDescriptor;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.TextFieldWithBrowseButton;
 import com.intellij.ui.DocumentAdapter;
@@ -61,10 +60,9 @@ import static com.dbn.common.ui.util.ComboBoxes.setSelection;
 import static com.dbn.common.ui.util.TextFields.addDocumentListener;
 import static com.dbn.common.ui.util.TextFields.isEmptyText;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.FileChoosers.addSingleFolderChooser;
 
 public class ExportDataForm extends DBNFormBase {
-    private static final FileChooserDescriptor DIRECTORY_FILE_DESCRIPTOR = new FileChooserDescriptor(false, true, false, false, false, false);
-
     private JPanel mainPanel;
     private JRadioButton scopeGlobalRadioButton;
     private JRadioButton scopeSelectionRadioButton;
@@ -171,10 +169,10 @@ public class ExportDataForm extends DBNFormBase {
         fileLocationTextField.setText(instructions.getFileLocation());
 
         Project project = connection.getProject();
-        fileLocationTextField.addBrowseFolderListener(
-                "Select Directory",
-                "Select destination directory for the exported file", project, DIRECTORY_FILE_DESCRIPTOR);
-        
+        addSingleFolderChooser(
+                project, fileLocationTextField,
+                "Select Destination Directory",
+                "Select destination directory for the exported file");
         enableDisableFields();
 
         String headerTitle;

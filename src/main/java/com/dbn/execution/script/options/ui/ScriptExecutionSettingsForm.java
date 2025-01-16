@@ -40,6 +40,7 @@ import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.UserInterface.createToolbarDecorator;
 
@@ -63,8 +64,10 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
         decorator.setMoveUpAction(anActionButton -> cmdLineInterfacesTable.moveRowUp());
         decorator.setMoveDownAction(anActionButton -> cmdLineInterfacesTable.moveRowDown());
         decorator.setPreferredSize(new Dimension(-1, 300));
-        JPanel panel = decorator.createPanel();
-        cmdLineInterfacesTablePanel.add(panel, BorderLayout.CENTER);
+        JPanel actionToolbar = decorator.createPanel();
+        setAccessibleName(actionToolbar, txt("cfg.execution.aria.CommandLineInterfaceConfigActions"));
+
+        cmdLineInterfacesTablePanel.add(actionToolbar, BorderLayout.CENTER);
         cmdLineInterfacesTable.getParent().setBackground(cmdLineInterfacesTable.getBackground());
         executionTimeoutTextField.setText(String.valueOf(settings.getExecutionTimeout()));
         cmdLineInterfaceLabel.setLabelFor(cmdLineInterfacesTable);
@@ -78,10 +81,8 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
 
     private void showNewInterfacePopup(DataContext dataContext, RelativePoint point) {
         DefaultActionGroup actionGroup = new DefaultActionGroup();
-        for (DatabaseType databaseType : DatabaseType.values()) {
-            if (databaseType != DatabaseType.GENERIC){
-                actionGroup.add(new CreateInterfaceAction(databaseType));
-            }
+        for (DatabaseType databaseType : DatabaseType.nativelySupported()) {
+            actionGroup.add(new CreateInterfaceAction(databaseType));
         }
 
         ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(

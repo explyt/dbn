@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Set;
 
 import static com.dbn.common.ui.util.Accessibility.initAccessibilityGroups;
+import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
@@ -127,11 +128,13 @@ public abstract class DBNFormBase
 
     private void initFormAccessibility() {
         JComponent mainComponent = getMainComponent();
-
         initAccessibility();
         initAccessibilityGroups(mainComponent);
+        initCustomComponentAccessibility(mainComponent);
         //...
     }
+
+
 
     @Override
     public final List<ValidationInfo> validate(JComponent... components) {
