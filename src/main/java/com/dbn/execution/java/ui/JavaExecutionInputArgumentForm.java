@@ -78,7 +78,7 @@ public class JavaExecutionInputArgumentForm extends DBNFormBase {
 		inputField.setPreferredSize(new Dimension(240, -1));
 
 
-		inputField.createValuesListPopup(createValuesProvider(), true);
+		inputField.createValuesListPopup(createValuesProvider(), argument, true);
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
 		inputFieldPanel.add(inputField, BorderLayout.CENTER);

@@ -47,6 +47,7 @@ import javax.swing.ComboBoxEditor;
 import javax.swing.ComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JList;
+import javax.swing.border.Border;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.MouseListener;
@@ -101,6 +102,11 @@ public class DBNComboBox<T extends Presentable> extends JComboBox<T> implements 
                 setBackground(background);
             }
         });
+    }
+
+    @Override
+    public void setBorder(Border border) {
+        super.setBorder(border);
     }
 
     @Override

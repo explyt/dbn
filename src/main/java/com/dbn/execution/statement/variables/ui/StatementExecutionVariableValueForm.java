@@ -37,7 +37,9 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -64,7 +66,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     private final StatementExecutionVariable variable;
     private final TextFieldWithPopup<?> editorComponent;
 
-    StatementExecutionVariableValueForm(StatementExecutionInputForm parent, final StatementExecutionVariable variable) {
+    StatementExecutionVariableValueForm(StatementExecutionInputForm parent, StatementExecutionVariable variable) {
         super(parent);
         this.variable = variable;
         errorLabel.setVisible(false);
@@ -109,7 +111,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
 
                 return values;
             }
-        }, true);
+        }, null, true);
         editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, variable.getDataType() == GenericDataType.DATE_TIME);
         valueFieldPanel.add(editorComponent, BorderLayout.CENTER);
         JTextField textField = editorComponent.getTextField();
@@ -130,6 +132,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
 
 
         textField.addKeyListener(ComboBoxSelectionKeyListener.create(dataTypeComboBox, false));
+        variableNameLabel.setLabelFor(textField);
 
         variable.setPreviewValueProvider(new VariableValueProvider() {
             @Override
@@ -192,6 +195,11 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
 
     public JTextField getEditorComponent() {
         return editorComponent.getTextField();
+    }
+
+    @Override
+    public @Nullable JComponent getPreferredFocusedComponent() {
+        return dataTypeComboBox;
     }
 
     @Override

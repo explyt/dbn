@@ -54,11 +54,11 @@ public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 	private JTextField inputTextField;
 	private UserValueHolderImpl<String> userValueHolder;
 
-	private final DBObjectRef<DBJavaField> argument2;
+	private final DBObjectRef<DBJavaField> argument;
 
 	JavaExecutionComplexInputArgumentForm(JavaExecutionInputForm parentForm, DBJavaField argument) {
 		super(parentForm);
-		this.argument2 = DBObjectRef.of(argument);
+		this.argument = DBObjectRef.of(argument);
 		String argumentName = argument.getName();
 		argumentLabel.setText(argumentName);
 		argumentLabel.setIcon(argument.getIcon());
@@ -78,7 +78,7 @@ public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 		inputField.setPreferredSize(new Dimension(240, -1));
 
 
-		inputField.createValuesListPopup(createValuesProvider(), true);
+		inputField.createValuesListPopup(createValuesProvider(), argument, true);
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
 		inputFieldPanel.add(inputField, BorderLayout.CENTER);
@@ -102,7 +102,7 @@ public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 
 			@Override
 			public java.util.List<String> getValues() {
-				DBJavaField argument = getArgument2();
+				DBJavaField argument = getArgument();
 				if (argument != null) {
 					JavaExecutionInput executionInput = getParentForm().getExecutionInput();
 					return executionInput.getInputValueHistory(argument);
@@ -113,7 +113,7 @@ public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 
 			@Override
 			public java.util.List<String> getSecondaryValues() {
-				DBJavaField argument = getArgument2();
+				DBJavaField argument = getArgument();
 				if (argument != null) {
 					ConnectionHandler connection = argument.getConnection();
 					ConnectionId connectionId = connection.getConnectionId();
@@ -131,8 +131,8 @@ public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 		};
 	}
 
-	public DBJavaField getArgument2() {
-		return DBObjectRef.get(argument2);
+	public DBJavaField getArgument() {
+		return DBObjectRef.get(argument);
 	}
 
 	@NotNull
@@ -142,7 +142,7 @@ public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 	}
 
 	public void updateExecutionInput() {
-		DBJavaField argument = getArgument2();
+		DBJavaField argument = getArgument();
 		if (argument != null) {
 			JavaExecutionInput executionInput = getParentForm().getExecutionInput();
 			if (userValueHolder != null) {

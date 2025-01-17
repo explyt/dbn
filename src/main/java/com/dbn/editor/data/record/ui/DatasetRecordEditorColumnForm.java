@@ -129,7 +129,7 @@ public class DatasetRecordEditorColumnForm extends DBNFormBase implements Compon
                                         return columnInfo.getPossibleValues();
                                     }
                                 };
-                                textFieldWithPopup.createValuesListPopup(valuesProvider, valueListPopupSettings.isShowPopupButton());
+                                textFieldWithPopup.createValuesListPopup(valuesProvider, column, valueListPopupSettings.isShowPopupButton());
                             }
 
                             if (dataLength > 20 && !column.isPrimaryKey() && !column.isForeignKey()) {

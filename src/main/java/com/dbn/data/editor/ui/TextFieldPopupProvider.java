@@ -22,7 +22,7 @@ import com.intellij.openapi.actionSystem.Shortcut;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import javax.swing.JLabel;
+import javax.swing.JComponent;
 import java.awt.event.FocusEvent;
 import java.awt.event.KeyEvent;
 
@@ -31,10 +31,10 @@ public interface TextFieldPopupProvider extends Disposable{
 
     void setEnabled(boolean enabled);
 
-    void setButton(@Nullable JLabel button);
+    void setButton(@Nullable JComponent button);
 
     @Nullable
-    JLabel getButton();
+    JComponent getButton();
 
     String getDescription();
 

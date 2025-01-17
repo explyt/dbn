@@ -86,7 +86,7 @@ public class DatasetTableCellEditorFactory implements Disposable {
                             return dseColumnInfo.getPossibleValues();
                         }
                     };
-                    editorComponent.createValuesListPopup(valuesProvider, valueListPopupSettings.isShowPopupButton());
+                    editorComponent.createValuesListPopup(valuesProvider, column, valueListPopupSettings.isShowPopupButton());
                 }
                 editorComponent.createTextEditorPopup(true);
                 return tableCellEditor;

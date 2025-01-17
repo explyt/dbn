@@ -132,7 +132,7 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
                     inputField.createCalendarPopup(false);
                 }
 
-                inputField.createValuesListPopup(createValuesProvider(), true);
+                inputField.createValuesListPopup(createValuesProvider(), argument, true);
                 inputTextField = inputField.getTextField();
                 inputTextField.setText(value);
                 inputFieldPanel.add(inputField, BorderLayout.CENTER);

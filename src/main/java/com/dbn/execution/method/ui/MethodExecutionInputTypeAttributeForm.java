@@ -104,7 +104,7 @@ public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
                 inputField.createCalendarPopup(false);
             }
 
-            inputField.createValuesListPopup(createValuesProvider(), true);
+            inputField.createValuesListPopup(createValuesProvider(), argument, true);
             inputTextField = inputField.getTextField();
             inputFieldPanel.add(inputField, BorderLayout.CENTER);
             inputTextField.setText(value);

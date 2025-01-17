@@ -55,15 +55,15 @@ public class Accessibility {
         return Strings.isNotEmpty(getAccessibleName(component));
     }
 
-    public static void setAccessibleName(ActionToolbar toolbar, @Nullable String name) {
+    public static void setAccessibleName(ActionToolbar toolbar, @Nullable @Nls String name) {
         setAccessibleName(toolbar.getComponent(), name);
     }
 
-    public static void setAccessibleDescription(ActionToolbar toolbar, String description) {
+    public static void setAccessibleDescription(ActionToolbar toolbar, @Nls String description) {
         setAccessibleDescription(toolbar.getComponent(), description);
     }
 
-    public static void setAccessibleName(Component component, @Nullable String name) {
+    public static void setAccessibleName(Component component, @Nullable @Nls String name) {
         if (name == null) return;
 
         String friendlyName = name.replace("_", " ");
