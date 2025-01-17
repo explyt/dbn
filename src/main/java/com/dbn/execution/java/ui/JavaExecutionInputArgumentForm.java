@@ -56,7 +56,7 @@ public class JavaExecutionInputArgumentForm extends DBNFormBase {
 
 	private final DBObjectRef<DBJavaParameter> argument;
 
-	JavaExecutionInputArgumentForm(JavaExecutionInputForm parentForm, final DBJavaParameter argument) {
+	JavaExecutionInputArgumentForm(JavaExecutionInputForm parentForm, DBJavaParameter argument) {
 		super(parentForm);
 		this.argument = DBObjectRef.of(argument);
 		String argumentName = argument.getName();

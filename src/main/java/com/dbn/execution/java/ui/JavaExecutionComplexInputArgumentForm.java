@@ -34,7 +34,9 @@ import com.intellij.openapi.project.Project;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -54,7 +56,7 @@ public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 
 	private final DBObjectRef<DBJavaField> argument2;
 
-	JavaExecutionComplexInputArgumentForm(JavaExecutionInputForm parentForm, final DBJavaField argument) {
+	JavaExecutionComplexInputArgumentForm(JavaExecutionInputForm parentForm, DBJavaField argument) {
 		super(parentForm);
 		this.argument2 = DBObjectRef.of(argument);
 		String argumentName = argument.getName();

@@ -93,7 +93,7 @@ public class JavaExecutionBrowserForm extends DBNFormBase {
         }
     }
 
-    public void setSchema(final DBSchema schema) {
+    public void setSchema(DBSchema schema) {
         JavaBrowserSettings settings = getSettings();
         if (settings.getSelectedSchema() != schema) {
             settings.setSelectedSchema(schema);
