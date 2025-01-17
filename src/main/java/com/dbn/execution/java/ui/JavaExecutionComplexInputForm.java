@@ -20,7 +20,9 @@ import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 
-import javax.swing.*;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
 import java.util.List;
 
 public class JavaExecutionComplexInputForm extends DBNFormBase implements DBNCollapsibleForm {
