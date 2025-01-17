@@ -84,11 +84,11 @@ public class CmdLineInterface implements Cloneable<CmdLineInterface>, Persistent
 
     }
 
-    public CmdLineInterface(DatabaseType databaseType, @NonNls String executablePath, String name, String description) {
+    public CmdLineInterface(DatabaseType databaseType, @NonNls String executablePath, String name, @NonNls String description) {
         this(UUID.randomUUID().toString(), databaseType, executablePath, name, description);
     }
 
-    public CmdLineInterface(String id, DatabaseType databaseType, @NonNls String executablePath, String name, String description) {
+    public CmdLineInterface(String id, DatabaseType databaseType, @NonNls String executablePath, String name, @NonNls String description) {
         this.id = id;
         this.name = name;
         this.databaseType = databaseType;

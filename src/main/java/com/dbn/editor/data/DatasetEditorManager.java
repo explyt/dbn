@@ -63,6 +63,7 @@ import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 
 import static com.dbn.common.component.Components.projectService;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 @State(
@@ -194,7 +195,7 @@ public class DatasetEditorManager extends ProjectComponentBase implements Persis
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Settings.setEnum(element, "record-view-column-sorting-type", recordViewColumnSortingType);
         Settings.setBoolean(element, "value-preview-text-wrapping", valuePreviewTextWrapping);
         Settings.setBoolean(element, "value-preview-pinned", valuePreviewPinned);

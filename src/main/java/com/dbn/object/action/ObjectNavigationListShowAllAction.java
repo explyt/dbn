@@ -27,6 +27,8 @@ import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class ObjectNavigationListShowAllAction extends ProjectAction {
     private final DBObjectNavigationList navigationList;
     private final DBObject parentObject;
@@ -58,6 +60,6 @@ public class ObjectNavigationListShowAllAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
-        e.getPresentation().setText("Show All...");
+        e.getPresentation().setText(txt("app.objects.action.ShowAll"));
     }
 }

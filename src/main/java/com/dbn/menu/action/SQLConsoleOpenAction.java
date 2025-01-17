@@ -44,12 +44,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static com.dbn.nls.NlsResources.txt;
+
 public class SQLConsoleOpenAction extends ProjectAction {
 
     @Override
     protected void update(@NotNull AnActionEvent e, @NotNull Project project) {
         Presentation presentation = e.getPresentation();
-        presentation.setText("Open SQL Console...");
+        presentation.setText(txt("app.menu.action.OpenSqlConsole"));
         presentation.setIcon(Icons.SQL_CONSOLE);
     }
 
@@ -138,7 +140,7 @@ public class SQLConsoleOpenAction extends ProjectAction {
 
 
         SelectConsoleAction(ConnectionHandler connection, DBConsoleType consoleType) {
-            super("New " + consoleType.getName() + "...");
+            super(txt("app.editors.action.NewConsole",consoleType.getName()));
             this.connection = ConnectionRef.of(connection);
             this.consoleType = consoleType;
         }

@@ -56,6 +56,7 @@ import static com.dbn.common.Priority.LOW;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.status.DBObjectStatus.COMPILING;
 
@@ -132,30 +133,31 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
 
     private void updateFilesContentState(DBSchemaObject object, DBContentType contentType) {
         Progress.background(getProject(), object, false,
-                "Refreshing file state",
-                "Refreshing " + contentType.getDescription() + " of " + object.getQualifiedNameWithType(), p -> {
-            DBEditableObjectVirtualFile databaseFile = object.getCachedVirtualFile();
-            if (databaseFile != null && databaseFile.isContentLoaded()) {
-                if (contentType.isBundle()) {
-                    for (DBContentType subContentType : contentType.getSubContentTypes()) {
-                        DBSourceCodeVirtualFile sourceCodeFile = databaseFile.getContentFile(subContentType);
-                        if (sourceCodeFile != null) {
-                            sourceCodeFile.refreshContentState();
+                txt("prc.execution.title.RefreshingFileState"),
+                txt("prc.execution.text.RefreshingFileState", contentType.getDescription(), object.getQualifiedNameWithType()),
+                p -> {
+                    DBEditableObjectVirtualFile databaseFile = object.getCachedVirtualFile();
+                    if (databaseFile != null && databaseFile.isContentLoaded()) {
+                        if (contentType.isBundle()) {
+                            for (DBContentType subContentType : contentType.getSubContentTypes()) {
+                                DBSourceCodeVirtualFile sourceCodeFile = databaseFile.getContentFile(subContentType);
+                                if (sourceCodeFile != null) {
+                                    sourceCodeFile.refreshContentState();
+                                }
+                            }
+                        } else {
+                            DBSourceCodeVirtualFile sourceCodeFile = databaseFile.getContentFile(contentType);
+                            if (sourceCodeFile != null) {
+                                sourceCodeFile.refreshContentState();
+                            }
                         }
                     }
-                } else {
-                    DBSourceCodeVirtualFile sourceCodeFile = databaseFile.getContentFile(contentType);
-                    if (sourceCodeFile != null) {
-                        sourceCodeFile.refreshContentState();
-                    }
-                }
-            }
-        });
+                });
     }
 
     public void compileInBackground(DBSchemaObject object, CompileType compileType, CompilerAction compilerAction) {
         Project project = getProject();
-        ConnectionAction.invoke("compiling the object", false, object,
+        ConnectionAction.invoke(txt("msg.execution.title.CompilingObject"), false, object,
                 action -> promptCompileTypeSelection(compileType, object, type -> Background.run(() -> {
                     doCompileObject(object, type, compilerAction);
 
@@ -257,11 +259,11 @@ public class DatabaseCompilerManager extends ProjectComponentBase {
 
     public void compileInvalidObjects(@NotNull DBSchema schema, CompileType compileType) {
         Project project = getProject();
-        ConnectionAction.invoke("compiling the invalid objects", false, schema,
+        ConnectionAction.invoke(txt("msg.execution.title.CompilingInvalidObjects"), false, schema,
                 action -> promptCompileTypeSelection(compileType, null,
                         type -> Progress.prompt(project, schema, true,
-                                "Compiling invalid objects",
-                                "Compiling invalid objects in " + schema.getQualifiedNameWithType(),
+                                txt("prc.execution.title.CompilingInvalidObjects"),
+                                txt("prc.execution.text.CompilingInvalidObjectsIn", schema.getQualifiedNameWithType()),
                                 progress -> {
                                     progress.setIndeterminate(false);
                                     doCompileInvalidObjects(schema.getPackages(), "packages", progress, type);

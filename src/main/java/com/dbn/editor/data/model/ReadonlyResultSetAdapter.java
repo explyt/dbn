@@ -30,6 +30,7 @@ import com.dbn.data.type.DBNativeDataType;
 import com.dbn.data.value.ValueAdapter;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -42,6 +43,7 @@ import java.util.Set;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 
+@NonNls
 public class ReadonlyResultSetAdapter extends ResultSetAdapter {
     private DBNConnection connection;
     private Row currentRow;
@@ -161,6 +163,7 @@ public class ReadonlyResultSetAdapter extends ResultSetAdapter {
             throw new SQLException("No primary key defined for table");
         }
 
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         buffer.append("update ");
         buffer.append(getDatasetName());
@@ -205,6 +208,7 @@ public class ReadonlyResultSetAdapter extends ResultSetAdapter {
             throw AlreadyDisposedException.INSTANCE;
         }
 
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         buffer.append("insert into ");
         buffer.append(getDatasetName());
@@ -241,6 +245,7 @@ public class ReadonlyResultSetAdapter extends ResultSetAdapter {
             throw new SQLException("No primary key defined for table");
         }
 
+        @NonNls
         StringBuilder buffer = new StringBuilder();
         buffer.append("delete from ");
         buffer.append(getDatasetName());

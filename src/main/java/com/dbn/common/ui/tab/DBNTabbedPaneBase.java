@@ -70,6 +70,7 @@ import static com.dbn.common.ui.util.ClientProperty.TAB_ICON;
 import static com.dbn.common.ui.util.ClientProperty.TAB_TOOLTIP;
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.dbn.nls.NlsResources.txt;
 
 @Getter
 @Setter
@@ -102,7 +103,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
         public HiddenTabsPanel() {
             super(new BorderLayout());
 
-            AnAction action = new AnAction("Show Hidden Tabs", null, AllIcons.Actions.FindAndShowNextMatches) {
+            AnAction action = new AnAction(txt("app.shared.action.ShowHiddenTabs"), null, AllIcons.Actions.FindAndShowNextMatches) {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e) {
                     showHiddenTabsPopup(e.getDataContext());
