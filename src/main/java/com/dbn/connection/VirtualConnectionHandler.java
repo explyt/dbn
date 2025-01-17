@@ -48,6 +48,7 @@ import com.intellij.lang.Language;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiDirectory;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -83,7 +84,7 @@ public class VirtualConnectionHandler extends StatefulDisposableBase implements 
         return new ConnectionSettings(connectionBundleSettings);
     });
 
-    public VirtualConnectionHandler(ConnectionId id, String name, DatabaseType databaseType, double databaseVersion, @NotNull ConnectionBundle connectionBundle) {
+    public VirtualConnectionHandler(ConnectionId id, @NonNls String name, DatabaseType databaseType, double databaseVersion, @NotNull ConnectionBundle connectionBundle) {
         this.id = id;
         this.name = name;
         this.project = ProjectRef.of(connectionBundle.getProject());

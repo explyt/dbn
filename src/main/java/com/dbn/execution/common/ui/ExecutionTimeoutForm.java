@@ -147,7 +147,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
 
     class SaveToSettingsAction extends BasicAction {
         SaveToSettingsAction() {
-            super("Save to Settings");
+            super(txt("app.execution.action.SaveToSettings"));
         }
 
         @Override
@@ -171,7 +171,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
     class ReloadDefaultAction extends BasicAction {
 
         ReloadDefaultAction() {
-            super("Reload from Settings");
+            super(txt("app.execution.action.ReloadFromSettings"));
         }
 
         @Override

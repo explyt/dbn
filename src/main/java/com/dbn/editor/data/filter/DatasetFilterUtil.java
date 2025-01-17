@@ -25,11 +25,13 @@ import com.dbn.database.JdbcProperty;
 import com.dbn.database.interfaces.DatabaseCompatibilityInterface;
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBDataset;
+import org.jetbrains.annotations.NonNls;
 
 import java.util.List;
 
 import static com.dbn.common.dispose.Checks.isValid;
 
+@NonNls
 public class DatasetFilterUtil {
 
     public static void addOrderByClause(DBDataset dataset, StringBuilder buffer, SortingState sortingState) {

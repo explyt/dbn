@@ -23,6 +23,7 @@ import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.diagnostics.data.DiagnosticEntry;
 import lombok.Getter;
 import lombok.Setter;
+import org.jetbrains.annotations.NonNls;
 
 @Getter
 @Setter
@@ -43,7 +44,7 @@ public final class StatementExecutorContext {
         this.timeout = timeout;
     }
 
-    public DiagnosticEntry<String> log(String qualifier, boolean failure, boolean timeout, long value) {
+    public DiagnosticEntry<String> log(@NonNls String qualifier, boolean failure, boolean timeout, long value) {
         return diagnostics.log(identifier, qualifier, failure, timeout, value);
     }
 }

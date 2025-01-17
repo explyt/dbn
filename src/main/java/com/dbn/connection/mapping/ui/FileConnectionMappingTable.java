@@ -65,6 +65,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
+import static com.dbn.nls.NlsResources.txt;
 
 public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTableModel> {
     private final FileConnectionContextManager manager;
@@ -188,8 +189,8 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
 
         Project project = connection.getProject();
         Progress.modal(project, connection, true,
-                "Loading data dictionary",
-                "Loading schemas",
+                txt("prc.fileContext.title.LoadingDataDictionary"),
+                txt("prc.fileContext.text.LoadingSchemas"),
                 progress -> {
                     List<DBSchema> schemas = connection.getObjectBundle().getSchemas();
 
@@ -246,7 +247,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         private final ConnectionRef connection;
         private ConnectionAction(VirtualFile virtualFile, ConnectionHandler connection) {
             super(
-                Safe.call(connection, c -> c.getName(), "No Connection"), null,
+                Safe.call(connection, c -> c.getName(), txt("app.fileContext.action.NoConnection")), null,
                 Safe.call(connection, c -> c.getIcon()));
             this.virtualFile = virtualFile;
             this.connection = ConnectionRef.of(connection);

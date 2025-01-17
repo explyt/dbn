@@ -29,6 +29,7 @@ import com.dbn.object.DBArgument;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBType;
 import com.dbn.object.DBTypeAttribute;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
@@ -48,7 +49,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
     public String buildExecutionCommand(MethodExecutionInput executionInput) throws SQLException {
         DBArgument returnArgument = getReturnArgument();
 
-        StringBuilder buffer = new StringBuilder();
+        @NonNls StringBuilder buffer = new StringBuilder();
         buffer.append("declare\n");
         buffer.append("     v_timeout BINARY_INTEGER;\n");
 
@@ -150,7 +151,7 @@ public class OracleMethodExecutionProcessor extends MethodExecutionProcessorImpl
         return buffer.toString();
     }
 
-    private static StringBuilder appendVariableName(StringBuilder buffer, DBArgument argument) {
+    private static StringBuilder appendVariableName(@NonNls StringBuilder buffer, DBArgument argument) {
         return buffer.append("var_").append(argument.getPosition());
     }
 

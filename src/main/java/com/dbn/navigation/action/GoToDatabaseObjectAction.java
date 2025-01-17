@@ -61,6 +61,7 @@ import java.util.Objects;
 import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Conditional.whenNotEmpty;
+import static com.dbn.nls.NlsResources.txt;
 
 public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAware {
     private ConnectionId latestConnectionId;
@@ -302,6 +303,7 @@ public class GoToDatabaseObjectAction extends GotoActionBase implements DumbAwar
     @Override
     public void update(@NotNull AnActionEvent e) {
         super.update(e);
-        e.getPresentation().setText("Database Object...");
+        Presentation presentation = e.getPresentation();
+        presentation.setText(txt("app.navigation.action.DatabaseObject"));
     }
 }

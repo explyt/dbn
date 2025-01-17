@@ -33,9 +33,12 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.util.NlsActions.ActionText;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ui.JBUI;
 import com.intellij.util.ui.tree.TreeUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -46,17 +49,18 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.util.List;
 
+import static com.dbn.common.util.Naming.capitalizeWords;
+import static com.dbn.nls.NlsResources.txt;
+
+@Getter
+@Setter
 public abstract class ObjectListShowAction extends BasicAction {
     private final DBObjectRef<?> sourceObject;
     private RelativePoint popupLocation;
 
-    public ObjectListShowAction(String text, DBObject sourceObject) {
+    public ObjectListShowAction(@ActionText String text, DBObject sourceObject) {
         super(text);
         this.sourceObject = DBObjectRef.of(sourceObject);
-    }
-
-    public void setPopupLocation(RelativePoint popupLocation) {
-        this.popupLocation = popupLocation;
     }
 
     public @Nullable List<DBObject> getRecentObjectList() {return null;}
@@ -75,10 +79,11 @@ public abstract class ObjectListShowAction extends BasicAction {
         DBObject sourceObject = getSourceObject();
         Project project = sourceObject.getProject();
         String listName = getListName();
-        ConnectionAction.invoke("loading " + listName, true, sourceObject,
+        String title = txt("msg.objects.title.LoadingObjects", capitalizeWords(listName));
+        ConnectionAction.invoke(title, true, sourceObject,
                 action -> Progress.prompt(project, sourceObject, true,
-                        "Loading objects",
-                        "Loading " + listName,
+                        txt("prc.objects.title.LoadingObjects"),
+                        txt("prc.objects.text.LoadingObjects", listName),
                         progress -> showObjectList(e.getDataContext(), action)));
     }
 

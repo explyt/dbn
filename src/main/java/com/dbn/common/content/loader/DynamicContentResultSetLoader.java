@@ -45,6 +45,7 @@ import com.dbn.diagnostics.data.DiagnosticBundle;
 import com.dbn.object.common.DBObject;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -86,7 +87,7 @@ public abstract class DynamicContentResultSetLoader<E extends DynamicContentElem
     }
 
     public static <E extends DynamicContentElement, M extends DBObjectMetadata> DynamicContentLoader<E, M> create(
-            @NotNull String identifier,
+            @NotNull @NonNls String identifier,
             @Nullable DynamicContentType<?> parentContentType,
             @NotNull DynamicContentType<?> contentType,
             boolean register,
