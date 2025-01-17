@@ -36,6 +36,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 import static com.dbn.common.util.Unsafe.cast;
 
@@ -78,6 +80,13 @@ public abstract class TextFieldWithButtons extends DBNPanelImpl implements DataE
         Dimension size = new Dimension(width, height);
         button.setPreferredSize(size);
         button.setMaximumSize(size);
+
+        button.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (false && e.getKeyCode() == KeyEvent.VK_SPACE) button.doClick();
+            }
+        });
 
         return button;
     }

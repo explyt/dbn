@@ -26,6 +26,7 @@ import com.intellij.openapi.project.Project;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -133,11 +134,21 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
             toolTipText += " (" + keyShortcutDescription + ')';
         }
         button.setToolTipText(toolTipText);
-        button.addMouseListener(Mouse.listener().onClick(e -> showPopup(popupProvider)));
+        addButtonListener(popupProvider, button);
+
 
         int index = buttonsPanel.getComponentCount();
         buttonsPanel.add(button, index);
         popupProvider.setButton(button);
+    }
+
+    private void addButtonListener(TextFieldPopupProvider popupProvider, JComponent buttonComponent) {
+        if (buttonComponent instanceof JButton) {
+            JButton button = (JButton) buttonComponent;
+            button.addActionListener(e -> showPopup(popupProvider));
+        } else {
+            buttonComponent.addMouseListener(Mouse.listener().onClick(e -> showPopup(popupProvider)));
+        }
     }
 
     private void showPopup(TextFieldPopupProvider popupProvider) {
