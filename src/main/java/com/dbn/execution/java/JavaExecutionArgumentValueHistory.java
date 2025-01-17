@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.dbn.execution.java;
@@ -28,7 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.dbn.common.options.setting.Settings.*;
+import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
+import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public class JavaExecutionArgumentValueHistory implements PersistentStateElement, ConnectionConfigListener {
     private final Map<ConnectionId, Map<String, JavaExecutionArgumentValue>> argumentValues = new ConcurrentHashMap<>();

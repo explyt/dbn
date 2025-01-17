@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.dbn.execution.java.ui;
@@ -29,10 +28,10 @@ import com.dbn.common.ui.util.UserInterface;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.common.ui.ExecutionOptionsForm;
 import com.dbn.execution.java.JavaExecutionInput;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
-import com.dbn.object.DBJavaField;
-import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBOrderedObject;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;

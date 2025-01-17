@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.dbn.execution.java.history.ui;
@@ -23,7 +22,7 @@ import com.dbn.common.util.Commons;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 
-import javax.swing.*;
+import javax.swing.Icon;
 import javax.swing.tree.TreeNode;
 import java.util.Collections;
 import java.util.List;

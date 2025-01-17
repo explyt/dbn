@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.dbn.execution.java.result.ui;
@@ -24,9 +23,9 @@ import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.util.TextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.dbn.execution.java.ArgumentValue;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
-import com.dbn.object.DBJavaField;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.SimpleTextAttributes;
@@ -34,7 +33,7 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
-import java.awt.*;
+import java.awt.Color;
 import java.sql.ResultSet;
 import java.util.List;
 

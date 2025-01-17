@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.dbn.execution.java.ui;
@@ -27,7 +26,8 @@ import com.dbn.common.util.Unsafe;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.config.ConnectionConfigListener;
 import com.dbn.execution.java.JavaExecutionInput;
-import com.dbn.object.*;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaMethod;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.project.Project;

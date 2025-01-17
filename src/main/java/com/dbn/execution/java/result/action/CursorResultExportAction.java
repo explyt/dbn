@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.dbn.execution.java.result.action;
@@ -21,7 +20,6 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.util.Dialogs;
 import com.dbn.data.export.ui.ExportDataDialog;
 import com.dbn.data.grid.ui.table.resultSet.ResultSetTable;
-import com.dbn.object.DBArgument;
 import com.dbn.object.DBJavaParameter;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;

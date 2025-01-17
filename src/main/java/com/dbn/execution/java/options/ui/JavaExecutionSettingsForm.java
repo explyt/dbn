@@ -12,7 +12,6 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 
 package com.dbn.execution.java.options.ui;
@@ -23,7 +22,8 @@ import com.dbn.execution.java.options.JavaExecutionSettings;
 import com.intellij.openapi.options.ConfigurationException;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.*;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 
 public class JavaExecutionSettingsForm extends ConfigurationEditorForm<JavaExecutionSettings> {
     private JPanel mainPanel;
