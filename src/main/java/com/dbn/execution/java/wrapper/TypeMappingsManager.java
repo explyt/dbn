@@ -16,137 +16,99 @@
 
 package com.dbn.execution.java.wrapper;
 
-import com.intellij.ide.fileTemplates.FileTemplate;
-import com.intellij.ide.fileTemplates.FileTemplateManager;
-import com.intellij.openapi.components.Service;
-import com.intellij.openapi.project.Project;
+import lombok.Getter;
 
-import java.security.MessageDigest;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-@Service
+
 public final class TypeMappingsManager {
-    private final AtomicReference<String> lastFileHash = new AtomicReference<>("");
-    private volatile Map<String, SqlType> dataTypeMap = Collections.emptyMap();
-    private volatile Set<String> unsupportedTypes = Collections.emptySet();
-    private static final String TEMPLATE_NAME = "DBN - OJVM TypeDefinitions";
-    private final Project project;
+    @Getter
+    private static final Map<String, SqlType> dataTypeMap =
+            Map.ofEntries(
+                Map.entry("java.lang.String",
+                        new SqlType("VARCHAR2", "String.valueOf(", ")")),
 
-    private TypeMappingsManager(Project project) {
-        this.project = project;
-        loadMappingsIfChanged();
-    }
+                // Java Primitive types
+                Map.entry("boolean",
+                        new SqlType("NUMBER", "", ".equals(\"1\")")),
+                Map.entry("byte",
+                        new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
+                Map.entry("char",
+                        new SqlType("VARCHAR2", "String.valueOf(", ").charAt(0)")),
+                Map.entry("short",
+                        new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),
+                Map.entry("int",
+                        new SqlType("NUMBER", "Integer.parseInt(String.valueOf(", "))")),
+                Map.entry("long",
+                        new SqlType("NUMBER", "Long.parseLong(String.valueOf(", "))")),
+                Map.entry("float",
+                        new SqlType("NUMBER", "Float.parseFloat(String.valueOf(", "))")),
+                Map.entry("double",
+                        new SqlType("BINARY_DOUBLE", "Double.parseDouble(String.valueOf(", "))")),
+                Map.entry("byte[]", new SqlType("RAW")),
 
-    public static TypeMappingsManager getInstance(Project project) {
-        return project.getService(TypeMappingsManager.class);
-    }
+                // SQL Types
+                Map.entry("java.sql.Date",
+                        new SqlType("DATE", "transformStringToJavaSqlDate(", ")")),
+                Map.entry("java.sql.Time",
+                        new SqlType("DATE")),
+                Map.entry("java.math.BigDecimal",
+                        new SqlType("NUMBER", "new java.math.BigDecimal(String.valueOf(", "))")),
+                Map.entry("java.math.BigInteger",
+                        new SqlType("NUMBER", "new java.math.BigInteger(String.valueOf(", "))")),
 
-    private String calculateFileHash() {
-        try {
-            FileTemplate template = FileTemplateManager.getInstance(project).getCodeTemplate(TEMPLATE_NAME);
-            String content = template.getText();
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(content.getBytes());
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (Exception e) {
-            return "";
-        }
-    }
+                // Java Wrapper Types
+                Map.entry("java.lang.Boolean",
+                        new SqlType("NUMBER", "", ".equals(\"1\")")),
+                Map.entry("java.lang.Byte",
+                        new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
+                Map.entry("java.lang.Character",
+                        new SqlType("CHAR", "String.valueOf(", ").charAt(0)")),
+                Map.entry("java.lang.Short",
+                        new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),
+                Map.entry("java.lang.Integer",
+                        new SqlType("NUMBER", "Integer.parseInt(String.valueOf(", "))")),
+                Map.entry("java.lang.Long",
+                        new SqlType("NUMBER", "Long.parseLong(String.valueOf(", "))")),
+                Map.entry("java.lang.Float",
+                        new SqlType("NUMBER", "Float.parseFloat(String.valueOf(", "))")),
+                Map.entry("java.lang.Double",
+                        new SqlType("BINARY_DOUBLE", "Double.parseDouble(String.valueOf(", "))")),
 
-    private synchronized void loadMappingsIfChanged() {
-        String currentHash = calculateFileHash();
-        if (!currentHash.equals(lastFileHash.get())) {
-            try {
-                FileTemplate template = FileTemplateManager.getInstance(project).getCodeTemplate(TEMPLATE_NAME);
-                String content = template.getText();
-                Map<String, SqlType> newMap = parseTemplateContent(content);
-                dataTypeMap = Collections.unmodifiableMap(newMap);
-                lastFileHash.set(currentHash);
-            } catch (Exception e) {
-                System.err.println("Failed to load type mappings: " + e.getMessage());
-            }
-        }
-    }
-
-    private Map<String, SqlType> parseTemplateContent(String content) {
-        Map<String, SqlType> newMap = new HashMap<>();
-        Set<String> newUnsupportedTypes = new HashSet<>();
-
-        // Parse unsupported types list
-        Pattern unsupportedPattern = Pattern.compile("#set\\(\\$unsupportedTypeSet\\s*=\\s*\\[(.*?)]\\)", Pattern.DOTALL);
-        Matcher unsupportedMatcher = unsupportedPattern.matcher(content);
-        if (unsupportedMatcher.find()) {
-            String unsupportedList = unsupportedMatcher.group(1);
-            Arrays.stream(unsupportedList.split(","))
-                    .map(String::trim)
-                    .map(s -> s.replaceAll("\"", ""))
-                    .filter(s -> !s.isEmpty())
-                    .forEach(newUnsupportedTypes::add);
-        }
-
-        Pattern pattern = Pattern.compile("\\$dataTypeMap\\.put\\(\"([^\"]+)\",\\s*\\{([^}]+)}\\)");
-        Matcher matcher = pattern.matcher(content);
-
-        while (matcher.find()) {
-            String className = matcher.group(1);
-            String properties = matcher.group(2);
-
-            // Parse the properties
-            Map<String, String> typeInfo = parseProperties(properties);
-
-            if (typeInfo.containsKey("unsupported") && "true".equals(typeInfo.get("unsupported"))) {
-                newUnsupportedTypes.add(className);
-                continue;
-            }
-
-            SqlType sqlType = new SqlType(
-                    typeInfo.get("sqlTypeName"),
-                    typeInfo.getOrDefault("transformerPrefix", ""),
-                    typeInfo.getOrDefault("transformerSuffix", "")
+                // Oracle SQL Types
+                Map.entry("oracle.sql.CHAR",
+                        new SqlType("VARCHAR2")),
+                Map.entry("oracle.sql.NUMBER",
+                        new SqlType("NUMBER")),
+                Map.entry("oracle.sql.BINARY_FLOAT",
+                        new SqlType("BINARY_FLOAT")),
+                Map.entry("oracle.sql.BINARY_DOUBLE",
+                        new SqlType("BINARY_DOUBLE")),
+                Map.entry("oracle.sql.DATE",
+                        new SqlType("DATE")),
+                Map.entry("oracle.sql.RAW",
+                        new SqlType("RAW"))
             );
 
-            newMap.put(className, sqlType);
-        }
-        unsupportedTypes = Collections.unmodifiableSet(newUnsupportedTypes);
+    @Getter
+    private static final Set<String> unsupportedTypes = Set.of("java.util.List",
+            "java.util.ArrayList", "java.util.Map", "java.util.HashMap",
+            "java.util.Set", "java.util.HashSet", "java.util.Collection");
 
-        return newMap;
+    public static boolean isSupportedType(String type)
+    {
+        return dataTypeMap.containsKey(type);
     }
 
-    private Map<String, String> parseProperties(String properties) {
-        Map<String, String> result = new HashMap<>();
-        Pattern propPattern = Pattern.compile("\"([^\"]+)\":\\s*\"([^\"]+)\"");
-        Matcher propMatcher = propPattern.matcher(properties);
-
-        while (propMatcher.find()) {
-            String key = propMatcher.group(1);
-            String value = propMatcher.group(2);
-            result.put(key, value);
-        }
-
-        return result;
+    public static boolean isUnSupportedType(String type)
+    {
+        return unsupportedTypes.contains(type);
     }
 
-    public Map<String, SqlType> getDataTypeMap() {
-        loadMappingsIfChanged();
-        return dataTypeMap;
+    public static SqlType getCorrespondingSqlType(String type)
+    {
+        return dataTypeMap.get(type);
     }
 
-    public Set<String> getUnsupportedTypes() {
-        loadMappingsIfChanged();
-        return unsupportedTypes;
-    }
 }

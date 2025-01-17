@@ -36,7 +36,7 @@ public class Wrapper {
     private List<MethodAttribute> methodArguments = new ArrayList<>();
     private MethodAttribute returnType;
 	private String javaMethodSignature;
-	private Map<String, Integer> complexTypeConversion = new HashMap<>();
+	private Map<WrapperBuilder.ComplexTypeKey, Integer> complexTypeConversion = new HashMap<>();
 
 	public void addArgumentJavaComplexType(JavaComplexType argumentJavaComplexType) {
         argumentJavaComplexTypes.add(argumentJavaComplexType);
@@ -56,6 +56,11 @@ public class Wrapper {
 		private boolean isComplexType;
         private short arrayDepth = 0;
 		private short attributePosition;
+	}
+
+	public void addEntryToComplexTypeConversion(WrapperBuilder.ComplexTypeKey key, Integer sequenceNumber)
+	{
+		complexTypeConversion.put(key, sequenceNumber);
 	}
 
 	public String getJavaSignature(boolean includeArgumentNames){

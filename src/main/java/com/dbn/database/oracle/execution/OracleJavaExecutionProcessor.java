@@ -25,7 +25,7 @@ import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
-import com.dbn.execution.java.wrapper.Parser;
+import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -34,6 +34,7 @@ import lombok.SneakyThrows;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.sql.Array;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Comparator;
@@ -50,7 +51,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	protected void postHookExecutionCommand(StringBuilder buffer) {}
 
 	@Override
-	public String buildExecutionCommand(JavaExecutionInput executionInput, Wrapper wrapper) throws SQLException {
+	public String buildExecutionCommand(JavaExecutionInput executionInput, Wrapper wrapper) {
 		String wrapperName = "DBN_OJVM_SQL_WRAPPER";
 
 		String returnArgument = getReturnArgument();
@@ -111,7 +112,13 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		for (DBJavaParameter argument : getArguments()) {
 
 			String clazz = argument.getParameterType();
-			if(clazz.equals("class")) {
+			boolean isArray = argument.getArrayDepth() > 0;
+			if(isArray){
+				String objectName = wrapper.getMethodArguments().get(parameterIndex- 1).getCorrespondingSqlTypeName();
+				Array arrObj = getArrayObject(executionInput, argument.getParameterClass().getFields(), wrapper, objectName);
+				callableStatement.setArray(parameterIndex,  arrObj);
+
+			}else if(clazz.equals("class")) {
 				String objectName = wrapper.getMethodArguments().get(parameterIndex- 1).getCorrespondingSqlTypeName();
 				Object structObj = getStructObject(executionInput, argument.getParameterClass().getFields(), wrapper, objectName);
 				callableStatement.setObject(parameterIndex, structObj);
@@ -175,8 +182,9 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 					customTypeAttributes[i] = Boolean.parseBoolean(value);
 					break;
 				case "class":
-					int typeNumber = wrapper.getComplexTypeConversion().get(field.getFieldClass().getName());
-					String innerObjectName = Parser.newSqlTypePrepend + typeNumber;
+					WrapperBuilder.ComplexTypeKey key = new WrapperBuilder.ComplexTypeKey(field.getFieldClass().getName(), field.getArrayDepth());
+					int typeNumber = wrapper.getComplexTypeConversion().get(key);
+					String innerObjectName = WrapperBuilder.newSqlTypePrepend + typeNumber;
 					customTypeAttributes[i] = getStructObject(executionInput, field.getFieldClass().getFields(), wrapper, innerObjectName);
 					break;
 				default:
@@ -195,4 +203,62 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 		return structCtr.newInstance(structDescriptor, conn.getInner(), customTypeAttributes);
 	}
+
+	@SneakyThrows
+	private Array getArrayObject(JavaExecutionInput executionInput, List<DBJavaField> fields, Wrapper wrapper, String objectName){
+		ConnectionHandler connection = getMethod().getConnection();
+		SessionId targetSessionId = executionInput.getTargetSessionId();
+		SchemaId targetSchemaId = executionInput.getTargetSchemaId();
+		DBNConnection conn = connection.getConnection(targetSessionId, targetSchemaId);
+
+		fields.sort(Comparator.comparingInt(DBJavaField::getIndex));
+		Object[] customTypeAttributes = new Object[fields.size()];
+		int i = 0;
+		for (DBJavaField field : fields) {
+			String value = executionInput.getInputValue(field);
+			switch(field.getType()){
+				case "int":
+					customTypeAttributes[i] = Integer.parseInt(value);
+					break;
+				case "float":
+					customTypeAttributes[i] = Float.parseFloat(value);
+					break;
+				case "double":
+					customTypeAttributes[i] = Double.parseDouble(value);
+					break;
+				case "byte":
+					customTypeAttributes[i] = Byte.parseByte(value);
+					break;
+				case "short":
+					customTypeAttributes[i] = Short.parseShort(value);
+					break;
+				case "long":
+					customTypeAttributes[i] = Long.parseLong(value);
+					break;
+				case "boolean":
+					customTypeAttributes[i] = Boolean.parseBoolean(value);
+					break;
+				case "class":
+					WrapperBuilder.ComplexTypeKey key = new WrapperBuilder.ComplexTypeKey(field.getFieldClass().getName(), field.getArrayDepth());
+					int typeNumber = wrapper.getComplexTypeConversion().get(key);
+					String innerObjectName = WrapperBuilder.newSqlTypePrepend + typeNumber;
+					customTypeAttributes[i] = getStructObject(executionInput, field.getFieldClass().getFields(), wrapper, innerObjectName);
+					break;
+				default:
+					customTypeAttributes[i] = value;
+			}
+			i++;
+		}
+
+		ClassLoader cl =  conn.getInner().getClass().getClassLoader();
+		Class<?> structDescriptorClass = Class.forName("oracle.sql.ArrayDescriptor",true, cl);
+		Method createDescriptorMethod = structDescriptorClass.getMethod("createDescriptor", String.class, Connection.class);
+		Object structDescriptor =  createDescriptorMethod.invoke(null, objectName, conn.getInner());
+
+		Class<?> structClass = Class.forName("oracle.sql.ARRAY", true, cl);
+		Constructor<?> structCtr = structClass.getConstructor(structDescriptorClass, Connection.class, Object[].class);
+
+		return (Array) structCtr.newInstance(structDescriptor, conn.getInner(), customTypeAttributes);
+	}
+
 }

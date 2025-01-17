@@ -29,4 +29,11 @@ public class SqlType {
         this.transformerPrefix = transformerPrefix;
         this.transformerSuffix = transformerSuffix;
     }
+
+    // Constructor for cases where we only have sqlTypeName
+    public SqlType(String sqlTypeName) {
+        this.sqlTypeName = sqlTypeName;
+        this.transformerPrefix = "";
+        this.transformerSuffix = "";
+    }
 }

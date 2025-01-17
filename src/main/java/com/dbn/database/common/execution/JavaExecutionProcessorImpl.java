@@ -33,9 +33,10 @@ import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.JavaComplexType;
-import com.dbn.execution.java.wrapper.Parser;
+import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.execution.java.wrapper.SqlComplexType;
 import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.TypeMappingsManager;
 import com.dbn.execution.logging.DatabaseLoggingManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -116,8 +117,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.set(ExecutionStatus.EXECUTING, true);
 
 		try {
-			Parser parser = new Parser();
-			Wrapper wrapper = parser.parse(getMethod());
+			Wrapper wrapper = WrapperBuilder.getInstance().build(getMethod());
 
 			try {
 				// create java wrapper
@@ -217,11 +217,17 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 			Properties properties = new Properties();
 
-			properties.setProperty("JAVA_COMPLEX_TYPE", Parser.convertClassNameToDotNotation(jct.getTypeName()));
+			properties.setProperty("JAVA_COMPLEX_TYPE", WrapperBuilder.convertClassNameToDotNotation(jct.getTypeName()));
 			String code;
 			if (jct.isArray()) {
-				properties.setProperty("TYPECAST_START", jct.getFields().get(0).getTypeCastStart());
-				properties.setProperty("TYPECAST_END", jct.getFields().get(0).getTypeCastEnd());
+				properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
+				if(jct.getFields().isEmpty()){
+					properties.setProperty("TYPECAST_START", TypeMappingsManager.getCorrespondingSqlType(jct.getTypeName()).getTransformerPrefix());
+					properties.setProperty("TYPECAST_END", TypeMappingsManager.getCorrespondingSqlType(jct.getTypeName()).getTransformerSuffix());
+				} else {
+					properties.setProperty("TYPECAST_START", jct.getFields().get(0).getTypeCastStart());
+					properties.setProperty("TYPECAST_END", jct.getFields().get(0).getTypeCastEnd());
+				}
 				code = generateCode("DBN - OJVM SQLArrayToJava.java", properties);
 			} else {
 				properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
@@ -267,7 +273,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 		for (JavaComplexType jct : wrapper.getArgumentJavaComplexTypes()) {
 			if (jct.getAttributeDirection() == JavaComplexType.AttributeDirection.ARGUMENT) continue;
-			properties.setProperty("JAVA_COMPLEX_TYPE", Parser.convertClassNameToDotNotation(jct.getTypeName()));
+			properties.setProperty("JAVA_COMPLEX_TYPE", WrapperBuilder.convertClassNameToDotNotation(jct.getTypeName()));
 			properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
 
 			String code;
