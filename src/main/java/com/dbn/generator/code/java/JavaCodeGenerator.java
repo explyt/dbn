@@ -30,13 +30,15 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.PsiDirectory;
-import com.intellij.psi.PsiElement;
-import com.intellij.psi.PsiFile;
+import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
+import com.intellij.psi.search.GlobalSearchScope;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.options.Configs.fail;
 import static com.dbn.common.util.Strings.isEmpty;
@@ -77,7 +79,27 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
 
     public boolean prepareDestination(I input) {
         prepareDestinationFolder(input);
-        return handleDestinationOverwrite(input);
+        boolean overwrite = handleDestinationOverwrite(input);
+        if (overwrite) {
+            handleDestinationClassPath(input);
+        }
+        return overwrite;
+    }
+
+    private void handleDestinationClassPath(I input) {
+        Project project = input.getProject();
+        String driverClassName = input.getDatabaseContext().getConnection().getSettings().getDatabaseSettings().getDriver();
+        Module[] modules = ModuleManager.getInstance(project).getModules();
+        //String driverClassName = "oracle.jdbc.OracleDriver";
+        for(Module module : modules) {
+            GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
+            @Nullable PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(driverClassName, scope);
+            if (psiClass == null || !psiClass.isValid()) {
+                Messages.showInfoDialog(project, "Can't find jdbc driver",
+                        "The driver "+ driverClassName + " does not appear to be on your conpile time classpath."+
+                        " This may cause your generated code to have errors and may not run.");
+            }
+        }
     }
 
     /**
