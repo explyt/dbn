@@ -140,8 +140,8 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     private static @NotNull ListPopupValuesProvider createValuesProvider(StatementExecutionVariable variable, StatementExecutionProcessor executionProcessor, StatementExecutionVariables variablesCache) {
         return new ListPopupValuesProvider() {
             @Override
-            public String getDescription() {
-                return "History Values List";
+            public String getName() {
+                return "Value History";
             }
 
             @Override

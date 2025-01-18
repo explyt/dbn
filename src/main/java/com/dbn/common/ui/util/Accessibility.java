@@ -19,13 +19,16 @@ package com.dbn.common.ui.util;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.ui.ComponentWithBrowseButton;
+import com.intellij.openapi.ui.popup.ListPopup;
 import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
 import javax.accessibility.AccessibleContext;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.Component;
@@ -43,6 +46,7 @@ import static com.dbn.common.util.Strings.isNotEmpty;
  *
  * @author Dan Cioca (Oracle)
  */
+@Slf4j
 @UtilityClass
 public class Accessibility {
 
@@ -55,26 +59,44 @@ public class Accessibility {
         return Strings.isNotEmpty(getAccessibleName(component));
     }
 
-    public static void setAccessibleName(ActionToolbar toolbar, @Nullable @Nls String name) {
-        setAccessibleName(toolbar.getComponent(), name);
+    public static void setAccessibleName(@Nullable Object target, @Nullable @Nls String name) {
+        setAccessibleText(target, name, false);
     }
 
-    public static void setAccessibleDescription(ActionToolbar toolbar, @Nls String description) {
-        setAccessibleDescription(toolbar.getComponent(), description);
+    public static void setAccessibleDescription(@Nullable Object target, @Nls String description) {
+        setAccessibleText(target, description, false);
     }
 
-    public static void setAccessibleName(Component component, @Nullable @Nls String name) {
-        if (name == null) return;
+    private static void setAccessibleText(@Nullable Object target, @Nullable @Nls String text, boolean descriptor) {
+        if (target == null) return;
+        if (text == null) return;
 
-        String friendlyName = name.replace("_", " ");
-        AccessibleContext accessibleContext = component.getAccessibleContext();
-        accessibleContext.setAccessibleName(friendlyName);
-    }
+        if (target instanceof Component) {
+            Component component = (Component) target;
+            String friendlyName = text.replace("_", " ");
 
-    public static void setAccessibleDescription(Component component, String description) {
-        String friendlyDescription = description.replace("_", " ");
-        AccessibleContext accessibleContext = component.getAccessibleContext();
-        accessibleContext.setAccessibleDescription(friendlyDescription);
+            AccessibleContext accessibleContext = component.getAccessibleContext();
+            if (descriptor) {
+                accessibleContext.setAccessibleDescription(friendlyName);
+            } else {
+                accessibleContext.setAccessibleName(friendlyName);
+            }
+            return;
+        }
+
+        if (target instanceof ListPopup) {
+            ListPopup listPopup = (ListPopup) target;
+            JList actionList = UserInterface.findChildComponent(listPopup.getContent(), JList.class, c -> true);
+            setAccessibleText(actionList, text, descriptor);
+            return;
+        }
+
+        if (target instanceof ActionToolbar) {
+            ActionToolbar toolbar = (ActionToolbar) target;
+            setAccessibleText(toolbar.getComponent(), text, descriptor);
+        }
+
+        log.warn("Cannot set accessible text to target of type {}", target.getClass().getName());
     }
 
     public static void setAccessibleUnit(JTextField textField, @Nls String unit, @Nls String ... qualifiers) {

@@ -36,7 +36,7 @@ public interface TextFieldPopupProvider extends Disposable{
     @Nullable
     JComponent getButton();
 
-    String getDescription();
+    String getName();
 
     String getKeyShortcutDescription();
 

@@ -126,9 +126,10 @@ public class TextFieldWithPopup<T extends JComponent> extends TextFieldWithButto
         if (!popupProvider.isButtonVisible()) return;
 
         Icon buttonIcon = popupProvider.getButtonIcon();
-        JComponent button = createButton(buttonIcon, popupProvider.getDescription());
+        String providerName = popupProvider.getName();
+        JComponent button = createButton(buttonIcon, providerName);
 
-        String toolTipText = "Open " + popupProvider.getDescription();
+        String toolTipText = "Open " + providerName;
         String keyShortcutDescription = popupProvider.getKeyShortcutDescription();
         if (keyShortcutDescription != null) {
             toolTipText += " (" + keyShortcutDescription + ')';

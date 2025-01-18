@@ -41,44 +41,44 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
+import static java.util.Collections.emptyList;
+
+public class JavaExecutionInputFieldForm extends DBNFormBase {
 	private JPanel mainPanel;
-	private JLabel argumentLabel;
-	private JLabel argumentTypeLabel;
+	private JLabel fieldLabel;
+	private JLabel fieldTypeLabel;
 	private JPanel typeAttributesPanel;
 	private JPanel inputFieldPanel;
 
-	private JTextField inputTextField;
+	private final JTextField inputTextField;
 	private UserValueHolderImpl<String> userValueHolder;
 
-	private final DBObjectRef<DBJavaField> argument;
+	private final DBObjectRef<DBJavaField> field;
 
-	JavaExecutionComplexInputArgumentForm(JavaExecutionInputForm parentForm, DBJavaField argument) {
+	JavaExecutionInputFieldForm(JavaExecutionInputForm parentForm, DBJavaField field) {
 		super(parentForm);
-		this.argument = DBObjectRef.of(argument);
-		String argumentName = argument.getName();
-		argumentLabel.setText(argumentName);
-		argumentLabel.setIcon(argument.getIcon());
+		this.field = DBObjectRef.of(field);
 
-		String dataType = argument.getType();
+		String fieldName = field.getName();
+		fieldLabel.setText(fieldName);
+		fieldLabel.setIcon(field.getIcon());
 
-		argumentTypeLabel.setForeground(UIUtil.getInactiveTextColor());
-
-		argumentTypeLabel.setText(dataType);
+		String dataType = field.getType();
+		fieldTypeLabel.setText(dataType);
+		fieldTypeLabel.setForeground(UIUtil.getInactiveTextColor());
 		typeAttributesPanel.setVisible(false);
 
-		Project project = argument.getProject();
+		Project project = field.getProject();
 		JavaExecutionInput executionInput = parentForm.getExecutionInput();
-		String value = executionInput.getInputValue(argument);
+		String value = executionInput.getInputValue(field);
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
 
 
-		inputField.createValuesListPopup(createValuesProvider(), argument, true);
+		inputField.createValuesListPopup(createValuesProvider(), field, true);
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
 		inputFieldPanel.add(inputField, BorderLayout.CENTER);
@@ -96,43 +96,40 @@ public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 	private ListPopupValuesProvider createValuesProvider() {
 		return new ListPopupValuesProvider() {
 			@Override
-			public String getDescription() {
-				return "History Values List";
+			public String getName() {
+				return "Value History";
 			}
 
 			@Override
-			public java.util.List<String> getValues() {
-				DBJavaField argument = getArgument();
-				if (argument != null) {
-					JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-					return executionInput.getInputValueHistory(argument);
-				}
+			public List<String> getValues() {
+				DBJavaField field = getField();
+                if (field == null) return emptyList();
 
-				return Collections.emptyList();
-			}
+                JavaExecutionInput executionInput = getParentForm().getExecutionInput();
+                return executionInput.getInputValueHistory(field);
+            }
 
 			@Override
-			public java.util.List<String> getSecondaryValues() {
-				DBJavaField argument = getArgument();
-				if (argument != null) {
-					ConnectionHandler connection = argument.getConnection();
-					ConnectionId connectionId = connection.getConnectionId();
-					MethodExecutionManager executionManager = MethodExecutionManager.getInstance(argument.getProject());
-					MethodExecutionArgumentValueHistory valuesHistory = executionManager.getArgumentValuesHistory();
-					MethodExecutionArgumentValue argumentValue = valuesHistory.getArgumentValue(connectionId, argument.getName(), false);
-					if (argumentValue != null) {
-						List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
-						cachedValues.removeAll(getValues());
-						return cachedValues;
-					}
-				}
-				return Collections.emptyList();
-			}
+			public List<String> getSecondaryValues() {
+				DBJavaField field = getField();
+                if (field == null) return emptyList();
+
+                ConnectionHandler connection = field.getConnection();
+                ConnectionId connectionId = connection.getConnectionId();
+                MethodExecutionManager executionManager = MethodExecutionManager.getInstance(field.getProject());
+                MethodExecutionArgumentValueHistory valuesHistory = executionManager.getArgumentValuesHistory();
+                MethodExecutionArgumentValue argumentValue = valuesHistory.getArgumentValue(connectionId, field.getName(), false);
+                if (argumentValue == null) return emptyList();
+
+                List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
+                cachedValues.removeAll(getValues());
+                return cachedValues;
+            }
 		};
 	}
 
-	public DBJavaField getArgument() {
-		return DBObjectRef.get(argument);
+	public DBJavaField getField() {
+		return DBObjectRef.get(field);
 	}
 
 	@NotNull
@@ -142,18 +139,18 @@ public class JavaExecutionComplexInputArgumentForm extends DBNFormBase {
 	}
 
 	public void updateExecutionInput() {
-		DBJavaField argument = getArgument();
-		if (argument != null) {
-			JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-			if (userValueHolder != null) {
-				String value = userValueHolder.getUserValue();
-				executionInput.setInputValue(argument, value);
-			} else {
-				String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
-				executionInput.setInputValue(argument, value);
-			}
-		}
-	}
+		DBJavaField field = getField();
+        if (field == null) return;
+
+        JavaExecutionInput executionInput = getParentForm().getExecutionInput();
+        if (userValueHolder != null) {
+            String value = userValueHolder.getUserValue();
+            executionInput.setInputValue(field, value);
+        } else {
+            String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
+            executionInput.setInputValue(field, value);
+        }
+    }
 
 
 	public void addDocumentListener(DocumentListener documentListener) {

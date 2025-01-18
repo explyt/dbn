@@ -121,8 +121,8 @@ public class MethodExecutionInputTypeAttributeForm extends DBNFormBase {
     private ListPopupValuesProvider createValuesProvider() {
         return new ListPopupValuesProvider() {
             @Override
-            public String getDescription() {
-                return "History Values List";
+            public String getName() {
+                return "Value History";
             }
 
             @Override

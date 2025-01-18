@@ -23,10 +23,10 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import org.jetbrains.annotations.NotNull;
 
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.nls.NlsResources.txt;
 
 public class ObjectNavigationListShowAllAction extends ProjectAction {
@@ -40,15 +40,15 @@ public class ObjectNavigationListShowAllAction extends ProjectAction {
 
     @Override
     protected void actionPerformed(@NotNull AnActionEvent e, @NotNull Project project) {
-        ObjectNavigationListActionGroup navigationListActionGroup =
+        ObjectNavigationListActionGroup actionGroup =
                 new ObjectNavigationListActionGroup(parentObject, navigationList, true);
 
-        ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                navigationList.getName(),
-                navigationListActionGroup,
-                e.getDataContext(),
-                JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                true, null, 10);
+        String listName = navigationList.getName();
+        ListPopup popup = popupBuilder(actionGroup, e)
+                .withTitle(listName)
+                .withMaxRowCount(10)
+                .withSpeedSearch()
+                .build();
 
         DatabaseBrowserManager browserManager = DatabaseBrowserManager.getInstance(project);
         DatabaseBrowserTree activeBrowserTree = browserManager.getActiveBrowserTree();

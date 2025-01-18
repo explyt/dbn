@@ -29,7 +29,7 @@ public class JavaExecutionComplexInputForm extends DBNFormBase implements DBNCol
 	private final JPanel mainPanel;
 	private final String title;
 
-	public JavaExecutionComplexInputForm(DBNForm parent, String clazz, List<JavaExecutionComplexInputArgumentForm> inputs) {
+	public JavaExecutionComplexInputForm(DBNForm parent, String clazz, List<JavaExecutionInputFieldForm> inputs) {
 		super(parent);
 		mainPanel = new JPanel();
 		mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -37,7 +37,7 @@ public class JavaExecutionComplexInputForm extends DBNFormBase implements DBNCol
 		this.title = clazz;
 		JPanel cp = new JPanel();
 
-		for(JavaExecutionComplexInputArgumentForm input : inputs){
+		for(JavaExecutionInputFieldForm input : inputs){
 			mainPanel.add(input.getComponent());
 		}
 
