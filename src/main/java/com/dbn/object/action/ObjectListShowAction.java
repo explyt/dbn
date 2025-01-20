@@ -33,6 +33,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.ComponentPopupBuilder;
 import com.intellij.openapi.ui.popup.JBPopup;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.NlsActions.ActionText;
 import com.intellij.ui.awt.RelativePoint;
 import com.intellij.util.ui.JBUI;
@@ -49,6 +50,7 @@ import java.awt.BorderLayout;
 import java.awt.Point;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Naming.capitalizeWords;
 import static com.dbn.nls.NlsResources.txt;
 
@@ -105,14 +107,12 @@ public abstract class ObjectListShowAction extends BasicAction {
                     showPopup(popup);
                 } else {
                     ObjectListActionGroup actionGroup = new ObjectListActionGroup(this, objects, recentObjectList);
-                    JBPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                            ObjectListShowAction.this.getTitle(),
-                            actionGroup,
-                            dataContext,
-                            JBPopupFactory.ActionSelectionAid.SPEEDSEARCH,
-                            true, null, 10);
+                    ListPopup popup = popupBuilder(actionGroup, dataContext).
+                            withTitle(getTitle()).
+                            withMaxRowCount(10).
+                            withSpeedSearch().
+                            build();
 
-                    popup.getContent().setBackground(Colors.LIGHT_BLUE);
                     showPopup(popup);
                 }
             });

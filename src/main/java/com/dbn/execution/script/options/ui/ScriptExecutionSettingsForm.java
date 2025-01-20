@@ -19,6 +19,7 @@ package com.dbn.execution.script.options.ui;
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.options.ui.ConfigurationEditors;
+import com.dbn.common.ui.util.Popups;
 import com.dbn.connection.DatabaseType;
 import com.dbn.execution.script.CmdLineInterfaceBundle;
 import com.dbn.execution.script.ScriptExecutionManager;
@@ -28,7 +29,6 @@ import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.ToolbarDecorator;
 import com.intellij.ui.awt.RelativePoint;
@@ -85,12 +85,10 @@ public class ScriptExecutionSettingsForm extends ConfigurationEditorForm<ScriptE
             actionGroup.add(new CreateInterfaceAction(databaseType));
         }
 
-        ListPopup popup = JBPopupFactory.getInstance().createActionGroupPopup(
-                null,
-                actionGroup,
-                dataContext,
-                null,
-                false);
+        ListPopup popup = Popups.popupBuilder(actionGroup, dataContext)
+                .withTitle("Database Type")
+                .withTitleVisible(false)
+                .build();
 
         popup.show(point);
     }

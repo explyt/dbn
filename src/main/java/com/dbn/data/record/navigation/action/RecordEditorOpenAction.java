@@ -30,7 +30,7 @@ import static com.dbn.nls.NlsResources.txt;
 public class RecordEditorOpenAction extends ProjectAction {
     private final DatasetFilterInput filterInput;
 
-    RecordEditorOpenAction(DatasetFilterInput filterInput) {
+    public RecordEditorOpenAction(DatasetFilterInput filterInput) {
         this.filterInput = filterInput;
     }
 

@@ -26,7 +26,6 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.file.FileMappings;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Documents;
 import com.dbn.connection.ConnectionAction;
@@ -77,6 +76,7 @@ import static com.dbn.common.dispose.Checks.isNotValid;
 import static com.dbn.common.file.util.VirtualFiles.isLocalFileSystem;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Files.isDbLanguageFile;
 import static com.dbn.common.util.Messages.options;
@@ -361,7 +361,11 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
             actions.add(new ConnectionSetupAction(project));
         }
 
-        Popups.showActionsPopup(txt("msg.fileContext.title.SelectConnection"), dataContext, actions, Selectable.selector());
+        popupBuilder(actions, dataContext).
+                withTitle(txt("msg.fileContext.title.SelectConnection")).
+                withPreselectCondition(Selectable.selector()).
+                withSpeedSearch().
+                buildAndShow();
     }
 
     /***************************************************
@@ -386,7 +390,11 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
                                 }
                             }
 
-                            Popups.showActionsPopup(txt("msg.fileContext.title.SelectSchema"), dataContext, actions, Selectable.selector());
+                            popupBuilder(actions, dataContext).
+                                    withTitle(txt("msg.fileContext.title.SelectSchema")).
+                                    withPreselectCondition(Selectable.selector()).
+                                    withSpeedSearch().
+                                    buildAndShow();
                         }));
     }
 
@@ -411,7 +419,11 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
                         actions.add(new SessionCreateAction(file, connection));
                     }
 
-                    Popups.showActionsPopup(txt("msg.fileContext.title.SelectSession"), dataContext, actions, Selectable.selector());
+                    popupBuilder(actions, dataContext).
+                            withTitle(txt("msg.fileContext.title.SelectSession")).
+                            withPreselectCondition(Selectable.selector()).
+                            withSpeedSearch().
+                            buildAndShow();
                 });
     }
 

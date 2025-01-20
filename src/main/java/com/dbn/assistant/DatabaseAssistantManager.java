@@ -38,7 +38,6 @@ import com.dbn.common.exception.Exceptions;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
@@ -80,6 +79,7 @@ import static com.dbn.common.ui.CardLayouts.isBlankCard;
 import static com.dbn.common.ui.CardLayouts.showBlankCard;
 import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.CardLayouts.visibleCardId;
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Lists.first;
@@ -333,7 +333,11 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     DBAIProfile defaultProfile = getDefaultProfile(connectionId);
     List<ProfileSelectAction> actions = convert(getProfiles(connectionId), p -> new ProfileSelectAction(connectionId, p, defaultProfile));
 
-    Popups.showActionsPopup("Select Profile", editor, actions, Selectable.selector());
+    popupBuilder(actions, editor).
+            withTitle("Select AI Profile").
+            withPreselectCondition(Selectable.selector()).
+            withSpeedSearch().
+            buildAndShow();
   }
 
   public void setDefaultProfile(ConnectionId connectionId, @Nullable DBAIProfile profile) {

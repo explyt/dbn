@@ -71,8 +71,8 @@ public class JavaExecutionInputForm extends DBNFormBase {
     private JPanel loadingArgumentsIconPanel;
     private DBNScrollPane argumentsScrollPane;
 
-    private final List<JavaExecutionInputArgumentForm> argumentForms = DisposableContainers.list(this);
-    private final List<JavaExecutionComplexInputArgumentForm> complexArgumentForms = DisposableContainers.list(this);
+    private final List<JavaExecutionInputParameterForm> argumentForms = DisposableContainers.list(this);
+    private final List<JavaExecutionInputFieldForm> complexArgumentForms = DisposableContainers.list(this);
     private final ExecutionOptionsForm executionOptionsForm;
     private final Listeners<ChangeListener> changeListeners = Listeners.create(this);
 
@@ -162,12 +162,12 @@ public class JavaExecutionInputForm extends DBNFormBase {
         }
         noArgumentsLabel.setVisible(noArguments);
 
-        for (JavaExecutionInputArgumentForm component : argumentForms) {
+        for (JavaExecutionInputParameterForm component : argumentForms) {
             component.adjustMetrics(metrics);
             component.addDocumentListener(documentListener);
         }
 
-        for (JavaExecutionComplexInputArgumentForm component : complexArgumentForms) {
+        for (JavaExecutionInputFieldForm component : complexArgumentForms) {
             component.addDocumentListener(documentListener);
         }
 
@@ -243,7 +243,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
     }
 
     private int[] addArgumentPanel(DBJavaParameter argument, int[] gridMetrics) {
-        JavaExecutionInputArgumentForm argumentComponent = new JavaExecutionInputArgumentForm(this, argument);
+        JavaExecutionInputParameterForm argumentComponent = new JavaExecutionInputParameterForm(this, argument);
         argumentsPanel.add(argumentComponent.getComponent());
         argumentForms.add(argumentComponent);
         return argumentComponent.getMetrics(gridMetrics);
@@ -258,7 +258,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
    }
 
 	private DBNCollapsiblePanel addTreeArgumentPanel(List<DBJavaField> arguments, String parentClass, String fieldName) {
-        List<JavaExecutionComplexInputArgumentForm> list = DisposableContainers.list(this);
+        List<JavaExecutionInputFieldForm> list = DisposableContainers.list(this);
         DBNCollapsiblePanel cp;
         DBNCollapsiblePanel childPanel = null;
         String panelTitle = parentClass + " -> " + fieldName;
@@ -267,7 +267,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
                 String innerClass = getInnerClassName(parentClass, argument.getFieldClass());
                 childPanel = addTreeArgumentPanel(argument.getFieldClass().getFields(), innerClass, argument.getName());
             } else {
-                JavaExecutionComplexInputArgumentForm argumentComponent = new JavaExecutionComplexInputArgumentForm(this, argument);
+                JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, argument);
                 complexArgumentForms.add(argumentComponent);
                 list.add(argumentComponent);
             }
@@ -281,10 +281,10 @@ public class JavaExecutionInputForm extends DBNFormBase {
     }
 
     public void updateExecutionInput() {
-        for (JavaExecutionInputArgumentForm argumentComponent : argumentForms) {
+        for (JavaExecutionInputParameterForm argumentComponent : argumentForms) {
             argumentComponent.updateExecutionInput();
         }
-        for (JavaExecutionComplexInputArgumentForm argumentComponent : complexArgumentForms) {
+        for (JavaExecutionInputFieldForm argumentComponent : complexArgumentForms) {
             argumentComponent.updateExecutionInput();
         }
         executionOptionsForm.updateExecutionInput();
