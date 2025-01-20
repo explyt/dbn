@@ -25,6 +25,9 @@ import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNTable;
 import com.dbn.common.ui.table.DBNTableTransferHandler;
+import com.dbn.common.ui.util.Cursors;
+import com.dbn.common.ui.util.Keyboard;
+import com.dbn.common.ui.util.Mouse;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Safe;
@@ -33,6 +36,7 @@ import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.ConnectionManager;
 import com.dbn.connection.ConnectionRef;
+import com.dbn.connection.ConnectionType;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.mapping.FileConnectionContext;
 import com.dbn.connection.mapping.FileConnectionContextManager;
@@ -42,7 +46,6 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Separator;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.openapi.util.Condition;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.ui.SimpleTextAttributes;
@@ -55,7 +58,7 @@ import javax.swing.table.TableModel;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.event.MouseAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -79,7 +82,10 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         setCellSelectionEnabled(true);
         getRowSorter().toggleSortOrder(2);
         adjustColumnWidths();
-        addMouseListener(new MouseListener());
+
+        Keyboard.onKeyPress(this, KeyEvent.VK_SPACE, e -> showSelector());
+        Mouse.onMouseClick(this, MouseEvent.BUTTON1, 1, e -> showSelector());
+        Mouse.onMouseClick(this, MouseEvent.BUTTON1, 2, e -> openFileEditor());
         manager = FileConnectionContextManager.getInstance(getProject());
 
         setAccessibleName(this, "File Connection Mappings");
@@ -134,34 +140,51 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         }
     }
 
-    public class MouseListener extends MouseAdapter {
-        @Override
-        public void mouseClicked(MouseEvent e) {
-            if (e.getButton() != MouseEvent.BUTTON1) return;
+    private void showSelector() {
+        int selectedRow = getSelectedRow();
+        int selectedColumn = getSelectedColumn();
+        if (selectedRow <= -1) return;
+        if (selectedColumn == 0) return;
 
-            int selectedRow = getSelectedRow();
-            int selectedColumn = getSelectedColumn();
-            if (selectedRow <= -1) return;
+        FileConnectionContext mapping = (FileConnectionContext) getValueAt(selectedRow, 0);
+        if (mapping == null) return;
 
-            FileConnectionContext mapping = (FileConnectionContext) getValueAt(selectedRow, 0);
-            if (mapping == null) return;
-
-            VirtualFile file = mapping.getFile();
-            if (file == null) return;
-
-            int clickCount = e.getClickCount();
-            if (selectedColumn == 0 && clickCount == 2) {
-                Editors.openFileEditor(getProject(), file, true);
-            } else if (selectedColumn == 1) {
-                promptConnectionSelector(mapping);
-            } else if (selectedColumn == 3) {
-                promptSchemaSelector(mapping);
-            } else if (selectedColumn == 4) {
-                promptSessionSelector(mapping);
-            }
+        if (selectedColumn == 1) {
+            promptConnectionSelector(mapping);
+        } else if (selectedColumn == 2) {
+            promptSchemaSelector(mapping);
+        } else if (selectedColumn == 3) {
+            promptSessionSelector(mapping);
         }
     }
 
+    private void openFileEditor() {
+        int selectedRow = getSelectedRow();
+        int selectedColumn = getSelectedColumn();
+        if (selectedRow <= -1) return;
+        if (selectedColumn != 0) return;
+
+        FileConnectionContext mapping = (FileConnectionContext) getValueAt(selectedRow, 0);
+        if (mapping == null) return;
+
+        VirtualFile file = mapping.getFile();
+        if (file == null) return;
+
+        Editors.openFileEditor(getProject(), file, true);
+    }
+
+    @Override
+    protected void processMouseMotionEvent(MouseEvent e) {
+        // show mouse pointer on cells with value selectors
+        Point mouseLocation = e.getPoint();
+        int columnIndex = columnAtPoint(mouseLocation);
+        if (columnIndex > 0 && columnIndex < 4) {
+            setCursor(Cursors.handCursor());
+        } else {
+            setCursor(Cursors.defaultCursor());
+        }
+        super.processMouseMotionEvent(e);
+    }
 
     private void promptConnectionSelector(@NotNull FileConnectionContext mapping) {
         Project project = getProject();
@@ -205,23 +228,24 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         if (!isLiveConnection(connection))  return;
 
         VirtualFile file = mapping.getFile();
-        List<DatabaseSession> sessions = connection.getSessionBundle().getSessions();
+        List<DatabaseSession> sessions = connection.getSessionBundle().getSessions(
+                ConnectionType.MAIN,
+                ConnectionType.POOL,
+                ConnectionType.SESSION);
         List<SessionAction> actions = convert(sessions, s -> new SessionAction(file, s));
 
         promptSelector("Sessions", actions, a -> a.getSession() == mapping.getSession());
     }
 
     private <T extends AnAction> void promptSelector(String title, List<T> actions, Condition<T> preselectCondition) {
-        Dispatch.run(true, () -> {
-            ListPopup popup = popupBuilder(actions, this).
-                    withTitle(title).
-                    withSpeedSearch().
-                    withMaxRowCount(30).
-                    withPreselectCondition(preselectCondition).
-                    build();
-
-            popup.showInScreenCoordinates(this, getPopupLocation());
-        });
+        Dispatch.run(true, () ->
+                popupBuilder(actions, this).
+                        withTitle(title).
+                        withTitleVisible(false).
+                        withSpeedSearch().
+                        withMaxRowCount(30).
+                        withPreselectCondition(preselectCondition).
+                        buildAndShow());
     }
 
     @NotNull
