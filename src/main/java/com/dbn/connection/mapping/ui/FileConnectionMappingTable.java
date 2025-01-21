@@ -28,7 +28,6 @@ import com.dbn.common.ui.table.DBNTableTransferHandler;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.common.ui.util.Keyboard;
 import com.dbn.common.ui.util.Mouse;
-import com.dbn.common.util.Actions;
 import com.dbn.common.util.Editors;
 import com.dbn.common.util.Safe;
 import com.dbn.connection.ConnectionBundle;
@@ -66,6 +65,7 @@ import java.util.List;
 
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
+import static com.dbn.common.util.Actions.adjustActionName;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.connection.ConnectionHandler.isLiveConnection;
 import static com.dbn.nls.NlsResources.txt;
@@ -217,9 +217,9 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
                 progress -> {
                     VirtualFile file = mapping.getFile();
                     List<DBSchema> schemas = connection.getObjectBundle().getSchemas();
-                    List<SchemaAction> actions = convert(schemas, s -> new SchemaAction(file, s.getIdentifier()));
+                    List<AnAction> actions = convert(schemas, s -> new SchemaAction(file, s.getIdentifier()));
 
-                    promptSelector("Schemas", actions,  a -> a.getSchemaId() == mapping.getSchemaId());
+                    promptSelector("Schemas", actions,  a -> a instanceof SchemaAction && ((SchemaAction) a).getSchemaId() == mapping.getSchemaId());
                 });
     }
 
@@ -232,9 +232,9 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
                 ConnectionType.MAIN,
                 ConnectionType.POOL,
                 ConnectionType.SESSION);
-        List<SessionAction> actions = convert(sessions, s -> new SessionAction(file, s));
+        List<AnAction> actions = convert(sessions, s -> new SessionAction(file, s));
 
-        promptSelector("Sessions", actions, a -> a.getSession() == mapping.getSession());
+        promptSelector("Sessions", actions, a -> a instanceof SessionAction && ((SessionAction) a).getSession() == mapping.getSession());
     }
 
     private <T extends AnAction> void promptSelector(String title, List<T> actions, Condition<T> preselectCondition) {
@@ -265,7 +265,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         private final ConnectionRef connection;
         private ConnectionAction(VirtualFile virtualFile, ConnectionHandler connection) {
             super(
-                Safe.call(connection, c -> c.getName(), txt("app.fileContext.action.NoConnection")), null,
+                Safe.call(connection, c -> adjustActionName(c.getName()), txt("app.fileContext.action.NoConnection")), null,
                 Safe.call(connection, c -> c.getIcon()));
             this.virtualFile = virtualFile;
             this.connection = ConnectionRef.of(connection);
@@ -294,7 +294,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         private final VirtualFile virtualFile;
         private final SchemaId schemaId;
         private SchemaAction(VirtualFile virtualFile, SchemaId schemaId) {
-            super(Actions.adjustActionName(schemaId.getName()), "", schemaId.getIcon());
+            super(adjustActionName(schemaId.getName()), "", schemaId.getIcon());
             this.virtualFile = virtualFile;
             this.schemaId = schemaId;
         }
@@ -311,7 +311,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         private final VirtualFile virtualFile;
         private final DatabaseSession session;
         private SessionAction(VirtualFile virtualFile, DatabaseSession session) {
-            super(Actions.adjustActionName(session.getName()), "", session.getIcon());
+            super(adjustActionName(session.getName()), "", session.getIcon());
             this.virtualFile = virtualFile;
             this.session = session;
         }
