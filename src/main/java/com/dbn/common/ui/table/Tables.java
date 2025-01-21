@@ -62,5 +62,12 @@ public class Tables {
         new TableValueSelector<>(table, columnIndex, title, values);
     }
 
+    public static boolean isFirstCellSelected(JTable table) {
+        return table.getSelectedRow() == 0 && table.getSelectedColumn() == 0;
+    }
 
+    public static boolean isLastCellSelected(JTable table) {
+        return table.getSelectedRow() == table.getRowCount() - 1 &&
+                table.getSelectedColumn() == table.getColumnCount() - 1;
+    }
 }
