@@ -23,6 +23,7 @@ import com.dbn.common.action.DataProviders;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.StatefulDisposable;
+import com.dbn.common.latent.Latent;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.Mouse;
@@ -33,13 +34,12 @@ import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionPlaces;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.DataContext;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.actionSystem.impl.ActionButton;
 import com.intellij.openapi.actionSystem.impl.PresentationFactory;
+import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.components.JBTabbedPane;
-import com.intellij.util.ui.JBDimension;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +55,7 @@ import javax.swing.SwingUtilities;
 import javax.swing.plaf.UIResource;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Dimension;
 import java.awt.LayoutManager;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
@@ -67,8 +68,11 @@ import static com.dbn.common.ui.util.ClientProperty.TAB_ICON;
 import static com.dbn.common.ui.util.ClientProperty.TAB_TOOLTIP;
 import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.nls.NlsResources.txt;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 @Getter
 @Setter
@@ -79,6 +83,9 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     private JPanel hiddenTabsActionPanel;
     protected final Listeners<DBNTabsSelectionListener> selectionListeners = new Listeners<>();
     protected final Listeners<DBNTabsUpdateListener> updateListeners = new Listeners<>();
+    private final Latent<Boolean> hasTooltips  = Latent.mutable(
+            () -> getTabCount(),
+            () -> evaluateHasTooltips());
 
     public DBNTabbedPaneBase(int tabPlacement, Disposable parent, boolean mutable) {
         super(tabPlacement, JTabbedPane.SCROLL_TAB_LAYOUT);
@@ -99,27 +106,26 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     private final class HiddenTabsPanel extends JPanel implements UIResource {
         public HiddenTabsPanel() {
             super(new BorderLayout());
-
-            AnAction action = new AnAction(txt("app.shared.action.ShowHiddenTabs"), null, AllIcons.Actions.FindAndShowNextMatches) {
+            AnAction action = new DumbAwareAction(txt("app.shared.action.ShowHiddenTabs"), null, AllIcons.Actions.FindAndShowNextMatches) {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e) {
-                    showHiddenTabsPopup(e.getDataContext());
+                    showHiddenTabsPopup(HiddenTabsPanel.this);
                 }
             };
             PresentationFactory presentationFactory = new PresentationFactory();
             Presentation presentation = presentationFactory.getPresentation(action);
             ActionButton actionButton = new ActionButton(
-                    action,
-                    presentation,
+                    action, presentation,
                     ActionPlaces.TOOLBAR,
-                    new JBDimension(20, 20));
+                    new Dimension(20, 20));
 
             actionButton.setBorder(Borders.insetBorder(4));
+            actionButton.setFocusable(true);
             add(actionButton);
         }
     }
 
-    private void showHiddenTabsPopup(DataContext dataContext) {
+    private void showHiddenTabsPopup(JComponent component) {
         DBNTabbedPaneUI ui = (DBNTabbedPaneUI) getUI();
         List<Integer> indexes = ui.getHiddenTabIndexes();
 
@@ -128,7 +134,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
             String title = getTitleAt(index);
             title = Actions.adjustActionName(title);
             Icon icon = getIconAt(index);
-            actions.add(new AnAction(title, null, icon) {
+            actions.add(new DumbAwareAction(title, null, icon) {
                 @Override
                 public void actionPerformed(@NotNull AnActionEvent e) {
                     setSelectedIndex(index);
@@ -136,7 +142,7 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
             });
         }
 
-        popupBuilder(actions, dataContext).
+        popupBuilder(actions, component).
                 withTitle("Hidden Tabs").
                 withTitleVisible(false).
                 withSpeedSearch().
@@ -180,6 +186,24 @@ class DBNTabbedPaneBase<T extends Disposable> extends JBTabbedPane implements St
     public void updateUI() {
         setUI(new DBNTabbedPaneUI());
     }
+
+    @Override
+    public String getToolTipText(MouseEvent event) {
+        return hasTooltips() ? super.getToolTipText(event) : null;
+    }
+
+    public boolean hasTooltips() {
+        return hasTooltips.get() == TRUE;
+    }
+
+    private Boolean evaluateHasTooltips() {
+        for (int i = 0; i < this.getTabCount(); i++) {
+            String toolTip = getToolTipTextAt(i);
+            if (isNotEmpty(toolTip)) return TRUE;
+        }
+        return FALSE;
+    }
+
 
     @Workaround // see assumption in BasicTabbedPaneUI.scrollableTabLayoutEnabled()
     public LayoutManager getLayout() {
