@@ -25,6 +25,7 @@ import com.dbn.object.DBSchema;
 import com.dbn.object.factory.DatabaseObjectFactory;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.FunctionFactoryInputForm;
+import com.dbn.object.factory.ui.JavaFactoryInputForm;
 import com.dbn.object.factory.ui.ProcedureFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
@@ -50,6 +51,7 @@ public class ObjectFactoryInputDialog extends DBNDialog<ObjectFactoryInputForm<?
         DBSchema schema = this.schema.ensure();
         return objectType == DBObjectType.FUNCTION ? new FunctionFactoryInputForm(this, schema, objectType, 0) :
                objectType == DBObjectType.PROCEDURE ? new ProcedureFactoryInputForm(this, schema, objectType, 0) :
+               objectType == DBObjectType.JAVA_CLASS ? new JavaFactoryInputForm(this,schema, objectType, 0):
                        Failsafe.nn(null);
     }
 

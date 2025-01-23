@@ -28,6 +28,7 @@ import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.editor.DBContentType;
 import com.dbn.editor.DatabaseFileEditorManager;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBSchemaObject;
@@ -83,7 +84,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
 
     public void openFactoryInputDialog(DBSchema schema, DBObjectType objectType) {
         Project project = getProject();
-        if (objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE)) {
+        if (objectType.isOneOf(DBObjectType.FUNCTION, DBObjectType.PROCEDURE, DBObjectType.JAVA_CLASS)) {
             Dialogs.show(() -> new ObjectFactoryInputDialog(project, schema, objectType));
         } else {
             Messages.showErrorDialog(project,
@@ -105,6 +106,11 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         if (factoryInput instanceof MethodFactoryInput) {
             MethodFactoryInput methodFactoryInput = (MethodFactoryInput) factoryInput;
             createMethod(methodFactoryInput, callback);
+        }
+
+        if (factoryInput instanceof JavaFactoryInput) {
+            JavaFactoryInput javaFactoryInput = (JavaFactoryInput) factoryInput;
+            createJavaObject(javaFactoryInput, callback);
         }
         // TODO other factory inputs
     }
@@ -135,6 +141,51 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
             DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
             editorManager.connectAndOpenEditor(method, null, false, true);
             notifyFactoryEvent(new ObjectFactoryEvent(method, ObjectFactoryEvent.EVENT_TYPE_CREATE));
+        });
+    }
+
+    private void createJavaObject(JavaFactoryInput factoryInput, Callback callback) {
+        callback.background(() -> {
+            DBObjectType objectType = DBObjectType.JAVA_CLASS;
+            String objectTypeName = objectType.getName();
+            String objectName = factoryInput.getObjectName();
+            String packageName = factoryInput.getPackageName();
+            DBSchema schema = factoryInput.getSchema().get();
+            if(schema == null) return;
+
+            String fullyQualifiedClassName;
+
+            StringBuilder javaCode = new StringBuilder();
+            if(!packageName.isEmpty()) {
+                fullyQualifiedClassName = packageName + "." + objectName;
+                javaCode.append("package ").append(packageName).append(";").append("\n");
+            } else {
+                fullyQualifiedClassName = objectName;
+            }
+
+            javaCode.append("public class ").append(objectName)
+                    .append("\n")
+                    .append("{")
+                    .append("\n")
+                    .append("}");
+
+            DatabaseInterfaceInvoker.execute(HIGHEST,
+					"Creating " + objectTypeName,
+					"Creating " + objectTypeName + " " + objectName,
+					schema.getProject(),
+					schema.getConnectionId(),
+					conn -> {
+						DatabaseDataDefinitionInterface dataDefinition = schema.getDataDefinitionInterface();
+						dataDefinition.createJavaClass(fullyQualifiedClassName, javaCode.toString(), conn);
+					});
+
+            nn(schema.getChildObjectList(objectType)).reload();
+
+            DBJavaClass javaClass = schema.getChildObject(objectType, fullyQualifiedClassName.replace(".","/"), false);
+
+            DatabaseFileEditorManager editorManager = DatabaseFileEditorManager.getInstance(getProject());
+            editorManager.connectAndOpenEditor(javaClass, null, false, true);
+            notifyFactoryEvent(new ObjectFactoryEvent(javaClass, ObjectFactoryEvent.EVENT_TYPE_CREATE));
         });
     }
 
