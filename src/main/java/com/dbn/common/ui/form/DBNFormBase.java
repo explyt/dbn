@@ -35,6 +35,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.containers.ContainerUtil;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -174,13 +175,14 @@ public abstract class DBNFormBase
         return formValidator.validateForm(components);
     }
 
+    @ApiStatus.OverrideOnly
     protected void initValidation() {}
 
+    @ApiStatus.OverrideOnly
     protected void initAccessibility() {}
 
-    protected void lookAndFeelChanged() {
-
-    }
+    @ApiStatus.OverrideOnly
+    protected void lookAndFeelChanged() {}
 
     protected void updateActionToolbars() {
         dispatch(() -> UserInterface.updateActionToolbars(getMainComponent()));

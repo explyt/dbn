@@ -19,7 +19,6 @@ package com.dbn.execution.common.ui;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.ui.AutoCommitLabel;
-import com.dbn.common.ui.ValueSelectorOption;
 import com.dbn.common.ui.form.DBNCollapsibleForm;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -48,6 +47,8 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+
 public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleForm {
     private JPanel mainPanel;
     private JPanel timeoutPanel;
@@ -72,13 +73,13 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
         ConnectionHandler connection = executionInput.ensureConnection();
         targetConnectionComboBox.setValues(connection);
         targetConnectionComboBox.setSelectedValue(connection);
-        targetConnectionComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
+        targetConnectionComboBox.set(HIDE_DESCRIPTION, true);
         targetConnectionComboBox.setEnabled(false);
 
         if (isSchemaSelectionAllowed()) {
             targetSchemaComboBox.setValues(connection.getSchemaIds());
             targetSchemaComboBox.setSelectedValue(executionInput.getTargetSchemaId());
-            targetSchemaComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
+            targetSchemaComboBox.set(HIDE_DESCRIPTION, true);
             targetSchemaComboBox.addActionListener(actionListener);
         } else {
             SchemaId targetSchema = executionInput.getTargetSchemaId();
@@ -98,7 +99,7 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
 
             targetSessionComboBox.setValues(sessions);
             targetSessionComboBox.setSelectedValue(targetSession);
-            targetSessionComboBox.set(ValueSelectorOption.HIDE_DESCRIPTION, true);
+            targetSessionComboBox.set(HIDE_DESCRIPTION, true);
             targetSessionComboBox.addActionListener(actionListener);
         } else {
             targetSessionId = debuggerType == DBDebuggerType.NONE ? targetSessionId : SessionId.DEBUG;
