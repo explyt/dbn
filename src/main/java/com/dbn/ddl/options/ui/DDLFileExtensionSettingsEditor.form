@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="com.dbn.ddl.options.ui.DDLFileExtensionSettingsForm">
-  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="11" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+  <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="12" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="4" left="4" bottom="4" right="4"/>
     <constraints>
-      <xy x="20" y="20" width="504" height="442"/>
+      <xy x="20" y="20" width="504" height="487"/>
     </constraints>
     <properties/>
     <border type="none" title="Extensions">
@@ -120,7 +120,7 @@
       </component>
       <vspacer id="63b8">
         <constraints>
-          <grid row="10" column="0" row-span="1" col-span="3" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+          <grid row="11" column="0" row-span="1" col-span="2" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
         </constraints>
       </vspacer>
       <hspacer id="b02ca">
@@ -258,6 +258,30 @@
         <properties>
           <margin top="2" left="9" bottom="2" right="6"/>
         </properties>
+      </component>
+      <component id="e5eca" class="javax.swing.JLabel" binding="javaIconLabel">
+        <constraints>
+          <grid row="10" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="[java]"/>
+        </properties>
+      </component>
+      <component id="ebc9" class="javax.swing.JLabel">
+        <constraints>
+          <grid row="10" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Java Source"/>
+        </properties>
+      </component>
+      <component id="e00d6" class="javax.swing.JTextField" binding="javaTextField">
+        <constraints>
+          <grid row="10" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="1" indent="0" use-parent-layout="false">
+            <preferred-size width="100" height="-1"/>
+          </grid>
+        </constraints>
+        <properties/>
       </component>
     </children>
   </grid>

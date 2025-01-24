@@ -44,6 +44,9 @@ public class DDLFileNameProvider {
     }
 
     public String getFileName() {
+        if(object.getObjectType() == DBObjectType.JAVA_CLASS){
+            return toLowerCase(object.getFileName().replace("/","_")) + '.' + extension;
+        }
         return toLowerCase(object.getFileName()) + '.' + extension;
     }
 
