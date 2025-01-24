@@ -89,9 +89,17 @@ public abstract class DBNFormBase
         return getMainComponent();
     }
 
+    @Nullable
     @Override
-    public @Nullable JComponent getPreferredFocusedComponent() {
+    public JComponent getPreferredFocusedComponent() {
         return findChildComponent(getMainComponent(), c -> isFocusableComponent(c));
+    }
+
+    public void focusPreferredComponent() {
+        JComponent preferredFocusedComponent = getPreferredFocusedComponent();
+        if (preferredFocusedComponent != null) {
+            preferredFocusedComponent.requestFocus();
+        }
     }
 
     /**
