@@ -411,9 +411,18 @@ public class UserInterface {
     }
 
     @Nullable
-    public static JLabel getComponentLabel(JComponent component) {
-        Container parentComponent = component.getParent();
-        return UserInterface.findChildComponent(parentComponent, JLabel.class, l -> l.getLabelFor() == component);
+    public static JLabel getComponentLabel(@Nullable Component component) {
+        if (component == null) return null;
+
+        Container container = component.getParent();
+        if (container == null) return null;
+
+        JLabel label = findChildComponent(container, JLabel.class, l -> l.getLabelFor() == component);
+        if (label != null) return label;
+
+        // walk up one level on the component tree (support for nested components)
+        container = container.getParent();
+        return findChildComponent(container, JLabel.class, l -> l.getLabelFor() == component);
     }
 
     @Nullable
