@@ -153,7 +153,7 @@ public class ExecutionOptionsForm extends DBNFormBase implements DBNCollapsibleF
 
     @Override
     public String getCollapsedTitle() {
-        return "Target context: ";
+        return "Target context - ";
     }
 
     @Override
