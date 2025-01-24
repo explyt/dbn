@@ -18,19 +18,17 @@ package com.dbn.common.ui.link;
 
 import com.dbn.common.ui.listener.ToggleBorderOnFocusListener;
 import com.intellij.ui.HyperlinkLabel;
-import com.intellij.util.ui.PlatformColors;
 import lombok.Setter;
 
-import static com.intellij.util.ui.JBUI.Borders.customLine;
-import static com.intellij.util.ui.JBUI.Borders.empty;
+import static com.dbn.common.ui.util.Borders.LINK_FOCUS_BORDER;
 
 @Setter
 public class DBNHyperlinkLabel extends HyperlinkLabel {
+
+
     public DBNHyperlinkLabel() {
         setFocusable(true);
         setRequestFocusEnabled(true);
-        addFocusListener(new ToggleBorderOnFocusListener(
-                empty(),
-                customLine(PlatformColors.BLUE, 0, 0, 1, 0)));
+        addFocusListener(new ToggleBorderOnFocusListener(null, LINK_FOCUS_BORDER));
     }
 }

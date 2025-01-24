@@ -117,7 +117,7 @@ public abstract class DBNFormBase
      *
      * @param runnable the task to execute when the form is shown
      */
-    protected void whenShown(Runnable runnable) {
+    protected final void whenShown(Runnable runnable) {
         whenFirstShown(getMainComponent(), runnable);
     }
 
