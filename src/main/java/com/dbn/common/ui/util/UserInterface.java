@@ -453,6 +453,12 @@ public class UserInterface {
             return textComponent.getText();
         }
 
+        if (component instanceof JComboBox) {
+            JComboBox comboBox = (JComboBox) component;
+            Object selectedItem = comboBox.getSelectedItem();
+            return selectedItem == null ? null : selectedItem.toString();
+        }
+
         return component.getName();
     }
 
