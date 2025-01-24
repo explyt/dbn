@@ -142,7 +142,7 @@ public class UserInterface {
 
 
     public static void removeBorders(JComponent root) {
-        UserInterface.visitRecursively(root, component -> component.setBorder(null));
+        visitRecursively(root, component -> component.setBorder(null));
     }
 
     @Nullable
@@ -299,6 +299,20 @@ public class UserInterface {
         return isBorderless(component);
     }
 
+
+    @Nullable
+    public static <T extends JComponent> T getRootParentOfType(Component component, Class<T> type) {
+        T root = null;
+        Component parent = component.getParent();
+        while (parent != null) {
+            if (type.isAssignableFrom(parent.getClass())) {
+                root = cast(parent);
+            }
+            parent = parent.getParent();
+        }
+        return root;
+    }
+
     @Nullable
     public static <T extends JComponent> T getParentOfType(JComponent component, Class<T> type) {
         Component parent = component.getParent();
@@ -414,15 +428,10 @@ public class UserInterface {
     public static JLabel getComponentLabel(@Nullable Component component) {
         if (component == null) return null;
 
-        Container container = component.getParent();
-        if (container == null) return null;
+        JPanel rootPanel = getRootParentOfType(component, JPanel.class);
+        if (rootPanel == null) return null;
 
-        JLabel label = findChildComponent(container, JLabel.class, l -> l.getLabelFor() == component);
-        if (label != null) return label;
-
-        // walk up one level on the component tree (support for nested components)
-        container = container.getParent();
-        return findChildComponent(container, JLabel.class, l -> l.getLabelFor() == component);
+        return findChildComponent(rootPanel, JLabel.class, l -> l.getLabelFor() == component);
     }
 
     @Nullable
