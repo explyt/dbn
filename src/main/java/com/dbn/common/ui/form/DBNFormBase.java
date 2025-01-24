@@ -35,7 +35,6 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,7 +43,6 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTable;
-import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
 import java.util.List;
@@ -55,8 +53,8 @@ import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibil
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
-import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
+import static com.intellij.util.ui.UIUtil.getScrollBarWidth;
 
 public abstract class DBNFormBase
         extends DBNComponentBase
@@ -112,6 +110,7 @@ public abstract class DBNFormBase
     }
 
     private void initialize() {
+        if (isDisposed()) return;
         if (initialized) return;
         initialized = true;
 
@@ -141,20 +140,15 @@ public abstract class DBNFormBase
 
         Disposable parentComponent = getParentComponent();
         if (parentComponent instanceof DBNDialog) {
-            int scrollbarWidth = getScrollBarWidth();
+            // buffers to be added to the form size to hide scroll bars unless absolutely necessary
+            int buffer = getScrollBarWidth();
 
             Dimension dimension = mainComponent.getPreferredSize();
-            dimension = new Dimension(dimension.width + scrollbarWidth, dimension.height);
+            dimension = new Dimension(dimension.width + buffer * 4, dimension.height + buffer * 2);
             mainComponent.setPreferredSize(dimension);
             mainComponent.revalidate();
             mainComponent.repaint();
         }
-    }
-
-    private static int getScrollBarWidth() {
-        int scrollbarWidth = nvl((Integer) UIManager.get("ScrollBar.width"), 16);
-        scrollbarWidth = JBUI.scale(scrollbarWidth);
-        return scrollbarWidth;
     }
 
     private void initFormAccessibility() {
