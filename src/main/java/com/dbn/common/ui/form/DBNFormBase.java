@@ -42,6 +42,7 @@ import javax.swing.AbstractButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 import java.awt.Dimension;
@@ -51,6 +52,7 @@ import java.util.Set;
 import static com.dbn.common.ui.util.Accessibility.initComponentGroupsAccessibility;
 import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibility;
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
+import static com.dbn.common.ui.util.UserInterface.hasChildComponent;
 import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Unsafe.cast;
@@ -63,6 +65,7 @@ public abstract class DBNFormBase
     private boolean initialized;
     private final Set<JComponent> enabled = ContainerUtil.createWeakSet();
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
+    private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
 
     protected final DBNFormValidator formValidator = new DBNFormValidatorImpl(this);
 
@@ -115,6 +118,7 @@ public abstract class DBNFormBase
         initialized = true;
 
 
+        initValidation();
         initFormAccessibility();
 
         JComponent mainComponent = getMainComponent();
@@ -140,7 +144,11 @@ public abstract class DBNFormBase
 
         Disposable parentComponent = getParentComponent();
         if (parentComponent instanceof DBNDialog) {
-            // buffers to be added to the form size to hide scroll bars unless absolutely necessary
+
+            boolean hasScrollBars = this.hasScrollBars.get();
+            if (!hasScrollBars) return;
+
+            // buffers to be added to the form size to hide scroll-bars unless absolutely necessary
             int buffer = getScrollBarWidth();
 
             Dimension dimension = mainComponent.getPreferredSize();
@@ -165,6 +173,8 @@ public abstract class DBNFormBase
     public final List<ValidationInfo> validate(JComponent... components) {
         return formValidator.validateForm(components);
     }
+
+    protected void initValidation() {}
 
     protected void initAccessibility() {}
 
