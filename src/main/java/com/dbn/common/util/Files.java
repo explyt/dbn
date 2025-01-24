@@ -39,7 +39,6 @@ public final class Files {
     // keep in sync with file type definitions in  plugin.xml
     public static final String[] SQL_FILE_EXTENSIONS = {"sql", "ddl", "vw"};
     public static final String[] PSQL_FILE_EXTENSIONS = {"psql", "plsql", "trg", "prc", "fnc", "pkg", "pks", "pkb", "tpe", "tps", "tpb"};
-    public static final String[] JAVA_FILE_EXTENSIONS = {"java"};
 
     public static String toRegexFileNamePattern(String fileNamePattern) {
         return "^(?i)" + fileNamePattern.replaceAll("\\*", "[a-z0-9_-]*") + "$";

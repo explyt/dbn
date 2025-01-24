@@ -605,7 +605,6 @@
 
         <fileType name="DBN-SQL" language="DBN-SQL" implementationClass="com.dbn.language.sql.SQLFileType" fieldName="INSTANCE" extensions="sql;ddl;vw"/>
         <fileType name="DBN-PSQL" language="DBN-PSQL" implementationClass="com.dbn.language.psql.PSQLFileType" fieldName="INSTANCE" extensions="psql;plsql;trg;prc;fnc;pkg;pks;pkb;tpe;tps;tpb"/>
-        <fileType name="DBN-JAVA" language="DBN-JAVA" implementationClass="com.dbn.language.java.JavaFileType" fieldName="INSTANCE" extensions="java"/>
 
         <fileIconProvider order="last" implementation="com.dbn.vfs.DBFileIconProvider"/>
 

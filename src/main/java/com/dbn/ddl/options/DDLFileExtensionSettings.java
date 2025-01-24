@@ -21,7 +21,6 @@ import com.dbn.common.util.Strings;
 import com.dbn.ddl.DDLFileType;
 import com.dbn.ddl.DDLFileTypeId;
 import com.dbn.ddl.options.ui.DDLFileExtensionSettingsForm;
-import com.dbn.language.java.JavaFileType;
 import com.dbn.language.psql.PSQLFileType;
 import com.dbn.language.sql.SQLFileType;
 import lombok.Getter;
@@ -53,7 +52,7 @@ public class DDLFileExtensionSettings extends BasicProjectConfiguration<DDLFileS
             new DDLFileType(DDLFileTypeId.TYPE, "DDL File - Type", "tpe", PSQLFileType.INSTANCE, CODE_SPEC_AND_BODY),
             new DDLFileType(DDLFileTypeId.TYPE_SPEC, "DDL File - Type Spec", "tps", PSQLFileType.INSTANCE, CODE_SPEC),
             new DDLFileType(DDLFileTypeId.TYPE_BODY, "DDL File - Type Body", "tpb", PSQLFileType.INSTANCE, CODE_BODY),
-            new DDLFileType(DDLFileTypeId.JAVA_SOURCE, "DDL File - Java Source", "sql", JavaFileType.INSTANCE, CODE)
+            new DDLFileType(DDLFileTypeId.JAVA_SOURCE, "DDL File - Java Source", "sql", PSQLFileType.INSTANCE, CODE)
     );
 
     DDLFileExtensionSettings(DDLFileSettings parent) {
