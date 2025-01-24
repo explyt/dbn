@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.Icon;
+import javax.swing.JComboBox;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
@@ -45,6 +46,7 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
     private JPanel headerPanel;
     private JLabel nameLabel;
     private JTextField packageTextField;
+    private JComboBox<String> javaType;
 
     private final DBObjectRef<DBSchema> schema;
 
@@ -57,11 +59,14 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
         schemaLabel.setText(schema.getName());
         schemaLabel.setIcon(schema.getIcon());
 
-        nameLabel.setText("Java Class Name");
-
         DBNHeaderForm headerForm = createHeaderForm(schema, objectType);
         onTextChange(packageTextField, e -> headerForm.setTitle(getSchema().getName() +  "." + toUpperCase(packageTextField.getText()) + (nameTextField.getText().isEmpty() ? "" : "." + toUpperCase(nameTextField.getText()))));
         onTextChange(nameTextField, e -> headerForm.setTitle(getSchema().getName() + (packageTextField.getText().isEmpty() ? "" : "." + toUpperCase(packageTextField.getText()))  + "." + toUpperCase(nameTextField.getText())));
+
+        javaType.addActionListener(e -> {
+            String selectedItem = (String) javaType.getSelectedItem();
+            nameLabel.setText("Java " + selectedItem + " name");
+        });
     }
 
     private DBNHeaderForm createHeaderForm(DBSchema schema, DBObjectType objectType) {
@@ -82,7 +87,7 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
     @Override
     public JavaFactoryInput createFactoryInput(ObjectFactoryInput parent) {
-        return new JavaFactoryInput(getSchema(), packageTextField.getText(), nameTextField.getText(), getObjectType(), getIndex());
+        return new JavaFactoryInput(getSchema(), packageTextField.getText(), nameTextField.getText(), (String) javaType.getSelectedItem(), getObjectType(), getIndex());
     }
 
     DBSchema getSchema() {

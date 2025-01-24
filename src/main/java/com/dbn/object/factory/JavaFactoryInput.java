@@ -28,12 +28,17 @@ public class JavaFactoryInput extends ObjectFactoryInput{
     private final DBObjectRef<DBSchema> schema;
     private final String packageName;
     private final String className;
+    private final String javaType;
 
-    public JavaFactoryInput(DBSchema schema, String packageName, String objectName, DBObjectType methodType, int index) {
+    public JavaFactoryInput(DBSchema schema, String packageName, String objectName, String javaType, DBObjectType methodType, int index) {
         super(objectName, methodType, null, index);
         this.schema = DBObjectRef.of(schema);
         this.packageName = packageName;
         this.className = objectName;
+        if(javaType.equals("Annotation")){
+            javaType = "@interface";
+        }
+        this.javaType = javaType;
     }
 
     @Override
