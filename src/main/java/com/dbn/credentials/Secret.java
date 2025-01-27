@@ -59,7 +59,7 @@ public final class Secret {
 
     public String safePresentation() {
         // secret representation with length of token only
-        return type + ":" + (isEmpty(token) ? '0' : token.length);
+        return type + ":" + (isEmpty(token) ? "0" : token.length);
     }
 
     @Override
