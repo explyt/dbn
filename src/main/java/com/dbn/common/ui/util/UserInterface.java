@@ -142,7 +142,7 @@ public class UserInterface {
 
 
     public static void removeBorders(JComponent root) {
-        UserInterface.visitRecursively(root, component -> component.setBorder(null));
+        visitRecursively(root, component -> component.setBorder(null));
     }
 
     @Nullable
@@ -299,6 +299,20 @@ public class UserInterface {
         return isBorderless(component);
     }
 
+
+    @Nullable
+    public static <T extends JComponent> T getRootParentOfType(Component component, Class<T> type) {
+        T root = null;
+        Component parent = component.getParent();
+        while (parent != null) {
+            if (type.isAssignableFrom(parent.getClass())) {
+                root = cast(parent);
+            }
+            parent = parent.getParent();
+        }
+        return root;
+    }
+
     @Nullable
     public static <T extends JComponent> T getParentOfType(JComponent component, Class<T> type) {
         Component parent = component.getParent();
@@ -411,9 +425,13 @@ public class UserInterface {
     }
 
     @Nullable
-    public static JLabel getComponentLabel(JComponent component) {
-        Container parentComponent = component.getParent();
-        return UserInterface.findChildComponent(parentComponent, JLabel.class, l -> l.getLabelFor() == component);
+    public static JLabel getComponentLabel(@Nullable Component component) {
+        if (component == null) return null;
+
+        JPanel rootPanel = getRootParentOfType(component, JPanel.class);
+        if (rootPanel == null) return null;
+
+        return findChildComponent(rootPanel, JLabel.class, l -> l.getLabelFor() == component);
     }
 
     @Nullable
@@ -433,6 +451,12 @@ public class UserInterface {
         if (component instanceof JTextComponent) {
             JTextComponent textComponent = (JTextComponent) component;
             return textComponent.getText();
+        }
+
+        if (component instanceof JComboBox) {
+            JComboBox comboBox = (JComboBox) component;
+            Object selectedItem = comboBox.getSelectedItem();
+            return selectedItem == null ? null : selectedItem.toString();
         }
 
         return component.getName();

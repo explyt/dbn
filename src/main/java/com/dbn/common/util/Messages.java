@@ -39,6 +39,7 @@ import javax.swing.Icon;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
+import static com.dbn.common.ui.progress.ProgressDialogHandler.preventProgressDialogs;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static com.dbn.nls.NlsResources.txt;
@@ -168,12 +169,17 @@ public class Messages {
 
     public static int showDialog(@Nullable Project project, String message, String title, String[] options, int defaultOptionIndex, @Nullable Icon icon, @Nullable DoNotAskOption doNotAskOption) {
         closeProgressDialogs();
-        if (Diagnostics.isNativeAlertsEnabled()) {
-            return com.intellij.openapi.ui.Messages.showDialog(message, title, options, defaultOptionIndex, icon, doNotAskOption);
-        } else {
-            DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, doNotAskOption);
-            messageDialog.show();
-            return messageDialog.getExitCode();
+        try {
+            preventProgressDialogs(true);
+            if (Diagnostics.isNativeAlertsEnabled()) {
+                return com.intellij.openapi.ui.Messages.showDialog(message, title, options, defaultOptionIndex, icon, doNotAskOption);
+            } else {
+                DBNMessageDialog messageDialog = new DBNMessageDialog(project, icon, title, message, options, defaultOptionIndex, doNotAskOption);
+                messageDialog.show();
+                return messageDialog.getExitCode();
+            }
+        } finally {
+            preventProgressDialogs(false);
         }
     }
 
