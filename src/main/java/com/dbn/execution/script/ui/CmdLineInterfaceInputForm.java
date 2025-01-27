@@ -58,8 +58,6 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
         initDatabaseTypeField();
         initExecutableField();
         initNameField();
-
-        initValidation();
     }
 
     private void initHintPanel() {
@@ -100,7 +98,7 @@ public class CmdLineInterfaceInputForm extends DBNFormBase {
         nameTextField.setText(name);
     }
 
-    private void initValidation() {
+    protected void initValidation() {
         formValidator.addTextValidation(nameTextField, t -> isNotEmpty(t), "Please specify an interface name");
         formValidator.addTextValidation(nameTextField, t -> isNotUsed(t), "Interface name already in use");
 

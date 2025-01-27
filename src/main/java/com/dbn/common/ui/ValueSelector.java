@@ -74,6 +74,7 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
 
     private List<T> values;
     private PresentableFactory<T> valueFactory;
+    private PresentableFactory<T> emptyValueFactory;
 
 
     public ValueSelector(@Nullable String text, @Nullable T preselectedValue, ValueSelectorOption... options) {
@@ -178,9 +179,16 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
         innerPanel.setCursor(Cursors.defaultCursor());
         label.setCursor(Cursors.defaultCursor());
         DefaultActionGroup actionGroup = new DefaultActionGroup();
+
+        if (emptyValueFactory != null) {
+            actionGroup.add(new AddEmptyValueAction());
+            actionGroup.add(Actions.SEPARATOR);
+        }
+
         for (T value : getValues()) {
             actionGroup.add(new SelectValueAction(value));
         }
+
         if (valueFactory != null) {
             actionGroup.add(Actions.SEPARATOR);
             actionGroup.add(new AddValueAction());
@@ -235,6 +243,28 @@ public abstract class ValueSelector<T extends Presentable> extends DBNButtonPane
             e.getPresentation().setText(getOptionDisplayName(value), false);
         }
     }
+
+    private class AddEmptyValueAction extends BasicAction {
+        AddEmptyValueAction() {
+            super(emptyValueFactory.getActionName(), null, null);
+        }
+
+        @Override
+        public void actionPerformed(@NotNull AnActionEvent e) {
+            emptyValueFactory.create(inputValue -> {
+                if (inputValue != null) {
+                    addValue(inputValue);
+                    selectValue(inputValue);
+                }
+            });
+        }
+
+        @Override
+        public void update(@NotNull AnActionEvent e) {
+            e.getPresentation().setVisible(emptyValueFactory != null);
+        }
+    }
+
 
     private class AddValueAction extends BasicAction {
         AddValueAction() {
