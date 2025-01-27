@@ -20,6 +20,7 @@ import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import com.intellij.openapi.ui.popup.ListPopup;
+import com.intellij.ui.ToolbarDecorator;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
@@ -94,6 +95,13 @@ public class Accessibility {
         if (target instanceof ActionToolbar) {
             ActionToolbar toolbar = (ActionToolbar) target;
             setAccessibleText(toolbar.getComponent(), text, descriptor);
+            return;
+        }
+
+        if (target instanceof ToolbarDecorator) {
+            ToolbarDecorator toolbarDecorator = (ToolbarDecorator) target;
+            setAccessibleText(toolbarDecorator.getActionsPanel(), text, descriptor);
+            return;
         }
 
         log.warn("Cannot set accessible text to target of type {}", target.getClass().getName());

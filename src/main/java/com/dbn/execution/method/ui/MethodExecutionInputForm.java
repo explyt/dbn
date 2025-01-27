@@ -23,6 +23,7 @@ import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
 import com.dbn.common.ui.panel.DBNCollapsiblePanel;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Listeners;
 import com.dbn.common.ui.util.UserInterface;
 import com.dbn.debugger.DBDebuggerType;
@@ -169,6 +170,7 @@ public class MethodExecutionInputForm extends DBNFormBase {
             Dimension minSize = new Dimension(-1, Math.min(argumentForms.size(), 10) * scrollUnitIncrement + 2);
             argumentsScrollPane.setMinimumSize(minSize);
             argumentsScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
+            Accessibility.setAccessibleName(argumentsScrollPane, "Method arguments");
         }
 
         for (MethodExecutionInputArgumentForm argumentComponent : argumentForms){

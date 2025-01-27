@@ -35,6 +35,7 @@ import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ValidationInfo;
 import com.intellij.util.containers.ContainerUtil;
+import com.intellij.util.ui.JBUI;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -43,7 +44,9 @@ import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JTable;
+import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
+import java.awt.Dimension;
 import java.util.List;
 import java.util.Set;
 
@@ -52,6 +55,7 @@ import static com.dbn.common.ui.util.Accessibility.initCustomComponentAccessibil
 import static com.dbn.common.ui.util.UserInterface.findChildComponent;
 import static com.dbn.common.ui.util.UserInterface.isFocusableComponent;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
+import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 
 public abstract class DBNFormBase
@@ -119,11 +123,38 @@ public abstract class DBNFormBase
         UserInterface.updateScrollPaneBorders(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
-        ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
-        //GuiUtils.replaceJSplitPaneWithIDEASplitter(mainComponent);
+        adjustFormSize(mainComponent);
 
+        ApplicationEvents.subscribe(this, LafManagerListener.TOPIC, source -> lookAndFeelChanged());
+    }
+
+    /**
+     * Adjusts the size of the given form component to account for its content and any additional elements,
+     * such as scrollbars, when it is displayed within a parent component (e.g., a dialog).
+     * Validates and lays out the component to ensure its proper rendering.
+     *
+     * @param mainComponent the main component of the form whose size needs to be adjusted
+     */
+    private void adjustFormSize(JComponent mainComponent) {
         mainComponent.doLayout();
         mainComponent.validate();
+
+        Disposable parentComponent = getParentComponent();
+        if (parentComponent instanceof DBNDialog) {
+            int scrollbarWidth = getScrollBarWidth();
+
+            Dimension dimension = mainComponent.getPreferredSize();
+            dimension = new Dimension(dimension.width + scrollbarWidth, dimension.height);
+            mainComponent.setPreferredSize(dimension);
+            mainComponent.revalidate();
+            mainComponent.repaint();
+        }
+    }
+
+    private static int getScrollBarWidth() {
+        int scrollbarWidth = nvl((Integer) UIManager.get("ScrollBar.width"), 16);
+        scrollbarWidth = JBUI.scale(scrollbarWidth);
+        return scrollbarWidth;
     }
 
     private void initFormAccessibility() {
