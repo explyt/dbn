@@ -68,6 +68,11 @@ public class DatabaseCredentialManager extends ApplicationComponentBase {
     }
 
     public void updateSecrets(@NotNull Object ownerId, @Nullable Secret[] oldSecrets, @NotNull Secret[] newSecrets) {
+        if (oldSecrets == null) {
+            insertSecrets(ownerId, newSecrets);
+            return;
+        }
+
         for (int i = 0; i < newSecrets.length; i++) {
             Secret oldSecret = oldSecrets[i];
             Secret newSecret = newSecrets[i];
