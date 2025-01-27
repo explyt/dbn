@@ -17,12 +17,15 @@
 package com.dbn.credentials;
 
 import com.intellij.util.containers.ContainerUtil;
-import com.intellij.util.containers.WeakList;
+import com.intellij.util.containers.UnsafeWeakList;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * A registry for managing and retrieving {@link SecretsOwner} instances. This class maintains
@@ -31,15 +34,34 @@ import java.util.Objects;
  */
 @Slf4j
 public class SecretsOwnerRegistry {
-    private static final WeakList<SecretsOwner> DATA = new WeakList<>();
+    private static final Collection<SecretsOwner> DATA = new UnsafeWeakList<>();
     private static final Map<Object, SecretsOwner> DATA_CACHE = ContainerUtil.createConcurrentWeakValueMap();
+    private static final Lock lock = new ReentrantLock();
 
+    /**
+     * Registers the given {@link SecretsOwner} instance into the registry.
+     *
+     * @param secretsOwner the instance of {@link SecretsOwner} to be added to the registry
+     */
     public static void register(SecretsOwner secretsOwner) {
-        DATA.add(secretsOwner);
+        try {
+            lock.lock();
+            DATA.add(secretsOwner);
+        } finally {
+            lock.unlock();
+        }
     }
 
+    /**
+     * Retrieves the name associated with a given secret owner identifier.
+     * If the owner is not found, the method returns the string representation of the provided identifier.
+     * The method also ensures that unresolved owners are removed from the cache.
+     *
+     * @param ownerId the identifier of the secret owner whose name is to be retrieved
+     * @return the name of the secret owner if resolved, otherwise the string representation of the provided identifier
+     */
     public static String getOwnerName(Object ownerId) {
-        SecretsOwner secretsOwner = DATA_CACHE.computeIfAbsent(ownerId, id -> findSecretsOwner(id));
+        SecretsOwner secretsOwner = DATA_CACHE.computeIfAbsent(ownerId, id -> resolveOwner(id));
         if (secretsOwner == NULL) {
             DATA_CACHE.remove(ownerId);
             return Objects.toString(ownerId);
@@ -48,7 +70,16 @@ public class SecretsOwnerRegistry {
         return secretsOwner.getSecretOwnerName();
     }
 
-    private static SecretsOwner findSecretsOwner(Object ownerId) {
+    private static SecretsOwner resolveOwner(Object ownerId) {
+        try {
+            lock.lock();
+            return findOwner(ownerId);
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    private static SecretsOwner findOwner(Object ownerId) {
         for (SecretsOwner secretsOwner : DATA) {
             if (Objects.equals(secretsOwner.getSecretOwnerId(), ownerId)) {
                 return secretsOwner;
