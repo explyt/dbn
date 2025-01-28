@@ -75,9 +75,9 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
     }
 
     protected void initValidation() {
-        formValidator.addTextValidation(packageTextField, p -> isValidPackageName(p), "Invalid package name");
+        formValidator.addTextValidation(packageTextField, p -> isValidPackageName(p), "Please enter a valid package name");
         formValidator.addTextValidation(classNameTextField, p -> isNotEmpty(p), "Please enter a class name");
-        formValidator.addTextValidation(classNameTextField, p -> isValidClassName(p), "Invalid class name");
+        formValidator.addTextValidation(classNameTextField, p -> isValidClassName(p), "Please enter a valid class name");
     }
 
     @Override
