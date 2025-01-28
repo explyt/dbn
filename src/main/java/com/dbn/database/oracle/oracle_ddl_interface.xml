@@ -45,7 +45,7 @@
     <statement-execution-processor id="create-java-class">
         <statement>
             begin
-            execute immediate 'create or replace and compile java source named "{0}" as {1}';
+            execute immediate 'create and compile java source named "{0}" as {1}';
             end;
         </statement>
     </statement-execution-processor>
