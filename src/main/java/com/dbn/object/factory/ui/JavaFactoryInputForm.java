@@ -17,6 +17,7 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.state.StateHolder;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -25,10 +26,13 @@ import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.JavaFactoryInput;
 import com.dbn.object.factory.ObjectFactoryInput;
+import com.dbn.object.factory.ObjectFactoryManager;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBObjectType;
+import com.intellij.openapi.project.Project;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -39,6 +43,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 
 import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
+import static com.dbn.common.ui.form.DBNFormState.initPersistence;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
@@ -112,6 +117,20 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
         return headerForm;
+    }
+
+    protected void initStatePersistence() {
+        Project project = ensureProject();
+        ObjectFactoryManager factoryManager = ObjectFactoryManager.getInstance(project);
+
+        StateHolder state = factoryManager.getState(getObjectType());
+        initPersistence(classTypeComboBox, state, "class-type-selection");
+        initPersistence(packageTextField, state, "package-selection");
+    }
+
+    @NonNls
+    private String getPackageName() {
+        return packageTextField.getText().trim();
     }
 
     @Override
