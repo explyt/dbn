@@ -150,8 +150,8 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         argumentValue.setValue(value);
     }
 
-    public void setInputValue(@NotNull DBJavaField argument, String value) {
-        ArgumentValue argumentValue = getArgumentValue(argument);
+    public void setInputValue(@NotNull DBJavaField argument, String value, short argumentPosition) {
+        ArgumentValue argumentValue = getArgumentValue(argument, argumentPosition);
         argumentValue.setValue(value);
     }
 
@@ -160,13 +160,13 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return (String) argumentValue.getValue();
     }
 
-    public String getInputValue(@NotNull DBJavaField argument) {
-        ArgumentValue argumentValue = getArgumentValue(argument);
+    public String getInputValue(@NotNull DBJavaField argument, short argumentPosition) {
+        ArgumentValue argumentValue = getArgumentValue(argument, argumentPosition);
         return (String) argumentValue.getValue();
     }
 
-    public List<String> getInputValueHistory(@NotNull DBJavaField argument) {
-        ArgumentValue argumentValue = getArgumentValue(argument);
+    public List<String> getInputValueHistory(@NotNull DBJavaField argument, short argumentPosition) {
+        ArgumentValue argumentValue = getArgumentValue(argument, argumentPosition);
 
         ArgumentValueHolder<?> valueStore = argumentValue.getValueHolder();
         if (valueStore instanceof JavaExecutionArgumentValue) {
@@ -199,15 +199,15 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return argumentValue;
     }
 
-    private ArgumentValue getArgumentValue(@NotNull DBJavaField argument) {
+    private ArgumentValue getArgumentValue(@NotNull DBJavaField argument, short argumentPosition) {
         for (ArgumentValue argumentValue : argumentValues) {
-            if (argumentValue.matches(argument)) {
+            if (argumentValue.matches(argument) && argumentValue.getArgumentPosition() == argumentPosition) {
                 return argumentValue;
             }
         }
 
-        ArgumentValue argumentValue = new ArgumentValue(argument, null);
-        argumentValue.setValueHolder(getExecutionVariable(argumentValue.getName()));
+        ArgumentValue argumentValue = new ArgumentValue(argument, null, argumentPosition);
+        argumentValue.setValueHolder(getExecutionVariable(argumentPosition + argumentValue.getName()));
         argumentValues.add(argumentValue);
         return argumentValue;
     }

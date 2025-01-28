@@ -57,7 +57,7 @@ public class JavaComplexType {
 		private String name;
 		private String type;
 		private boolean complexType = false;
-		private AccessModifier accessModifier;
+		private AccessModifier accessModifier = null;
 		private String setter;
 		private String getter;
 		private boolean isArray = false;

@@ -33,7 +33,7 @@ public class ArgumentValuesTreeModel implements TreeModel {
     ArgumentValuesTreeModel(DBJavaMethod method, List<ArgumentValue> inputArgumentValues) {
         root = new ArgumentValuesTreeNode(null, method);
         ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, "Input");
-
+        ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, "Output");
         createArgumentValueNodes(inputNode, inputArgumentValues);
     }
 
