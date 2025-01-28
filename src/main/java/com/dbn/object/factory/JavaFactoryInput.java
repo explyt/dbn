@@ -18,31 +18,42 @@ package com.dbn.object.factory;
 
 import com.dbn.object.DBSchema;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 
 import java.util.List;
+
+import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
 
 @Getter
 public class JavaFactoryInput extends ObjectFactoryInput{
     private final DBObjectRef<DBSchema> schema;
     private final String packageName;
     private final String className;
-    private final String javaType;
+    private final DBJavaClassType classType;
     private String extendsSuffix = " ";
 
-    public JavaFactoryInput(DBSchema schema, String packageName, String objectName, String javaType, DBObjectType methodType, int index) {
+    public JavaFactoryInput(DBSchema schema, String packageName, String objectName, DBJavaClassType javaType, DBObjectType methodType, int index) {
         super(objectName, methodType, null, index);
         this.schema = DBObjectRef.of(schema);
         this.packageName = packageName;
         this.className = objectName;
-        if(javaType.equals("Annotation")){
-            javaType = "@interface";
-        } else if(javaType.equals("Exception")){
-            javaType = "class";
-            extendsSuffix = " extends Exception ";
+        this.classType = javaType;
+
+        if(javaType == EXCEPTION){
+            this.extendsSuffix = " extends Exception ";
         }
-        this.javaType = javaType.toLowerCase();
+    }
+
+    public String getTypeIdentifier() {
+        switch (classType) {
+            case INTERFACE: return "interface";
+            case ANNOTATION: return "@interface";
+            case RECORD: return "record";
+            case ENUM: return "enum";
+            default: return "class";
+        }
     }
 
     @Override

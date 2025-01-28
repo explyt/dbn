@@ -17,84 +17,86 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
+import com.dbn.common.ui.misc.DBNComboBox;
+import com.dbn.connection.ConnectionHandler;
+import com.dbn.connection.SchemaId;
 import com.dbn.object.DBSchema;
 import com.dbn.object.factory.JavaFactoryInput;
 import com.dbn.object.factory.ObjectFactoryInput;
 import com.dbn.object.factory.ui.common.ObjectFactoryInputForm;
 import com.dbn.object.lookup.DBObjectRef;
+import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import static com.dbn.common.ui.ValueSelectorOption.HIDE_DESCRIPTION;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Java.isValidClassName;
 import static com.dbn.common.util.Java.isValidPackageName;
+import static com.dbn.common.util.Strings.isEmpty;
 import static com.dbn.common.util.Strings.isNotEmpty;
-import static com.dbn.common.util.Strings.toUpperCase;
 
 public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInput> {
     private JPanel mainPanel;
-    private JLabel connectionLabel;
-    private JLabel schemaLabel;
     protected JTextField classNameTextField;
     private JPanel headerPanel;
-    private JLabel nameLabel;
     private JTextField packageTextField;
-    private JComboBox<String> javaType;
+    private DBNComboBox<ConnectionHandler> connectionComboBox;
+    private DBNComboBox<SchemaId> schemaComboBox;
+    private DBNComboBox<DBJavaClassType> classTypeComboBox;
 
     private final DBObjectRef<DBSchema> schema;
 
     public JavaFactoryInputForm(DBNComponent parent, DBSchema schema, DBObjectType objectType, int index) {
         super(parent, schema.getConnection(), objectType, index);
         this.schema = DBObjectRef.of(schema);
-        connectionLabel.setText(getConnection().getName());
-        connectionLabel.setIcon(getConnection().getIcon());
 
-        schemaLabel.setText(schema.getName());
-        schemaLabel.setIcon(schema.getIcon());
+
+        ConnectionHandler connection = getConnection();
+        connectionComboBox.setValues(connection);
+        connectionComboBox.setSelectedValue(connection);
+        connectionComboBox.set(HIDE_DESCRIPTION, true);
+        connectionComboBox.setEnabled(false); // TODO support connection switch
+
+        SchemaId schemaId = schema.getSchemaId();
+        schemaComboBox.setValues(schemaId);
+        schemaComboBox.setSelectedValue(schemaId);
+        schemaComboBox.set(HIDE_DESCRIPTION, true);
+        schemaComboBox.setEnabled(false); // TODO support connection switch
+
+        classTypeComboBox.setValues(DBJavaClassType.values());
+        classTypeComboBox.setSelectedValue(DBJavaClassType.CLASS);
+
 
         DBNHeaderForm headerForm = createHeaderForm(schema, objectType);
-        onTextChange(packageTextField, e -> headerForm.setTitle(getSchema().getName() +  "." + toUpperCase(packageTextField.getText()) + (classNameTextField.getText().isEmpty() ? "" : "." + toUpperCase(classNameTextField.getText()))));
-        onTextChange(classNameTextField, e -> headerForm.setTitle(getSchema().getName() + (packageTextField.getText().isEmpty() ? "" : "." + toUpperCase(packageTextField.getText()))  + "." + toUpperCase(classNameTextField.getText())));
+        onTextChange(packageTextField, e -> headerForm.setTitle(getHeaderTitle()));
+        onTextChange(classNameTextField, e -> headerForm.setTitle(getHeaderTitle()));
+        classTypeComboBox.addListener((o,n) -> headerForm.setIcon(getHeaderIcon()));
+    }
 
-        javaType.addActionListener(e -> {
-            String selectedItem = (String) javaType.getSelectedItem();
-            nameLabel.setText("Java " + selectedItem + " name");
-        });
+    @Nullable
+    private Icon getHeaderIcon() {
+        DBJavaClassType selectedValue = classTypeComboBox.getSelectedValue();
+        return selectedValue == null ? DBJavaClassType.CLASS.getIcon() : selectedValue.getIcon();
+    }
 
-        javaType.setRenderer((list, value, index1, isSelected, cellHasFocus) -> {
-            JLabel label = new JLabel();
-            if (value != null) {
-                label.setText(value);
-                switch (value){
-                    case "Class":
-                        label.setIcon(Icons.DBO_JAVA_CLASS);
-                        break;
-                    case "Interface":
-                        label.setIcon(Icons.DBO_JAVA_INTERFACE);
-                        break;
-                    case "Enum":
-                        label.setIcon(Icons.DBO_JAVA_ENUMERATION);
-                        break;
-                    case "Annotation":
-                        label.setIcon(Icons.DBO_JAVA_ANNOTATION);
-                        break;
-                    case "Exception":
-                        label.setIcon(Icons.DBO_JAVA_EXCEPTION);
-                }
-            }
-            return label;
-        });
+    @NotNull
+    private String getHeaderTitle() {
+        String packageName = packageTextField.getText().trim();
+        String className = classNameTextField.getText().trim();
+        if (isEmpty(className)) className = "[unnamed]";
+
+        String schemaName = schema.getObjectName();
+        return schemaName + (isEmpty(packageName) ? "" : "." + packageName) + "." + className;
     }
 
     private DBNHeaderForm createHeaderForm(DBSchema schema, DBObjectType objectType) {
@@ -115,7 +117,13 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
     @Override
     public JavaFactoryInput createFactoryInput(ObjectFactoryInput parent) {
-        return new JavaFactoryInput(getSchema(), packageTextField.getText(), classNameTextField.getText(), (String) javaType.getSelectedItem(), getObjectType(), getIndex());
+        return new JavaFactoryInput(
+                getSchema(),
+                packageTextField.getText(),
+                classNameTextField.getText(),
+                classTypeComboBox.getSelectedValue(),
+                getObjectType(),
+                getIndex());
     }
 
     @Override
@@ -131,7 +139,7 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
     @Override
     public void focus() {
-        classNameTextField.requestFocus();
+        classTypeComboBox.requestFocus();
     }
 
     @NotNull
