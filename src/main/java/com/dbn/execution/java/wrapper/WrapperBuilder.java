@@ -537,7 +537,7 @@ public final class WrapperBuilder {
 		// Get the raw field type in string form
 		String fieldParameter;
 		try {
-			fieldParameter = getParameterType(dbJavaField.getType(), dbJavaField.getFieldClass().getName());
+			fieldParameter = getParameterType(dbJavaField.getType(), dbJavaField.getFieldClassName());
 		} catch (Exception e) {
 			log.error("Could not create JavaComplexType for field: {}", dbJavaField, e);
 			conditionallyLog(e);

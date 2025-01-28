@@ -20,8 +20,8 @@ import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaFieldMetadata;
 import com.dbn.object.DBJavaClass;
-import com.dbn.object.DBSchema;
 import com.dbn.object.DBJavaField;
+import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.lookup.DBJavaClassRef;
@@ -33,8 +33,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 
-import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
+import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 
 public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implements DBJavaField {
 	private short index;
@@ -91,6 +91,10 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	@Override
 	public DBJavaClass getFieldClass() {
 		return fieldClass == null ? null : fieldClass.get();
+	}
+
+	public String getFieldClassName() {
+		return fieldClass == null ? null : fieldClass.getClassName();
 	}
 
 	@Override

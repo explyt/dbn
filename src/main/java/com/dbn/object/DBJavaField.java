@@ -17,6 +17,7 @@
 package com.dbn.object;
 
 import com.dbn.object.type.DBJavaAccessibility;
+import org.jetbrains.annotations.Nullable;
 
 
 public interface DBJavaField extends DBOrderedObject {
@@ -34,5 +35,9 @@ public interface DBJavaField extends DBOrderedObject {
 
 	String getType();
 
+	@Nullable
 	DBJavaClass getFieldClass();
+
+	@Nullable
+	String getFieldClassName();
 }

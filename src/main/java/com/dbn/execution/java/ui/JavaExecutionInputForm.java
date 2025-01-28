@@ -54,9 +54,10 @@ import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import static java.util.Collections.emptyList;
 
 public class JavaExecutionInputForm extends DBNFormBase {
     private JPanel mainPanel;
@@ -202,27 +203,23 @@ public class JavaExecutionInputForm extends DBNFormBase {
 
     private List<DBJavaParameter> getMethodArguments() {
         DBJavaMethod method = executionInput.getMethod();
+        if (method == null) return emptyList();
 
-        if( method == null ){
-            return Collections.emptyList();
-        } else {
-            List<DBJavaParameter> parameters = new ArrayList<>(method.getParameters());
-            parameters.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
-            for (DBJavaParameter parameter : parameters) {
-                loadJavaFields(parameter.getParameterClass());
-            }
-
-            return parameters;
+        List<DBJavaParameter> parameters = new ArrayList<>(method.getParameters());
+        parameters.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
+        for (DBJavaParameter parameter : parameters) {
+            loadJavaFields(parameter.getParameterClass());
         }
+
+        return parameters;
     }
 
-    private void loadJavaFields(DBJavaClass dbJavaClass){
-        if(dbJavaClass == null) return;
-        for (DBJavaField field : dbJavaClass.getFields()) {
+    private void loadJavaFields(DBJavaClass javaClass) {
+        if (javaClass == null) return;
+
+        for (DBJavaField field : javaClass.getFields()) {
             DBJavaClass innerClass = field.getFieldClass();
-            if(innerClass != null){
-                loadJavaFields(innerClass);
-            }
+            loadJavaFields(innerClass);
         }
     }
 
@@ -264,9 +261,10 @@ public class JavaExecutionInputForm extends DBNFormBase {
         DBNCollapsiblePanel childPanel = null;
         String panelTitle = parentClass + " -> " + fieldName;
         for(DBJavaField argument : arguments) {
-            if (argument.getType().equals("class") && argument.getFieldClass() != null) {
-                String innerClass = getInnerClassName(parentClass, argument.getFieldClass());
-                childPanel = addTreeArgumentPanel(argument.getFieldClass().getFields(), innerClass, argument.getName(), argumentPosition);
+            DBJavaClass fieldClass = argument.getFieldClass();
+            if (argument.getType().equals("class") && fieldClass != null) {
+                String innerClass = getInnerClassName(parentClass, fieldClass);
+                childPanel = addTreeArgumentPanel(fieldClass.getFields(), innerClass, argument.getName(), argumentPosition);
             } else {
                 JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, argument, argumentPosition);
                 complexArgumentForms.add(argumentComponent);

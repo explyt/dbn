@@ -25,8 +25,8 @@ import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
-import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -36,8 +36,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.sql.Array;
 import java.sql.Connection;
-import java.sql.SQLException;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -183,7 +183,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 					customTypeAttributes[i] = Boolean.parseBoolean(value);
 					break;
 				case "class":
-					int typeNumber = wrapper.getComplexTypeNumber(field.getFieldClass().getName(), field.getArrayDepth());
+					int typeNumber = wrapper.getComplexTypeNumber(field.getFieldClassName(), field.getArrayDepth());
 					String innerObjectName = WrapperBuilder.newSqlTypePrepend + typeNumber;
 					customTypeAttributes[i] = getStructObject(executionInput, field.getFieldClass().getFields(), wrapper, innerObjectName, argumentPosition);
 					break;
@@ -239,7 +239,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 					customTypeAttributes[i] = Boolean.parseBoolean(value);
 					break;
 				case "class":
-					int typeNumber = wrapper.getComplexTypeNumber(field.getFieldClass().getName(), field.getArrayDepth());
+					int typeNumber = wrapper.getComplexTypeNumber(field.getFieldClassName(), field.getArrayDepth());
 					String innerObjectName = WrapperBuilder.newSqlTypePrepend + typeNumber;
 					customTypeAttributes[i] = getStructObject(executionInput, field.getFieldClass().getFields(), wrapper, innerObjectName, argumentPosition);
 					break;
