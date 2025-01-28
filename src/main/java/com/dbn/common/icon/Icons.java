@@ -390,6 +390,7 @@ public class Icons {
     public static final Icon DBO_JAVA_CLASS_ABSTRACT             = load("/img/object/java/JavaClassAbstract.svg");
     public static final Icon DBO_JAVA_CLASSES                    = load("/img/object/java/JavaClasses.svg");
     public static final Icon DBO_JAVA_INTERFACE                  = load("/img/object/java/JavaInterface.svg");
+    public static final Icon DBO_JAVA_ANNOTATION                 = load("/img/object/java/JavaAnnotation.svg");
     public static final Icon DBO_JAVA_ENUMERATION                = load("/img/object/java/JavaEnumeration.svg");
     public static final Icon DBO_JAVA_EXCEPTION                  = load("/img/object/java/JavaException.svg");
     public static final Icon DBO_JAVA_FIELD                      = load("/img/object/java/JavaField.svg");

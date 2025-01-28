@@ -149,9 +149,10 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
         callback.background(() -> {
             DBObjectType objectType = DBObjectType.JAVA_CLASS;
             String objectTypeName = objectType.getName();
-            String objectName = factoryInput.getObjectName();
+            String objectName = factoryInput.getClassName();
             String packageName = factoryInput.getPackageName();
             String javaType = factoryInput.getJavaType();
+            String extendsSuffix = factoryInput.getExtendsSuffix();
             DBSchema schema = factoryInput.getSchema().get();
             if(schema == null) return;
 
@@ -165,8 +166,7 @@ public class DatabaseObjectFactory extends ProjectComponentBase {
                 fullyQualifiedClassName = objectName;
             }
 
-            javaCode.append("public ").append(javaType).append(" ").append(objectName)
-                    .append("\n")
+            javaCode.append("public ").append(javaType).append(" ").append(objectName).append(extendsSuffix)
                     .append("{")
                     .append("\n")
                     .append("}");

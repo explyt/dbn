@@ -17,6 +17,7 @@
 package com.dbn.object.factory.ui;
 
 import com.dbn.common.color.Colors;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.object.DBSchema;
@@ -37,12 +38,14 @@ import java.awt.Color;
 
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.common.util.Strings.toUpperCase;
+import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidClassName;
+import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidPackageName;
 
 public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInput> {
     private JPanel mainPanel;
     private JLabel connectionLabel;
     private JLabel schemaLabel;
-    protected JTextField nameTextField;
+    protected JTextField classNameTextField;
     private JPanel headerPanel;
     private JLabel nameLabel;
     private JTextField packageTextField;
@@ -60,12 +63,36 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
         schemaLabel.setIcon(schema.getIcon());
 
         DBNHeaderForm headerForm = createHeaderForm(schema, objectType);
-        onTextChange(packageTextField, e -> headerForm.setTitle(getSchema().getName() +  "." + toUpperCase(packageTextField.getText()) + (nameTextField.getText().isEmpty() ? "" : "." + toUpperCase(nameTextField.getText()))));
-        onTextChange(nameTextField, e -> headerForm.setTitle(getSchema().getName() + (packageTextField.getText().isEmpty() ? "" : "." + toUpperCase(packageTextField.getText()))  + "." + toUpperCase(nameTextField.getText())));
+        onTextChange(packageTextField, e -> headerForm.setTitle(getSchema().getName() +  "." + toUpperCase(packageTextField.getText()) + (classNameTextField.getText().isEmpty() ? "" : "." + toUpperCase(classNameTextField.getText()))));
+        onTextChange(classNameTextField, e -> headerForm.setTitle(getSchema().getName() + (packageTextField.getText().isEmpty() ? "" : "." + toUpperCase(packageTextField.getText()))  + "." + toUpperCase(classNameTextField.getText())));
 
         javaType.addActionListener(e -> {
             String selectedItem = (String) javaType.getSelectedItem();
             nameLabel.setText("Java " + selectedItem + " name");
+        });
+
+        javaType.setRenderer((list, value, index1, isSelected, cellHasFocus) -> {
+            JLabel label = new JLabel();
+            if (value != null) {
+                label.setText(value);
+                switch (value){
+                    case "Class":
+                        label.setIcon(Icons.DBO_JAVA_CLASS);
+                        break;
+                    case "Interface":
+                        label.setIcon(Icons.DBO_JAVA_INTERFACE);
+                        break;
+                    case "Enum":
+                        label.setIcon(Icons.DBO_JAVA_ENUMERATION);
+                        break;
+                    case "Annotation":
+                        label.setIcon(Icons.DBO_JAVA_ANNOTATION);
+                        break;
+                    case "Exception":
+                        label.setIcon(Icons.DBO_JAVA_EXCEPTION);
+                }
+            }
+            return label;
         });
     }
 
@@ -87,7 +114,13 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
     @Override
     public JavaFactoryInput createFactoryInput(ObjectFactoryInput parent) {
-        return new JavaFactoryInput(getSchema(), packageTextField.getText(), nameTextField.getText(), (String) javaType.getSelectedItem(), getObjectType(), getIndex());
+        return new JavaFactoryInput(getSchema(), packageTextField.getText(), classNameTextField.getText(), (String) javaType.getSelectedItem(), getObjectType(), getIndex());
+    }
+
+    @Override
+    protected void initValidation() {
+        formValidator.addTextValidation(packageTextField, p -> isValidPackageName(p), "Invalid package name");
+        formValidator.addTextValidation(classNameTextField, p -> isValidClassName(p), "Invalid class name");
     }
 
     DBSchema getSchema() {
@@ -96,7 +129,7 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
     @Override
     public void focus() {
-        nameTextField.requestFocus();
+        classNameTextField.requestFocus();
     }
 
     @NotNull

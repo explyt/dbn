@@ -29,6 +29,7 @@ public class JavaFactoryInput extends ObjectFactoryInput{
     private final String packageName;
     private final String className;
     private final String javaType;
+    private String extendsSuffix = " ";
 
     public JavaFactoryInput(DBSchema schema, String packageName, String objectName, String javaType, DBObjectType methodType, int index) {
         super(objectName, methodType, null, index);
@@ -37,25 +38,15 @@ public class JavaFactoryInput extends ObjectFactoryInput{
         this.className = objectName;
         if(javaType.equals("Annotation")){
             javaType = "@interface";
+        } else if(javaType.equals("Exception")){
+            javaType = "class";
+            extendsSuffix = " extends Exception ";
         }
-        this.javaType = javaType;
+        this.javaType = javaType.toLowerCase();
     }
 
     @Override
     public void validate(List<String> errors) {
-        String fullyQualifiedName;
-        if(packageName.isEmpty()){
-            fullyQualifiedName = className;
-        } else {
-            fullyQualifiedName = packageName + "." + className;
-        }
 
-        if (className.isEmpty()) {
-            errors.add("Class name is not specified");
-        } else if (fullyQualifiedName.contains(" ")) {
-            errors.add("No Space allowed");
-        }else if (fullyQualifiedName.length() > 30) {
-            errors.add("Total length cannot exceed 30 characters");
-        }
     }
 }
