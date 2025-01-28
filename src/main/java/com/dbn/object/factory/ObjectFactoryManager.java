@@ -37,7 +37,7 @@ import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
-import static com.dbn.generator.code.CodeGeneratorManager.COMPONENT_NAME;
+import static com.dbn.object.factory.ObjectFactoryManager.COMPONENT_NAME;
 
 @State(
         name = COMPONENT_NAME,
