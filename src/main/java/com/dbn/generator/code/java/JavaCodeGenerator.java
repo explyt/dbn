@@ -90,15 +90,19 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
         Project project = input.getProject();
         String driverClassName = input.getDatabaseContext().getConnection().getSettings().getDatabaseSettings().getDriver();
         Module[] modules = ModuleManager.getInstance(project).getModules();
-        //String driverClassName = "oracle.jdbc.OracleDriver";
-        for(Module module : modules) {
+        boolean wasFound = false;
+        FOR_LOOP: for(Module module : modules) {
             GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
             @Nullable PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(driverClassName, scope);
-            if (psiClass == null || !psiClass.isValid()) {
-                Messages.showInfoDialog(project, "Can't find jdbc driver",
-                        "The driver "+ driverClassName + " does not appear to be on your conpile time classpath."+
-                        " This may cause your generated code to have errors and may not run.");
+            if (psiClass != null && psiClass.isValid()) {
+               wasFound = true;
+               break FOR_LOOP;
             }
+        }
+        if (!wasFound) {
+            Messages.showInfoDialog(project, "Can't Find JDBC Driver",
+                    "The driver " + driverClassName + " does not appear to be on your compile-time classpath." +
+                            " This may cause your generated code to have errors and may not run.");
         }
     }
 

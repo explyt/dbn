@@ -21,16 +21,8 @@ import com.dbn.common.outcome.OutcomeType;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.generator.code.CodeGeneratorContext;
 import com.dbn.generator.code.CodeGeneratorManager;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
-import com.intellij.openapi.module.ModuleManager;
-
-import com.intellij.psi.JavaPsiFacade;
-import com.intellij.psi.PsiClass;
-import com.intellij.psi.search.GlobalSearchScope;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Action;
 
