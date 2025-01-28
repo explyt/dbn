@@ -50,8 +50,9 @@ import static com.dbn.common.ui.util.ComboBoxes.initComboBox;
 import static com.dbn.common.ui.util.ComboBoxes.initPersistence;
 import static com.dbn.common.ui.util.ComboBoxes.initSelectionListener;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
-import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidClassName;
-import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidPackageName;
+import static com.dbn.common.util.Java.isValidClassName;
+import static com.dbn.common.util.Java.isValidPackageName;
+import static com.dbn.common.util.Strings.isNotEmpty;
 
 public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extends CodeGeneratorInputForm<I> {
     private JPanel headerPanel;
@@ -77,6 +78,7 @@ public class JavaCodeGeneratorInputForm<I extends JavaCodeGeneratorInput> extend
 
     protected void initValidation() {
         formValidator.addTextValidation(packageTextField, p -> isValidPackageName(p), "Invalid package name");
+        formValidator.addTextValidation(classNameTextField, p -> isNotEmpty(p), "Please enter a class name");
         formValidator.addTextValidation(classNameTextField, p -> isValidClassName(p), "Invalid class name");
     }
 

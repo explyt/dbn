@@ -28,18 +28,19 @@ import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
 import javax.swing.Icon;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.util.Java.isValidClassName;
+import static com.dbn.common.util.Java.isValidPackageName;
+import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.common.util.Strings.toUpperCase;
-import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidClassName;
-import static com.dbn.generator.code.java.JavaCodeGeneratorInput.isValidPackageName;
 
 public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInput> {
     private JPanel mainPanel;
@@ -120,6 +121,7 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
     @Override
     protected void initValidation() {
         formValidator.addTextValidation(packageTextField, p -> isValidPackageName(p), "Invalid package name");
+        formValidator.addTextValidation(classNameTextField, p -> isNotEmpty(p), "Please enter a class name");
         formValidator.addTextValidation(classNameTextField, p -> isValidClassName(p), "Invalid class name");
     }
 
