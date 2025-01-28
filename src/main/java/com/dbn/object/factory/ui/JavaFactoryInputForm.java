@@ -56,8 +56,8 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
 
     private final DBObjectRef<DBSchema> schema;
 
-    public JavaFactoryInputForm(DBNComponent parent, DBSchema schema, DBObjectType objectType, int index) {
-        super(parent, schema.getConnection(), objectType, index);
+    public JavaFactoryInputForm(DBNComponent parent, DBSchema schema, int index) {
+        super(parent, schema.getConnection(), DBObjectType.JAVA_CLASS, index);
         this.schema = DBObjectRef.of(schema);
 
 
@@ -77,7 +77,8 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
         classTypeComboBox.setSelectedValue(DBJavaClassType.CLASS);
 
 
-        DBNHeaderForm headerForm = createHeaderForm(schema, objectType);
+        DBNHeaderForm headerForm = createHeaderForm(schema);
+
         onTextChange(packageTextField, e -> headerForm.setTitle(getHeaderTitle()));
         onTextChange(classNameTextField, e -> headerForm.setTitle(getHeaderTitle()));
         classTypeComboBox.addListener((o,n) -> headerForm.setIcon(getHeaderIcon()));
@@ -99,18 +100,16 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
         return schemaName + (isEmpty(packageName) ? "" : "." + packageName) + "." + className;
     }
 
-    private DBNHeaderForm createHeaderForm(DBSchema schema, DBObjectType objectType) {
-        String headerTitle = schema.getName() + ".[unnamed]";
-        Icon headerIcon = objectType.getIcon();
+    private DBNHeaderForm createHeaderForm(DBSchema schema) {
         Color headerBackground = Colors.getPanelBackground();
         if (getEnvironmentSettings(schema.getProject()).getVisibilitySettings().getDialogHeaders().value()) {
             headerBackground = schema.getEnvironmentType().getColor();
         }
-        DBNHeaderForm headerForm = new DBNHeaderForm(
-                this, headerTitle,
-                headerIcon,
-                headerBackground
-        );
+        DBNHeaderForm headerForm = new DBNHeaderForm(this,
+                getHeaderTitle(),
+                getHeaderIcon(),
+                headerBackground);
+
         headerPanel.add(headerForm.getComponent(), BorderLayout.CENTER);
         return headerForm;
     }
@@ -121,9 +120,7 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
                 getSchema(),
                 packageTextField.getText(),
                 classNameTextField.getText(),
-                classTypeComboBox.getSelectedValue(),
-                getObjectType(),
-                getIndex());
+                classTypeComboBox.getSelectedValue());
     }
 
     @Override

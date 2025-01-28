@@ -17,6 +17,7 @@
 package com.dbn.common.util;
 
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.regex.Pattern;
 
@@ -34,9 +35,15 @@ public class Java {
     public static boolean isValidPackageName(String packageName) {
         // allow empty package names
         return Strings.isEmpty(packageName) || PACKAGE_NAME_PATTERN.matcher(packageName).matches();
+        // TODO disallow keywords and primitives
     }
 
     public static boolean isValidClassName(String className) {
         return CLASS_NAME_PATTERN.matcher(className).matches();
+        // TODO disallow keywords and primitives
+    }
+
+    public static String getQualifiedClassName(@Nullable String packageName, String className) {
+        return Strings.isEmpty(packageName) ? className : packageName + "." + className;
     }
 }

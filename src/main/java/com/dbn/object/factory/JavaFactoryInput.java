@@ -17,31 +17,29 @@
 package com.dbn.object.factory;
 
 import com.dbn.object.DBSchema;
-import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaClassType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 
 import java.util.List;
 
+import static com.dbn.common.util.Java.getQualifiedClassName;
 import static com.dbn.object.type.DBJavaClassType.EXCEPTION;
 
 @Getter
-public class JavaFactoryInput extends ObjectFactoryInput{
-    private final DBObjectRef<DBSchema> schema;
+public class JavaFactoryInput extends SchemaObjectFactoryInput{
     private final String packageName;
     private final String className;
     private final DBJavaClassType classType;
     private String extendsSuffix = " ";
 
-    public JavaFactoryInput(DBSchema schema, String packageName, String objectName, DBJavaClassType javaType, DBObjectType methodType, int index) {
-        super(objectName, methodType, null, index);
-        this.schema = DBObjectRef.of(schema);
+    public JavaFactoryInput(DBSchema schema, String packageName, String className, DBJavaClassType classType) {
+        super(schema, getQualifiedClassName(packageName, className), DBObjectType.JAVA_CLASS);
         this.packageName = packageName;
-        this.className = objectName;
-        this.classType = javaType;
+        this.className = className;
+        this.classType = classType;
 
-        if(javaType == EXCEPTION){
+        if(classType == EXCEPTION){
             this.extendsSuffix = " extends Exception ";
         }
     }
@@ -53,6 +51,19 @@ public class JavaFactoryInput extends ObjectFactoryInput{
             case RECORD: return "record";
             case ENUM: return "enum";
             default: return "class";
+        }
+    }
+
+    @Override
+    public String getObjectDescription() {
+        String objectName = "\"" + getObjectPath() + "\"";
+        switch (classType) {
+            case INTERFACE: return "java interface " + objectName;
+            case ANNOTATION: return "java annotation " + objectName;
+            case EXCEPTION: return "java exception " + objectName;
+            case RECORD: return "java record " + objectName;
+            case ENUM: return "java enumeration " + objectName;
+            default: return "java class " + objectName;
         }
     }
 
