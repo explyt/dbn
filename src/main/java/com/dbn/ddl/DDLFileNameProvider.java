@@ -43,15 +43,21 @@ public class DDLFileNameProvider {
         return object.get();
     }
 
-    public String getFileName() {
+    private String getAdjustedFileName(){
+        String fileName = object.getFileName();
+
         if(object.getObjectType() == DBObjectType.JAVA_CLASS){
-            return toLowerCase(object.getFileName().replace("/","_")) + '.' + extension;
+            return fileName.replace("/",".");
         }
-        return toLowerCase(object.getFileName()) + '.' + extension;
+        return toLowerCase(fileName); // TODO allow file name case configuration
+    }
+
+    public String getFileName() {
+        return getAdjustedFileName() + '.' + extension;
     }
 
     public String getFilePattern() {
-        return "*" + toLowerCase(object.getFileName()) + "*." + extension;
+        return "*" + getAdjustedFileName() + "*." + extension;  // TODO allow more qualified suffix and postfix definitions
     }
 
 }
