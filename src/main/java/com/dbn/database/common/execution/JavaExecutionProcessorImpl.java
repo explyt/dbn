@@ -47,6 +47,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.sql.CallableStatement;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -248,7 +249,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 									end = ")";
 								}
 								if (e.isComplexType()) {
-									return setterMethod + ";" + e.getType() + "toJava( (java.sql.Struct) objArray[ " + e.getFieldIndex() + " ]" + ")" + ";" + end;
+									int conversionMethod =wrapper.getComplexTypeNumber(e.getType(),e.getArrayDepth());
+									return setterMethod + ";" + "DBN_OJVM_TYPE_" + conversionMethod + "toJava( (java.sql.Struct) objArray[ " + e.getFieldIndex() + " ]" + ")" + ";" + end;
 								}
 								return setterMethod + ";" + e.getTypeCastStart() + " objArray[ " + e.getFieldIndex() + " ]" + e.getTypeCastEnd() + ";" + end;
 							})
@@ -291,7 +293,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 								getterMethod += "()";
 							}
 							if (e.isComplexType()) {
-								return e.getFieldIndex() + ";" + getterMethod + ";" + e.getType();
+								int conversionMethod = wrapper.getComplexTypeNumber(e.getType(), e.getArrayDepth());
+								return e.getFieldIndex() + ";" + getterMethod + ";" + "DBN_OJVM_TYPE_" + conversionMethod;
 							}
 							return e.getFieldIndex() + ";" + getterMethod + ";" + " ";
 						})
@@ -454,7 +457,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		JavaExecutionInput executionInput = context.getInput();
 		String command = buildExecutionCommand(executionInput, wrapper);
 		DBNConnection conn = context.getConnection();
-		DBNPreparedStatement<?> statement = isQuery() ?
+		DBNPreparedStatement<?> statement = !isQuery() ?
 				conn.prepareStatement(command) :
 				conn.prepareCall(command);
 
@@ -481,7 +484,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 	private void initParameters(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
 		JavaExecutionInput executionInput = context.getInput();
-		DBNPreparedStatement<?> statement = context.getStatement();
+		DBNPreparedStatement statement = context.getStatement();
 		bindParameters(executionInput, statement, wrapper);
 	}
 
@@ -553,7 +556,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return getArgumentsCount() > 0;
 	}
 
-	protected void bindParameters(JavaExecutionInput executionInput, DBNPreparedStatement<?> preparedStatement, Wrapper wrapper) {
+	protected void bindParameters(JavaExecutionInput executionInput, PreparedStatement preparedStatement, Wrapper wrapper) {
 
 	}
 

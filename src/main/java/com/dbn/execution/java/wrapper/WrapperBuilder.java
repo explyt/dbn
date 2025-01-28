@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.dbn.common.util.Strings;
 import com.dbn.execution.java.wrapper.JavaComplexType.AttributeDirection;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
@@ -536,7 +537,7 @@ public final class WrapperBuilder {
 		// Get the raw field type in string form
 		String fieldParameter;
 		try {
-			fieldParameter = getParameterType(dbJavaField.getType(), dbJavaField.getClassName());
+			fieldParameter = getParameterType(dbJavaField.getType(), dbJavaField.getFieldClass().getName());
 		} catch (Exception e) {
 			log.error("Could not create JavaComplexType for field: {}", dbJavaField, e);
 			conditionallyLog(e);
@@ -550,7 +551,8 @@ public final class WrapperBuilder {
 		// Basic field setup
 		field.setFieldIndex(dbJavaField.getIndex());
 		field.setName(dbJavaField.getName());
-		field.setAccessModifier(dbJavaField.getAccessibility().toString());
+		if(dbJavaField.getAccessibility() != null)
+			field.setAccessModifier(dbJavaField.getAccessibility().toString());
 		field.setType(fieldParameter, TypeMappingsManager.getCorrespondingSqlType(fieldParameter));
 
 		// If array
@@ -560,13 +562,13 @@ public final class WrapperBuilder {
 		}
 
 		// If the field is non-public, set up the getter/setter if present
-		if (!"PUBLIC".equals(field.getAccessModifier().toString())) {
+		if (field.getAccessModifier() != JavaComplexType.Field.AccessModifier.PUBLIC) {
 			field.setGetter(getGetter(field.getName(), fieldParameter, field.getArrayDepth(), dbJavaClass));
 			field.setSetter(getSetter(field.getName(), fieldParameter, field.getArrayDepth(), dbJavaClass));
 		}
 
 		// If the underlying Java class is known
-		if (field.getSqlType().isEmpty()) {
+		if (Strings.isEmpty(field.getSqlType())) {
 			// Re-use the same complexTypeConversion map.
 			field.setSqlType(getOrCreateNewSqlTypeName(fieldParameter, field.getArrayDepth(), wrapper));
 		}
@@ -685,7 +687,12 @@ public final class WrapperBuilder {
 
         if (getterMethod == null) return null;
 
-		String methodReturn = getParameterType(getterMethod.getReturnType(), getterMethod.getClassName());
+		String methodReturn;
+		if(getterMethod.getReturnClass() == null){
+			methodReturn = getParameterType(getterMethod.getReturnType(), getterMethod.getReturnType());
+		} else {
+			methodReturn = getParameterType(getterMethod.getReturnType(), getterMethod.getReturnClass().getName());
+		}
 		if (methodReturn.equals(fieldParameter)
 				&& getterMethod.getArrayDepth() == arrayDepth
 				&& getterMethod.getParameters().isEmpty()) {
@@ -785,7 +792,7 @@ public final class WrapperBuilder {
 		private final short arrayLength;
 
 		public ComplexTypeKey(String className, short arrayLength) {
-			this.className = className;
+			this.className = convertClassNameToDotNotation(className);
 			this.arrayLength = arrayLength;
 		}
 	}

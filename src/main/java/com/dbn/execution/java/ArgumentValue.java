@@ -34,6 +34,7 @@ public class ArgumentValue {
     private final DBObjectRef<DBJavaField> fieldRef;
     private ArgumentValueHolder valueHolder;
     private boolean isComplexClass;
+    private short argumentPosition = -1;
 
     public ArgumentValue(@NotNull DBJavaParameter argument, ArgumentValueHolder valueHolder) {
         this.argumentRef = DBObjectRef.of(argument);
@@ -42,11 +43,12 @@ public class ArgumentValue {
         this.isComplexClass = false;
     }
 
-    public ArgumentValue(@NotNull DBJavaField argument, ArgumentValueHolder valueHolder) {
+    public ArgumentValue(@NotNull DBJavaField argument, ArgumentValueHolder valueHolder, short argumentPosition) {
         this.argumentRef = null;
         this.fieldRef = DBObjectRef.of(argument);
         this.valueHolder = valueHolder;
         this.isComplexClass = argument.getType().equals("class") && argument.getFieldClass() != null;
+        this.argumentPosition = argumentPosition;
     }
 
     @Nullable
@@ -71,6 +73,8 @@ public class ArgumentValue {
     }
 
     public Object getValue() {
+        if(valueHolder == null)
+            return null;
         return valueHolder.getValue();
     }
 

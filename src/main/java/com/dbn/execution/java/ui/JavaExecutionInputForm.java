@@ -153,7 +153,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
 			if (argument.getParameterType().equals("class")) {
                 List<DBJavaField> fields = argument.getParameterClass().getFields();
                 String parentClass = getInnerClassName("", argument.getParameterClass());
-                DBNCollapsiblePanel panel = addTreeArgumentPanel(fields, parentClass, argument.getName());
+                DBNCollapsiblePanel panel = addTreeArgumentPanel(fields, parentClass, argument.getName(), argument.getPosition());
 
                 argumentsPanel.add(panel.getMainComponent());
 			} else {
@@ -258,7 +258,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
        return parentClass + "." + parts[parts.length - 1];
    }
 
-	private DBNCollapsiblePanel addTreeArgumentPanel(List<DBJavaField> arguments, String parentClass, String fieldName) {
+	private DBNCollapsiblePanel addTreeArgumentPanel(List<DBJavaField> arguments, String parentClass, String fieldName, short argumentPosition) {
         List<JavaExecutionInputFieldForm> list = DisposableContainers.list(this);
         DBNCollapsiblePanel cp;
         DBNCollapsiblePanel childPanel = null;
@@ -266,9 +266,9 @@ public class JavaExecutionInputForm extends DBNFormBase {
         for(DBJavaField argument : arguments) {
             if (argument.getType().equals("class") && argument.getFieldClass() != null) {
                 String innerClass = getInnerClassName(parentClass, argument.getFieldClass());
-                childPanel = addTreeArgumentPanel(argument.getFieldClass().getFields(), innerClass, argument.getName());
+                childPanel = addTreeArgumentPanel(argument.getFieldClass().getFields(), innerClass, argument.getName(), argumentPosition);
             } else {
-                JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, argument);
+                JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, argument, argumentPosition);
                 complexArgumentForms.add(argumentComponent);
                 list.add(argumentComponent);
             }

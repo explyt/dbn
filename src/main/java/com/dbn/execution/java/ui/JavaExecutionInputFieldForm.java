@@ -54,10 +54,11 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 
 	private final JTextField inputTextField;
 	private UserValueHolderImpl<String> userValueHolder;
+	private short argumentPosition;
 
 	private final DBObjectRef<DBJavaField> field;
 
-	JavaExecutionInputFieldForm(JavaExecutionInputForm parentForm, DBJavaField field) {
+	JavaExecutionInputFieldForm(JavaExecutionInputForm parentForm, DBJavaField field, short argumentPosition) {
 		super(parentForm);
 		this.field = DBObjectRef.of(field);
 
@@ -72,7 +73,8 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 
 		Project project = field.getProject();
 		JavaExecutionInput executionInput = parentForm.getExecutionInput();
-		String value = executionInput.getInputValue(field);
+		this.argumentPosition = argumentPosition;
+		String value = executionInput.getInputValue(field, argumentPosition);
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
@@ -106,7 +108,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
                 if (field == null) return emptyList();
 
                 JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-                return executionInput.getInputValueHistory(field);
+                return executionInput.getInputValueHistory(field, argumentPosition);
             }
 
 			@Override
@@ -145,10 +147,10 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
         JavaExecutionInput executionInput = getParentForm().getExecutionInput();
         if (userValueHolder != null) {
             String value = userValueHolder.getUserValue();
-            executionInput.setInputValue(field, value);
+            executionInput.setInputValue(field, value, argumentPosition);
         } else {
             String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
-            executionInput.setInputValue(field, value);
+            executionInput.setInputValue(field, value, argumentPosition);
         }
     }
 

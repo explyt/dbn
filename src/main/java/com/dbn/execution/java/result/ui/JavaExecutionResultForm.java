@@ -104,6 +104,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     private void updateArgumentValueTree() {
         JavaExecutionResult executionResult = getExecutionResult();
         List<ArgumentValue> inputArgumentValues = executionResult.getExecutionInput().getArgumentValues();
+        List<ArgumentValue> outputArgumentValues = executionResult.getArgumentValues();
 
         DBJavaMethod method = executionResult.getMethod();
         ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputArgumentValues);

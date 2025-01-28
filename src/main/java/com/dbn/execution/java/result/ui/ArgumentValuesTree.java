@@ -122,7 +122,7 @@ class ArgumentValuesTree extends DBNTree{
                         argumentName = "[unknown]";
                         dataType = null;
                     } else {
-                        argumentName = field.getName();
+                        argumentName = "p" + argumentValue.getArgumentPosition() + "." + field.getName();
                         dataType = field.getType();
                     }
                 } else {

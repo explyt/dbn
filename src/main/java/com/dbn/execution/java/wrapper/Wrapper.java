@@ -25,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
 
 @Getter
 @Setter
@@ -58,7 +59,12 @@ public class Wrapper {
 		private short attributePosition;
 	}
 
-	public void addEntryToComplexTypeConversion(WrapperBuilder.ComplexTypeKey key, Integer sequenceNumber)
+	public int getComplexTypeNumber(String className, short arrayDepth){
+		ComplexTypeKey complexTypeKey = new ComplexTypeKey(className, arrayDepth);
+		return complexTypeConversion.get(complexTypeKey);
+	}
+
+	public void addEntryToComplexTypeConversion(ComplexTypeKey key, Integer sequenceNumber)
 	{
 		complexTypeConversion.put(key, sequenceNumber);
 	}
