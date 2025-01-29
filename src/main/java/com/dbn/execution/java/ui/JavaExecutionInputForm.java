@@ -20,6 +20,7 @@ import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
+import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.form.DBNHeaderForm;
 import com.dbn.common.ui.misc.DBNScrollPane;
@@ -34,10 +35,7 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBOrderedObject;
-import com.dbn.object.common.DBObject;
-import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBObjectType;
 import com.intellij.ui.DocumentAdapter;
 import com.intellij.util.ui.AsyncProcessIcon;
 import lombok.Getter;
@@ -54,7 +52,6 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -118,16 +115,18 @@ public class JavaExecutionInputForm extends DBNFormBase {
         }
         headerPanel.setVisible(showHeader);
 
-
         initArgumentsPanel();
     }
 
+    private boolean methodDetailsInitialized() {
+        // method details are expected to be pre-initialized if opened in an isolated execution dialog
+        // TODO find a clearer solution to this
+        return getParentComponent() instanceof DBNDialog;
+    }
+
     private void initArgumentsPanel() {
-        if (methodArgumentsLoaded()) {
-            loadingArgumentsPanel.setVisible(false);
-            List<DBJavaParameter> arguments = getMethodArguments();
-            initArgumentsPanel(arguments);
-            updatePreferredSize();
+        if (methodDetailsInitialized()) {
+            createArgumentsPanel();
             return;
         }
 
@@ -135,14 +134,15 @@ public class JavaExecutionInputForm extends DBNFormBase {
         loadingArgumentsPanel.setVisible(true);
         loadingArgumentsIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
 
-        //lazy load
+        //lazy arguments initialization
         Dispatch.async(
                 mainPanel,
-                () -> getMethodArguments(),
-                a -> initArgumentsPanel(a));
+                () -> getExecutionInput().initDatabaseElements(),
+                () -> createArgumentsPanel());
     }
 
-    private void initArgumentsPanel(List<DBJavaParameter> arguments) {
+    private void createArgumentsPanel() {
+        List<DBJavaParameter> arguments = getMethodArguments();
         checkDisposed();
 
         loadingArgumentsPanel.setVisible(false);
@@ -205,36 +205,8 @@ public class JavaExecutionInputForm extends DBNFormBase {
 
     private List<DBJavaParameter> getMethodArguments() {
         DBJavaMethod method = executionInput.getMethod();
-        if (method == null) return emptyList();
-
-        List<DBJavaParameter> parameters = new ArrayList<>(method.getParameters());
-        parameters.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
-        for (DBJavaParameter parameter : parameters) {
-            loadJavaFields(parameter.getParameterClass());
-        }
-
-        return parameters;
+        return method == null ? emptyList() : method.getParameters();
     }
-
-    private void loadJavaFields(DBJavaClass javaClass) {
-        if (javaClass == null) return;
-
-        for (DBJavaField field : javaClass.getFields()) {
-            DBJavaClass innerClass = field.getFieldClass();
-            loadJavaFields(innerClass);
-        }
-    }
-
-    private boolean methodArgumentsLoaded() {
-        if (!executionInput.getMethodRef().isLoaded()) return false;
-
-        DBJavaMethod method = executionInput.getMethod();
-        if (method == null) return false;
-
-        DBObjectList<DBObject> argumentList = method.getChildObjectList(DBObjectType.JAVA_FIELD);
-        return argumentList != null && argumentList.isLoaded();
-    }
-
 
     @NotNull
     @Override

@@ -134,7 +134,7 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 									Messages.showErrorDialog(project, message);
 								} else {
 									// load the arguments while in background
-									method.getParameters();
+									executionInput.initDatabaseElements();
 									showInputDialog(executionInput, debuggerType, callback);
 								}
 							} else {

@@ -29,6 +29,7 @@ import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.LocalExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -90,6 +91,25 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return initExecutionContext();
     }
 
+    /**
+     * Initializes all database elements required for showing the method input form
+     * It makes sure all parameters are loaded, including their java class details if applicable
+     * <br>
+     * This is to be executed in background before the method execution dialog is shown
+     */
+    public void initDatabaseElements() {
+        DBJavaMethod method = getMethod();
+        if (method == null) return;
+
+        List<DBJavaParameter> parameters = method.getParameters();
+        for (DBJavaParameter parameter : parameters) {
+            DBJavaClass parameterClass = parameter.getParameterClass();
+            if (parameterClass != null) {
+                parameterClass.getFields();
+                parameterClass.getMethods();
+            }
+        }
+    }
     @Override
     protected JavaExecutionContext createExecutionContext() {
         return new JavaExecutionContext(this);
