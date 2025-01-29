@@ -212,13 +212,9 @@ public class UserInterface {
         if (border instanceof TitledBorder) {
             TitledBorder titledBorder = (TitledBorder) border;
             String title = titledBorder.getTitle();
-            int indent = Strings.isEmpty(title) ? 0 : 20;
+            int indent = Strings.isEmpty(title) || ClientProperty.NO_INDENT.is(panel) ? 0 : 16;
             IdeaTitledBorder replacement = new IdeaTitledBorder(title, indent, Borders.EMPTY_INSETS);
-/*
-            titledBorder.setTitleColor(Colors.HINT_COLOR);
-            titledBorder.setBorder(Borders.TOP_LINE_BORDER);
-            border = new CompoundBorder(Borders.topInsetBorder(8), titledBorder);
-*/
+
             border = new CompoundBorder(Borders.topInsetBorder(8), replacement);
             panel.setBorder(border);
         }
@@ -299,6 +295,10 @@ public class UserInterface {
 
             JViewport viewport = sp.getViewport();
             Component view = viewport.getView();
+            if (view instanceof JList || view instanceof JTree) {
+                sp.setViewportBorder(Borders.insetBorder(4));
+            }
+
             if (view instanceof JComponent) {
                 JComponent viewComponent = (JComponent) view;
                 viewComponent.setBorder(null);
