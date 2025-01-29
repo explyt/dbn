@@ -48,7 +48,7 @@ public class JavaFactoryInput extends SchemaObjectFactoryInput{
         switch (classType) {
             case INTERFACE: return "interface";
             case ANNOTATION: return "@interface";
-            case RECORD: return "record";
+//            case RECORD: return "record";
             case ENUM: return "enum";
             default: return "class";
         }
@@ -61,7 +61,7 @@ public class JavaFactoryInput extends SchemaObjectFactoryInput{
             case INTERFACE: return "java interface " + objectName;
             case ANNOTATION: return "java annotation " + objectName;
             case EXCEPTION: return "java exception " + objectName;
-            case RECORD: return "java record " + objectName;
+//            case RECORD: return "java record " + objectName;
             case ENUM: return "java enumeration " + objectName;
             default: return "java class " + objectName;
         }

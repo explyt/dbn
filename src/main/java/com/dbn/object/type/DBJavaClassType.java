@@ -31,7 +31,7 @@ import javax.swing.Icon;
 public enum DBJavaClassType implements Constant<DBJavaClassType>, Presentable {
     CLASS     ("Class",      Icons.DBO_JAVA_CLASS),
     INTERFACE ("Interface",  Icons.DBO_JAVA_INTERFACE),
-    RECORD    ("Record",     Icons.DBO_JAVA_RECORD),
+//    RECORD    ("Record",     Icons.DBO_JAVA_RECORD),
     ENUM      ("Enum",       Icons.DBO_JAVA_ENUMERATION),
     ANNOTATION("Annotation", Icons.DBO_JAVA_ANNOTATION),
     EXCEPTION ("Exception",  Icons.DBO_JAVA_EXCEPTION);
