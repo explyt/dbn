@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -58,13 +59,14 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 
 	private final DBObjectRef<DBJavaField> field;
 
-	JavaExecutionInputFieldForm(JavaExecutionInputForm parentForm, DBJavaField field, short argumentPosition) {
+	JavaExecutionInputFieldForm(JavaExecutionInputForm parentForm, DBJavaField field, short argumentPosition, String parentClass, int indent) {
 		super(parentForm);
 		this.field = DBObjectRef.of(field);
 
 		String fieldName = field.getName();
-		fieldLabel.setText(fieldName);
+		fieldLabel.setText(parentClass + "." + fieldName);
 		fieldLabel.setIcon(field.getIcon());
+		fieldLabel.setBorder(new EmptyBorder(0, indent, 0, 0));
 
 		String dataType = field.getType();
 		fieldTypeLabel.setText(dataType);

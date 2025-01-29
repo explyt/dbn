@@ -17,6 +17,7 @@
 package com.dbn.execution.java.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.icon.Icons;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.form.DBNFormBase;
@@ -151,12 +152,13 @@ public class JavaExecutionInputForm extends DBNFormBase {
 
         boolean noArguments = true;
         for (DBJavaParameter argument: arguments) {
+            JLabel label = new JLabel("Parameter p" + argument.getPosition());
+            label.setIcon(Icons.DBO_JAVA_PARAMETER);
+            argumentsPanel.add(label);
 			if (argument.getParameterType().equals("class")) {
                 List<DBJavaField> fields = argument.getParameterClass().getFields();
                 String parentClass = getInnerClassName("", argument.getParameterClass());
-                DBNCollapsiblePanel panel = addTreeArgumentPanel(fields, parentClass, argument.getName(), argument.getPosition());
-
-                argumentsPanel.add(panel.getMainComponent());
+                addTreeArgumentPanel(fields, parentClass, argument.getPosition(), 0);
 			} else {
 				metrics = addArgumentPanel(argument, metrics);
 			}
@@ -229,7 +231,7 @@ public class JavaExecutionInputForm extends DBNFormBase {
         DBJavaMethod method = executionInput.getMethod();
         if (method == null) return false;
 
-        DBObjectList<DBObject> argumentList = method.getChildObjectList(DBObjectType.JAVA_PARAMETER);
+        DBObjectList<DBObject> argumentList = method.getChildObjectList(DBObjectType.JAVA_FIELD);
         return argumentList != null && argumentList.isLoaded();
     }
 
@@ -255,28 +257,20 @@ public class JavaExecutionInputForm extends DBNFormBase {
        return parentClass + "." + parts[parts.length - 1];
    }
 
-	private DBNCollapsiblePanel addTreeArgumentPanel(List<DBJavaField> arguments, String parentClass, String fieldName, short argumentPosition) {
-        List<JavaExecutionInputFieldForm> list = DisposableContainers.list(this);
-        DBNCollapsiblePanel cp;
-        DBNCollapsiblePanel childPanel = null;
-        String panelTitle = parentClass + " -> " + fieldName;
+	private void addTreeArgumentPanel(List<DBJavaField> arguments, String parentClass, short argumentPosition, int indent) {
+        arguments.sort(Comparator.comparingInt(DBOrderedObject::getPosition));
+
         for(DBJavaField argument : arguments) {
             DBJavaClass fieldClass = argument.getFieldClass();
             if (argument.getType().equals("class") && fieldClass != null) {
                 String innerClass = getInnerClassName(parentClass, fieldClass);
-                childPanel = addTreeArgumentPanel(fieldClass.getFields(), innerClass, argument.getName(), argumentPosition);
+                addTreeArgumentPanel(fieldClass.getFields(), innerClass, argumentPosition, indent + 20);
             } else {
-                JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, argument, argumentPosition);
+                JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, argument, argumentPosition, parentClass, indent);
                 complexArgumentForms.add(argumentComponent);
-                list.add(argumentComponent);
+                argumentsPanel.add(argumentComponent.getMainComponent());
             }
         }
-        JavaExecutionComplexInputForm cf = new JavaExecutionComplexInputForm(this, panelTitle, list);
-        cp = new DBNCollapsiblePanel(this, cf,true);
-        if(childPanel != null) {
-            cp.addChild(childPanel);
-        }
-        return cp;
     }
 
     public void updateExecutionInput() {
