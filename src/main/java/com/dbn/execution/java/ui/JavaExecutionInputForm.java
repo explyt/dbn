@@ -41,13 +41,11 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.BoxLayout;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.util.List;
 
 import static com.dbn.common.ui.util.ComponentAligner.alignFormComponents;
@@ -160,26 +158,12 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
         }
         emptyParamsLabel.setVisible(noArguments);
         parameterForms.forEach(c -> c.addDocumentListener(documentListener));
+        argumentsScrollPane.setPreferredSize(argumentsPanel.getPreferredSize());
 
         alignFormComponents(this);
-        adjustScrolling();
+
     }
 
-    private void adjustScrolling() {
-        argumentsScrollPane.setPreferredSize(argumentsPanel.getPreferredSize());
-        if (true) return;
-        if (parameterForms.isEmpty()) {
-            argumentsScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
-            Dimension preferredSize = argumentsScrollPane.getViewport().getView().getPreferredSize();
-            preferredSize.setSize(preferredSize.getWidth(), preferredSize.getHeight() + 2);
-            argumentsScrollPane.setPreferredSize(preferredSize);
-        } else {
-            int scrollUnitIncrement = parameterForms.get(0).getScrollUnitIncrement();
-            Dimension minSize = new Dimension(-1, Math.min(parameterForms.size(), 10) * scrollUnitIncrement + 2);
-            argumentsScrollPane.setPreferredSize(minSize);
-            argumentsScrollPane.getVerticalScrollBar().setUnitIncrement(scrollUnitIncrement);
-        }
-    }
 
     private List<DBJavaParameter> getMethodArguments() {
         DBJavaMethod method = executionInput.getMethod();
