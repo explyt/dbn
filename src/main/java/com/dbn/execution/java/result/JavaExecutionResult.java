@@ -26,9 +26,9 @@ import com.dbn.connection.jdbc.DBNResultSet;
 import com.dbn.data.model.resultSet.ResultSetDataModel;
 import com.dbn.debugger.DBDebuggerType;
 import com.dbn.execution.ExecutionResultBase;
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.execution.java.ArgumentValue;
-import com.dbn.execution.java.ArgumentValueHolder;
 import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.ui.JavaExecutionResultForm;
@@ -70,7 +70,7 @@ public class JavaExecutionResult extends ExecutionResultBase<JavaExecutionResult
     }
 
     public void addArgumentValue(DBJavaParameter argument, Object value) throws SQLException {
-        ArgumentValueHolder<Object> valueStore = ArgumentValue.createBasicValueHolder(value);
+        ValueHolder<Object> valueStore = ValueHolder.basic(value);
         ArgumentValue argumentValue = new ArgumentValue(argument, valueStore);
         argumentValues.add(argumentValue);
         if (value instanceof DBNResultSet) {

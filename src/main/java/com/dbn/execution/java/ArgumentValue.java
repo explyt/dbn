@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java;
 
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
@@ -32,18 +33,18 @@ import java.util.Objects;
 public class ArgumentValue {
     private final DBObjectRef<DBJavaParameter> argumentRef;
     private final DBObjectRef<DBJavaField> fieldRef;
-    private ArgumentValueHolder valueHolder;
+    private ValueHolder valueHolder;
     private boolean isComplexClass;
     private short argumentPosition = -1;
 
-    public ArgumentValue(@NotNull DBJavaParameter argument, ArgumentValueHolder valueHolder) {
+    public ArgumentValue(@NotNull DBJavaParameter argument, ValueHolder valueHolder) {
         this.argumentRef = DBObjectRef.of(argument);
         this.fieldRef = null;
         this.valueHolder = valueHolder;
         this.isComplexClass = false;
     }
 
-    public ArgumentValue(@NotNull DBJavaField argument, ArgumentValueHolder valueHolder, short argumentPosition) {
+    public ArgumentValue(@NotNull DBJavaField argument, ValueHolder valueHolder, short argumentPosition) {
         this.argumentRef = null;
         this.fieldRef = DBObjectRef.of(argument);
         this.valueHolder = valueHolder;
@@ -117,24 +118,5 @@ public class ArgumentValue {
             return fieldRef.getObjectName() + " = " + getValue();
         }
         return argumentRef.getObjectName() + " = " + getValue();
-    }
-
-    public static <T> ArgumentValueHolder<T> createBasicValueHolder(T value) {
-        ArgumentValueHolder<T> valueStore = new ArgumentValueHolder<>() {
-            private T value;
-
-            @Override
-            public T getValue() {
-                return value;
-            }
-
-            @Override
-            public void setValue(T value) {
-                this.value = value;
-            }
-        };
-
-        valueStore.setValue(value);
-        return valueStore;
     }
 }

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.java;
+package com.dbn.execution.common.input;
 
 import com.dbn.common.state.PersistentStateElement;
 import com.dbn.common.util.Strings;
@@ -31,11 +31,11 @@ import static com.dbn.common.options.setting.Settings.connectionIdAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
-public class JavaExecutionArgumentValueHistory implements PersistentStateElement, ConnectionConfigListener {
-    private final Map<ConnectionId, Map<String, JavaExecutionArgumentValue>> argumentValues = new ConcurrentHashMap<>();
+public class ExecutionVariableHistory implements PersistentStateElement, ConnectionConfigListener {
+    private final Map<ConnectionId, Map<String, ExecutionVariable>> argumentValues = new ConcurrentHashMap<>();
 
-    public JavaExecutionArgumentValue getArgumentValue(ConnectionId connectionId, String name, boolean create) {
-        Map<String, JavaExecutionArgumentValue> argumentValues = this.argumentValues.get(connectionId);
+    public ExecutionVariable getArgumentValue(ConnectionId connectionId, String name, boolean create) {
+        Map<String, ExecutionVariable> argumentValues = this.argumentValues.get(connectionId);
 
         if (argumentValues != null) {
             for (String argumentName : argumentValues.keySet()) {
@@ -51,7 +51,7 @@ public class JavaExecutionArgumentValueHistory implements PersistentStateElement
                 this.argumentValues.put(connectionId, argumentValues);
             }
 
-            JavaExecutionArgumentValue argumentValue = new JavaExecutionArgumentValue(name);
+            ExecutionVariable argumentValue = new ExecutionVariable(name);
             argumentValues.put(name, argumentValue);
             return argumentValue;
 
@@ -61,7 +61,7 @@ public class JavaExecutionArgumentValueHistory implements PersistentStateElement
 
     public void cacheVariable(ConnectionId connectionId, String name, String value) {
         if (Strings.isNotEmpty(value)) {
-            JavaExecutionArgumentValue argumentValue = getArgumentValue(connectionId, name, true);
+            ExecutionVariable argumentValue = getArgumentValue(connectionId, name, true);
             argumentValue.setValue(value);
         }
     }
@@ -82,7 +82,7 @@ public class JavaExecutionArgumentValueHistory implements PersistentStateElement
                 ConnectionId connectionId = connectionIdAttribute(argumentValueElement, "connection-id");
                 for (Element argumentElement : argumentValueElement.getChildren()) {
                     String name = stringAttribute(argumentElement, "name");
-                    JavaExecutionArgumentValue argumentValue = getArgumentValue(connectionId, name, true);
+                    ExecutionVariable argumentValue = getArgumentValue(connectionId, name, true);
                     argumentValue.readState(argumentElement);
                 }
             }
@@ -99,7 +99,7 @@ public class JavaExecutionArgumentValueHistory implements PersistentStateElement
             connectionElement.setAttribute("connection-id", connectionId.id());
 
             for (val argumentEntry : entry.getValue().entrySet()) {
-                JavaExecutionArgumentValue argumentValue = argumentEntry.getValue();
+                ExecutionVariable argumentValue = argumentEntry.getValue();
                 if (!argumentValue.getValueHistory().isEmpty()) {
                     Element argumentElement = newElement(connectionElement, "argument");
                     argumentValue.writeState(argumentElement);

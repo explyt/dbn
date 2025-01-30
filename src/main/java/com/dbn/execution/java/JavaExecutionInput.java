@@ -28,6 +28,8 @@ import com.dbn.execution.ExecutionOption;
 import com.dbn.execution.ExecutionOptions;
 import com.dbn.execution.ExecutionTarget;
 import com.dbn.execution.LocalExecutionInput;
+import com.dbn.execution.common.input.ExecutionVariable;
+import com.dbn.execution.common.input.ValueHolder;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
@@ -58,7 +60,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
     private transient JavaExecutionResult executionResult;
     private final List<ArgumentValue> argumentValues = new ArrayList<>();
-    private Map<String, JavaExecutionArgumentValue> argumentValueHistory = new HashMap<>();
+    private Map<String, ExecutionVariable> executionVariableHistory = new HashMap<>();
 
     public JavaExecutionInput(Project project) {
         super(project, ExecutionTarget.METHOD);
@@ -198,9 +200,9 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     public List<String> getInputValueHistory(@NotNull DBJavaField argument, short argumentPosition) {
         ArgumentValue argumentValue = getArgumentValue(argument, argumentPosition);
 
-        ArgumentValueHolder<?> valueStore = argumentValue.getValueHolder();
-        if (valueStore instanceof JavaExecutionArgumentValue) {
-            JavaExecutionArgumentValue executionVariable = (JavaExecutionArgumentValue) valueStore;
+        ValueHolder<?> valueStore = argumentValue.getValueHolder();
+        if (valueStore instanceof ExecutionVariable) {
+            ExecutionVariable executionVariable = (ExecutionVariable) valueStore;
             return executionVariable.getValueHistory();
         }
         return Collections.emptyList();
@@ -209,9 +211,9 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     public List<String> getInputValueHistory(@NotNull DBJavaParameter argument) {
         ArgumentValue argumentValue = getArgumentValue(argument) ;
 
-        ArgumentValueHolder<?> valueStore = argumentValue.getValueHolder();
-        if (valueStore instanceof JavaExecutionArgumentValue) {
-            JavaExecutionArgumentValue executionVariable = (JavaExecutionArgumentValue) valueStore;
+        ValueHolder<?> valueStore = argumentValue.getValueHolder();
+        if (valueStore instanceof ExecutionVariable) {
+            ExecutionVariable executionVariable = (ExecutionVariable) valueStore;
             return executionVariable.getValueHistory();
         }
         return Collections.emptyList();
@@ -242,14 +244,14 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return argumentValue;
     }
 
-    private JavaExecutionArgumentValue getExecutionVariable(String name) {
-        for (JavaExecutionArgumentValue executionVariable : argumentValueHistory.values()) {
+    private ExecutionVariable getExecutionVariable(String name) {
+        for (ExecutionVariable executionVariable : executionVariableHistory.values()) {
             if (Strings.equalsIgnoreCase(executionVariable.getName(), name)) {
                 return executionVariable;
             }
         }
-        JavaExecutionArgumentValue executionVariable = new JavaExecutionArgumentValue(name);
-        argumentValueHistory.put(executionVariable.getName(), executionVariable);
+        ExecutionVariable executionVariable = new ExecutionVariable(name);
+        executionVariableHistory.put(executionVariable.getName(), executionVariable);
         return executionVariable;
     }
 
@@ -266,8 +268,8 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
                 () -> element.getChild("argument-actions")); // TODO temporary backward functionality
         if (argumentsElement != null) {
             for (Element valueElement : argumentsElement.getChildren()) {
-                JavaExecutionArgumentValue argumentValue = new JavaExecutionArgumentValue(valueElement);
-                argumentValueHistory.put(argumentValue.getName(), argumentValue);
+                ExecutionVariable argumentValue = new ExecutionVariable(valueElement);
+                executionVariableHistory.put(argumentValue.getName(), argumentValue);
             }
         }
     }
@@ -279,7 +281,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         element.setAttribute("execution-schema", getTargetSchemaId() == null ? "" : getTargetSchemaId().id());
 
         Element argumentValuesElement = newElement(element, "argument-values");
-        for (JavaExecutionArgumentValue executionVariable : argumentValueHistory.values()) {
+        for (ExecutionVariable executionVariable : executionVariableHistory.values()) {
             Element argumentElement = newElement(argumentValuesElement, "argument");
             executionVariable.writeState(argumentElement);
         }
@@ -298,9 +300,9 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         clone.method = method;
         clone.setTargetSchemaId(getTargetSchemaId());
         clone.setOptions(ExecutionOptions.clone(getOptions()));
-        clone.argumentValueHistory = new HashMap<>();
-        for (JavaExecutionArgumentValue executionVariable : argumentValueHistory.values()) {
-            clone.argumentValueHistory.put(
+        clone.executionVariableHistory = new HashMap<>();
+        for (ExecutionVariable executionVariable : executionVariableHistory.values()) {
+            clone.executionVariableHistory.put(
                     executionVariable.getName(),
                     executionVariable.clone());
         }

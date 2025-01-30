@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.java;
+package com.dbn.execution.common.input;
 
 import com.dbn.common.list.MostRecentStack;
 import com.dbn.common.options.setting.Settings;
@@ -33,19 +33,19 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Data
-public class JavaExecutionArgumentValue implements PersistentStateElement, Cloneable<JavaExecutionArgumentValue>, ArgumentValueHolder<String> {
+public class ExecutionVariable implements PersistentStateElement, Cloneable<ExecutionVariable>, ValueHolder<String> {
     private String name;
     private transient MostRecentStack<String> valueHistory = new MostRecentStack<>();
 
-    public JavaExecutionArgumentValue(String name) {
+    public ExecutionVariable(String name) {
         this.name = name;
     }
 
-    public JavaExecutionArgumentValue(Element element) {
+    public ExecutionVariable(Element element) {
         readState(element);
     }
 
-    public JavaExecutionArgumentValue(JavaExecutionArgumentValue source) {
+    public ExecutionVariable(ExecutionVariable source) {
         name = source.name;
         valueHistory.setValues(source.valueHistory.values());
     }
@@ -94,7 +94,7 @@ public class JavaExecutionArgumentValue implements PersistentStateElement, Clone
     }
 
     @Override
-    public JavaExecutionArgumentValue clone() {
-        return new JavaExecutionArgumentValue(this);
+    public ExecutionVariable clone() {
+        return new ExecutionVariable(this);
     }
 }

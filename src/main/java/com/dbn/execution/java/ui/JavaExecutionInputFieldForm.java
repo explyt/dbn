@@ -29,10 +29,10 @@ import com.dbn.connection.ConnectionId;
 import com.dbn.data.editor.ui.ListPopupValuesProvider;
 import com.dbn.data.editor.ui.TextFieldWithPopup;
 import com.dbn.data.editor.ui.UserValueHolderImpl;
+import com.dbn.execution.common.input.ExecutionVariable;
+import com.dbn.execution.common.input.ExecutionVariableHistory;
 import com.dbn.execution.java.JavaExecutionInput;
-import com.dbn.execution.method.MethodExecutionArgumentValue;
-import com.dbn.execution.method.MethodExecutionArgumentValueHistory;
-import com.dbn.execution.method.MethodExecutionManager;
+import com.dbn.execution.java.JavaExecutionManager;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.lookup.DBObjectRef;
@@ -168,9 +168,9 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 
                 ConnectionHandler connection = field.getConnection();
                 ConnectionId connectionId = connection.getConnectionId();
-                MethodExecutionManager executionManager = MethodExecutionManager.getInstance(field.getProject());
-                MethodExecutionArgumentValueHistory valuesHistory = executionManager.getArgumentValuesHistory();
-                MethodExecutionArgumentValue argumentValue = valuesHistory.getArgumentValue(connectionId, field.getName(), false);
+				JavaExecutionManager executionManager = JavaExecutionManager.getInstance(field.getProject());
+                ExecutionVariableHistory valuesHistory = executionManager.getInputValuesHistory();
+				ExecutionVariable argumentValue = valuesHistory.getArgumentValue(connectionId, field.getName(), false);
                 if (argumentValue == null) return emptyList();
 
                 List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
