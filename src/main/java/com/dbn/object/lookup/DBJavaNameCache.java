@@ -19,6 +19,8 @@ package com.dbn.object.lookup;
 import com.dbn.common.collections.ConcurrentStringInternMap;
 import lombok.experimental.UtilityClass;
 
+import static com.dbn.common.util.Strings.isEmpty;
+
 /**
  * Utility class for managing transformations and caching of database-style Java class names.
  * Provides methods to compute and cache simple names and canonical Java class names for efficient reuse.
@@ -39,6 +41,7 @@ public class DBJavaNameCache {
      * @return the simple name of the class, which is the part of the name after the last "/"
      */
     public static String getSimpleName(String objectName) {
+        if (isEmpty(objectName)) return "";
         return simpleNameCache.computeIfAbsent(objectName, n -> n.substring(n.lastIndexOf("/") + 1));
     }
 
@@ -52,6 +55,7 @@ public class DBJavaNameCache {
      * @return the canonical Java class name with parts of the name separated by "."
      */
     public static String getCanonicalName(String objectName) {
+        if (isEmpty(objectName)) return "";
         return canonicalNameCache.computeIfAbsent(objectName, n -> n.replace("/", "."));
     }
 }
