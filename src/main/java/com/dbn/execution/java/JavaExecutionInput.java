@@ -103,13 +103,23 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
         List<DBJavaParameter> parameters = method.getParameters();
         for (DBJavaParameter parameter : parameters) {
-            DBJavaClass parameterClass = parameter.getParameterClass();
-            if (parameterClass != null) {
-                parameterClass.getFields();
-                parameterClass.getMethods();
-            }
+            if (parameter.isPlainValue()) continue;
+
+            DBJavaClass parameterClass = parameter.getJavaClass();
+            initClass(parameterClass);
         }
     }
+
+    private void initClass(DBJavaClass javaClass) {
+        if (javaClass == null) return;
+
+        List<DBJavaField> fields = javaClass.getFields();
+        for (DBJavaField field : fields) {
+            if (field.isPlainValue()) continue;
+            initClass(field.getJavaClass());
+        }
+    }
+
     @Override
     protected JavaExecutionContext createExecutionContext() {
         return new JavaExecutionContext(this);

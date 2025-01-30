@@ -136,12 +136,12 @@ public final class WrapperBuilder {
 
 		// Create a Wrapper.MethodAttribute for each parameter
 		for (DBJavaParameter parameter : parameters) {
-			DBJavaClass parameterClass = parameter.getParameterClass();
+			DBJavaClass parameterClass = parameter.getJavaClass();
 			String className = (parameterClass == null) ? "" : parameterClass.getQualifiedName();
 
 			Wrapper.MethodAttribute attr = createMethodAttribute(
 					parameterClass,
-					parameter.getParameterType(),
+					parameter.getBaseType(),
 					className,
 					parameter.getArrayDepth(),
 					AttributeDirection.ARGUMENT,
@@ -537,11 +537,11 @@ public final class WrapperBuilder {
 		// Get the raw field type in string form
 		String fieldParameter;
 		try {
-			fieldParameter = getParameterType(dbJavaField.getType(), dbJavaField.getFieldClassName());
+			fieldParameter = getParameterType(dbJavaField.getBaseType(), dbJavaField.getJavaClassName());
 		} catch (Exception e) {
 			log.error("Could not create JavaComplexType for field: {}", dbJavaField, e);
 			conditionallyLog(e);
-			fieldParameter = dbJavaField.getType(); // fallback
+			fieldParameter = dbJavaField.getBaseType(); // fallback
 		}
 
 		if (TypeMappingsManager.isUnSupportedType(fieldParameter)) {
@@ -591,7 +591,7 @@ public final class WrapperBuilder {
 		if (dbJavaField.getArrayDepth() > 0) {
 			// Nested array
 			fieldJavaComplexType = createJavaComplexArrayType(
-					dbJavaField.getFieldClass(),
+					dbJavaField.getJavaClass(),
 					field.getType(),
 					dbJavaField.getArrayDepth(),
 					attributeDirection,
@@ -600,7 +600,7 @@ public final class WrapperBuilder {
 		} else {
 			// Nested object
 			fieldJavaComplexType = createJavaComplexType(
-					dbJavaField.getFieldClass(),
+					dbJavaField.getJavaClass(),
 					field.getType(),
 					attributeDirection,
 					context,
@@ -648,8 +648,8 @@ public final class WrapperBuilder {
 		DBJavaParameter param = methodParameters.get(0);
 		String targetFieldClass;
 		DBJavaField javaField = javaClass.getField(fieldName);
-		if (javaField != null && javaField.getFieldClass() != null) {
-			String qualifiedName = javaField.getFieldClass().getQualifiedName();
+		if (javaField != null && javaField.getJavaClass() != null) {
+			String qualifiedName = javaField.getJavaClass().getQualifiedName();
 			targetFieldClass = convertClassNameToDotNotation(qualifiedName);
 		} else {
 			targetFieldClass = fieldParameter;
@@ -709,11 +709,11 @@ public final class WrapperBuilder {
 	 * Retrieves the parameter type from a {@link DBJavaParameter}.
 	 */
 	private String getParameterType(DBJavaParameter javaParameter) {
-		String parameterType = convertClassNameToDotNotation(javaParameter.getParameterType());
+		String parameterType = convertClassNameToDotNotation(javaParameter.getBaseType());
 
 		// If parameter type is empty, try to get it from the parameter class
 		if (parameterType.isEmpty() || parameterType.equals("-") || parameterType.equals("class")) {
-			DBJavaClass parameterClass = javaParameter.getParameterClass();
+			DBJavaClass parameterClass = javaParameter.getJavaClass();
 			if (parameterClass != null) {
 				parameterType = convertClassNameToDotNotation(parameterClass.getQualifiedName());
 			}

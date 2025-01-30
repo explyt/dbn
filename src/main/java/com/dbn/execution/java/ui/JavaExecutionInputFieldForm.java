@@ -16,7 +16,12 @@
 
 package com.dbn.execution.java.ui;
 
+import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
@@ -28,6 +33,7 @@ import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.method.MethodExecutionArgumentValue;
 import com.dbn.execution.method.MethodExecutionArgumentValueHistory;
 import com.dbn.execution.method.MethodExecutionManager;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -37,44 +43,74 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
 
-public class JavaExecutionInputFieldForm extends DBNFormBase {
+public class JavaExecutionInputFieldForm extends DBNFormBase implements ComponentAligner.Form{
 	private JPanel mainPanel;
 	private JLabel fieldLabel;
 	private JLabel fieldTypeLabel;
-	private JPanel typeAttributesPanel;
+	private JPanel fieldsPanel;
 	private JPanel inputFieldPanel;
 
-	private final JTextField inputTextField;
+	private JTextField inputTextField;
 	private UserValueHolderImpl<String> userValueHolder;
 	private short argumentPosition;
 
 	private final DBObjectRef<DBJavaField> field;
+	private final List<JavaExecutionInputFieldForm> fieldForms = DisposableContainers.list(this);
 
-	JavaExecutionInputFieldForm(JavaExecutionInputForm parentForm, DBJavaField field, short argumentPosition, String parentClass, int indent) {
+	JavaExecutionInputFieldForm(DBNForm parentForm, DBJavaField field, short argumentPosition) {
 		super(parentForm);
 		this.field = DBObjectRef.of(field);
+		fieldLabel.setText(field.getName());
+		//fieldLabel.setIcon(field.getIcon());
+		fieldLabel.setBorder(Borders.insetBorder(4, computeIndent(), 4, 0));
 
-		String fieldName = field.getName();
-		fieldLabel.setText(parentClass + "." + fieldName);
-		fieldLabel.setIcon(field.getIcon());
-		fieldLabel.setBorder(new EmptyBorder(0, indent, 0, 0));
+		if (field.isPlainValue()) {
+			initPlainField(argumentPosition);
+		} else {
+			initClassField();
+		}
+	}
 
-		String dataType = field.getType();
-		fieldTypeLabel.setText(dataType);
+	private int computeIndent() {
+		// compute the indentation depending on the nesting level of the field
+		int indent = 40;
+		DBNForm parentForm = getParentComponent();
+		while (parentForm instanceof JavaExecutionInputFieldForm) {
+			indent += 20;
+			parentForm = parentForm.getParentComponent();
+		}
+
+		return indent;
+	}
+
+	private void initPlainField(short argumentPosition) {
+		DBJavaField field = getField();
+
+		if (field.isClass()) {
+			String className = getCanonicalName(field.getJavaClassName());
+			fieldTypeLabel.setText(className);
+			fieldTypeLabel.setIcon(/*field.getFieldClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO do not force loading the field class
+		} else {
+			fieldTypeLabel.setText(field.getBaseType());
+		}
+
 		fieldTypeLabel.setForeground(UIUtil.getInactiveTextColor());
-		typeAttributesPanel.setVisible(false);
+		fieldsPanel.setVisible(false);
 
 		Project project = field.getProject();
-		JavaExecutionInput executionInput = parentForm.getExecutionInput();
+		JavaExecutionInput executionInput = getExecutionInput();
 		this.argumentPosition = argumentPosition;
 		String value = executionInput.getInputValue(field, argumentPosition);
 
@@ -87,13 +123,25 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 		inputTextField.setText(value);
 		inputFieldPanel.add(inputField, BorderLayout.CENTER);
 
-
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
 	}
 
-	@NotNull
-	public JavaExecutionInputForm getParentForm() {
-		return ensureParentComponent();
+	private void initClassField() {
+		DBJavaField field = getField();
+		String className = field.getJavaClassName();
+
+		DBJavaClass javaClass = field.getJavaClass();
+		fieldTypeLabel.setText("");
+		fieldTypeLabel.setVisible(false);
+
+		JLabel classLabel = new JLabel(getCanonicalName(className));
+		classLabel.setIcon(javaClass == null ? Icons.DBO_JAVA_CLASS : javaClass.getIcon());
+		classLabel.setForeground(UIUtil.getInactiveTextColor());
+		inputFieldPanel.add(classLabel, BorderLayout.WEST);
+
+		verticalBoxLayout(fieldsPanel);
+		List<DBJavaField> fields = javaClass == null ? emptyList() : javaClass.getFields();
+		fields.forEach(f -> addFieldPanel(f));
 	}
 
 	@NotNull
@@ -109,7 +157,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 				DBJavaField field = getField();
                 if (field == null) return emptyList();
 
-                JavaExecutionInput executionInput = getParentForm().getExecutionInput();
+                JavaExecutionInput executionInput = getExecutionInput();
                 return executionInput.getInputValueHistory(field, argumentPosition);
             }
 
@@ -132,6 +180,13 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 		};
 	}
 
+	private void addFieldPanel(DBJavaField field) {
+		JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, field, (short) 0);
+		fieldsPanel.add(argumentComponent.getComponent());
+		fieldForms.add(argumentComponent);
+	}
+
+
 	public DBJavaField getField() {
 		return DBObjectRef.get(field);
 	}
@@ -146,7 +201,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
 		DBJavaField field = getField();
         if (field == null) return;
 
-        JavaExecutionInput executionInput = getParentForm().getExecutionInput();
+        JavaExecutionInput executionInput = getExecutionInput();
         if (userValueHolder != null) {
             String value = userValueHolder.getUserValue();
             executionInput.setInputValue(field, value, argumentPosition);
@@ -156,12 +211,30 @@ public class JavaExecutionInputFieldForm extends DBNFormBase {
         }
     }
 
-
 	public void addDocumentListener(DocumentListener documentListener) {
 		TextFields.addDocumentListener(inputTextField, documentListener);
 	}
 
-	public int getScrollUnitIncrement() {
-		return (int) mainPanel.getPreferredSize().getHeight();
+	@NotNull
+	JavaExecutionInput getExecutionInput() {
+		JavaExecutionInputForm executionInputForm = getParentFrom(JavaExecutionInputForm.class);
+		return nd(executionInputForm).getExecutionInput();
+	}
+
+	/*********************************************************************
+	 *                      {@link ComponentAligner}
+	 *********************************************************************/
+	@Override
+	public Component[] getAlignableComponents() {
+		return new Component[] {fieldLabel, inputFieldPanel, fieldTypeLabel};
+	}
+
+	@Override
+	public List<? extends ComponentAligner.Form> getAlignableForms() {
+		return fieldForms;
+	}
+
+	public int countFields() {
+		return 1 + fieldForms.stream().mapToInt(f -> f.countFields()).sum();
 	}
 }

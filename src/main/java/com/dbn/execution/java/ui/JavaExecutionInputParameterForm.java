@@ -16,7 +16,12 @@
 
 package com.dbn.execution.java.ui;
 
+import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.icon.Icons;
+import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
+import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.util.ComponentAligner;
 import com.dbn.common.ui.util.TextFields;
 import com.dbn.common.util.Commons;
 import com.dbn.connection.ConnectionHandler;
@@ -28,6 +33,8 @@ import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.method.MethodExecutionArgumentValue;
 import com.dbn.execution.method.MethodExecutionArgumentValueHistory;
 import com.dbn.execution.method.MethodExecutionManager;
+import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.project.Project;
@@ -39,52 +46,86 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentListener;
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.Layouts.verticalBoxLayout;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 import static java.util.Collections.emptyList;
 
-public class JavaExecutionInputParameterForm extends DBNFormBase {
+public class JavaExecutionInputParameterForm extends DBNFormBase implements ComponentAligner.Form {
 	private JPanel mainPanel;
 	private JLabel parameterLabel;
 	private JLabel parameterTypeLabel;
-	private JPanel typeAttributesPanel;
+	private JPanel fieldsPanel;
 	private JPanel inputFieldPanel;
 
-	private final JTextField inputTextField;
+	private JTextField inputTextField;
 	private UserValueHolderImpl<String> userValueHolder;
 
 	private final DBObjectRef<DBJavaParameter> parameter;
+	private final List<JavaExecutionInputFieldForm> fieldForms = DisposableContainers.list(this);
 
-	JavaExecutionInputParameterForm(JavaExecutionInputForm parentForm, DBJavaParameter parameter) {
+	JavaExecutionInputParameterForm(DBNForm parentForm, DBJavaParameter parameter) {
 		super(parentForm);
-		this.parameter = DBObjectRef.of(parameter);
-		String argumentName = parameter.getName();
-		parameterLabel.setText(argumentName);
-		parameterLabel.setIcon(parameter.getIcon());
 
-		String dataType = parameter.getParameterType();
+		this.parameter = DBObjectRef.of(parameter);
+		parameterLabel.setText(parameter.getName());
+		parameterLabel.setIcon(parameter.getIcon());
+		parameterLabel.setBorder(Borders.insetBorder(4, 0, 4, 0));
 
 		parameterTypeLabel.setForeground(UIUtil.getInactiveTextColor());
-		parameterTypeLabel.setText(dataType);
-		typeAttributesPanel.setVisible(false);
+		if (parameter.isPlainValue()) {
+			initPlainField();
+		} else {
+			initClassField();
+		}
+	}
 
+	private void initPlainField() {
+		DBJavaParameter parameter = getParameter();
 		Project project = parameter.getProject();
-		JavaExecutionInput executionInput = parentForm.getExecutionInput();
+		JavaExecutionInput executionInput = getExecutionInput();
 		String value = executionInput.getInputValue(parameter);
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
 
-
 		inputField.createValuesListPopup(createValuesProvider(), parameter, true);
+		if (parameter.isClass()) {
+			String className = getCanonicalName(parameter.getJavaClassName());
+			parameterTypeLabel.setText(className);
+			parameterTypeLabel.setIcon(/*parameter.getParameterClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO performance issue (do not force loading the field class)
+		} else {
+			parameterTypeLabel.setText(parameter.getBaseType());
+		}
+
 		inputTextField = inputField.getTextField();
 		inputTextField.setText(value);
 		inputFieldPanel.add(inputField, BorderLayout.CENTER);
 
-
 		inputTextField.setDisabledTextColor(inputTextField.getForeground());
+		fieldsPanel.setVisible(false);
+	}
+
+	private void initClassField() {
+		DBJavaClass javaClass = getParameter().getJavaClass();
+
+		parameterTypeLabel.setText("");
+		parameterTypeLabel.setVisible(false);
+
+		JLabel classLabel = new JLabel(javaClass.getPresentableText());
+		classLabel.setIcon(javaClass.getIcon());
+		classLabel.setForeground(UIUtil.getInactiveTextColor());
+		inputFieldPanel.add(classLabel, BorderLayout.WEST);
+
+
+		verticalBoxLayout(fieldsPanel);
+		List<DBJavaField> fields = javaClass.getFields();
+		fields.forEach(f -> addFieldPanel(f));
 	}
 
 	@NotNull
@@ -120,18 +161,23 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
                 MethodExecutionManager executionManager = MethodExecutionManager.getInstance(parameter.getProject());
                 MethodExecutionArgumentValueHistory valuesHistory = executionManager.getArgumentValuesHistory();
                 MethodExecutionArgumentValue argumentValue = valuesHistory.getArgumentValue(connectionId, parameter.getName(), false);
-                if (argumentValue != null) {
-                    List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
-                    cachedValues.removeAll(getValues());
-                    return cachedValues;
-                }
-                return emptyList();
-			}
+                if (argumentValue == null) return emptyList();
+
+                List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
+                cachedValues.removeAll(getValues());
+                return cachedValues;
+            }
 		};
 	}
 
+	private void addFieldPanel(DBJavaField field) {
+		JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, field, (short) 0);
+		fieldsPanel.add(argumentComponent.getComponent());
+		fieldForms.add(argumentComponent);
+	}
+
 	public DBJavaParameter getParameter() {
-		return DBObjectRef.get(parameter);
+		return DBObjectRef.ensure(parameter);
 	}
 
 	@NotNull
@@ -155,24 +201,35 @@ public class JavaExecutionInputParameterForm extends DBNFormBase {
         }
     }
 
-	protected int[] getMetrics(int[] metrics) {
-		return new int[]{
-				Math.max(metrics[0], (int) parameterLabel.getPreferredSize().getWidth()),
-				Math.max(metrics[1], (int) inputFieldPanel.getPreferredSize().getWidth()),
-				Math.max(metrics[2], (int) parameterTypeLabel.getPreferredSize().getWidth())};
-	}
-
-	protected void adjustMetrics(int[] metrics) {
-		parameterLabel.setPreferredSize(new Dimension(metrics[0], parameterLabel.getHeight()));
-		inputFieldPanel.setPreferredSize(new Dimension(metrics[1], inputFieldPanel.getHeight()));
-		parameterTypeLabel.setPreferredSize(new Dimension(metrics[2], parameterTypeLabel.getHeight()));
-	}
-
 	public void addDocumentListener(DocumentListener documentListener) {
 		TextFields.addDocumentListener(inputTextField, documentListener);
 	}
 
 	public int getScrollUnitIncrement() {
 		return (int) mainPanel.getPreferredSize().getHeight();
+	}
+
+	@NotNull
+	JavaExecutionInput getExecutionInput() {
+		JavaExecutionInputForm executionInputForm = getParentFrom(JavaExecutionInputForm.class);
+		return nd(executionInputForm).getExecutionInput();
+	}
+
+	/*********************************************************************
+	 *                      {@link ComponentAligner}                     *
+	 *********************************************************************/
+
+	@Override
+	public Component[] getAlignableComponents() {
+		return new Component[] {parameterLabel, inputFieldPanel, parameterTypeLabel};
+	}
+
+	@Override
+	public List<? extends ComponentAligner.Form> getAlignableForms() {
+		return fieldForms;
+	}
+
+	public int countFields() {
+		return 1 + fieldForms.stream().mapToInt(f -> f.countFields()).sum();
 	}
 }
