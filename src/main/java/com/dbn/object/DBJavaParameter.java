@@ -26,15 +26,15 @@ public interface DBJavaParameter extends DBOrderedObject {
 
     boolean isPrimitive();
 
-    boolean isPlainValueType();
+    boolean isPlainValue();
 
     short getArrayDepth();
 
-    String getParameterTypeName();
-
     String getBaseType();
 
-    DBJavaClass getParameterClass();
+    DBJavaClass getJavaClass();
+
+    String getJavaClassName();
 
     @Nullable
     DBJavaValueType getValueType();

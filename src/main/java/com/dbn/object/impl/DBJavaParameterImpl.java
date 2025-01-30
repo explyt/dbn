@@ -47,7 +47,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	private short arrayDepth;
 
 	private String baseType;
-	private DBJavaClassRef parameterClass;
+	private DBJavaClassRef javaClass;
 
 	public DBJavaParameterImpl(@NotNull DBJavaMethod javaMethod, DBJavaParameterMetadata metadata) throws SQLException {
 		super(javaMethod, metadata);
@@ -78,7 +78,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 		String arrMatrix = arrayDepth > 0 ? "[]".repeat(arrayDepth) : "";
 
 		if (!isPrimitive()) {
-			parameterClass = new DBJavaClassRef(parentObject.getSchema(), argumentClass, "SYS");
+			javaClass = new DBJavaClassRef(parentObject.getSchema(), argumentClass, "SYS");
 			//String className = argumentClass.substring(argumentClass.lastIndexOf("/") + 1);
 			//return className + arrMatrix + " p" + position;
 		} else {
@@ -115,7 +115,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	}
 
 	@Override
-	public boolean isPlainValueType() {
+	public boolean isPlainValue() {
 		return isPrimitive() || getValueType() != null;
 	}
 
@@ -123,23 +123,22 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	@Override
 	public DBJavaValueType getValueType() {
 		return isClass() ?
-				DBJavaValueType.forPath(parameterClass.getClassName()):
+				DBJavaValueType.forObjectName(javaClass.getObjectName()):
 				DBJavaValueType.forName(baseType);
 	}
 
+	public DBJavaClass getJavaClass() {
+		return javaClass == null ? null : javaClass.get();
+	}
+
 	@Override
-	public DBJavaClass getParameterClass() {
-		return parameterClass == null ? null : parameterClass.get();
+	public String getJavaClassName() {
+		return javaClass == null ? null : javaClass.getObjectName();
 	}
 
 	@Override
 	public String getPresentableText() {
 		return super.getPresentableText();
-	}
-
-	@Override
-	public String getParameterTypeName() {
-		return parameterClass == null ? baseType : parameterClass.getClassSimpleName();
 	}
 
 	@Override

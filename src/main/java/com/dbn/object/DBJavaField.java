@@ -28,7 +28,7 @@ public interface DBJavaField extends DBOrderedObject {
 
 	boolean isPrimitive();
 
-	boolean isPlainValueType();
+	boolean isPlainValue();
 
 	short getIndex();
 
@@ -42,13 +42,13 @@ public interface DBJavaField extends DBOrderedObject {
 
 	short getArrayDepth();
 
-	String getType();
+	String getBaseType();
 
 	@Nullable
-	DBJavaClass getFieldClass();
+	DBJavaClass getJavaClass();
 
 	@Nullable
-	String getFieldClassName();
+	String getJavaClassName();
 
 	DBJavaClass getOwnerClass();
 

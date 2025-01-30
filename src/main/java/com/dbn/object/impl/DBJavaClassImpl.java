@@ -19,7 +19,6 @@ package com.dbn.object.impl;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ref.WeakRefCache;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -36,6 +35,7 @@ import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
+import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaClassKind;
 import com.dbn.object.type.DBObjectType;
@@ -66,8 +66,6 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	private DBJavaClassKind kind;
 	private DBJavaAccessibility accessibility;
-	private static final WeakRefCache<DBJavaClass, String> simpleNameCache = WeakRefCache.weakKey();
-	private static final WeakRefCache<DBJavaClass, String> canonicalNameCache = WeakRefCache.weakKey();
 
 	DBJavaClassImpl(DBSchema schema, DBJavaClassMetadata metadata) throws SQLException {
 		super(schema, metadata);
@@ -126,12 +124,12 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	@Override
 	public String getCanonicalName() {
-		return canonicalNameCache.computeIfAbsent(this, o -> o.getName().replace("/", "."));
+		return DBJavaNameCache.getCanonicalName(getName());
 	}
 
 	@Override
 	public String getSimpleName() {
-		return simpleNameCache.computeIfAbsent(this, o -> o.getName().substring(o.getName().lastIndexOf("/") + 1));
+		return DBJavaNameCache.getSimpleName(getName());
 	}
 
 	@Override

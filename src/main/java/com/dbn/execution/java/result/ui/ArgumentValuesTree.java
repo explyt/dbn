@@ -123,11 +123,11 @@ class ArgumentValuesTree extends DBNTree{
                         dataType = null;
                     } else {
                         argumentName = "p" + argumentValue.getArgumentPosition() + "." + field.getName();
-                        dataType = field.getType();
+                        dataType = field.getBaseType();
                     }
                 } else {
                     argumentName = argument.getName();
-                    dataType = argument.getParameterType();
+                    dataType = argument.getBaseType();
                 }
 
                 append(argumentName, SimpleTextAttributes.REGULAR_ATTRIBUTES);

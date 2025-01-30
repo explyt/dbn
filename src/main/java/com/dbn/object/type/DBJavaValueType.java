@@ -58,18 +58,18 @@ public final class DBJavaValueType {
             //...
     };
 
-    private static final Map<String, DBJavaValueType> nameMappings;
-    private static final Map<String, DBJavaValueType> pathMappings;
+    private static final Map<String, DBJavaValueType> canonicalNameMappings;   // e.g. com.dbn.SampleClass (canonical representation)
+    private static final Map<String, DBJavaValueType> objectNameMappings;      // e.g. com/dbn/SampleClass (database object representation)
 
     static {
         Map<String, DBJavaValueType> nameMap = new HashMap<>();
         Map<String, DBJavaValueType> pathMap = new HashMap<>();
         for (Class<?> type : REGISTRY) {
-            nameMap.put(type.getSimpleName(), new DBJavaValueType(type));
-            pathMap.put(type.getCanonicalName(), new DBJavaValueType(type));
+            nameMap.put(type.getCanonicalName(), new DBJavaValueType(type));
+            pathMap.put(type.getCanonicalName().replace(".", "/"), new DBJavaValueType(type));
         }
-        nameMappings = unmodifiableMap(nameMap);
-        pathMappings = unmodifiableMap(pathMap);
+        canonicalNameMappings = unmodifiableMap(nameMap);
+        objectNameMappings = unmodifiableMap(pathMap);
     }
 
     private final Class<?> type;
@@ -85,11 +85,11 @@ public final class DBJavaValueType {
     }
 
     public static DBJavaValueType forName(String name) {
-        return nameMappings.get(name);
+        return canonicalNameMappings.get(name);
     }
 
-    public static DBJavaValueType forPath(String path) {
-        return pathMappings.get(path);
+    public static DBJavaValueType forObjectName(String objectName) {
+        return objectNameMappings.get(objectName);
     }
 }
 

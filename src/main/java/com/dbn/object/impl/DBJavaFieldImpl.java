@@ -28,6 +28,7 @@ import com.dbn.object.lookup.DBJavaClassRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaValueType;
 import com.dbn.object.type.DBObjectType;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,12 +39,13 @@ import static com.dbn.object.common.property.DBObjectProperty.CLASS;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 
+@Getter
 public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implements DBJavaField {
 	private short index;
 	private short arrayDepth;
 	private String baseType;
 	private String className;
-	private DBJavaClassRef fieldClass;
+	private DBJavaClassRef javaClass;
 	private DBJavaAccessibility accessibility;
 
 	public DBJavaFieldImpl(@NotNull DBJavaClass javaClass, DBJavaFieldMetadata metadata) throws SQLException {
@@ -72,7 +74,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 		String fieldClassName = metadata.getFieldClass();
 		if (fieldClassName != null) {
 			DBSchema schema = parentObject.getSchema();
-			fieldClass = new DBJavaClassRef(schema, fieldClassName, "SYS");
+			javaClass = new DBJavaClassRef(schema, fieldClassName, "SYS");
 		}
 
 		set(STATIC, metadata.isStatic());
@@ -93,12 +95,12 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	}
 
 	@Override
-	public DBJavaClass getFieldClass() {
-		return fieldClass == null ? null : fieldClass.get();
+	public DBJavaClass getJavaClass() {
+		return javaClass == null ? null : javaClass.get();
 	}
 
-	public String getFieldClassName() {
-		return fieldClass == null ? null : fieldClass.getClassName();
+	public String getJavaClassName() {
+		return javaClass == null ? null : javaClass.getObjectName();
 	}
 
 	@Override
@@ -114,31 +116,6 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	@Override
 	public boolean isStatic() {
 		return is(STATIC);
-	}
-
-	@Override
-	public short getArrayDepth() {
-		return arrayDepth;
-	}
-
-	@Override
-	public String getType() {
-		return baseType;
-	}
-
-	@Override
-	public short getIndex() {
-		return index;
-	}
-
-	@Override
-	public String getClassName() {
-		return className;
-	}
-
-	@Override
-	public DBJavaAccessibility getAccessibility() {
-		return accessibility;
 	}
 
 	@Override
@@ -162,14 +139,14 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	}
 
 	@Override
-	public boolean isPlainValueType() {
-		return false;
+	public boolean isPlainValue() {
+		return isPrimitive() || getValueType() != null;
 	}
 
 	@Override
 	public @Nullable DBJavaValueType getValueType() {
 		return isClass() ?
-				DBJavaValueType.forPath(fieldClass.getClassName()):
+				DBJavaValueType.forObjectName(javaClass.getObjectName()):
 				DBJavaValueType.forName(baseType);
 	}
 }

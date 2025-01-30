@@ -47,7 +47,7 @@ public class ArgumentValue {
         this.argumentRef = null;
         this.fieldRef = DBObjectRef.of(argument);
         this.valueHolder = valueHolder;
-        this.isComplexClass = argument.getType().equals("class") && argument.getFieldClass() != null;
+        this.isComplexClass = argument.getBaseType().equals("class") && argument.getJavaClass() != null;
         this.argumentPosition = argumentPosition;
     }
 

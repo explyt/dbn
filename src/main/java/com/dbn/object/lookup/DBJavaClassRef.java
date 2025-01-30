@@ -25,7 +25,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DBJavaClassRef {
+public final class DBJavaClassRef {
+
     private final List<DBObjectRef<DBJavaClass>> lookups = new ArrayList<>();
 
     public DBJavaClassRef(DBSchema schema, String className, String ... alternativeSchemas) {
@@ -39,12 +40,16 @@ public class DBJavaClassRef {
         }
     }
 
-    public String getClassName() {
+    public String getObjectName() {
         return lookups.get(0).getObjectName();
     }
 
-    public String getClassSimpleName() {
-        return getClassName().substring(getClassName().lastIndexOf("/") + 1);
+    public String getSimpleName() {
+        return DBJavaNameCache.getSimpleName(getObjectName());
+    }
+
+    public String getCanonicalName() {
+        return DBJavaNameCache.getCanonicalName(getObjectName());
     }
 
     @Nullable
@@ -60,4 +65,6 @@ public class DBJavaClassRef {
     public boolean isLoaded() {
         return lookups.stream().anyMatch(ref -> ref.isLoaded());
     }
+
+
 }
