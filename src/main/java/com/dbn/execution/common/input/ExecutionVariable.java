@@ -34,11 +34,11 @@ import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 @Data
 public class ExecutionVariable implements PersistentStateElement, Cloneable<ExecutionVariable>, ValueHolder<String> {
-    private String name;
+    private String path;
     private transient MostRecentStack<String> valueHistory = new MostRecentStack<>();
 
-    public ExecutionVariable(String name) {
-        this.name = name;
+    public ExecutionVariable(String path) {
+        this.path = path;
     }
 
     public ExecutionVariable(Element element) {
@@ -46,7 +46,7 @@ public class ExecutionVariable implements PersistentStateElement, Cloneable<Exec
     }
 
     public ExecutionVariable(ExecutionVariable source) {
-        name = source.name;
+        path = source.path;
         valueHistory.setValues(source.valueHistory.values());
     }
 
@@ -66,7 +66,7 @@ public class ExecutionVariable implements PersistentStateElement, Cloneable<Exec
 
     @Override
     public void readState(Element element) {
-        name = stringAttribute(element, "name");
+        path = stringAttribute(element, "path");
         List<String> values = new ArrayList<>();
         String value = Commons.nullIfEmpty(element.getAttributeValue("value"));
         if (Strings.isNotEmpty(value)) {
@@ -84,7 +84,7 @@ public class ExecutionVariable implements PersistentStateElement, Cloneable<Exec
 
     @Override
     public void writeState(Element element) {
-        element.setAttribute("name", name);
+        element.setAttribute("path", path);
         for (String value : valueHistory) {
             Element valueElement = newElement(element, "value");
 

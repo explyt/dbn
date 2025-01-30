@@ -32,28 +32,28 @@ import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 
 public class ExecutionVariableHistory implements PersistentStateElement, ConnectionConfigListener {
-    private final Map<ConnectionId, Map<String, ExecutionVariable>> argumentValues = new ConcurrentHashMap<>();
+    private final Map<ConnectionId, Map<String, ExecutionVariable>> executionVariables = new ConcurrentHashMap<>();
 
-    public ExecutionVariable getArgumentValue(ConnectionId connectionId, String name, boolean create) {
-        Map<String, ExecutionVariable> argumentValues = this.argumentValues.get(connectionId);
+    public ExecutionVariable getExecutionVariable(ConnectionId connectionId, String name, boolean create) {
+        Map<String, ExecutionVariable> variables = this.executionVariables.get(connectionId);
 
-        if (argumentValues != null) {
-            for (String argumentName : argumentValues.keySet()) {
-                if (Strings.equalsIgnoreCase(argumentName, name)) {
-                    return argumentValues.get(argumentName);
+        if (variables != null) {
+            for (String variable : variables.keySet()) {
+                if (Strings.equalsIgnoreCase(variable, name)) {
+                    return variables.get(variable);
                 }
             }
         }
 
         if (create) {
-            if (argumentValues == null) {
-                argumentValues = new HashMap<>();
-                this.argumentValues.put(connectionId, argumentValues);
+            if (variables == null) {
+                variables = new HashMap<>();
+                this.executionVariables.put(connectionId, variables);
             }
 
-            ExecutionVariable argumentValue = new ExecutionVariable(name);
-            argumentValues.put(name, argumentValue);
-            return argumentValue;
+            ExecutionVariable variable = new ExecutionVariable(name);
+            variables.put(name, variable);
+            return variable;
 
         }
         return null;
@@ -61,13 +61,13 @@ public class ExecutionVariableHistory implements PersistentStateElement, Connect
 
     public void cacheVariable(ConnectionId connectionId, String name, String value) {
         if (Strings.isNotEmpty(value)) {
-            ExecutionVariable argumentValue = getArgumentValue(connectionId, name, true);
-            argumentValue.setValue(value);
+            ExecutionVariable executionVariable = getExecutionVariable(connectionId, name, true);
+            executionVariable.setValue(value);
         }
     }
 
     public void connectionRemoved(ConnectionId connectionId) {
-        argumentValues.remove(connectionId);
+        executionVariables.remove(connectionId);
     }
 
     /*********************************************
@@ -75,15 +75,15 @@ public class ExecutionVariableHistory implements PersistentStateElement, Connect
      *********************************************/
     @Override
     public void readState(Element element) {
-        Element argumentValuesElement = element.getChild("argument-values-cache");
-        if (argumentValuesElement != null) {
-            this.argumentValues.clear();
-            for (Element argumentValueElement : argumentValuesElement.getChildren()) {
-                ConnectionId connectionId = connectionIdAttribute(argumentValueElement, "connection-id");
-                for (Element argumentElement : argumentValueElement.getChildren()) {
-                    String name = stringAttribute(argumentElement, "name");
-                    ExecutionVariable argumentValue = getArgumentValue(connectionId, name, true);
-                    argumentValue.readState(argumentElement);
+        Element variablesCacheElement = element.getChild("execution-variables-cache");
+        if (variablesCacheElement != null) {
+            this.executionVariables.clear();
+            for (Element connectionElement : variablesCacheElement.getChildren()) {
+                ConnectionId connectionId = connectionIdAttribute(connectionElement, "connection-id");
+                for (Element variablesElement : connectionElement.getChildren()) {
+                    String path = stringAttribute(variablesElement, "path");
+                    ExecutionVariable variable = getExecutionVariable(connectionId, path, true);
+                    variable.readState(variablesElement);
                 }
             }
         }
@@ -91,18 +91,17 @@ public class ExecutionVariableHistory implements PersistentStateElement, Connect
 
     @Override
     public void writeState(Element element) {
-        Element argumentValuesElement = newElement(element, "argument-values-cache");
+        Element variablesCacheElement = newElement(element, "execution-variables-cache");
 
-        for (val entry : argumentValues.entrySet()) {
+        for (val entry : executionVariables.entrySet()) {
             ConnectionId connectionId = entry.getKey();
-            Element connectionElement = newElement(argumentValuesElement, "connection");
+            Element connectionElement = newElement(variablesCacheElement, "connection");
             connectionElement.setAttribute("connection-id", connectionId.id());
 
-            for (val argumentEntry : entry.getValue().entrySet()) {
-                ExecutionVariable argumentValue = argumentEntry.getValue();
-                if (!argumentValue.getValueHistory().isEmpty()) {
-                    Element argumentElement = newElement(connectionElement, "argument");
-                    argumentValue.writeState(argumentElement);
+            for (ExecutionVariable variable : entry.getValue().values()) {
+                if (!variable.getValueHistory().isEmpty()) {
+                    Element variableElement = newElement(connectionElement, "variable");
+                    variable.writeState(variableElement);
                 }
 
             }

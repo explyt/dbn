@@ -18,6 +18,7 @@ package com.dbn.execution.java.ui;
 
 import com.dbn.common.dispose.DisposableContainers;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.string.StringDeBuilder;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.util.Borders;
@@ -69,12 +70,15 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 	private final DBObjectRef<DBJavaField> field;
 	private final List<JavaExecutionInputFieldForm> fieldForms = DisposableContainers.list(this);
 
+	private final String fieldPath;
+
 	JavaExecutionInputFieldForm(DBNForm parentForm, DBJavaField field, short argumentPosition) {
 		super(parentForm);
 		this.field = DBObjectRef.of(field);
 		fieldLabel.setText(field.getName());
 		//fieldLabel.setIcon(field.getIcon());
 		fieldLabel.setBorder(Borders.insetBorder(4, computeIndent(), 4, 0));
+		fieldPath = buildFieldPath();
 
 		if (field.isPlainValue()) {
 			initPlainField(argumentPosition);
@@ -95,6 +99,28 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		return indent;
 	}
 
+	private String buildFieldPath() {
+		StringDeBuilder builder = new StringDeBuilder();
+		builder.append(getFieldName());
+
+		DBNForm parentForm = getParentComponent();
+		while (parentForm instanceof JavaExecutionInputFieldForm) {
+			JavaExecutionInputFieldForm fieldForm = (JavaExecutionInputFieldForm) parentForm;
+			builder.prepend(".");
+			builder.prepend(fieldForm.getFieldName());
+
+			parentForm = parentForm.getParentComponent();
+		}
+
+		if (parentForm instanceof JavaExecutionInputParameterForm) {
+			JavaExecutionInputParameterForm parameterForm = (JavaExecutionInputParameterForm) parentForm;
+			builder.prepend(".");
+			builder.prepend(parameterForm.getParameterName());
+		}
+
+		return builder.toString();
+	}
+
 	private void initPlainField(short argumentPosition) {
 		DBJavaField field = getField();
 
@@ -112,7 +138,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		Project project = field.getProject();
 		JavaExecutionInput executionInput = getExecutionInput();
 		this.argumentPosition = argumentPosition;
-		String value = executionInput.getInputValue(field, argumentPosition);
+		String value = executionInput.getInputValue(fieldPath);
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
@@ -158,7 +184,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
                 if (field == null) return emptyList();
 
                 JavaExecutionInput executionInput = getExecutionInput();
-                return executionInput.getInputValueHistory(field, argumentPosition);
+                return executionInput.getInputValueHistory(fieldPath);
             }
 
 			@Override
@@ -170,7 +196,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
                 ConnectionId connectionId = connection.getConnectionId();
 				JavaExecutionManager executionManager = JavaExecutionManager.getInstance(field.getProject());
                 ExecutionVariableHistory valuesHistory = executionManager.getInputValuesHistory();
-				ExecutionVariable argumentValue = valuesHistory.getArgumentValue(connectionId, field.getName(), false);
+				ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, field.getName(), false);
                 if (argumentValue == null) return emptyList();
 
                 List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
@@ -191,6 +217,10 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		return DBObjectRef.get(field);
 	}
 
+	public String getFieldName() {
+		return field.getObjectName();
+	}
+
 	@NotNull
 	@Override
 	public JPanel getMainComponent() {
@@ -201,14 +231,18 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		DBJavaField field = getField();
         if (field == null) return;
 
-        JavaExecutionInput executionInput = getExecutionInput();
-        if (userValueHolder != null) {
-            String value = userValueHolder.getUserValue();
-            executionInput.setInputValue(field, value, argumentPosition);
-        } else {
-            String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
-            executionInput.setInputValue(field, value, argumentPosition);
-        }
+		if (fieldForms.isEmpty()) {
+			JavaExecutionInput executionInput = getExecutionInput();
+			if (userValueHolder != null) {
+				String value = userValueHolder.getUserValue();
+				executionInput.setInputValue(fieldPath, value);
+			} else {
+				String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
+				executionInput.setInputValue(fieldPath, value);
+			}
+		} else {
+			fieldForms.forEach(f -> f.updateExecutionInput());
+		}
     }
 
 	public void addDocumentListener(DocumentListener documentListener) {

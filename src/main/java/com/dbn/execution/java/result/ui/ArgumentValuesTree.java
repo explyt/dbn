@@ -22,8 +22,7 @@ import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.util.TextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
-import com.dbn.execution.java.ArgumentValue;
-import com.dbn.object.DBJavaField;
+import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
@@ -41,8 +40,8 @@ import static com.dbn.common.util.Strings.cachedLowerCase;
 
 class ArgumentValuesTree extends DBNTree{
 
-    ArgumentValuesTree(JavaExecutionResultForm parent, List<ArgumentValue> inputArgumentValues) {
-        super(parent, createModel(parent, inputArgumentValues));
+    ArgumentValuesTree(JavaExecutionResultForm parent, List<ExecutionValue> inputValues) {
+        super(parent, createModel(parent, inputValues));
         setCellRenderer(new CellRenderer());
         Color bgColor = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
         setBackground(bgColor == null ? Colors.getTableBackground() : bgColor);
@@ -57,8 +56,8 @@ class ArgumentValuesTree extends DBNTree{
     }
 
     @NotNull
-    private static ArgumentValuesTreeModel createModel(JavaExecutionResultForm parentForm, List<ArgumentValue> inputArgumentValues) {
-        return new ArgumentValuesTreeModel(parentForm.getMethod(), inputArgumentValues);
+    private static ArgumentValuesTreeModel createModel(JavaExecutionResultForm parentForm, List<ExecutionValue> inputValues) {
+        return new ArgumentValuesTreeModel(parentForm.getMethod(), inputValues);
     }
 
     private TreeSelectionListener createTreeSelectionListener() {
@@ -68,13 +67,13 @@ class ArgumentValuesTree extends DBNTree{
             if (treeNode == null) return;
 
             Object userValue = treeNode.getUserValue();
-            if (userValue instanceof ArgumentValue) {
-                ArgumentValue argumentValue = (ArgumentValue) userValue;
-                DBJavaParameter argument = argumentValue.getArgument();
+            if (userValue instanceof ExecutionValue) {
+                ExecutionValue fieldValue = (ExecutionValue) userValue;
+                DBJavaParameter argument = null; // TODO inputValue.getArgument();
                 if (argument == null) return;
 
-                Object value = argumentValue.getValue();
-                if (value instanceof ResultSet || argumentValue.isLargeObject() || argumentValue.isLargeValue()) {
+                Object value = fieldValue.getValue();
+                if (value instanceof ResultSet || fieldValue.isLargeObject() || fieldValue.isLargeValue()) {
                     getParentForm().selectArgumentOutputTab(argument);
                 }
             }
@@ -105,32 +104,24 @@ class ArgumentValuesTree extends DBNTree{
                 append(argumentRef.getObjectName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
             }
 
-            if (userValue instanceof ArgumentValue) {
-                ArgumentValue argumentValue = (ArgumentValue) userValue;
-                DBJavaParameter argument = argumentValue.getArgument();
-                Object originalValue = argumentValue.getValue();
-                String displayValue = originalValue instanceof ResultSet || argumentValue.isLargeObject() || argumentValue.isLargeValue() ? "" : String.valueOf(originalValue);
-                String argumentName;
-                String dataType;
+            if (userValue instanceof ExecutionValue) {
+                ExecutionValue fieldValue = (ExecutionValue) userValue;
+                DBJavaParameter parameter = null; //inputValue.getArgument();
+                Object originalValue = fieldValue.getValue();
+                String displayValue = originalValue instanceof ResultSet || fieldValue.isLargeObject() || fieldValue.isLargeValue() ? "" : String.valueOf(originalValue);
+                String parameterName;
+                String dataType = null;
 
                 setIcon(DBObjectType.ARGUMENT.getIcon());
 
-                if (argument == null) {
-                    DBJavaField field = argumentValue.getField();
-
-                    if(field == null) {
-                        argumentName = "[unknown]";
-                        dataType = null;
-                    } else {
-                        argumentName = "p" + argumentValue.getArgumentPosition() + "." + field.getName();
-                        dataType = field.getBaseType();
-                    }
+                if (parameter == null) {
+                    parameterName = fieldValue.getPath();
                 } else {
-                    argumentName = argument.getName();
-                    dataType = argument.getBaseType();
+                    parameterName = parameter.getName();
+                    dataType = parameter.getBaseType();
                 }
 
-                append(argumentName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(parameterName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
                 append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
                 if (dataType != null) {
                     append("{" + cachedLowerCase(dataType) + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);

@@ -16,7 +16,7 @@
 
 package com.dbn.execution.java.result.ui;
 
-import com.dbn.execution.java.ArgumentValue;
+import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.object.common.DBObject;
 import lombok.Getter;
 
@@ -48,9 +48,9 @@ public class ArgumentValuesTreeNode implements TreeNode{
 
     @Override
     public String toString() {
-        if (userValue instanceof ArgumentValue) {
-            ArgumentValue argumentValue = (ArgumentValue) userValue;
-            return String.valueOf(argumentValue.getValue());
+        if (userValue instanceof ExecutionValue) {
+            ExecutionValue fieldValue = (ExecutionValue) userValue;
+            return String.valueOf(fieldValue.getValue());
         }
 
         if (userValue instanceof DBObject) {

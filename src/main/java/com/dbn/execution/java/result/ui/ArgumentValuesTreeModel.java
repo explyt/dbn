@@ -16,7 +16,7 @@
 
 package com.dbn.execution.java.result.ui;
 
-import com.dbn.execution.java.ArgumentValue;
+import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.object.DBJavaMethod;
 import lombok.Getter;
 
@@ -30,18 +30,16 @@ import java.util.List;
 public class ArgumentValuesTreeModel implements TreeModel {
     private final ArgumentValuesTreeNode root;
 
-    ArgumentValuesTreeModel(DBJavaMethod method, List<ArgumentValue> inputArgumentValues) {
+    ArgumentValuesTreeModel(DBJavaMethod method, List<ExecutionValue> inputValues) {
         root = new ArgumentValuesTreeNode(null, method);
         ArgumentValuesTreeNode inputNode = new ArgumentValuesTreeNode(root, "Input");
         ArgumentValuesTreeNode outputNode = new ArgumentValuesTreeNode(root, "Output");
-        createArgumentValueNodes(inputNode, inputArgumentValues);
+        createArgumentValueNodes(inputNode, inputValues);
     }
 
-    private static void createArgumentValueNodes(ArgumentValuesTreeNode parentNode, List<ArgumentValue> inputArgumentValues) {
-        for (ArgumentValue argumentValue : inputArgumentValues) {
-            if(argumentValue.isComplexClass())
-                continue;
-            new ArgumentValuesTreeNode(parentNode, argumentValue);
+    private static void createArgumentValueNodes(ArgumentValuesTreeNode parentNode, List<ExecutionValue> inputValues) {
+        for (ExecutionValue fieldValue : inputValues) {
+            new ArgumentValuesTreeNode(parentNode, fieldValue);
         }
     }
 

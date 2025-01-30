@@ -180,7 +180,7 @@ public class MethodExecutionInputArgumentForm extends DBNFormBase {
                 ConnectionId connectionId = connection.getConnectionId();
                 MethodExecutionManager executionManager = MethodExecutionManager.getInstance(argument.getProject());
                 ExecutionVariableHistory valuesHistory = executionManager.getArgumentValuesHistory();
-                ExecutionVariable argumentValue = valuesHistory.getArgumentValue(connectionId, argument.getName(), false);
+                ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, argument.getName(), false);
                 if (argumentValue == null) return emptyList();
 
                 List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());

@@ -245,12 +245,12 @@ public class JavaExecutionManager extends ProjectComponentBase implements Persis
 		ConnectionHandler connection = input.getExecutionContext().getTargetConnection();
 		if (connection == null) return;
 
-		for (val entry : input.getExecutionVariableHistory().entrySet()) {
+		for (val entry : input.getExecutionVariables().entrySet()) {
 			ExecutionVariable argumentValue = entry.getValue();
 
 			inputValuesHistory.cacheVariable(
 					connection.getConnectionId(),
-					argumentValue.getName(),
+					argumentValue.getPath(),
 					argumentValue.getValue());
 		}
 	}

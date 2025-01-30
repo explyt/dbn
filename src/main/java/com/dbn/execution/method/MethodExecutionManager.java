@@ -258,7 +258,7 @@ public class MethodExecutionManager extends ProjectComponentBase implements Pers
 
             argumentValuesHistory.cacheVariable(
                     connection.getConnectionId(),
-                    argumentValue.getName(),
+                    argumentValue.getPath(),
                     argumentValue.getValue());
         }
     }

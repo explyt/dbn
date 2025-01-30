@@ -89,7 +89,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		DBJavaParameter parameter = getParameter();
 		Project project = parameter.getProject();
 		JavaExecutionInput executionInput = getExecutionInput();
-		String value = executionInput.getInputValue(parameter);
+		String value = executionInput.getInputValue(parameter.getName());
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
@@ -147,7 +147,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
                 if (parameter == null) return emptyList();
 
                 JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-                return executionInput.getInputValueHistory(parameter);
+                return executionInput.getInputValueHistory(parameter.getName());
 
             }
 
@@ -160,7 +160,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
                 ConnectionId connectionId = connection.getConnectionId();
                 JavaExecutionManager executionManager = JavaExecutionManager.getInstance(parameter.getProject());
                 ExecutionVariableHistory valuesHistory = executionManager.getInputValuesHistory();
-                ExecutionVariable argumentValue = valuesHistory.getArgumentValue(connectionId, parameter.getName(), false);
+                ExecutionVariable argumentValue = valuesHistory.getExecutionVariable(connectionId, parameter.getName(), false);
                 if (argumentValue == null) return emptyList();
 
                 List<String> cachedValues = new ArrayList<>(argumentValue.getValueHistory());
@@ -180,6 +180,10 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		return DBObjectRef.ensure(parameter);
 	}
 
+	public String getParameterName() {
+		return parameter.getObjectName();
+	}
+
 	@NotNull
 	@Override
 	public JPanel getMainComponent() {
@@ -188,17 +192,21 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 
 	public void updateExecutionInput() {
 		DBJavaParameter parameter = getParameter();
-        if (parameter == null) {
-            return;
-        }
-        JavaExecutionInput executionInput = getParentForm().getExecutionInput();
-        if (userValueHolder != null) {
-            String value = userValueHolder.getUserValue();
-            executionInput.setInputValue(parameter, value);
-        } else {
-            String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
-            executionInput.setInputValue(parameter, value);
-        }
+        if (parameter == null) return;
+
+        if (fieldForms.isEmpty()) {
+			JavaExecutionInput executionInput = getParentForm().getExecutionInput();
+			String parameterName = parameter.getName();
+			if (userValueHolder != null) {
+				String value = userValueHolder.getUserValue();
+				executionInput.setInputValue(parameterName, value);
+			} else {
+				String value = Commons.nullIfEmpty(inputTextField == null ? null : inputTextField.getText());
+				executionInput.setInputValue(parameterName, value);
+			}
+		} else {
+			fieldForms.forEach(f -> f.updateExecutionInput());
+		}
     }
 
 	public void addDocumentListener(DocumentListener documentListener) {

@@ -187,9 +187,7 @@ public class JavaExecutionInputForm extends DBNFormBase implements ComponentAlig
    }
 
     public void updateExecutionInput() {
-        for (JavaExecutionInputParameterForm argumentComponent : parameterForms) {
-            argumentComponent.updateExecutionInput();
-        }
+        parameterForms.forEach(f -> f.updateExecutionInput());
         executionOptionsForm.updateExecutionInput();
     }
 

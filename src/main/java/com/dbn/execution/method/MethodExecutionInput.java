@@ -229,12 +229,12 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
 
     private ExecutionVariable getExecutionVariable(String name) {
         for (ExecutionVariable executionVariable : argumentValueHistory.values()) {
-            if (Strings.equalsIgnoreCase(executionVariable.getName(), name)) {
+            if (Strings.equalsIgnoreCase(executionVariable.getPath(), name)) {
                 return executionVariable;
             }
         }
         ExecutionVariable executionVariable = new ExecutionVariable(name);
-        argumentValueHistory.put(executionVariable.getName(), executionVariable);
+        argumentValueHistory.put(executionVariable.getPath(), executionVariable);
         return executionVariable;
     }
 
@@ -252,7 +252,7 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
         if (argumentsElement != null) {
             for (Element valueElement : argumentsElement.getChildren()) {
                 ExecutionVariable argumentValue = new ExecutionVariable(valueElement);
-                argumentValueHistory.put(argumentValue.getName(), argumentValue);
+                argumentValueHistory.put(argumentValue.getPath(), argumentValue);
             }
         }
     }
@@ -286,7 +286,7 @@ public class MethodExecutionInput extends LocalExecutionInput implements Compara
         clone.argumentValueHistory = new HashMap<>();
         for (ExecutionVariable executionVariable : argumentValueHistory.values()) {
             clone.argumentValueHistory.put(
-                    executionVariable.getName(),
+                    executionVariable.getPath(),
                     executionVariable.clone());
         }
         return clone;

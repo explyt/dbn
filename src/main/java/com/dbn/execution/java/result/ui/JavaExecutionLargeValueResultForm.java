@@ -29,7 +29,7 @@ import com.dbn.data.editor.text.TextContentType;
 import com.dbn.data.value.LargeObjectValue;
 import com.dbn.editor.data.options.DataEditorQualifiedEditorSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
-import com.dbn.execution.java.ArgumentValue;
+import com.dbn.execution.common.input.ExecutionValue;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.lookup.DBObjectRef;
 import com.intellij.openapi.actionSystem.ActionToolbar;
@@ -61,13 +61,13 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
     private EditorEx editor;
     private TextContentType contentType;
 
-    JavaExecutionLargeValueResultForm(JavaExecutionResultForm parent, DBJavaParameter argument, ArgumentValue argumentValue) {
+    JavaExecutionLargeValueResultForm(JavaExecutionResultForm parent, DBJavaParameter argument, ExecutionValue fieldValue) {
         super(parent);
         this.argument = DBObjectRef.of(argument);
 
         String text = "";
         Project project = getProject();
-        Object value = argumentValue.getValue();
+        Object value = fieldValue.getValue();
         if (value instanceof LargeObjectValue) {
             LargeObjectValue largeObjectValue = (LargeObjectValue) value;
             try {
