@@ -64,12 +64,12 @@ public class DBJavaFieldMetadataImpl extends DBObjectMetadataBase implements DBJ
 	}
 
 	@Override
-	public String getType() throws SQLException {
+	public String getBaseType() throws SQLException {
 		return getString("BASE_TYPE");
 	}
 
 	@Override
-	public String getFieldClassName() throws SQLException {
+	public String getFieldClass() throws SQLException {
 		return getString("FIELD_CLASS");
 	}
 }

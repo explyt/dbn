@@ -66,7 +66,8 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	private DBJavaClassKind kind;
 	private DBJavaAccessibility accessibility;
-	private static final WeakRefCache<DBJavaClass, String> presentableNameCache = WeakRefCache.weakKey();
+	private static final WeakRefCache<DBJavaClass, String> simpleNameCache = WeakRefCache.weakKey();
+	private static final WeakRefCache<DBJavaClass, String> canonicalNameCache = WeakRefCache.weakKey();
 
 	DBJavaClassImpl(DBSchema schema, DBJavaClassMetadata metadata) throws SQLException {
 		super(schema, metadata);
@@ -120,7 +121,17 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	@Override
 	public String getPresentableText() {
-		return presentableNameCache.computeIfAbsent(this, o -> o.getName().replace("/", "."));
+		return getCanonicalName();
+	}
+
+	@Override
+	public String getCanonicalName() {
+		return canonicalNameCache.computeIfAbsent(this, o -> o.getName().replace("/", "."));
+	}
+
+	@Override
+	public String getSimpleName() {
+		return simpleNameCache.computeIfAbsent(this, o -> o.getName().substring(o.getName().lastIndexOf("/") + 1));
 	}
 
 	@Override

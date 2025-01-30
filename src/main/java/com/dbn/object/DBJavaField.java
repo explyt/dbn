@@ -17,10 +17,19 @@
 package com.dbn.object;
 
 import com.dbn.object.type.DBJavaAccessibility;
+import com.dbn.object.type.DBJavaValueType;
 import org.jetbrains.annotations.Nullable;
 
 
 public interface DBJavaField extends DBOrderedObject {
+	boolean isArray();
+
+	boolean isClass();
+
+	boolean isPrimitive();
+
+	boolean isPlainValueType();
+
 	short getIndex();
 
 	String getClassName();
@@ -40,4 +49,11 @@ public interface DBJavaField extends DBOrderedObject {
 
 	@Nullable
 	String getFieldClassName();
+
+	DBJavaClass getOwnerClass();
+
+	String getOwnerClassName();
+
+	@Nullable
+	DBJavaValueType getValueType();
 }

@@ -35,7 +35,7 @@ public interface DBJavaFieldMetadata extends DBObjectMetadata {
 
 	short getArrayDepth() throws SQLException;
 
-	String getType() throws SQLException;
+	String getBaseType() throws SQLException;
 
-	String getFieldClassName() throws SQLException;
+	String getFieldClass() throws SQLException;
 }

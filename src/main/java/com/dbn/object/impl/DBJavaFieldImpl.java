@@ -26,6 +26,7 @@ import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.lookup.DBJavaClassRef;
 import com.dbn.object.type.DBJavaAccessibility;
+import com.dbn.object.type.DBJavaValueType;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -33,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 
+import static com.dbn.object.common.property.DBObjectProperty.CLASS;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 
@@ -57,15 +59,17 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaFieldMetadata metadata) throws SQLException {
 		index = metadata.getFieldIndex();
 		arrayDepth = metadata.getArrayDepth();
-		baseType = metadata.getType();
+		baseType = metadata.getBaseType();
 		className = metadata.getClassName();
+
+		if (baseType.equals("class")) set(CLASS, true);
 
 		if(metadata.getAccessibility() == null){
 			accessibility = DBJavaAccessibility.PACKAGE_PRIVATE;
 		} else {
 			accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
 		}
-		String fieldClassName = metadata.getFieldClassName();
+		String fieldClassName = metadata.getFieldClass();
 		if (fieldClassName != null) {
 			DBSchema schema = parentObject.getSchema();
 			fieldClass = new DBJavaClassRef(schema, fieldClassName, "SYS");
@@ -95,6 +99,16 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 
 	public String getFieldClassName() {
 		return fieldClass == null ? null : fieldClass.getClassName();
+	}
+
+	@Override
+	public DBJavaClass getOwnerClass() {
+		return getParentObject();
+	}
+
+	@Override
+	public String getOwnerClassName() {
+		return getOwnerClass().getName();
 	}
 
 	@Override
@@ -130,5 +144,32 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	@Override
 	public boolean isFinal() {
 		return is(FINAL);
+	}
+
+	@Override
+	public boolean isArray() {
+		return arrayDepth > 0;
+	}
+
+	@Override
+	public boolean isClass() {
+		return is(CLASS);
+	}
+
+	@Override
+	public boolean isPrimitive() {
+		return !isClass();
+	}
+
+	@Override
+	public boolean isPlainValueType() {
+		return false;
+	}
+
+	@Override
+	public @Nullable DBJavaValueType getValueType() {
+		return isClass() ?
+				DBJavaValueType.forPath(fieldClass.getClassName()):
+				DBJavaValueType.forName(baseType);
 	}
 }

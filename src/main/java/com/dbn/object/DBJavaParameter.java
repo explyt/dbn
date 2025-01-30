@@ -16,11 +16,26 @@
 
 package com.dbn.object;
 
-public interface DBJavaParameter extends DBOrderedObject {
+import com.dbn.object.type.DBJavaValueType;
+import org.jetbrains.annotations.Nullable;
 
-    String getParameterTypeName();
-    String getParameterType();
-    DBJavaClass getParameterClass();
+public interface DBJavaParameter extends DBOrderedObject {
+    boolean isArray();
+
+    boolean isClass();
+
+    boolean isPrimitive();
+
+    boolean isPlainValueType();
+
     short getArrayDepth();
 
+    String getParameterTypeName();
+
+    String getBaseType();
+
+    DBJavaClass getParameterClass();
+
+    @Nullable
+    DBJavaValueType getValueType();
 }
