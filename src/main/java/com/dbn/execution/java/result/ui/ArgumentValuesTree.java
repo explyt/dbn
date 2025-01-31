@@ -17,16 +17,11 @@
 package com.dbn.execution.java.result.ui;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.util.TextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.dbn.execution.common.input.ExecutionValue;
-import com.dbn.object.DBJavaField;
-import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
-import com.dbn.object.common.DBObject;
-import com.dbn.object.lookup.DBObjectRef;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.TreeSelectionListener;
@@ -34,18 +29,12 @@ import javax.swing.tree.TreePath;
 import java.awt.Color;
 import java.sql.ResultSet;
 import java.util.List;
-import java.util.Objects;
-
-import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
-import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
-import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
-import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 
 class ArgumentValuesTree extends DBNTree{
 
     ArgumentValuesTree(JavaExecutionResultForm parent, List<ExecutionValue> inputValues) {
         super(parent, createModel(parent, inputValues));
-        setCellRenderer(new CellRenderer());
+        setCellRenderer(new ArgumentValuesTreeRenderer());
         Color bgColor = TextAttributes.getSimpleTextAttributes(DataGridTextAttributesKeys.PLAIN_DATA).getBgColor();
         setBackground(bgColor == null ? Colors.getTableBackground() : bgColor);
 
@@ -83,56 +72,4 @@ class ArgumentValuesTree extends DBNTree{
         };
     }
 
-    static class CellRenderer extends DBNColoredTreeCellRenderer {
-        @Override
-        public void customizeCellRenderer(@NotNull DBNTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
-            ArgumentValuesTreeNode treeNode = (ArgumentValuesTreeNode) value;
-            Object userValue = treeNode.getUserValue();
-            DBObject object = DBObjectRef.get(treeNode.getObject());
-
-            if (object instanceof DBJavaMethod) {
-                DBJavaMethod method = (DBJavaMethod) object;
-                setIcon(method.getIcon());
-                append(method.getSignature(), REGULAR_ATTRIBUTES);
-                return;
-            }
-
-            if (object != null) {
-                setIcon(object.getIcon());
-                append(object.getName(), REGULAR_ATTRIBUTES);
-            }
-
-            if (userValue instanceof String) {
-                append((String) userValue, treeNode.isLeaf() ?
-                        REGULAR_ATTRIBUTES :
-                        REGULAR_BOLD_ATTRIBUTES);
-            }
-
-            if (userValue instanceof ExecutionValue) {
-                ExecutionValue fieldValue = (ExecutionValue) userValue;
-                String stringValue = Objects.toString(fieldValue.getValue());
-                append(" = ", REGULAR_ATTRIBUTES);
-                append(stringValue, REGULAR_BOLD_ATTRIBUTES);
-            }
-
-            if (object instanceof DBJavaParameter) {
-                DBJavaParameter parameter = (DBJavaParameter) object;
-                String dataType = parameter.isClass() ?
-                        getCanonicalName(parameter.getJavaClassName()) :
-                        parameter.getBaseType();
-
-                append(" (" + dataType + ")", GRAY_ATTRIBUTES);
-            } else
-
-            if (object instanceof DBJavaField) {
-                DBJavaField field = (DBJavaField) object;
-                String dataType = field.isClass() ?
-                        getCanonicalName(field.getJavaClassName()) :
-                        field.getBaseType();
-
-                append(" (" + dataType + ")", GRAY_ATTRIBUTES);
-            }
-
-        }
-    }
 }
