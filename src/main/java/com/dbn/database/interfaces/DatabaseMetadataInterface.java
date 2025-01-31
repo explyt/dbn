@@ -484,6 +484,10 @@ public interface DatabaseMetadataInterface extends DatabaseInterface{
      */
     ResultSet loadAllPackageTypes(String ownerName, DBNConnection connection) throws SQLException;
 
+    ResultSet loadJavaInnerClass(String ownerName, String objectName, DBNConnection connection) throws SQLException;
+
+    ResultSet loadAllJavaInnerClass(String ownerName, DBNConnection connection) throws SQLException;
+
     ResultSet loadJavaFields(String ownerName, String objectName, DBNConnection connection) throws SQLException;
 
     ResultSet loadAllJavaFields(String ownerName, DBNConnection connection) throws SQLException;

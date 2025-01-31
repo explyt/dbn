@@ -254,6 +254,16 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
     }
 
     @Override
+    public ResultSet loadJavaInnerClass(String ownerName, String objectName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "java-inner-class", ownerName, objectName);
+    }
+
+    @Override
+    public ResultSet loadAllJavaInnerClass(String ownerName, DBNConnection connection) throws SQLException {
+        return executeQuery(connection, "all-java-inner-class", ownerName);
+    }
+
+    @Override
     public ResultSet loadJavaFields(String ownerName, String objectName, DBNConnection connection) throws SQLException {
         return executeQuery(connection, "java-fields", ownerName, objectName);
     }

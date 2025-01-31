@@ -16,15 +16,12 @@
 
 package com.dbn.object;
 
-import com.dbn.object.common.DBSchemaObject;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaClassKind;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.List;
-
-
-public interface DBJavaClass extends DBSchemaObject {
+public interface DBJavaInnerClass extends DBObject {
 
 	@NotNull
 	String getName();
@@ -38,20 +35,4 @@ public interface DBJavaClass extends DBSchemaObject {
 	boolean isAbstract();
 
 	boolean isStatic();
-
-	boolean isInner();
-
-    List<DBJavaMethod> getMethods();
-
-	List<DBJavaMethod> getStaticMethods();
-
-    DBJavaMethod getMethod(String name);
-
-	List<DBJavaField> getFields();
-
-	DBJavaField getField(String name);
-
-	List<DBJavaInnerClass> getInnerClasses();
-
-	DBJavaInnerClass getInnerClass(String name);
 }

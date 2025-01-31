@@ -345,6 +345,79 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-inner-class" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                j.OUTER as CLASS_NAME,
+                j.NAME as OBJECT_NAME,
+                j.KIND as OBJECT_KIND,
+                j.ACCESSIBILITY as ACCESSIBILITY,
+                decode(j.IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
+                decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG
+            from
+                [PREFIX]_JAVA_CLASSES j
+            left join
+                [PREFIX]_OBJECTS ob
+            on
+                ob.OWNER = j.OWNER and
+                ob.OBJECT_NAME = j.NAME and
+                ob.OBJECT_TYPE = 'JAVA CLASS'
+            left join
+                SYS.ALL_PROBE_OBJECTS apo
+            on
+                apo.OWNER = j.OWNER and
+                apo.OBJECT_NAME = j.NAME and
+                apo.OBJECT_TYPE = 'JAVA CLASS'
+            where
+                j.OWNER = {0} and
+                j.OUTER = {1} and
+                j.IS_INNER = 'YES' and
+                j.NAME like '%$%'
+            order by
+                j.NAME
+        </statement>
+    </statement-execution-processor>
+
+    <statement-execution-processor id="all-java-inner-class" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            select
+                j.OUTER as CLASS_NAME,
+                j.NAME as OBJECT_NAME,
+                j.KIND as OBJECT_KIND,
+                j.ACCESSIBILITY as ACCESSIBILITY,
+                decode(j.IS_FINAL,'YES','Y','N') as IS_FINAL,
+                decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
+                decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
+                decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
+                decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
+                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG
+            from
+                [PREFIX]_JAVA_CLASSES j
+            left join
+                [PREFIX]_OBJECTS ob
+            on
+                ob.OWNER = j.OWNER and
+                ob.OBJECT_NAME = j.NAME and
+                ob.OBJECT_TYPE = 'JAVA CLASS'
+            left join
+                SYS.ALL_PROBE_OBJECTS apo
+            on
+                apo.OWNER = j.OWNER and
+                apo.OBJECT_NAME = j.NAME and
+                apo.OBJECT_TYPE = 'JAVA CLASS'
+            where
+                j.OWNER = {0} and
+                j.IS_INNER = 'YES' and
+                j.NAME like '%$%'
+            order by
+                j.NAME
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="java-fields" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select

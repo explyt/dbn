@@ -28,6 +28,7 @@ import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
+import com.dbn.object.DBJavaInnerClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
@@ -60,6 +61,7 @@ import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
 import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
+import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
 
 @Getter
 public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> implements DBJavaClass {
@@ -98,6 +100,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		// TODO support inner classes as child objects
 		DBSchema schema = getSchema();
 		DBObjectListContainer childObjects = ensureChildObjects();
+		childObjects.createSubcontentObjectList(JAVA_INNER_CLASS, this, schema);
 		childObjects.createSubcontentObjectList(JAVA_FIELD, this, schema);
 		childObjects.createSubcontentObjectList(JAVA_METHOD, this, schema);
 	}
@@ -189,6 +192,16 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		return getChildObject(JAVA_FIELD, name);
 	}
 
+	@Override
+	public List<DBJavaInnerClass> getInnerClasses(){
+		return getChildObjects(JAVA_INNER_CLASS);
+	}
+
+	@Override
+	public DBJavaInnerClass getInnerClass(String name){
+		return getChildObject(JAVA_INNER_CLASS, name);
+	}
+
 	/*********************************************************
 	 *                  DBEditableCodeObject                 *
 	 ********************************************************/
@@ -220,13 +233,15 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	public List<BrowserTreeNode> buildPossibleTreeChildren() {
 		return DatabaseBrowserUtils.createList(
 				getChildObjectList(JAVA_FIELD),
-				getChildObjectList(JAVA_METHOD));
+				getChildObjectList(JAVA_METHOD),
+				getChildObjectList(JAVA_INNER_CLASS));
 	}
 
 	@Override
 	public boolean hasVisibleTreeChildren() {
 		ObjectTypeFilterSettings settings = getObjectTypeFilterSettings();
 		return settings.isVisible(JAVA_FIELD) ||
-				settings.isVisible(JAVA_METHOD) ;
+				settings.isVisible(JAVA_METHOD) ||
+				settings.isVisible(JAVA_INNER_CLASS);
 	}
 }
