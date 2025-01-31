@@ -417,17 +417,6 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
-    public DBJavaMethod getJavaMethod(String javaClass, String name, int methodIndex) {
-        List<DBJavaMethod> methods = getJavaMethods();
-        for(DBJavaMethod method:methods){
-            if(method.getClassName().equals(javaClass) && method.getName().equals(name) && method.getPosition() == methodIndex){
-                return method;
-            }
-        }
-        return getChildObject(JAVA_METHOD, name);
-    }
-
-    @Override
     public List<DBDataset> getDatasets() {
         List<DBDataset> datasets = new ArrayList<>();
         datasets.addAll(getTables());

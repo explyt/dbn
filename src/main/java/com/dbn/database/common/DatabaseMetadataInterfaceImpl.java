@@ -116,7 +116,7 @@ public abstract class DatabaseMetadataInterfaceImpl extends DatabaseInterfaceBas
 
     @Override
     public ResultSet loadJavaClasses(String ownerName, DBNConnection connection) throws SQLException {
-        return executeQuery(connection, "java-objects", ownerName);
+        return executeQuery(connection, "java-classes", ownerName);
     }
 
     @Override

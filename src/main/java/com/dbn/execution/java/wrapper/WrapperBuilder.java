@@ -113,7 +113,7 @@ public final class WrapperBuilder {
 	private void setMethodMetadata(DBJavaMethod javaMethod, Wrapper wrapper) {
 		String methodName = javaMethod.getName().split("#")[0];
 		wrapper.setWrappedJavaMethodName(methodName);
-		wrapper.setFullyQualifiedClassName(getCanonicalName(javaMethod.getClassName()));
+		wrapper.setFullyQualifiedClassName(getCanonicalName(javaMethod.getOwnerClassName()));
 		// Replace "void" return in the signature with a more readable style, if present.
 
 		String javaMethodSignature = javaMethod.getSignature().replace(": void", "").replace(":", " return");
@@ -163,7 +163,7 @@ public final class WrapperBuilder {
 			Wrapper.MethodAttribute returnAttr = createMethodAttribute(
 					javaMethod.getReturnClass(),
 					javaMethod.getReturnType(),
-					javaMethod.getClassName(),
+					javaMethod.getOwnerClassName(),
 					javaMethod.getArrayDepth(),
 					AttributeDirection.RETURN,
 					context,
@@ -650,8 +650,7 @@ public final class WrapperBuilder {
 		String targetFieldClass;
 		DBJavaField javaField = javaClass.getField(fieldName);
 		if (javaField != null && javaField.getJavaClass() != null) {
-			String qualifiedName = javaField.getJavaClass().getQualifiedName();
-			targetFieldClass = getCanonicalName(qualifiedName);
+			targetFieldClass = getCanonicalPath(javaField.getJavaClass());
 		} else {
 			targetFieldClass = fieldParameter;
 		}
@@ -789,5 +788,10 @@ public final class WrapperBuilder {
 			this.className = getCanonicalName(className);
 			this.arrayLength = arrayLength;
 		}
+	}
+
+	private String getCanonicalPath(DBJavaClass javaClass) {
+		// avoid accessing java class-name cache with fully qualified java path
+		return javaClass.getSchemaName() + "." + getCanonicalName(javaClass.getName());
 	}
 }

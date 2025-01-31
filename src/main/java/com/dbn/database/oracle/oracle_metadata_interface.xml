@@ -317,7 +317,7 @@
         </statement>
     </statement-execution-processor>
 
-    <statement-execution-processor id="java-objects" is-query="true" is-prepared-statement="true">
+    <statement-execution-processor id="java-classes" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
                 j.NAME as OBJECT_NAME,
@@ -392,7 +392,7 @@
     <statement-execution-processor id="java-methods" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
             select
-                m.NAME as CLASS_NAME,
+                m.NAME as OWNER_CLASS_NAME,
                 m.METHOD_NAME||'#'||m.METHOD_INDEX as METHOD_NAME,
                 m.METHOD_INDEX,
                 m.BASE_TYPE as RETURN_TYPE,
@@ -435,7 +435,7 @@
     <statement-execution-processor id="all-java-methods" is-query="true" is-prepared-statement="true" timeout="90">
         <statement prefixes="DBA, ALL">
             select
-                m.NAME as CLASS_NAME,
+                m.NAME as OWNER_CLASS_NAME,
                 m.METHOD_NAME||'#'||m.METHOD_INDEX as METHOD_NAME,
                 m.METHOD_INDEX,
                 m.BASE_TYPE as RETURN_TYPE,

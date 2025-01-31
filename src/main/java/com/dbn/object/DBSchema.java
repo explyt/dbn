@@ -70,7 +70,6 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     DBCredential getAIProfile(String name);
     DBDatabaseLink getDatabaseLink(String name);
     DBJavaClass getJavaClass(String name);
-    DBJavaMethod getJavaMethod(String javaClass, String methodName, int methodIndex);
 
     @Override
     DBObjectRef<DBSchema> ref();

@@ -368,7 +368,7 @@ public class DBObjectLoaders {
                 "ALL_JAVA_METHODS", DBObjectType.SCHEMA, DBObjectType.JAVA_METHOD, true, true,
                 (content, conn, mdi) -> mdi.loadAllJavaMethods(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
-                    String className = md.getClassName();
+                    String className = md.getOwnerClassName();
                     DBJavaClass javaClass = valid(cache.get(className, () -> ((DBSchema) content.ensureParentEntity()).getJavaClass(className)));
                     return new DBJavaMethodImpl(javaClass, md);
                 });

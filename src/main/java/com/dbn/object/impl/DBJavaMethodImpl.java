@@ -52,7 +52,6 @@ import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
 	private short index;
 	private String signature;
-	private String className;
 	private String returnType;
 	private short arrayDepth;
 	private DBJavaClassRef returnClass;
@@ -80,7 +79,6 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaMethodMetadata metadata) throws SQLException {
 		index = metadata.getMethodIndex();
 		signature = metadata.getMethodSignature();
-		className = metadata.getClassName();
 		returnType = metadata.getReturnType();
 		accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
 		arrayDepth = metadata.getArrayDepth();
@@ -140,6 +138,11 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	public DBJavaClass getOwnerClass() {
 		return getParentObject();
+	}
+
+	@Override
+	public String getOwnerClassName() {
+		return getOwnerClass().getName();
 	}
 
 	@Override

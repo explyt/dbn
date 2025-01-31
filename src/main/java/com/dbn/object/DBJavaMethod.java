@@ -25,6 +25,8 @@ public interface DBJavaMethod extends DBOrderedObject {
 
 	DBJavaClass getOwnerClass();
 
+	String getOwnerClassName();
+
 	String getReturnType();
 
     DBJavaClass getReturnClass();
@@ -40,8 +42,6 @@ public interface DBJavaMethod extends DBOrderedObject {
 	boolean isAbstract();
 
 	String getSignature();
-
-	String getClassName();
 
 	short getIndex();
 

@@ -29,8 +29,8 @@ public class DBJavaMethodMetadataImpl extends DBObjectMetadataBase implements DB
 	}
 
 	@Override
-	public String getClassName() throws SQLException {
-		return getString("CLASS_NAME");
+	public String getOwnerClassName() throws SQLException {
+		return getString("OWNER_CLASS_NAME");
 	}
 
 	@Override
