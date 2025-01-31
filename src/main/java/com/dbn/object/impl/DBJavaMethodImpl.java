@@ -47,6 +47,7 @@ import static com.dbn.common.icon.Icons.withStaticMarker;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
+import static com.dbn.object.type.DBJavaAccessibility.PUBLIC;
 
 @Getter
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
@@ -131,6 +132,11 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
+	public String getReturnClassName() {
+		return returnClass == null ? null : returnClass.getObjectName();
+	}
+
+	@Override
 	public List<DBJavaParameter> getParameters() {
 		return getChildObjects(DBObjectType.JAVA_PARAMETER);
 	}
@@ -148,6 +154,11 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	public boolean isStatic() {
 		return is(STATIC);
+	}
+
+	@Override
+	public boolean isExecutable() {
+		return isStatic() && (accessibility == PUBLIC);
 	}
 
 	@Override

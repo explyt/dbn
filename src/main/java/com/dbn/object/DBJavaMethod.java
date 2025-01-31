@@ -31,6 +31,8 @@ public interface DBJavaMethod extends DBOrderedObject {
 
     DBJavaClass getReturnClass();
 
+	String getReturnClassName();
+
 	short getArrayDepth();
 
 	DBJavaAccessibility getAccessibility();
@@ -38,6 +40,8 @@ public interface DBJavaMethod extends DBOrderedObject {
 	boolean isFinal();
 
 	boolean isStatic();
+
+	boolean isExecutable();
 
 	boolean isAbstract();
 

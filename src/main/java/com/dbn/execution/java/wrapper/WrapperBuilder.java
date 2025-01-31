@@ -143,7 +143,6 @@ public final class WrapperBuilder {
 			Wrapper.MethodAttribute attr = createMethodAttribute(
 					parameterClass,
 					parameter.getBaseType(),
-					className,
 					parameter.getArrayDepth(),
 					AttributeDirection.ARGUMENT,
 					context,
@@ -163,7 +162,6 @@ public final class WrapperBuilder {
 			Wrapper.MethodAttribute returnAttr = createMethodAttribute(
 					javaMethod.getReturnClass(),
 					javaMethod.getReturnType(),
-					javaMethod.getOwnerClassName(),
 					javaMethod.getArrayDepth(),
 					AttributeDirection.RETURN,
 					context,
@@ -178,14 +176,13 @@ public final class WrapperBuilder {
 	 * a simple attribute if primitive/supported, or a complex type otherwise.
 	 */
 	private Wrapper.MethodAttribute createMethodAttribute(
-			DBJavaClass javaClass,
-			String type,
-			String className,
+			DBJavaClass attributeClass,
+			String attributeType,
 			short arrayDepth,
 			AttributeDirection attributeDirection,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
-		String effectiveParameterType = getParameterType(type, className);
+		String effectiveParameterType = getParameterType(attributeType, attributeClass);
 
 		// If non-array and we have a direct mapping -> simple attribute
 		if (arrayDepth == 0 && TypeMappingsManager.isSupportedType(effectiveParameterType)) {
@@ -194,8 +191,8 @@ public final class WrapperBuilder {
 
 		// Otherwise, build or retrieve a JavaComplexType
 		JavaComplexType javaComplexType = (arrayDepth > 0) ?
-				createJavaComplexArrayType(javaClass, effectiveParameterType, arrayDepth, attributeDirection, context, wrapper) :
-				createJavaComplexType(javaClass, effectiveParameterType, attributeDirection, context, wrapper);
+				createJavaComplexArrayType(attributeClass, effectiveParameterType, arrayDepth, attributeDirection, context, wrapper) :
+				createJavaComplexType(attributeClass, effectiveParameterType, attributeDirection, context, wrapper);
 
 		if (javaComplexType == null) {
 			// If still null, it's unsupported or cyclical
@@ -538,7 +535,7 @@ public final class WrapperBuilder {
 		// Get the raw field type in string form
 		String fieldParameter;
 		try {
-			fieldParameter = getParameterType(dbJavaField.getBaseType(), dbJavaField.getJavaClassName());
+			fieldParameter = getParameterType(dbJavaField.getBaseType(), dbJavaField.getJavaClass());
 		} catch (Exception e) {
 			log.error("Could not create JavaComplexType for field: {}", dbJavaField, e);
 			conditionallyLog(e);
@@ -687,12 +684,7 @@ public final class WrapperBuilder {
 
         if (getterMethod == null) return null;
 
-		String methodReturn;
-		if(getterMethod.getReturnClass() == null){
-			methodReturn = getParameterType(getterMethod.getReturnType(), getterMethod.getReturnType());
-		} else {
-			methodReturn = getParameterType(getterMethod.getReturnType(), getterMethod.getReturnClass().getName());
-		}
+		String methodReturn = getParameterType(getterMethod.getReturnType(), getterMethod.getReturnClass());
 		if (methodReturn.equals(fieldParameter)
 				&& getterMethod.getArrayDepth() == arrayDepth
 				&& getterMethod.getParameters().isEmpty()) {
@@ -725,12 +717,12 @@ public final class WrapperBuilder {
 	/**
 	 * Retrieves the parameter type by analyzing a raw type and class name, if needed.
 	 */
-	private String getParameterType(String type, String className) {
+	private String getParameterType(String type, DBJavaClass javaClass) {
 		String parameterType = getCanonicalName(type);
 
 		if (parameterType.isEmpty() || parameterType.equals("-") || parameterType.equals("class")) {
-			if (className != null) {
-				parameterType = getCanonicalName(className);
+			if (javaClass != null) {
+				parameterType = getCanonicalPath(javaClass);
 			}
 		}
 		validateParameterType(parameterType);
