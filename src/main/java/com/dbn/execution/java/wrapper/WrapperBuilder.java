@@ -224,7 +224,7 @@ public final class WrapperBuilder {
 		Wrapper.MethodAttribute methodAttribute = new Wrapper.MethodAttribute();
 		methodAttribute.setArray(javaComplexType.isArray());
 		methodAttribute.setArrayDepth(javaComplexType.getArrayDepth());
-		methodAttribute.setTypeName(getCanonicalName(javaComplexType.getTypeName()));
+		methodAttribute.setTypeName(javaComplexType.getTypeName());
 		methodAttribute.setComplexType(true);
 
 		SqlComplexType sqlType = javaComplexType.getCorrespondingSqlType();
@@ -351,7 +351,7 @@ public final class WrapperBuilder {
 	/**
 	 * Builds a fresh {@link JavaComplexType} shell (for both array and non-array types).
 	 */
-	private JavaComplexType buildComplexTypeShell(DBJavaClass dbJavaClass, String parameterType, AttributeDirection attributeDirection, boolean isArray) {
+	private JavaComplexType buildComplexTypeShell(DBJavaClass javaClass, String parameterType, AttributeDirection attributeDirection, boolean isArray) {
 		JavaComplexType javaComplexType = new JavaComplexType();
 		javaComplexType.setAttributeDirection(attributeDirection);
 		javaComplexType.setArray(isArray);
@@ -359,8 +359,9 @@ public final class WrapperBuilder {
 		javaComplexType.setArrayDepth((short) 0);
 		javaComplexType.setTypeName(parameterType);
 
-		if (dbJavaClass != null) {
-			javaComplexType.setTypeName(dbJavaClass.getName());
+		if (javaClass != null) {
+			String typeName = getCanonicalPath(javaClass);
+			javaComplexType.setTypeName(typeName);
 		}
 		return javaComplexType;
 	}
@@ -383,10 +384,10 @@ public final class WrapperBuilder {
 	/**
 	 * Builds a new {@link ComplexTypeKey} from the given parameters.
 	 */
-	private ComplexTypeKey buildComplexTypeKey(DBJavaClass dbJavaClass, String parameterType, short arrayDepth) {
-		String keyName = (dbJavaClass == null)
+	private ComplexTypeKey buildComplexTypeKey(DBJavaClass javaClass, String parameterType, short arrayDepth) {
+		String keyName = (javaClass == null)
 				? getCanonicalName(parameterType)
-				: getCanonicalName(dbJavaClass.getQualifiedName());
+				: getCanonicalPath(javaClass);
 		return new ComplexTypeKey(keyName, arrayDepth);
 	}
 
@@ -707,7 +708,7 @@ public final class WrapperBuilder {
 		if (parameterType.isEmpty() || parameterType.equals("-") || parameterType.equals("class")) {
 			DBJavaClass parameterClass = javaParameter.getJavaClass();
 			if (parameterClass != null) {
-				parameterType = getCanonicalName(parameterClass.getQualifiedName());
+				parameterType = getCanonicalPath(parameterClass);
 			}
 		}
 		validateParameterType(parameterType);
@@ -777,13 +778,16 @@ public final class WrapperBuilder {
 		private final short arrayLength;
 
 		public ComplexTypeKey(String className, short arrayLength) {
-			this.className = getCanonicalName(className);
+			this.className = className;
 			this.arrayLength = arrayLength;
 		}
 	}
 
-	private String getCanonicalPath(DBJavaClass javaClass) {
+	public static String getCanonicalPath(DBJavaClass javaClass) {
 		// avoid accessing java class-name cache with fully qualified java path
-		return javaClass.getSchemaName() + "." + getCanonicalName(javaClass.getName());
+
+		// TODO verify if execution on foreign schema is allowed
+		//return javaClass.getSchemaName() + "." + getCanonicalName(javaClass.getName());
+		return getCanonicalName(javaClass.getName());
 	}
 }

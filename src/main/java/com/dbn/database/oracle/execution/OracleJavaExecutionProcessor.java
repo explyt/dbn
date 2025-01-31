@@ -27,10 +27,12 @@ import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.execution.java.wrapper.WrapperBuilder;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
@@ -40,6 +42,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
+
+import static com.dbn.execution.java.wrapper.WrapperBuilder.getCanonicalPath;
 
 public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
@@ -203,7 +207,10 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		return (Array) structCtr.newInstance(structDescriptor, conn.getInner(), customTypeAttributes);
 	}
 
+	@Nullable
 	private Object parseValue(JavaExecutionInput executionInput, Wrapper wrapper, DBJavaField field, String fieldPath, String fieldValue) {
+		if (fieldValue == null) return null;
+
 		switch(field.getBaseType()){
 			case "int": return Integer.parseInt(fieldValue);
 			case "float": return Float.parseFloat(fieldValue);
@@ -213,9 +220,10 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			case "long": return Long.parseLong(fieldValue);
 			case "boolean": return Boolean.parseBoolean(fieldValue);
 			case "class":
-				int typeNumber = wrapper.getComplexTypeNumber(field.getJavaClassName(), field.getArrayDepth());
+				DBJavaClass javaClass = field.getJavaClass();
+				int typeNumber = wrapper.getComplexTypeNumber(getCanonicalPath(javaClass), field.getArrayDepth());
 				String innerObjectName = WrapperBuilder.newSqlTypePrepend + typeNumber;
-				return getStructObject(executionInput, field.getJavaClass().getFields(), wrapper, innerObjectName, fieldPath);
+				return getStructObject(executionInput, javaClass.getFields(), wrapper, innerObjectName, fieldPath);
 			default:return fieldValue;
 		}
 	}
