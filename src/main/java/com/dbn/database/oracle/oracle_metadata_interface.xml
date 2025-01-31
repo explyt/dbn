@@ -348,7 +348,10 @@
     <statement-execution-processor id="java-inner-class" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                j.OUTER as CLASS_NAME,
+                CASE
+                    WHEN INSTR(j.OUTER, '$') > 0 THEN SUBSTR(j.OUTER, 1, INSTR(j.OUTER, '$') - 1)
+                    ELSE j.OUTER
+                END as CLASS_NAME,
                 j.NAME as OBJECT_NAME,
                 j.KIND as OBJECT_KIND,
                 j.ACCESSIBILITY as ACCESSIBILITY,
@@ -374,7 +377,7 @@
                 apo.OBJECT_TYPE = 'JAVA CLASS'
             where
                 j.OWNER = {0} and
-                j.OUTER = {1} and
+                j.OUTER like '{1}%'
                 j.IS_INNER = 'YES' and
                 j.NAME like '%$%'
             order by
@@ -385,7 +388,10 @@
     <statement-execution-processor id="all-java-inner-class" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                j.OUTER as CLASS_NAME,
+                CASE
+                    WHEN INSTR(j.OUTER, '$') > 0 THEN SUBSTR(j.OUTER, 1, INSTR(j.OUTER, '$') - 1)
+                    ELSE j.OUTER
+                END as CLASS_NAME,
                 j.NAME as OBJECT_NAME,
                 j.KIND as OBJECT_KIND,
                 j.ACCESSIBILITY as ACCESSIBILITY,

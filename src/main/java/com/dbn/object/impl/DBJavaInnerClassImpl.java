@@ -64,7 +64,7 @@ public class DBJavaInnerClassImpl extends DBObjectImpl<DBJavaInnerClassMetadata>
 
 	@Override
 	public String getPresentableText() {
-		return presentableNameCache.computeIfAbsent(this, o -> o.getName().split("\\$")[1]);
+		return presentableNameCache.computeIfAbsent(this, o -> o.getName().substring(o.getName().indexOf('$') + 1));
 	}
 
 	@Override
