@@ -23,7 +23,6 @@ import com.dbn.common.util.Cloneable;
 import com.dbn.common.util.Commons;
 import com.dbn.common.util.Strings;
 import lombok.Data;
-import org.jdom.CDATA;
 import org.jdom.Element;
 
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ import java.util.List;
 
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.options.setting.Settings.writeCdata;
 
 @Data
 public class ExecutionVariable implements PersistentStateElement, Cloneable<ExecutionVariable>, ValueHolder<String> {
@@ -87,9 +87,7 @@ public class ExecutionVariable implements PersistentStateElement, Cloneable<Exec
         element.setAttribute("path", path);
         for (String value : valueHistory) {
             Element valueElement = newElement(element, "value");
-
-            CDATA cdata = new CDATA(value);
-            valueElement.setContent(cdata);
+            writeCdata(valueElement, value, true);
         }
     }
 
