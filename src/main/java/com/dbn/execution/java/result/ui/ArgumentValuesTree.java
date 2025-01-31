@@ -17,17 +17,16 @@
 package com.dbn.execution.java.result.ui;
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.tree.DBNColoredTreeCellRenderer;
 import com.dbn.common.ui.tree.DBNTree;
 import com.dbn.common.util.TextAttributes;
 import com.dbn.data.grid.color.DataGridTextAttributesKeys;
 import com.dbn.execution.common.input.ExecutionValue;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.lookup.DBObjectRef;
-import com.dbn.object.type.DBObjectType;
-import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.event.TreeSelectionListener;
@@ -35,8 +34,12 @@ import javax.swing.tree.TreePath;
 import java.awt.Color;
 import java.sql.ResultSet;
 import java.util.List;
+import java.util.Objects;
 
-import static com.dbn.common.util.Strings.cachedLowerCase;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
+import static com.intellij.ui.SimpleTextAttributes.GRAY_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_ATTRIBUTES;
+import static com.intellij.ui.SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES;
 
 class ArgumentValuesTree extends DBNTree{
 
@@ -85,49 +88,49 @@ class ArgumentValuesTree extends DBNTree{
         public void customizeCellRenderer(@NotNull DBNTree tree, Object value, boolean selected, boolean expanded, boolean leaf, int row, boolean hasFocus) {
             ArgumentValuesTreeNode treeNode = (ArgumentValuesTreeNode) value;
             Object userValue = treeNode.getUserValue();
-            if (userValue instanceof DBJavaMethod) {
-                DBJavaMethod method = (DBJavaMethod) userValue;
+            DBObject object = DBObjectRef.get(treeNode.getObject());
+
+            if (object instanceof DBJavaMethod) {
+                DBJavaMethod method = (DBJavaMethod) object;
                 setIcon(method.getIcon());
-                append(method.getSignature(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                append(method.getSignature(), REGULAR_ATTRIBUTES);
+                return;
+            }
+
+            if (object != null) {
+                setIcon(object.getIcon());
+                append(object.getName(), REGULAR_ATTRIBUTES);
             }
 
             if (userValue instanceof String) {
                 append((String) userValue, treeNode.isLeaf() ?
-                        SimpleTextAttributes.REGULAR_ATTRIBUTES :
-                        SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
-            }
-
-            if (userValue instanceof DBObjectRef) {
-                DBObjectRef<DBJavaParameter> argumentRef = (DBObjectRef<DBJavaParameter>) userValue;
-                DBJavaParameter argument = DBObjectRef.get(argumentRef);
-                setIcon(argument == null ? Icons.DBO_ARGUMENT : argument.getIcon());
-                append(argumentRef.getObjectName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
+                        REGULAR_ATTRIBUTES :
+                        REGULAR_BOLD_ATTRIBUTES);
             }
 
             if (userValue instanceof ExecutionValue) {
                 ExecutionValue fieldValue = (ExecutionValue) userValue;
-                DBJavaParameter parameter = null; //inputValue.getArgument();
-                Object originalValue = fieldValue.getValue();
-                String displayValue = originalValue instanceof ResultSet || fieldValue.isLargeObject() || fieldValue.isLargeValue() ? "" : String.valueOf(originalValue);
-                String parameterName;
-                String dataType = null;
-
-                setIcon(DBObjectType.ARGUMENT.getIcon());
-
-                if (parameter == null) {
-                    parameterName = fieldValue.getPath();
-                } else {
-                    parameterName = parameter.getName();
-                    dataType = parameter.getBaseType();
-                }
-
-                append(parameterName, SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                append(" = ", SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                if (dataType != null) {
-                    append("{" + cachedLowerCase(dataType) + "} " , SimpleTextAttributes.GRAY_ATTRIBUTES);
-                }
-                append(displayValue, SimpleTextAttributes.REGULAR_BOLD_ATTRIBUTES);
+                String stringValue = Objects.toString(fieldValue.getValue());
+                append(" = ", REGULAR_ATTRIBUTES);
+                append(stringValue, REGULAR_BOLD_ATTRIBUTES);
             }
+
+            if (object instanceof DBJavaParameter) {
+                DBJavaParameter parameter = (DBJavaParameter) object;
+                if (!parameter.isPlainValue()) {
+                    append(" (" + getCanonicalName(parameter.getJavaClassName()) + ")", GRAY_ATTRIBUTES);
+                }
+            }
+
+            if (object instanceof DBJavaField) {
+                DBJavaField field = (DBJavaField) object;
+                if (field.isClass()) {
+                    append(" (" + getCanonicalName(field.getJavaClassName()) + ")", GRAY_ATTRIBUTES);
+                } else {
+                    append(" (" + field.getBaseType() + ")", GRAY_ATTRIBUTES);
+                }
+            }
+
         }
     }
 }

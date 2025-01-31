@@ -142,6 +142,11 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
+	public DBJavaParameter getParameter(String name) {
+		return getChildObject(DBObjectType.JAVA_PARAMETER, name);
+	}
+
+	@Override
 	public DBJavaClass getOwnerClass() {
 		return getParentObject();
 	}

@@ -50,4 +50,6 @@ public interface DBJavaMethod extends DBOrderedObject {
 	short getIndex();
 
 	List<DBJavaParameter> getParameters();
+
+	DBJavaParameter getParameter(String name);
 }
