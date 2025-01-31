@@ -42,7 +42,9 @@ import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBOrderedObject;
 import com.dbn.object.lookup.DBObjectRef;
+import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -64,8 +66,8 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
-import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
+@Slf4j
 public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcessor {
 	private final DBObjectRef<DBJavaMethod> method;
 	Set<String> addedTypes = new HashSet<>();
@@ -138,11 +140,18 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 				execute(context);
 
 			} finally {
-				// drop java wrapper
-				setProgressDetail("Releasing java execution environment");
-				initDropWrapperCommand(context, wrapper);
-				initTimeout(context);
-				execute(context);
+				try {
+					// drop java wrapper
+					setProgressDetail("Releasing java execution environment");
+					initDropWrapperCommand(context, wrapper);
+					initTimeout(context);
+					execute(context);
+				} catch (ProcessCanceledException e) {
+					conditionallyLog(e);
+				} catch (Throwable t) {
+					log.warn("Error cleaning up java wrappers", t);
+					// do not propagate exception to the surrounding block
+				}
 			}
 		} catch (SQLException e) {
 			conditionallyLog(e);
@@ -219,7 +228,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 			Properties properties = new Properties();
 
-			properties.setProperty("JAVA_COMPLEX_TYPE", getCanonicalName(jct.getTypeName()));
+			properties.setProperty("JAVA_COMPLEX_TYPE", jct.getTypeName());
 			String code;
 			if (jct.isArray()) {
 				properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
@@ -276,7 +285,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 		for (JavaComplexType jct : wrapper.getArgumentJavaComplexTypes()) {
 			if (jct.getAttributeDirection() == JavaComplexType.AttributeDirection.ARGUMENT) continue;
-			properties.setProperty("JAVA_COMPLEX_TYPE", getCanonicalName(jct.getTypeName()));
+			properties.setProperty("JAVA_COMPLEX_TYPE", jct.getTypeName());
 			properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
 
 			String code;

@@ -144,7 +144,9 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
 
     @Override
     public boolean isSchemaSelectionAllowed() {
-        return DatabaseFeature.AUTHID_METHOD_EXECUTION.isSupported(getConnection());
+        //return DatabaseFeature.AUTHID_METHOD_EXECUTION.isSupported(getConnection());
+        // TODO verify if execution on foreign schema is allowed
+        return false;
     }
 
     @Override

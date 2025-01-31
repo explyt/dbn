@@ -34,6 +34,7 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
+import java.util.Objects;
 
 import static com.dbn.object.common.property.DBObjectProperty.CLASS;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
@@ -64,7 +65,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 		baseType = metadata.getBaseType();
 		className = metadata.getClassName();
 
-		if (baseType.equals("class")) set(CLASS, true);
+		if (Objects.equals(baseType, "class")) set(CLASS, true);
 
 		if(metadata.getAccessibility() == null){
 			accessibility = DBJavaAccessibility.PACKAGE_PRIVATE;
