@@ -136,7 +136,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 
 		Project project = field.getProject();
 		JavaExecutionInput executionInput = getExecutionInput();
-		String value = executionInput.getInputValue(fieldPath);
+		String value = executionInput.ensureInputValue(fieldPath);
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));

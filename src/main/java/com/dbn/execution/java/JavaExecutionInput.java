@@ -45,6 +45,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -57,8 +58,8 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     private DBObjectRef<DBJavaMethod> method;
 
     private transient JavaExecutionResult executionResult;
-    private final Map<String, ExecutionValue<String>> inputValues = new HashMap<>();
-    private Map<String, ExecutionVariable> executionVariables = new HashMap<>();
+    private final Map<String, ExecutionValue<String>> inputValues = new LinkedHashMap<>();
+    private Map<String, ExecutionVariable> executionVariables = new LinkedHashMap<>();
 
     public JavaExecutionInput(Project project) {
         super(project, ExecutionTarget.METHOD);
@@ -175,18 +176,24 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
         return connection != null && !connection.getSettings().isActive();
     }
 
+    @Nullable
     public String getInputValue(String path) {
-        ExecutionValue<String> fieldValue = ensureInputValue(path);
+        ExecutionValue<String> fieldValue = inputValues.get(path);
+        return fieldValue == null ? null : fieldValue.getValueHolder().getValue() ;
+    }
+
+    public String ensureInputValue(String path) {
+        ExecutionValue<String> fieldValue = prepareInputValue(path);
         return fieldValue.getValueHolder().getValue();
     }
 
     public void setInputValue(String path, String value) {
-        ExecutionValue<String> fieldValue = ensureInputValue(path);
+        ExecutionValue<String> fieldValue = prepareInputValue(path);
         fieldValue.getValueHolder().setValue(value);
     }
 
     public List<String> getInputValueHistory(String path) {
-        ExecutionValue<String> fieldValue = ensureInputValue(path) ;
+        ExecutionValue<String> fieldValue = prepareInputValue(path) ;
 
         ValueHolder<?> valueStore = fieldValue.getValueHolder();
         if (valueStore instanceof ExecutionVariable) {
@@ -197,7 +204,7 @@ public class JavaExecutionInput extends LocalExecutionInput implements Comparabl
     }
 
     @NotNull
-    private ExecutionValue<String> ensureInputValue(String path) {
+    private ExecutionValue<String> prepareInputValue(String path) {
         return inputValues.computeIfAbsent(path, p -> new ExecutionValue<>(path, getExecutionVariable(path)));
     }
 

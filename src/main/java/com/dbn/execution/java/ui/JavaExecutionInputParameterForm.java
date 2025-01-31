@@ -89,7 +89,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		DBJavaParameter parameter = getParameter();
 		Project project = parameter.getProject();
 		JavaExecutionInput executionInput = getExecutionInput();
-		String value = executionInput.getInputValue(parameter.getName());
+		String value = executionInput.ensureInputValue(parameter.getName());
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
 		inputField.setPreferredSize(new Dimension(240, -1));
