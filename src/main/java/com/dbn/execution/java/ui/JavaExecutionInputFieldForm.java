@@ -65,14 +65,13 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 
 	private JTextField inputTextField;
 	private UserValueHolderImpl<String> userValueHolder;
-	private short argumentPosition;
 
 	private final DBObjectRef<DBJavaField> field;
 	private final List<JavaExecutionInputFieldForm> fieldForms = DisposableContainers.list(this);
 
 	private final String fieldPath;
 
-	JavaExecutionInputFieldForm(DBNForm parentForm, DBJavaField field, short argumentPosition) {
+	JavaExecutionInputFieldForm(DBNForm parentForm, DBJavaField field) {
 		super(parentForm);
 		this.field = DBObjectRef.of(field);
 		fieldLabel.setText(field.getName());
@@ -81,7 +80,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		fieldPath = buildFieldPath();
 
 		if (field.isPlainValue()) {
-			initPlainField(argumentPosition);
+			initPlainField();
 		} else {
 			initClassField();
 		}
@@ -121,7 +120,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 		return builder.toString();
 	}
 
-	private void initPlainField(short argumentPosition) {
+	private void initPlainField() {
 		DBJavaField field = getField();
 
 		if (field.isClass()) {
@@ -137,7 +136,6 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 
 		Project project = field.getProject();
 		JavaExecutionInput executionInput = getExecutionInput();
-		this.argumentPosition = argumentPosition;
 		String value = executionInput.getInputValue(fieldPath);
 
 		TextFieldWithPopup<?> inputField = new TextFieldWithPopup<>(project);
@@ -207,7 +205,7 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 	}
 
 	private void addFieldPanel(DBJavaField field) {
-		JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, field, (short) 0);
+		JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, field);
 		fieldsPanel.add(argumentComponent.getComponent());
 		fieldForms.add(argumentComponent);
 	}

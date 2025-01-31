@@ -171,7 +171,7 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 	}
 
 	private void addFieldPanel(DBJavaField field) {
-		JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, field, (short) 0);
+		JavaExecutionInputFieldForm argumentComponent = new JavaExecutionInputFieldForm(this, field);
 		fieldsPanel.add(argumentComponent.getComponent());
 		fieldForms.add(argumentComponent);
 	}
