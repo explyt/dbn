@@ -117,18 +117,20 @@ class ArgumentValuesTree extends DBNTree{
 
             if (object instanceof DBJavaParameter) {
                 DBJavaParameter parameter = (DBJavaParameter) object;
-                if (!parameter.isPlainValue()) {
-                    append(" (" + getCanonicalName(parameter.getJavaClassName()) + ")", GRAY_ATTRIBUTES);
-                }
-            }
+                String dataType = parameter.isClass() ?
+                        getCanonicalName(parameter.getJavaClassName()) :
+                        parameter.getBaseType();
+
+                append(" (" + dataType + ")", GRAY_ATTRIBUTES);
+            } else
 
             if (object instanceof DBJavaField) {
                 DBJavaField field = (DBJavaField) object;
-                if (field.isClass()) {
-                    append(" (" + getCanonicalName(field.getJavaClassName()) + ")", GRAY_ATTRIBUTES);
-                } else {
-                    append(" (" + field.getBaseType() + ")", GRAY_ATTRIBUTES);
-                }
+                String dataType = field.isClass() ?
+                        getCanonicalName(field.getJavaClassName()) :
+                        field.getBaseType();
+
+                append(" (" + dataType + ")", GRAY_ATTRIBUTES);
             }
 
         }
