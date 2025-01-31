@@ -33,10 +33,10 @@ import com.dbn.execution.java.JavaExecutionContext;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.JavaComplexType;
-import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.execution.java.wrapper.SqlComplexType;
-import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.execution.java.wrapper.TypeMappingsManager;
+import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.execution.logging.DatabaseLoggingManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -64,6 +64,7 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcessor {
 	private final DBObjectRef<DBJavaMethod> method;
@@ -218,7 +219,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 			Properties properties = new Properties();
 
-			properties.setProperty("JAVA_COMPLEX_TYPE", WrapperBuilder.convertClassNameToDotNotation(jct.getTypeName()));
+			properties.setProperty("JAVA_COMPLEX_TYPE", getCanonicalName(jct.getTypeName()));
 			String code;
 			if (jct.isArray()) {
 				properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
@@ -275,7 +276,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 		for (JavaComplexType jct : wrapper.getArgumentJavaComplexTypes()) {
 			if (jct.getAttributeDirection() == JavaComplexType.AttributeDirection.ARGUMENT) continue;
-			properties.setProperty("JAVA_COMPLEX_TYPE", WrapperBuilder.convertClassNameToDotNotation(jct.getTypeName()));
+			properties.setProperty("JAVA_COMPLEX_TYPE", getCanonicalName(jct.getTypeName()));
 			properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
 
 			String code;

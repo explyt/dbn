@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 /**
  * Parses {@link DBJavaMethod} instances into {@link Wrapper} objects,
@@ -112,7 +113,7 @@ public final class WrapperBuilder {
 	private void setMethodMetadata(DBJavaMethod javaMethod, Wrapper wrapper) {
 		String methodName = javaMethod.getName().split("#")[0];
 		wrapper.setWrappedJavaMethodName(methodName);
-		wrapper.setFullyQualifiedClassName(convertClassNameToDotNotation(javaMethod.getClassName()));
+		wrapper.setFullyQualifiedClassName(getCanonicalName(javaMethod.getClassName()));
 		// Replace "void" return in the signature with a more readable style, if present.
 
 		String javaMethodSignature = javaMethod.getSignature().replace(": void", "").replace(":", " return");
@@ -211,7 +212,7 @@ public final class WrapperBuilder {
 	private Wrapper.MethodAttribute buildSimpleMethodAttribute(String effectiveParameterType) {
 		Wrapper.MethodAttribute methodAttribute = new Wrapper.MethodAttribute();
 		methodAttribute.setArray(false);
-		methodAttribute.setTypeName(convertClassNameToDotNotation(effectiveParameterType));
+		methodAttribute.setTypeName(getCanonicalName(effectiveParameterType));
 
 		SqlType sqlType = TypeMappingsManager.getCorrespondingSqlType(effectiveParameterType);
 		methodAttribute.setCorrespondingSqlTypeName(sqlType.getSqlTypeName());
@@ -226,7 +227,7 @@ public final class WrapperBuilder {
 		Wrapper.MethodAttribute methodAttribute = new Wrapper.MethodAttribute();
 		methodAttribute.setArray(javaComplexType.isArray());
 		methodAttribute.setArrayDepth(javaComplexType.getArrayDepth());
-		methodAttribute.setTypeName(convertClassNameToDotNotation(javaComplexType.getTypeName()));
+		methodAttribute.setTypeName(getCanonicalName(javaComplexType.getTypeName()));
 		methodAttribute.setComplexType(true);
 
 		SqlComplexType sqlType = javaComplexType.getCorrespondingSqlType();
@@ -387,8 +388,8 @@ public final class WrapperBuilder {
 	 */
 	private ComplexTypeKey buildComplexTypeKey(DBJavaClass dbJavaClass, String parameterType, short arrayDepth) {
 		String keyName = (dbJavaClass == null)
-				? convertClassNameToDotNotation(parameterType)
-				: convertClassNameToDotNotation(dbJavaClass.getQualifiedName());
+				? getCanonicalName(parameterType)
+				: getCanonicalName(dbJavaClass.getQualifiedName());
 		return new ComplexTypeKey(keyName, arrayDepth);
 	}
 
@@ -650,7 +651,7 @@ public final class WrapperBuilder {
 		DBJavaField javaField = javaClass.getField(fieldName);
 		if (javaField != null && javaField.getJavaClass() != null) {
 			String qualifiedName = javaField.getJavaClass().getQualifiedName();
-			targetFieldClass = convertClassNameToDotNotation(qualifiedName);
+			targetFieldClass = getCanonicalName(qualifiedName);
 		} else {
 			targetFieldClass = fieldParameter;
 		}
@@ -709,13 +710,13 @@ public final class WrapperBuilder {
 	 * Retrieves the parameter type from a {@link DBJavaParameter}.
 	 */
 	private String getParameterType(DBJavaParameter javaParameter) {
-		String parameterType = convertClassNameToDotNotation(javaParameter.getBaseType());
+		String parameterType = getCanonicalName(javaParameter.getBaseType());
 
 		// If parameter type is empty, try to get it from the parameter class
 		if (parameterType.isEmpty() || parameterType.equals("-") || parameterType.equals("class")) {
 			DBJavaClass parameterClass = javaParameter.getJavaClass();
 			if (parameterClass != null) {
-				parameterType = convertClassNameToDotNotation(parameterClass.getQualifiedName());
+				parameterType = getCanonicalName(parameterClass.getQualifiedName());
 			}
 		}
 		validateParameterType(parameterType);
@@ -726,11 +727,11 @@ public final class WrapperBuilder {
 	 * Retrieves the parameter type by analyzing a raw type and class name, if needed.
 	 */
 	private String getParameterType(String type, String className) {
-		String parameterType = convertClassNameToDotNotation(type);
+		String parameterType = getCanonicalName(type);
 
 		if (parameterType.isEmpty() || parameterType.equals("-") || parameterType.equals("class")) {
 			if (className != null) {
-				parameterType = convertClassNameToDotNotation(className);
+				parameterType = getCanonicalName(className);
 			}
 		}
 		validateParameterType(parameterType);
@@ -761,13 +762,6 @@ public final class WrapperBuilder {
 	}
 
 	/**
-	 * Converts slash notation to dot notation (e.g., "java/lang/String" -> "java.lang.String").
-	 */
-	public static String convertClassNameToDotNotation(String className) {
-		return className.replace('/', '.');
-	}
-
-	/**
 	 * Capitalizes the first character of a string (e.g. "field" -> "Field").
 	 */
 	private String capitalize(String str) {
@@ -792,7 +786,7 @@ public final class WrapperBuilder {
 		private final short arrayLength;
 
 		public ComplexTypeKey(String className, short arrayLength) {
-			this.className = convertClassNameToDotNotation(className);
+			this.className = getCanonicalName(className);
 			this.arrayLength = arrayLength;
 		}
 	}
