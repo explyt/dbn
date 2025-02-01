@@ -50,13 +50,19 @@ public class Wrapper {
     @Getter
     @Setter
     public static class MethodAttribute {
-		private String typeName;           // Java type name
-		private String correspondingSqlTypeName;  // Corresponding SQL type name
-        private String converterMethodName;  // Method used for type conversion
-        private boolean isArray = false;
-		private boolean isComplexType;
+		private String javaTypeName;         // Java type name
+		private String sqlTypeName;          // Java type name
+		private boolean complexType;
         private short arrayDepth = 0;
-		private short attributePosition;
+
+		public boolean isArray() {
+			return arrayDepth > 0;
+		}
+
+		public String getSqlDeclarationSuffix() {
+			SqlType sqlType = TypeMappings.getSqlType(javaTypeName);
+			return sqlType == null ? "" : sqlType.getDeclarationSuffix();
+		}
 	}
 
 	public int getSqlTypeIndex(String className, short arrayDepth){
@@ -72,7 +78,7 @@ public class Wrapper {
 		return this.getMethodArguments()
 				.stream()
 				.map(e -> (
-						e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getTypeName())
+						e.isArray() ? "java.sql.Array" : e.isComplexType() ? "java.sql.Struct" : e.getJavaTypeName())
 						+ (includeArgumentNames ? " arg" + idx.getAndIncrement(): "")
 				)
 				.collect(Collectors.joining(", "));

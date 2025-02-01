@@ -26,6 +26,7 @@ import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.Wrapper.MethodAttribute;
 import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
@@ -76,8 +77,10 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 		buffer.append("declare\n");
 		if(! isProcedure){
+			MethodAttribute returnType = wrapper.getReturnType();
 			buffer.append("output_arg ")
-					.append(wrapper.getReturnType().getCorrespondingSqlTypeName())
+					.append(returnType.getSqlTypeName())
+					.append(returnType.getSqlDeclarationSuffix())
 					.append(";")
 					.append("\n");
 		}
@@ -115,12 +118,12 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 			String parameterName = parameter.getName();
 			if (parameter.isArray()) {
-				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getCorrespondingSqlTypeName();
+				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getSqlTypeName();
 				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
 				callableStatement.setArray(parameterIndex, arrObj);
 
-			} else if (parameter.isClass()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
-				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getCorrespondingSqlTypeName();
+			} else if (!parameter.isPlainValue()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
+				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getSqlTypeName();
 				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
 				callableStatement.setObject(parameterIndex, structObj);
 

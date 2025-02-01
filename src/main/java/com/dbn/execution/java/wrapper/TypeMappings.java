@@ -16,17 +16,19 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.esotericsoftware.kryo.kryo5.util.Null;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 import java.util.Set;
 
 
-public final class TypeMappingsManager {
+public final class TypeMappings {
     @Getter
     private static final Map<String, SqlType> DATA_TYPES =
             Map.ofEntries(
-                Map.entry("java.lang.String", new SqlType("VARCHAR2", "String.valueOf(", ")")),
+                Map.entry("java.lang.String", new SqlType("VARCHAR2", "String.valueOf(", ")", " (32000)")),
                 // Java Primitive types
                 Map.entry("boolean", new SqlType("NUMBER", "", ".equals(\"1\")")),
                 Map.entry("byte", new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
@@ -75,16 +77,22 @@ public final class TypeMappingsManager {
             //...
     );
 
-    public static boolean isSupportedType(String type){
-        return DATA_TYPES.containsKey(type);
+    public static boolean isSupportedType(String className) {
+        return DATA_TYPES.containsKey(className);
     }
 
     public static boolean isUnsupportedType(String type){
         return UNSUPPORTED_TYPES.contains(type);
     }
 
-    public static SqlType toSqlType(String className){
+    @Nullable
+    public static SqlType getSqlType(String className){
         return DATA_TYPES.get(className);
     }
 
+    @Null
+    public static String getSqlTypeName(String className){
+        SqlType sqlType = getSqlType(className);
+        return sqlType == null ? null : sqlType.getSqlTypeName();
+    }
 }

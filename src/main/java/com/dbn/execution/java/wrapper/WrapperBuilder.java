@@ -31,6 +31,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.dbn.execution.java.wrapper.TypeMappings.getSqlType;
+import static com.dbn.execution.java.wrapper.TypeMappings.isSupportedType;
+import static com.dbn.execution.java.wrapper.TypeMappings.isUnsupportedType;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 /**
@@ -179,7 +182,7 @@ public final class WrapperBuilder {
 
 		// If non-array and we have a direct mapping -> simple attribute
 		String className = javaClass.getCanonicalName();
-		if (arrayDepth == 0 && TypeMappingsManager.isSupportedType(className)) {
+		if (arrayDepth == 0 && isSupportedType(className)) {
 			return buildSimpleMethodAttribute(className);
 		}
 
@@ -202,11 +205,10 @@ public final class WrapperBuilder {
 	 */
 	private Wrapper.MethodAttribute buildSimpleMethodAttribute(String javaClassName) {
 		Wrapper.MethodAttribute methodAttribute = new Wrapper.MethodAttribute();
-		methodAttribute.setArray(false);
-		methodAttribute.setTypeName(javaClassName);
+		methodAttribute.setJavaTypeName(javaClassName);
 
-		SqlType sqlType = TypeMappingsManager.toSqlType(javaClassName);
-		methodAttribute.setCorrespondingSqlTypeName(sqlType.getSqlTypeName());
+		String sqlTypeName = TypeMappings.getSqlTypeName(javaClassName);
+		methodAttribute.setSqlTypeName(sqlTypeName);
 		methodAttribute.setComplexType(false);
 		return methodAttribute;
 	}
@@ -217,11 +219,11 @@ public final class WrapperBuilder {
 	private Wrapper.MethodAttribute buildComplexMethodAttribute(JavaComplexType javaComplexType) {
 		Wrapper.MethodAttribute methodAttribute = new Wrapper.MethodAttribute();
 		methodAttribute.setArrayDepth(javaComplexType.getArrayDepth());
-		methodAttribute.setTypeName(javaComplexType.getJavaClassName());
+		methodAttribute.setJavaTypeName(javaComplexType.getJavaClassName());
 		methodAttribute.setComplexType(true);
 
 		SqlComplexType sqlType = javaComplexType.getCorrespondingSqlType();
-		methodAttribute.setCorrespondingSqlTypeName((sqlType == null) ? "" : sqlType.getName());
+		methodAttribute.setSqlTypeName((sqlType == null) ? "" : sqlType.getName());
 
 		return methodAttribute;
 	}
@@ -301,23 +303,23 @@ public final class WrapperBuilder {
 		sqlComplexType.setArray(true);
 
 		// If base type is unsupported, abort
-		if (TypeMappingsManager.isUnsupportedType(javaClassName)) {
+		if (TypeMappings.isUnsupportedType(javaClassName)) {
 			log.error("Encountered unsupported type for array: {}", javaClassName);
 			context.removeFromSet(key);
 			return null;
 		}
 
-		String containedTypeName = null;
+		String sqlTypeName = null;
 		JavaComplexType containedJavaComplexType;
 
 		// Single-dimension vs multi-dimension array
 		if (arrayDepth <= 1) {
-			containedTypeName = getContainedTypeName(javaClassName);
-			if (containedTypeName == null) {
+			sqlTypeName = TypeMappings.getSqlTypeName(javaClassName);
+			if (sqlTypeName == null) {
 				// Possibly a nested complex type
 				containedJavaComplexType = createJavaComplexType(javaClass, attributeDirection, context, wrapper);
 				if (containedJavaComplexType != null) {
-					containedTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
+					sqlTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
 				}
 			}
 		} else {
@@ -326,11 +328,11 @@ public final class WrapperBuilder {
 					(short) (arrayDepth - 1), attributeDirection,
 					context, wrapper);
 			if (containedJavaComplexType != null) {
-				containedTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
+				sqlTypeName = containedJavaComplexType.getCorrespondingSqlType().getName();
 			}
 		}
 
-		sqlComplexType.setContainedTypeName(containedTypeName);
+		sqlComplexType.setContainedTypeName(sqlTypeName);
 		sqlComplexType.setName(getSqlTypeName(javaClassName, arrayDepth, wrapper));
 		javaComplexType.setCorrespondingSqlType(sqlComplexType);
 
@@ -351,17 +353,6 @@ public final class WrapperBuilder {
 		complexType.setArrayDepth(arrayDepth);
 		complexType.setJavaClassName(javaClassName);
 		return complexType;
-	}
-
-	/**
-	 * Attempts to return a contained (base) type name if it is a direct mapping in TypeMappingsManager.
-	 * Returns {@code null} if no direct mapping is found (indicating a complex type).
-	 */
-	private String getContainedTypeName(String javaClassName) {
-		if (TypeMappingsManager.isSupportedType(javaClassName)) {
-			return TypeMappingsManager.toSqlType(javaClassName).getSqlTypeName();
-		}
-		return null;
 	}
 
 	/**
@@ -489,7 +480,7 @@ public final class WrapperBuilder {
 			javaComplexType.addField(field);
 
 			// If it's a primitive or directly supported type, add to the SQL type
-			SqlType sqlType = TypeMappingsManager.toSqlType(field.getType());
+			SqlType sqlType = getSqlType(field.getType());
 			if (sqlType != null && javaField.getArrayDepth() <= 0) {
 				sqlComplexType.addField(field.getName(), sqlType.getSqlTypeName(), field.getFieldIndex());
 			} else {
@@ -509,7 +500,7 @@ public final class WrapperBuilder {
 		// Get the raw field type in string form
 		String fieldJavaClassName = getCanonicalName(javaField.getJavaClassName());
 
-		if (TypeMappingsManager.isUnsupportedType(fieldJavaClassName)) {
+		if (isUnsupportedType(fieldJavaClassName)) {
 			log.error("Encountered unsupported type for field {}: {}", javaField, fieldJavaClassName);
 		}
 
@@ -518,7 +509,7 @@ public final class WrapperBuilder {
 		field.setName(javaField.getName());
 		if(javaField.getAccessibility() != null)
 			field.setAccessModifier(javaField.getAccessibility().toString());
-		field.setType(fieldJavaClassName, TypeMappingsManager.toSqlType(fieldJavaClassName));
+		field.setType(fieldJavaClassName, getSqlType(fieldJavaClassName));
 
 		// If array
 		short arrayDepth = javaField.getArrayDepth();
