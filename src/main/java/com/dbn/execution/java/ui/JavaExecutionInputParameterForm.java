@@ -95,12 +95,13 @@ public class JavaExecutionInputParameterForm extends DBNFormBase implements Comp
 		inputField.setPreferredSize(new Dimension(240, -1));
 
 		inputField.createValuesListPopup(createValuesProvider(), parameter, true);
+		String javaClassName = parameter.getJavaClassName();
 		if (parameter.isClass()) {
-			String className = getCanonicalName(parameter.getJavaClassName());
+			String className = getCanonicalName(javaClassName);
 			parameterTypeLabel.setText(className);
 			parameterTypeLabel.setIcon(/*parameter.getParameterClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO performance issue (do not force loading the field class)
 		} else {
-			parameterTypeLabel.setText(parameter.getBaseType());
+			parameterTypeLabel.setText(javaClassName);
 		}
 
 		inputTextField = inputField.getTextField();

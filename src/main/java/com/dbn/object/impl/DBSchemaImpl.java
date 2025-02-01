@@ -80,6 +80,7 @@ import static com.dbn.common.content.DynamicContentProperty.GROUPED;
 import static com.dbn.common.content.DynamicContentProperty.HIDDEN;
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
@@ -109,6 +110,7 @@ import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 import static com.dbn.object.type.DBObjectType.JAVA_PARAMETER;
+import static com.dbn.object.type.DBObjectType.JAVA_PRIMITIVE;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
 import static com.dbn.object.type.DBObjectType.NESTED_TABLE;
 import static com.dbn.object.type.DBObjectType.PACKAGE;
@@ -158,6 +160,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(PACKAGE,           this);
         childObjects.createObjectList(TYPE,              this);
         childObjects.createObjectList(DATABASE_TRIGGER,  this);
+        childObjects.createObjectList(JAVA_PRIMITIVE,    this);
         childObjects.createObjectList(JAVA_CLASS,        this);
         childObjects.createObjectList(DIMENSION,         this);
         childObjects.createObjectList(CLUSTER,           this);
@@ -362,6 +365,11 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
+    public List<DBJavaClass> getJavaPrimitives() {
+        return getChildObjects(JAVA_PRIMITIVE);
+    }
+
+    @Override
     public List<DBJavaClass> getJavaClasses() {
         return getChildObjects(JAVA_CLASS);
     }
@@ -412,9 +420,18 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
     }
 
     @Override
-    public DBJavaClass getJavaClass(String name) {
-        return getChildObject(JAVA_CLASS, name);
+    public DBJavaClass getJavaPrimitive(String name) {
+        return getChildObject(JAVA_PRIMITIVE, name);
     }
+
+    @Override
+    public DBJavaClass getJavaClass(String name) {
+        return coalesce(
+            () -> getChildObject(JAVA_PRIMITIVE, name),
+            () -> getChildObject(JAVA_CLASS, name));
+    }
+
+
 
     @Override
     public List<DBDataset> getDatasets() {

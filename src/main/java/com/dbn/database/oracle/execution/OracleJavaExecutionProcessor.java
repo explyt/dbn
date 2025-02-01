@@ -43,8 +43,6 @@ import java.sql.SQLException;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.dbn.execution.java.wrapper.WrapperBuilder.getCanonicalPath;
-
 public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 
 
@@ -115,21 +113,22 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		int parameterIndex = 1;
 		for (DBJavaParameter parameter : getArguments()) {
 
-			String clazz = parameter.getBaseType();
 			String parameterName = parameter.getName();
 			if (parameter.isArray()) {
 				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getCorrespondingSqlTypeName();
 				Array arrObj = getArrayObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
 				callableStatement.setArray(parameterIndex, arrObj);
 
-			} else if (clazz.equals("class")) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
+			} else if (parameter.isClass()) { // TODO support pseudo-primitives com.dbn.object.type.DBJavaValueType
 				String objectName = wrapper.getMethodArguments().get(parameterIndex - 1).getCorrespondingSqlTypeName();
 				Object structObj = getStructObject(executionInput, parameter.getJavaClass().getFields(), wrapper, objectName, parameterName);
 				callableStatement.setObject(parameterIndex, structObj);
 
 			} else {
+				String clazz = parameter.getJavaClassName();
 				String value = executionInput.getInputValue(parameterName);
-				if (clazz.equals("String")) callableStatement.setString(parameterIndex, value);
+				if (value == null) callableStatement.setObject(parameterIndex, null);
+				else if (clazz.equals("String")) callableStatement.setString(parameterIndex, value);
 				else if (clazz.equals("byte")) callableStatement.setByte(parameterIndex, Byte.parseByte(value));
 				else if (clazz.equals("short")) callableStatement.setShort(parameterIndex, Short.parseShort(value));
 				else if (clazz.equals("int")) callableStatement.setInt(parameterIndex, Integer.parseInt(value));
@@ -211,7 +210,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 	private Object parseValue(JavaExecutionInput executionInput, Wrapper wrapper, DBJavaField field, String fieldPath, String fieldValue) {
 		if (fieldValue == null) return null;
 
-		switch(field.getBaseType()){
+		switch(field.getJavaClassName()){
 			case "int": return Integer.parseInt(fieldValue);
 			case "float": return Float.parseFloat(fieldValue);
 			case "double": return Double.parseDouble(fieldValue);
@@ -221,8 +220,8 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 			case "boolean": return Boolean.parseBoolean(fieldValue);
 			case "class":
 				DBJavaClass javaClass = field.getJavaClass();
-				int typeNumber = wrapper.getComplexTypeNumber(getCanonicalPath(javaClass), field.getArrayDepth());
-				String innerObjectName = WrapperBuilder.newSqlTypePrepend + typeNumber;
+				int typeIndex = wrapper.getSqlTypeIndex(javaClass.getCanonicalName(), field.getArrayDepth());
+				String innerObjectName = WrapperBuilder.DBN_TYPE_SUFFIX + typeIndex;
 				return getStructObject(executionInput, javaClass.getFields(), wrapper, innerObjectName, fieldPath);
 			default:return fieldValue;
 		}

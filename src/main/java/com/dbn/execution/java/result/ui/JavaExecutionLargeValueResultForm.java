@@ -51,6 +51,7 @@ import java.sql.SQLException;
 
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
 public class JavaExecutionLargeValueResultForm extends DBNFormBase {
     private JPanel actionsPanel;
@@ -83,8 +84,7 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
         text = Strings.removeCharacter(nvl(text, ""), '\r');
         Document document = Documents.createDocument(text);
 
-        String contentTypeName = argument.getBaseType();
-        contentType = TextContentType.get(project, contentTypeName);
+        contentType = TextContentType.get(project, getCanonicalName(argument.getJavaClassName()));
 
         if (contentType == null) contentType = TextContentType.getPlainText(project);
 
@@ -92,8 +92,6 @@ public class JavaExecutionLargeValueResultForm extends DBNFormBase {
         editor.getContentComponent().setFocusTraversalKeysEnabled(false);
 
         largeValuePanel.add(editor.getComponent(), BorderLayout.CENTER);
-
-
         largeValuePanel.setBorder(IdeBorderFactory.createBorder());
 
         ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new ContentTypeComboBoxAction());

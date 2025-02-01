@@ -24,91 +24,67 @@ import java.util.Set;
 
 public final class TypeMappingsManager {
     @Getter
-    private static final Map<String, SqlType> dataTypeMap =
+    private static final Map<String, SqlType> DATA_TYPES =
             Map.ofEntries(
-                Map.entry("java.lang.String",
-                        new SqlType("VARCHAR2", "String.valueOf(", ")")),
-
+                Map.entry("java.lang.String", new SqlType("VARCHAR2", "String.valueOf(", ")")),
                 // Java Primitive types
-                Map.entry("boolean",
-                        new SqlType("NUMBER", "", ".equals(\"1\")")),
-                Map.entry("byte",
-                        new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
-                Map.entry("char",
-                        new SqlType("VARCHAR2", "String.valueOf(", ").charAt(0)")),
-                Map.entry("short",
-                        new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),
-                Map.entry("int",
-                        new SqlType("NUMBER", "Integer.parseInt(String.valueOf(", "))")),
-                Map.entry("long",
-                        new SqlType("NUMBER", "Long.parseLong(String.valueOf(", "))")),
-                Map.entry("float",
-                        new SqlType("NUMBER", "Float.parseFloat(String.valueOf(", "))")),
-                Map.entry("double",
-                        new SqlType("BINARY_DOUBLE", "Double.parseDouble(String.valueOf(", "))")),
+                Map.entry("boolean", new SqlType("NUMBER", "", ".equals(\"1\")")),
+                Map.entry("byte", new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
+                Map.entry("char", new SqlType("VARCHAR2", "String.valueOf(", ").charAt(0)")),
+                Map.entry("short", new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),
+                Map.entry("int", new SqlType("NUMBER", "Integer.parseInt(String.valueOf(", "))")),
+                Map.entry("long", new SqlType("NUMBER", "Long.parseLong(String.valueOf(", "))")),
+                Map.entry("float", new SqlType("NUMBER", "Float.parseFloat(String.valueOf(", "))")),
+                Map.entry("double", new SqlType("BINARY_DOUBLE", "Double.parseDouble(String.valueOf(", "))")),
                 Map.entry("byte[]", new SqlType("RAW")),
 
                 // SQL Types
-                Map.entry("java.sql.Date",
-                        new SqlType("DATE", "transformStringToJavaSqlDate(", ")")),
-                Map.entry("java.sql.Time",
-                        new SqlType("DATE")),
-                Map.entry("java.math.BigDecimal",
-                        new SqlType("NUMBER", "new java.math.BigDecimal(String.valueOf(", "))")),
-                Map.entry("java.math.BigInteger",
-                        new SqlType("NUMBER", "new java.math.BigInteger(String.valueOf(", "))")),
+                Map.entry("java.sql.Date", new SqlType("DATE", "transformStringToJavaSqlDate(", ")")),
+                Map.entry("java.sql.Time", new SqlType("DATE")),
+                Map.entry("java.math.BigDecimal", new SqlType("NUMBER", "new java.math.BigDecimal(String.valueOf(", "))")),
+                Map.entry("java.math.BigInteger", new SqlType("NUMBER", "new java.math.BigInteger(String.valueOf(", "))")),
 
                 // Java Wrapper Types
-                Map.entry("java.lang.Boolean",
-                        new SqlType("NUMBER", "", ".equals(\"1\")")),
-                Map.entry("java.lang.Byte",
-                        new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
-                Map.entry("java.lang.Character",
-                        new SqlType("CHAR", "String.valueOf(", ").charAt(0)")),
-                Map.entry("java.lang.Short",
-                        new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),
-                Map.entry("java.lang.Integer",
-                        new SqlType("NUMBER", "Integer.parseInt(String.valueOf(", "))")),
-                Map.entry("java.lang.Long",
-                        new SqlType("NUMBER", "Long.parseLong(String.valueOf(", "))")),
-                Map.entry("java.lang.Float",
-                        new SqlType("NUMBER", "Float.parseFloat(String.valueOf(", "))")),
-                Map.entry("java.lang.Double",
-                        new SqlType("BINARY_DOUBLE", "Double.parseDouble(String.valueOf(", "))")),
+                Map.entry("java.lang.Boolean", new SqlType("NUMBER", "", ".equals(\"1\")")),
+                Map.entry("java.lang.Byte", new SqlType("NUMBER", "Byte.parseByte(String.valueOf(", "))")),
+                Map.entry("java.lang.Character", new SqlType("CHAR", "String.valueOf(", ").charAt(0)")),
+                Map.entry("java.lang.Short", new SqlType("NUMBER", "Short.parseShort(String.valueOf(", "))")),
+                Map.entry("java.lang.Integer", new SqlType("NUMBER", "Integer.parseInt(String.valueOf(", "))")),
+                Map.entry("java.lang.Long", new SqlType("NUMBER", "Long.parseLong(String.valueOf(", "))")),
+                Map.entry("java.lang.Float", new SqlType("NUMBER", "Float.parseFloat(String.valueOf(", "))")),
+                Map.entry("java.lang.Double", new SqlType("BINARY_DOUBLE", "Double.parseDouble(String.valueOf(", "))")),
 
                 // Oracle SQL Types
-                Map.entry("oracle.sql.CHAR",
-                        new SqlType("VARCHAR2")),
-                Map.entry("oracle.sql.NUMBER",
-                        new SqlType("NUMBER")),
-                Map.entry("oracle.sql.BINARY_FLOAT",
-                        new SqlType("BINARY_FLOAT")),
-                Map.entry("oracle.sql.BINARY_DOUBLE",
-                        new SqlType("BINARY_DOUBLE")),
-                Map.entry("oracle.sql.DATE",
-                        new SqlType("DATE")),
-                Map.entry("oracle.sql.RAW",
-                        new SqlType("RAW"))
+                Map.entry("oracle.sql.CHAR", new SqlType("VARCHAR2")),
+                Map.entry("oracle.sql.NUMBER", new SqlType("NUMBER")),
+                Map.entry("oracle.sql.BINARY_FLOAT", new SqlType("BINARY_FLOAT")),
+                Map.entry("oracle.sql.BINARY_DOUBLE", new SqlType("BINARY_DOUBLE")),
+                Map.entry("oracle.sql.DATE", new SqlType("DATE")),
+                Map.entry("oracle.sql.RAW", new SqlType("RAW"))
             );
 
     @Getter
-    private static final Set<String> unsupportedTypes = Set.of("java.util.List",
-            "java.util.ArrayList", "java.util.Map", "java.util.HashMap",
-            "java.util.Set", "java.util.HashSet", "java.util.Collection");
+    private static final Set<String> UNSUPPORTED_TYPES = Set.of(
+            "java.util.List",
+            "java.util.ArrayList",
+            "java.util.Map",
+            "java.util.HashMap",
+            "java.util.Set",
+            "java.util.HashSet",
+            "java.util.Collection"
+            //...
+    );
 
-    public static boolean isSupportedType(String type)
-    {
-        return dataTypeMap.containsKey(type);
+    public static boolean isSupportedType(String type){
+        return DATA_TYPES.containsKey(type);
     }
 
-    public static boolean isUnSupportedType(String type)
-    {
-        return unsupportedTypes.contains(type);
+    public static boolean isUnsupportedType(String type){
+        return UNSUPPORTED_TYPES.contains(type);
     }
 
-    public static SqlType getCorrespondingSqlType(String type)
-    {
-        return dataTypeMap.get(type);
+    public static SqlType toSqlType(String className){
+        return DATA_TYPES.get(className);
     }
 
 }

@@ -34,11 +34,6 @@ public class DBJavaMethodMetadataImpl extends DBObjectMetadataBase implements DB
 	}
 
 	@Override
-	public String getReturnType() throws SQLException {
-		return getString("RETURN_TYPE");
-	}
-
-	@Override
 	public String getReturnClassName() throws SQLException {
 		return getString("RETURN_CLASS_NAME");
 	}

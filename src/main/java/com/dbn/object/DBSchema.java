@@ -50,6 +50,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     List<DBDatabaseLink> getDatabaseLinks();
     List<DBColumn> getPrimaryKeyColumns();
     List<DBColumn> getForeignKeyColumns();
+    List<DBJavaClass> getJavaPrimitives();
     List<DBJavaClass> getJavaClasses();
     List<DBJavaMethod> getJavaMethods();
 
@@ -69,6 +70,7 @@ public interface DBSchema extends DBRootObject, com.dbn.api.object.DBSchema {
     DBCredential getCredential(String name);
     DBCredential getAIProfile(String name);
     DBDatabaseLink getDatabaseLink(String name);
+    DBJavaClass getJavaPrimitive(String name);
     DBJavaClass getJavaClass(String name);
 
     @Override

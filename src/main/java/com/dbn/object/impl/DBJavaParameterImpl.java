@@ -16,11 +16,13 @@
 
 package com.dbn.object.impl;
 
+import com.dbn.common.util.Java;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
+import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
 import com.dbn.object.lookup.DBJavaClassRef;
@@ -38,7 +40,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.sql.SQLException;
 
-import static com.dbn.object.common.property.DBObjectProperty.CLASS;
+import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 
 @Getter
 public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> implements DBJavaParameter {
@@ -46,7 +49,6 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	private short position;
 	private short arrayDepth;
 
-	private String baseType;
 	private DBJavaClassRef javaClass;
 
 	public DBJavaParameterImpl(@NotNull DBJavaMethod javaMethod, DBJavaParameterMetadata metadata) throws SQLException {
@@ -69,22 +71,15 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 		methodIndex = metadata.getMethodIndex();
 		position = metadata.getArgumentPosition();
 		arrayDepth = metadata.getArrayDepth();
-		baseType = metadata.getBaseType();
 
-		if (baseType.equals("class")) set(CLASS, true);
+		String argumentClassName = metadata.getArgumentClassName();
+		set(PRIMITIVE, Java.isPrimitive(argumentClassName));
 
-		String argumentClass = metadata.getArgumentClass();
+		DBSchema schema = nd(parentObject.getSchema());
+		javaClass = isPrimitive() ?
+				new DBJavaClassRef(schema, argumentClassName) :
+				new DBJavaClassRef(schema, argumentClassName, "SYS");
 
-		String arrMatrix = arrayDepth > 0 ? "[]".repeat(arrayDepth) : "";
-
-		if (!isPrimitive()) {
-			javaClass = new DBJavaClassRef(parentObject.getSchema(), argumentClass, "SYS");
-			//String className = argumentClass.substring(argumentClass.lastIndexOf("/") + 1);
-			//return className + arrMatrix + " p" + position;
-		} else {
-			//return parameterType + arrMatrix + " p" + position;
-		}
-		//return createParameterName(parentObject.getProject(), isClass ? argumentClass : parameterType);
 		return "param" + position;
 	}
 
@@ -106,12 +101,12 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 
 	@Override
 	public boolean isClass() {
-		return is(CLASS);
+		return !isPrimitive();
 	}
 
 	@Override
 	public boolean isPrimitive() {
-		return !isClass();
+		return is(PRIMITIVE);
 	}
 
 	@Override
@@ -122,23 +117,21 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	@Nullable
 	@Override
 	public DBJavaValueType getValueType() {
-		return isClass() ?
-				DBJavaValueType.forObjectName(javaClass.getObjectName()):
-				DBJavaValueType.forName(baseType);
+		return DBJavaValueType.forObjectName(javaClass.getObjectName());
 	}
 
 	public DBJavaClass getJavaClass() {
-		return javaClass == null ? null : javaClass.get();
+		return javaClass.get();
+	}
+
+	@Override
+	public DBJavaClassRef getJavaClassRef() {
+		return javaClass;
 	}
 
 	@Override
 	public String getJavaClassName() {
-		return javaClass == null ? null : javaClass.getObjectName();
-	}
-
-	@Override
-	public String getPresentableText() {
-		return super.getPresentableText();
+		return javaClass.getObjectName();
 	}
 
 	@Override

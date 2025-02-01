@@ -69,7 +69,7 @@ public enum DBObjectProperty implements Property.LongBase {
     FINAL,
     STATIC,
     INNER,
-    CLASS,
+    PRIMITIVE,
 
     // other
 

@@ -16,29 +16,6 @@
 
 package com.dbn.object;
 
-import com.dbn.object.lookup.DBJavaClassRef;
-import com.dbn.object.type.DBJavaValueType;
-import org.jetbrains.annotations.NonNls;
-import org.jetbrains.annotations.Nullable;
+public interface DBJavaPrimitive extends DBJavaClass {
 
-public interface DBJavaParameter extends DBOrderedObject {
-    boolean isArray();
-
-    boolean isClass();
-
-    boolean isPrimitive();
-
-    boolean isPlainValue();
-
-    short getArrayDepth();
-
-    DBJavaClass getJavaClass();
-
-    DBJavaClassRef getJavaClassRef();
-
-    @NonNls
-    String getJavaClassName();
-
-    @Nullable
-    DBJavaValueType getValueType();
 }

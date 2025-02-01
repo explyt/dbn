@@ -67,16 +67,12 @@ class ArgumentValuesTreeRenderer extends DBNColoredTreeCellRenderer {
 
         if (object instanceof DBJavaParameter) {
             DBJavaParameter parameter = (DBJavaParameter) object;
-            String dataType = parameter.isClass() ?
-                    getCanonicalName(parameter.getJavaClassName()) :
-                    parameter.getBaseType();
+            String dataType = getCanonicalName(parameter.getJavaClassName());
 
             append(" (" + dataType + ")", GRAY_ATTRIBUTES);
         } else if (object instanceof DBJavaField) {
             DBJavaField field = (DBJavaField) object;
-            String dataType = field.isClass() ?
-                    getCanonicalName(field.getJavaClassName()) :
-                    field.getBaseType();
+            String dataType = getCanonicalName(field.getJavaClassName());
 
             append(" (" + dataType + ")", GRAY_ATTRIBUTES);
         }

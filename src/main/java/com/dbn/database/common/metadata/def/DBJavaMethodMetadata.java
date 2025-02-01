@@ -25,8 +25,6 @@ public interface DBJavaMethodMetadata extends DBObjectMetadata {
 	@ObjectIdentifier
 	String getOwnerClassName() throws SQLException;
 
-	String getReturnType() throws SQLException;
-
 	@ObjectIdentifier
 	String getReturnClassName() throws SQLException;
 

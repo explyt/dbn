@@ -43,7 +43,9 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.icon.Icons.withStaticMarker;
+import static com.dbn.common.util.Java.isPrimitive;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
@@ -53,8 +55,7 @@ import static com.dbn.object.type.DBJavaAccessibility.PUBLIC;
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
 	private short index;
 	private String signature;
-	private String returnType;
-	private short arrayDepth;
+	private short returnArrayDepth;
 	private DBJavaClassRef returnClass;
 	private DBJavaAccessibility accessibility;
 
@@ -80,15 +81,14 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaMethodMetadata metadata) throws SQLException {
 		index = metadata.getMethodIndex();
 		signature = metadata.getMethodSignature();
-		returnType = metadata.getReturnType();
 		accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
-		arrayDepth = metadata.getArrayDepth();
+		returnArrayDepth = metadata.getArrayDepth();
 
 		String returnClassName = metadata.getReturnClassName();
-		if (returnClassName != null) {
-			DBSchema schema = parentObject.getSchema();
-			returnClass = new DBJavaClassRef(schema, returnClassName, "SYS");
-		}
+		DBSchema schema = nd(parentObject.getSchema());
+		returnClass = isPrimitive(returnClassName) ?
+				new DBJavaClassRef(schema, returnClassName) :
+				new DBJavaClassRef(schema, returnClassName, "SYS");
 
 		set(STATIC, metadata.isStatic());
 		set(FINAL, metadata.isFinal());
@@ -104,6 +104,11 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	public String getPresentableText() {
 		return signature;
+	}
+
+	@Override
+	public String getSimpleName() {
+		return getName().split("#")[0];
 	}
 
 	@Nullable
@@ -129,6 +134,11 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	@Override
 	public DBJavaClass getReturnClass() {
 		return returnClass == null ? null : returnClass.get();
+	}
+
+	@Override
+	public DBJavaClassRef getReturnClassRef() {
+		return returnClass;
 	}
 
 	@Override

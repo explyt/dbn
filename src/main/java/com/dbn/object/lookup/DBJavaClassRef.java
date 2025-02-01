@@ -16,32 +16,40 @@
 
 package com.dbn.object.lookup;
 
+import com.dbn.common.util.Java;
 import com.dbn.connection.ConnectionId;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBSchema;
+import com.dbn.object.type.DBJavaValueType;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Objects;
 
 public final class DBJavaClassRef {
 
-    private final List<DBObjectRef<DBJavaClass>> lookups = new ArrayList<>();
+    private final DBObjectRef<DBJavaClass>[] refs;
 
     public DBJavaClassRef(DBSchema schema, String className, String ... alternativeSchemas) {
-        lookups.add(new DBObjectRef<>(schema.ref(), DBObjectType.JAVA_CLASS, className));
+        DBObjectType objectType = Java.isPrimitive(className) ?
+                DBObjectType.JAVA_PRIMITIVE :
+                DBObjectType.JAVA_CLASS;
+
+        refs = new DBObjectRef[alternativeSchemas.length + 1];
+        refs[0] = new DBObjectRef<>(schema.ref(), objectType, className);
 
         ConnectionId connectionId = schema.getConnectionId();
-        for (String schemaName : alternativeSchemas) {
+        for (int i = 0; i < alternativeSchemas.length; i++) {
+            String schemaName = alternativeSchemas[i];
             if (schemaName.equalsIgnoreCase(schema.getName())) continue;
             DBObjectRef<DBSchema> sysSchema = new DBObjectRef<>(connectionId, DBObjectType.SCHEMA, schemaName);
-            lookups.add(new DBObjectRef<>(sysSchema, DBObjectType.JAVA_CLASS, className));
+            refs[i + 1] = new DBObjectRef<>(sysSchema, objectType, className);
         }
     }
 
     public String getObjectName() {
-        return lookups.get(0).getObjectName();
+        return refs[0].getObjectName();
     }
 
     public String getSimpleName() {
@@ -54,8 +62,8 @@ public final class DBJavaClassRef {
 
     @Nullable
     public DBJavaClass get() {
-        for (DBObjectRef<DBJavaClass> lookup : lookups) {
-            DBJavaClass javaClass = lookup.get();
+        for (DBObjectRef<DBJavaClass> ref : refs) {
+            DBJavaClass javaClass = ref.get();
             if (javaClass != null) return javaClass;
         }
 
@@ -63,8 +71,41 @@ public final class DBJavaClassRef {
     }
 
     public boolean isLoaded() {
-        return lookups.stream().anyMatch(ref -> ref.isLoaded());
+        return Arrays.stream(refs).anyMatch(ref -> ref.isLoaded());
     }
 
+    public boolean isPrimitive() {
+        return Java.isPrimitive(getObjectName());
+    }
 
+    /**
+     * Determines whether the current object represents a pseudo-primitive type.
+     * A pseudo-primitive type is a value type that is either a standard Java primitive,
+     * its corresponding wrapper class, or commonly used value types such as {@code String},
+     * {@code Number}, {@code BigDecimal}, or atomic value types.
+     *
+     * @return {@code true} if the object corresponds to a pseudo-primitive type;
+     *         {@code false} otherwise.
+     */
+    public boolean isPseudoPrimitive() {
+        return DBJavaValueType.forObjectName(getObjectName()) != null;
+    }
+
+    public boolean isVoid() {
+        return Objects.equals(getObjectName(), "void");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        // compare first lookup level only
+        if (o == null || getClass() != o.getClass()) return false;
+        DBJavaClassRef that = (DBJavaClassRef) o;
+        return Objects.equals(refs[0], that.refs[0]);
+    }
+
+    @Override
+    public int hashCode() {
+        // use first lookup level only
+        return Objects.hashCode(refs[0]);
+    }
 }

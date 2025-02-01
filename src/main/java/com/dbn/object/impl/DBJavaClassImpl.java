@@ -174,6 +174,11 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	}
 
 	@Override
+	public boolean isPrimitive() {
+		return false;
+	}
+
+	@Override
 	public List<DBJavaMethod> getMethods() {
 		return getChildObjects(JAVA_METHOD);
 	}

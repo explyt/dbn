@@ -317,6 +317,23 @@
         </statement>
     </statement-execution-processor>
 
+    <statement-execution-processor id="java-primitives" is-query="true" is-prepared-statement="true">
+        <statement prefixes="DBA, ALL">
+            with PRIMITIVES as (select 'boolean,byte,char,double,float,int,long,short,void' as CSV from DUAL)
+            select
+                regexp_substr(csv, '[^,]+', 1, LEVEL) as OBJECT_NAME,
+                'PRIMITIVE' as OBJECT_KIND,
+                'PUBLIC' as ACCESSIBILITY,
+                'Y' as IS_FINAL,
+                'N' as IS_ABSTRACT,
+                'N' as IS_INNER,
+                'N' as IS_STATIC,
+                'Y' as IS_VALID,
+                'N' as IS_DEBUG
+            from PRIMITIVES connect by level &lt;= regexp_count(CSV, ',') + 1
+        </statement>
+    </statement-execution-processor>
+
     <statement-execution-processor id="java-classes" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
@@ -340,23 +357,22 @@
                  and apo.OBJECT_TYPE = 'JAVA CLASS'
             where j.OWNER = {0}
               and j.IS_INNER = 'NO'
-              and j.NAME not like '%$%'
-            order by j.NAME
+              and j.NAME not like '%$%'   -- TODO not all classes containing $ are INNER (!?)
+            order j.NAME
         </statement>
     </statement-execution-processor>
 
     <statement-execution-processor id="java-fields" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                NAME as CLASS_NAME,
+                NAME as OWNER_CLASS_NAME,
                 FIELD_INDEX,
                 FIELD_NAME,
                 ACCESSIBILITY,
                 decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(IS_STATIC,'YES','Y','N') as IS_STATIC,
                 ARRAY_DEPTH,
-                BASE_TYPE,
-                decode(FIELD_CLASS,'-',NULL,FIELD_CLASS) as FIELD_CLASS
+                decode(FIELD_CLASS, '-', BASE_TYPE, FIELD_CLASS) as FIELD_CLASS_NAME
             from
                 [PREFIX]_JAVA_FIELDS
             where
@@ -370,15 +386,14 @@
     <statement-execution-processor id="all-java-fields" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                NAME as CLASS_NAME,
+                NAME as OWNER_CLASS_NAME,
                 FIELD_INDEX,
                 FIELD_NAME,
                 ACCESSIBILITY,
                 decode(IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(IS_STATIC,'YES','Y','N') as IS_STATIC,
                 ARRAY_DEPTH,
-                BASE_TYPE,
-                decode(FIELD_CLASS,'-',NULL,FIELD_CLASS) as FIELD_CLASS
+                decode(FIELD_CLASS, '-', BASE_TYPE, FIELD_CLASS) as FIELD_CLASS_NAME
             from
                 [PREFIX]_JAVA_FIELDS
             where
@@ -395,10 +410,9 @@
                 m.NAME as OWNER_CLASS_NAME,
                 m.METHOD_NAME||'#'||m.METHOD_INDEX as METHOD_NAME,
                 m.METHOD_INDEX,
-                m.BASE_TYPE as RETURN_TYPE,
                 m.ACCESSIBILITY,
                 m.ARRAY_DEPTH,
-                decode(m.RETURN_CLASS, '-', null, m.RETURN_CLASS) as RETURN_CLASS_NAME,
+                decode(m.RETURN_CLASS, '-', m.BASE_TYPE, m.RETURN_CLASS) as RETURN_CLASS_NAME,
                 decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
@@ -438,10 +452,9 @@
                 m.NAME as OWNER_CLASS_NAME,
                 m.METHOD_NAME||'#'||m.METHOD_INDEX as METHOD_NAME,
                 m.METHOD_INDEX,
-                m.BASE_TYPE as RETURN_TYPE,
                 m.ACCESSIBILITY,
                 m.ARRAY_DEPTH,
-                decode(m.RETURN_CLASS, '-', null, m.RETURN_CLASS) as RETURN_CLASS_NAME,
+                decode(m.RETURN_CLASS, '-', m.BASE_TYPE, m.RETURN_CLASS) as RETURN_CLASS_NAME,
                 decode(m.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(m.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(m.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
@@ -483,8 +496,7 @@
                 METHOD_INDEX,
                 ARGUMENT_POSITION,
                 ARRAY_DEPTH,
-                BASE_TYPE,
-                ARGUMENT_CLASS
+                decode(ARGUMENT_CLASS, '-', BASE_TYPE, ARGUMENT_CLASS) as ARGUMENT_CLASS_NAME
             from [PREFIX]_JAVA_ARGUMENTS
             where OWNER = {0}
               and NAME = {1}
@@ -503,8 +515,7 @@
                 METHOD_INDEX,
                 ARGUMENT_POSITION,
                 ARRAY_DEPTH,
-                BASE_TYPE,
-                ARGUMENT_CLASS
+                decode(ARGUMENT_CLASS, '-', BASE_TYPE, ARGUMENT_CLASS) as ARGUMENT_CLASS_NAME
             from [PREFIX]_JAVA_ARGUMENTS
             where OWNER = {0}
             order by

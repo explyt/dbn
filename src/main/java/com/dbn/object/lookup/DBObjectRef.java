@@ -469,15 +469,15 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
             object = objectBundle.getObject(objectType, objectName, overload);
         } else {
             DBObject parentObject = parent.get();
-            if (parentObject != null) {
-                object = parentObject.getChildObject(objectType, objectName, overload, true);
-                DBObjectType genericType = objectType.getGenericType();
-                if (object == null && genericType != objectType) {
-                    object = parentObject.getChildObject(genericType, objectName, overload, true);
-                }
+            if (parentObject == null) return cast(object);
 
-                object = unpackSynonym(object);
+            object = parentObject.getChildObject(objectType, objectName, overload, true);
+            DBObjectType genericType = objectType.getGenericType();
+            if (object == null && genericType != objectType) {
+                object = parentObject.getChildObject(genericType, objectName, overload, true);
             }
+
+            object = unpackSynonym(object);
         }
         return cast(object);
     }

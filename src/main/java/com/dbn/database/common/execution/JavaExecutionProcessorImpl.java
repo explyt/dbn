@@ -34,7 +34,6 @@ import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
 import com.dbn.execution.java.wrapper.JavaComplexType;
 import com.dbn.execution.java.wrapper.SqlComplexType;
-import com.dbn.execution.java.wrapper.TypeMappingsManager;
 import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.execution.logging.DatabaseLoggingManager;
@@ -66,6 +65,8 @@ import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.exception.Exceptions.toSqlException;
 import static com.dbn.common.load.ProgressMonitor.setProgressDetail;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.execution.java.wrapper.TypeMappingsManager.toSqlType;
+import static com.dbn.execution.java.wrapper.WrapperBuilder.DBN_TYPE_SUFFIX;
 
 @Slf4j
 public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcessor {
@@ -95,7 +96,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 	protected String getReturnArgument() {
 		DBJavaMethod method = getMethod();
-		return method.getReturnType();
+		return method.getReturnClassName();
 	}
 
 
@@ -228,13 +229,13 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 			Properties properties = new Properties();
 
-			properties.setProperty("JAVA_COMPLEX_TYPE", jct.getTypeName());
+			properties.setProperty("JAVA_COMPLEX_TYPE", jct.getJavaClassName());
 			String code;
 			if (jct.isArray()) {
 				properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
 				if(jct.getFields().isEmpty()){
-					properties.setProperty("TYPECAST_START", TypeMappingsManager.getCorrespondingSqlType(jct.getTypeName()).getTransformerPrefix());
-					properties.setProperty("TYPECAST_END", TypeMappingsManager.getCorrespondingSqlType(jct.getTypeName()).getTransformerSuffix());
+					properties.setProperty("TYPECAST_START", toSqlType(jct.getJavaClassName()).getTransformerPrefix());
+					properties.setProperty("TYPECAST_END", toSqlType(jct.getJavaClassName()).getTransformerSuffix());
 				} else {
 					properties.setProperty("TYPECAST_START", jct.getFields().get(0).getTypeCastStart());
 					properties.setProperty("TYPECAST_END", jct.getFields().get(0).getTypeCastEnd());
@@ -259,8 +260,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 									end = ")";
 								}
 								if (e.isComplexType()) {
-									int conversionMethod =wrapper.getComplexTypeNumber(e.getType(),e.getArrayDepth());
-									return setterMethod + ";" + "DBN_OJVM_TYPE_" + conversionMethod + "toJava( (java.sql.Struct) objArray[ " + e.getFieldIndex() + " ]" + ")" + ";" + end;
+									int typeIndex = wrapper.getSqlTypeIndex(e.getType(), e.getArrayDepth());
+									return setterMethod + ";" + DBN_TYPE_SUFFIX + typeIndex + "toJava( (java.sql.Struct) objArray[ " + e.getFieldIndex() + " ]" + ")" + ";" + end;
 								}
 								return setterMethod + ";" + e.getTypeCastStart() + " objArray[ " + e.getFieldIndex() + " ]" + e.getTypeCastEnd() + ";" + end;
 							})
@@ -285,7 +286,7 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 
 		for (JavaComplexType jct : wrapper.getArgumentJavaComplexTypes()) {
 			if (jct.getAttributeDirection() == JavaComplexType.AttributeDirection.ARGUMENT) continue;
-			properties.setProperty("JAVA_COMPLEX_TYPE", jct.getTypeName());
+			properties.setProperty("JAVA_COMPLEX_TYPE", jct.getJavaClassName());
 			properties.setProperty("SQL_OBJECT_TYPE", jct.getCorrespondingSqlType().getName());
 
 			String code;
@@ -303,8 +304,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 								getterMethod += "()";
 							}
 							if (e.isComplexType()) {
-								int conversionMethod = wrapper.getComplexTypeNumber(e.getType(), e.getArrayDepth());
-								return e.getFieldIndex() + ";" + getterMethod + ";" + "DBN_OJVM_TYPE_" + conversionMethod;
+								int typeIndex = wrapper.getSqlTypeIndex(e.getType(), e.getArrayDepth());
+								return e.getFieldIndex() + ";" + getterMethod + ";" + DBN_TYPE_SUFFIX + typeIndex;
 							}
 							return e.getFieldIndex() + ";" + getterMethod + ";" + " ";
 						})

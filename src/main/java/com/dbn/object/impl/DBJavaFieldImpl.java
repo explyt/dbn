@@ -17,10 +17,13 @@
 package com.dbn.object.impl;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Java;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaFieldMetadata;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
+import com.dbn.object.DBJavaMethod;
+import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
@@ -34,18 +37,20 @@ import org.jetbrains.annotations.Nullable;
 
 import javax.swing.Icon;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Objects;
 
-import static com.dbn.object.common.property.DBObjectProperty.CLASS;
+import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.util.Java.isVoid;
+import static com.dbn.common.util.Strings.capitalize;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
+import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 
 @Getter
 public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implements DBJavaField {
 	private short index;
 	private short arrayDepth;
-	private String baseType;
-	private String className;
 	private DBJavaClassRef javaClass;
 	private DBJavaAccessibility accessibility;
 
@@ -62,21 +67,18 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaFieldMetadata metadata) throws SQLException {
 		index = metadata.getFieldIndex();
 		arrayDepth = metadata.getArrayDepth();
-		baseType = metadata.getBaseType();
-		className = metadata.getClassName();
 
-		if (Objects.equals(baseType, "class")) set(CLASS, true);
+		String fieldClassName = metadata.getFieldClassName();
+		set(PRIMITIVE, Java.isPrimitive(fieldClassName));
 
-		if(metadata.getAccessibility() == null){
-			accessibility = DBJavaAccessibility.PACKAGE_PRIVATE;
-		} else {
-			accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
-		}
-		String fieldClassName = metadata.getFieldClass();
-		if (fieldClassName != null) {
-			DBSchema schema = parentObject.getSchema();
-			javaClass = new DBJavaClassRef(schema, fieldClassName, "SYS");
-		}
+		DBSchema schema = nd(parentObject.getSchema());
+		javaClass = isPrimitive() ?
+				new DBJavaClassRef(schema, fieldClassName) :
+				new DBJavaClassRef(schema, fieldClassName, "SYS");
+
+		accessibility =  metadata.getAccessibility() == null ?
+				DBJavaAccessibility.DEFAULT :
+				DBJavaAccessibility.get(metadata.getAccessibility());
 
 		set(STATIC, metadata.isStatic());
 		set(FINAL, metadata.isFinal());
@@ -95,14 +97,6 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 		return Icons.DBO_JAVA_FIELD;
 	}
 
-	@Override
-	public DBJavaClass getJavaClass() {
-		return javaClass == null ? null : javaClass.get();
-	}
-
-	public String getJavaClassName() {
-		return javaClass == null ? null : javaClass.getObjectName();
-	}
 
 	@Override
 	public DBJavaClass getOwnerClass() {
@@ -131,12 +125,12 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 
 	@Override
 	public boolean isClass() {
-		return is(CLASS);
+		return !isPrimitive();
 	}
 
 	@Override
 	public boolean isPrimitive() {
-		return !isClass();
+		return is(PRIMITIVE);
 	}
 
 	@Override
@@ -145,9 +139,63 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	}
 
 	@Override
-	public @Nullable DBJavaValueType getValueType() {
-		return isClass() ?
-				DBJavaValueType.forObjectName(javaClass.getObjectName()):
-				DBJavaValueType.forName(baseType);
+	public DBJavaValueType getValueType() {
+		return DBJavaValueType.forObjectName(javaClass.getObjectName());
+	}
+
+	public DBJavaClass getJavaClass() {
+		return javaClass.get();
+	}
+
+	@Override
+	public DBJavaClassRef getJavaClassRef() {
+		return javaClass;
+	}
+
+	@Override
+	public String getJavaClassName() {
+		return javaClass.getObjectName();
+	}
+
+	@Override
+	public @Nullable DBJavaMethod findGetterMethod() {
+		DBJavaClass ownerClass = getOwnerClass();
+		String getterName = "get" + capitalize(getName());
+		List<DBJavaMethod> methods = ownerClass.getMethods();
+		for (DBJavaMethod method : methods) {
+			String methodName = method.getName();
+			methodName = methodName.split("#")[0];
+
+			if (!Objects.equals(methodName, getterName)) continue;
+			if (!Objects.equals(method.getReturnClassRef(), getJavaClassRef())) continue;
+			if (!Objects.equals(method.getReturnArrayDepth(), getArrayDepth())) continue;
+
+			return method;
+		}
+		return null;
+	}
+
+	@Override
+	public @Nullable DBJavaMethod findSetterMethod() {
+		DBJavaClass ownerClass = getOwnerClass();
+		String setterName = "set" + capitalize(getName());
+		List<DBJavaMethod> methods = ownerClass.getMethods();
+		for (DBJavaMethod method : methods) {
+			String methodName = method.getName();
+			methodName = methodName.split("#")[0];
+
+			if (!Objects.equals(methodName, setterName)) continue;
+			if (!isVoid(method.getReturnClassName())) continue;
+			// TODO
+			List<DBJavaParameter> parameters = method.getParameters();
+			if (parameters.size() != 1) continue;
+
+			DBJavaParameter parameter = parameters.get(0);
+			if (!Objects.equals(parameter.getJavaClassRef(), getJavaClassRef())) continue;
+			if (!Objects.equals(parameter.getArrayDepth(), getArrayDepth())) continue;
+
+			return method;
+		}
+		return null;
 	}
 }

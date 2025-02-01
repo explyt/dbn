@@ -123,12 +123,13 @@ public class JavaExecutionInputFieldForm extends DBNFormBase implements Componen
 	private void initPlainField() {
 		DBJavaField field = getField();
 
+		String javaClassName = field.getJavaClassName();
 		if (field.isClass()) {
-			String className = getCanonicalName(field.getJavaClassName());
+			String className = getCanonicalName(javaClassName);
 			fieldTypeLabel.setText(className);
 			fieldTypeLabel.setIcon(/*field.getFieldClass().getIcon()*/Icons.DBO_JAVA_CLASS); // TODO do not force loading the field class
 		} else {
-			fieldTypeLabel.setText(field.getBaseType());
+			fieldTypeLabel.setText(javaClassName);
 		}
 
 		fieldTypeLabel.setForeground(UIUtil.getInactiveTextColor());

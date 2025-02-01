@@ -53,6 +53,7 @@ public enum DatabaseObjectTypeId {
     JAVA_PARAMETER,
     JAVA_FIELD,
     JAVA_CLASS,
+    JAVA_PRIMITIVE,
     JAVA_OBJECT,
     LIBRARY,
     LOB,

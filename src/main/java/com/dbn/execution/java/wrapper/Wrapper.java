@@ -16,6 +16,7 @@
 
 package com.dbn.execution.java.wrapper;
 
+import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-import com.dbn.execution.java.wrapper.WrapperBuilder.ComplexTypeKey;
 
 @Getter
 @Setter
@@ -37,7 +37,7 @@ public class Wrapper {
     private List<MethodAttribute> methodArguments = new ArrayList<>();
     private MethodAttribute returnType;
 	private String javaMethodSignature;
-	private Map<WrapperBuilder.ComplexTypeKey, Integer> complexTypeConversion = new HashMap<>();
+	private Map<WrapperBuilder.ComplexTypeKey, Integer> sqlTypeIndexes = new HashMap<>();
 
 	public void addArgumentJavaComplexType(JavaComplexType argumentJavaComplexType) {
         argumentJavaComplexTypes.add(argumentJavaComplexType);
@@ -59,15 +59,12 @@ public class Wrapper {
 		private short attributePosition;
 	}
 
-	public int getComplexTypeNumber(String className, short arrayDepth){
-		ComplexTypeKey complexTypeKey = new ComplexTypeKey(className, arrayDepth);
-		return complexTypeConversion.get(complexTypeKey);
+	public int getSqlTypeIndex(String className, short arrayDepth){
+		ComplexTypeKey key = new ComplexTypeKey(className, arrayDepth);
+		int size = sqlTypeIndexes.size();
+		return sqlTypeIndexes.computeIfAbsent(key, k -> size + 1);
 	}
 
-	public void addEntryToComplexTypeConversion(ComplexTypeKey key, Integer sequenceNumber)
-	{
-		complexTypeConversion.put(key, sequenceNumber);
-	}
 
 	public String getJavaSignature(boolean includeArgumentNames){
 

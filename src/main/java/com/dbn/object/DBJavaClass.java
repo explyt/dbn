@@ -45,6 +45,8 @@ public interface DBJavaClass extends DBSchemaObject {
 
 	boolean isInner();
 
+	boolean isPrimitive();
+
     List<DBJavaMethod> getMethods();
 
 	List<DBJavaMethod> getStaticMethods();
