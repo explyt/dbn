@@ -37,7 +37,6 @@ import com.dbn.execution.java.wrapper.SqlComplexType;
 import com.dbn.execution.java.wrapper.SqlType;
 import com.dbn.execution.java.wrapper.Wrapper;
 import com.dbn.execution.java.wrapper.Wrapper.MethodAttribute;
-import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.execution.logging.DatabaseLoggingManager;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -125,35 +124,11 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.set(ExecutionStatus.EXECUTING, true);
 
 		try {
-			Wrapper wrapper = WrapperBuilder.getInstance().build(getMethod());
+			context.initWrapper(getMethod());
 
-			// create java wrapper
-			setProgressDetail("Initializing java execution environment");
-			initCreateWrapperCommand(context, wrapper);
-			initTimeout(context);
-			execute(context);
+			initExecutionWrappers(context);
+			triggerExecution(context);
 
-			// call java wrapper
-			setProgressDetail("Executing java method");
-			initCommand(context, wrapper);
-			initLogging(context);
-			initTimeout(context);
-			if (isQuery())
-				initParameters(context, wrapper);
-			execute(context);
-
-			try {
-				// drop java wrapper
-				setProgressDetail("Releasing java execution environment");
-				initDropWrapperCommand(context, wrapper);
-				initTimeout(context);
-				execute(context);
-			} catch (ProcessCanceledException e) {
-				conditionallyLog(e);
-			} catch (Throwable t) {
-				log.warn("Error cleaning up java wrappers", t);
-				// do not propagate exception to the surrounding block
-			}
 		} catch (SQLException e) {
 			conditionallyLog(e);
 			Resources.cancel(context.getStatement());
@@ -162,7 +137,41 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 			conditionallyLog(e);
 			throw toSqlException(e);
 		} finally {
+			releaseExecutionWrappers(context);
 			release(context);
+		}
+	}
+
+	private void initExecutionWrappers(JavaExecutionContext context) throws SQLException {
+		// create java wrapper
+		setProgressDetail("Initializing java execution environment");
+		initCreateWrapperCommand(context);
+		initTimeout(context);
+		execute(context);
+	}
+
+	private void triggerExecution(JavaExecutionContext context) throws SQLException {
+		// call java wrapper
+		setProgressDetail("Executing java method");
+		initCommand(context);
+		initLogging(context);
+		initTimeout(context);
+		initParameters(context);
+		execute(context);
+	}
+
+	private void releaseExecutionWrappers(JavaExecutionContext context) {
+		try {
+			// drop java wrapper
+			setProgressDetail("Releasing java execution environment");
+			initDropWrapperCommand(context);
+			initTimeout(context);
+			execute(context);
+		} catch (ProcessCanceledException e) {
+			conditionallyLog(e);
+		} catch (Throwable t) {
+			log.warn("Error cleaning up java wrappers", t);
+			// do not propagate exception to the surrounding block
 		}
 	}
 
@@ -434,7 +443,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		return generateCode("DBN - OJVM SQLWrapper.sql", properties);
 	}
 
-	private void initCreateWrapperCommand(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
+	private void initCreateWrapperCommand(JavaExecutionContext context) throws SQLException {
+		Wrapper wrapper = context.getWrapper();
 		List<String> sqlTypes = createSQLTypes(wrapper);
 		String javaCode = createJavaWrapper(wrapper);
 		String sqlWrapper = createSQLWrapper(wrapper);
@@ -458,7 +468,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setStatement(statement);
 	}
 
-	private void initDropWrapperCommand(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
+	private void initDropWrapperCommand(JavaExecutionContext context) throws SQLException {
+		Wrapper wrapper = context.getWrapper();
 		Properties properties = new Properties();
 		DBNConnection conn = context.getConnection();
 
@@ -473,7 +484,8 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setStatement(statement);
 	}
 
-	private void initCommand(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
+	private void initCommand(JavaExecutionContext context) throws SQLException {
+		Wrapper wrapper = context.getWrapper();
 		JavaExecutionInput executionInput = context.getInput();
 		String command = buildExecutionCommand(executionInput, wrapper);
 		DBNConnection conn = context.getConnection();
@@ -502,7 +514,10 @@ public abstract class JavaExecutionProcessorImpl implements JavaExecutionProcess
 		context.setLogging(logging);
 	}
 
-	private void initParameters(JavaExecutionContext context, Wrapper wrapper) throws SQLException {
+	private void initParameters(JavaExecutionContext context) throws SQLException {
+		if (!isQuery()) return;
+
+		Wrapper wrapper = context.getWrapper();
 		JavaExecutionInput executionInput = context.getInput();
 		DBNPreparedStatement statement = context.getStatement();
 		bindParameters(executionInput, statement, wrapper);
