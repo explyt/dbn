@@ -20,11 +20,11 @@ import com.dbn.common.icon.Icons;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaFieldMetadata;
 import com.dbn.object.DBJavaClass;
-import com.dbn.object.DBSchema;
 import com.dbn.object.DBJavaField;
+import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
 import org.jetbrains.annotations.NotNull;
@@ -33,15 +33,16 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 import java.sql.SQLException;
 
-import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
+import static com.dbn.object.common.property.DBObjectProperty.STATIC;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
 public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implements DBJavaField {
 	private short index;
 	private short arrayDepth;
 	private String baseType;
 	private String className;
-	private DBJavaClassRef fieldClass;
+	private DBObjectRef<DBJavaClass> fieldClass;
 	private DBJavaAccessibility accessibility;
 
 	public DBJavaFieldImpl(@NotNull DBJavaClass javaClass, DBJavaFieldMetadata metadata) throws SQLException {
@@ -68,7 +69,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 		String fieldClassName = metadata.getFieldClassName();
 		if (fieldClassName != null) {
 			DBSchema schema = parentObject.getSchema();
-			fieldClass = new DBJavaClassRef(schema, fieldClassName, "SYS");
+			fieldClass = new DBObjectRef<>(DBObjectRef.of(schema), JAVA_CLASS, fieldClassName);
 		}
 
 		set(STATIC, metadata.isStatic());

@@ -29,6 +29,9 @@ public interface DBJavaClassMetadata extends DBObjectMetadata {
     @ObjectIdentifier
     String getObjectName() throws SQLException;
 
+    @ObjectIdentifier
+    String getOuterClassName() throws SQLException;
+
 	String getObjectKind()throws SQLException;
 
     String getAccessibility()throws SQLException;

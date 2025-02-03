@@ -34,6 +34,11 @@ public class DBJavaClassMetadataImpl extends DBObjectMetadataBase implements DBJ
 	}
 
 	@Override
+	public String getOuterClassName() throws SQLException {
+		return getString("OUTER_CLASS_NAME");
+	}
+
+	@Override
 	public String getObjectKind() throws SQLException {
 		return getString("OBJECT_KIND");
 	}

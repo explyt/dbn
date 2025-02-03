@@ -604,7 +604,7 @@ public class DBObjectListImpl<T extends DBObject> extends DynamicContentBase<T> 
             int rangeStart = 0;
             for (int i = 0; i < elements.size(); i++) {
                 T object = elements.get(i);
-                DBObjectRef parent = object.getParentObject().ref();
+                DBObjectRef parent = object.getParentObjectRef();
                 currentParent = nvl(currentParent, parent);
 
                 if (!Objects.equals(currentParent, parent)) {

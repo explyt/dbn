@@ -323,6 +323,7 @@
                 j.NAME as OBJECT_NAME,
                 j.KIND as OBJECT_KIND,
                 j.ACCESSIBILITY as ACCESSIBILITY,
+                decode(j.OUTER, '-', null, j.outer) as OUTER_CLASS_NAME,
                 decode(j.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
@@ -348,10 +349,10 @@
     <statement-execution-processor id="java-inner-classes" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                j.OUTER as OUTER_CLASS_NAME,
                 j.NAME as OBJECT_NAME,
                 j.KIND as OBJECT_KIND,
                 j.ACCESSIBILITY as ACCESSIBILITY,
+                decode(j.OUTER, '-', null, j.outer) as OUTER_CLASS_NAME,
                 decode(j.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
@@ -384,10 +385,10 @@
     <statement-execution-processor id="all-java-inner-classes" is-query="true" is-prepared-statement="true">
         <statement prefixes="DBA, ALL">
             select
-                j.OUTER as OUTER_CLASS_NAME,
                 j.NAME as OBJECT_NAME,
                 j.KIND as OBJECT_KIND,
                 j.ACCESSIBILITY as ACCESSIBILITY,
+                decode(j.OUTER, '-', null, j.outer) as OUTER_CLASS_NAME,
                 decode(j.IS_FINAL,'YES','Y','N') as IS_FINAL,
                 decode(j.IS_ABSTRACT,'YES','Y','N') as IS_ABSTRACT,
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,

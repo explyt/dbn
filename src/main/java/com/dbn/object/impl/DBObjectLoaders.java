@@ -37,7 +37,6 @@ import com.dbn.database.common.metadata.def.DBIndexColumnMetadata;
 import com.dbn.database.common.metadata.def.DBIndexMetadata;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.common.metadata.def.DBJavaFieldMetadata;
-import com.dbn.database.common.metadata.def.DBJavaInnerClassMetadata;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
 import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
@@ -75,7 +74,6 @@ import com.dbn.object.DBGrantedRole;
 import com.dbn.object.DBIndex;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
-import com.dbn.object.DBJavaInnerClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBMaterializedView;
@@ -285,7 +283,7 @@ public class DBObjectLoaders {
         DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
                 "JAVA_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_CLASS, true, true,
                 (content, conn, mdi) -> mdi.loadJavaClasses(content.ensureParentEntity().getName(), conn),
-                (content, cache, md) -> new DBJavaClassImpl((DBSchema) content.getParentEntity(), md));
+                (content, cache, md) -> new DBJavaClassImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBDimension, DBDimensionMetadata>create(
                 "DIMENSIONS", DBObjectType.SCHEMA, DBObjectType.DIMENSION, true, true,
@@ -357,13 +355,12 @@ public class DBObjectLoaders {
                     return new DBNestedTableImpl(table, md);
                 });
 
-        DynamicContentResultSetLoader.<DBJavaInnerClass, DBJavaInnerClassMetadata>create(
+        DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
                 "ALL_JAVA_INNER_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_INNER_CLASS, true, true,
                 (content, conn, mdi) -> mdi.loadAllJavaInnerClasses(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
                     String className = md.getOuterClassName();
-                    DBJavaClass javaClass = valid(cache.get(className, () -> ((DBSchema) content.ensureParentEntity()).getJavaClass(className)));
-                    return new DBJavaInnerClassImpl(javaClass, md);
+                    return new DBJavaClassImpl(content.getParentEntity(), md);
                 });
 
         DynamicContentResultSetLoader.<DBJavaField, DBJavaFieldMetadata>create(
@@ -593,10 +590,10 @@ public class DBObjectLoaders {
                         (content, cache, md) -> new DBJavaFieldImpl(valid(content.getParentEntity()), md)));
 
         DynamicSubcontentLoader.create("JAVA_INNER_CLASSES", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_INNER_CLASS,
-                DynamicContentResultSetLoader.<DBJavaInnerClass, DBJavaInnerClassMetadata>create(
+                DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
                         "JAVA_INNER_CLASSES", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_INNER_CLASS, false, true,
                         (content, conn, mdi) -> mdi.loadJavaInnerClasses(content.getParentSchemaName(), content.getParentObjectName(), conn),
-                        (content, cache, md) -> new DBJavaInnerClassImpl(valid(content.getParentEntity()), md)));
+                        (content, cache, md) -> new DBJavaClassImpl(valid(content.getParentEntity()), md)));
 
         DynamicContentResultSetLoader.<DBTypeAttribute, DBTypeAttributeMetadata>create(
                 "PACKAGE_TYPE_ATTRIBUTES", DBObjectType.PACKAGE_TYPE, DBObjectType.TYPE_ATTRIBUTE, true, true,
