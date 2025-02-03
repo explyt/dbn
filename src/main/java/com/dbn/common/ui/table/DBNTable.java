@@ -146,14 +146,15 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
                 if (e.getKeyCode() != KeyEvent.VK_TAB) return;
                 DBNTable<T> table = DBNTable.this;
 
-                boolean empty = table.getRowCount() == 0;
+                boolean rowSelectionMode = !table.getColumnSelectionAllowed();
+                boolean emptyTableModel = table.getRowCount() == 0;
                 if (e.isShiftDown()) {
-                    if (empty || isFirstCellSelected(table)) {
+                    if (emptyTableModel || rowSelectionMode || isFirstCellSelected(table)) {
                         focusPreviousComponent(table);
                         e.consume();
                     }
                 } else {
-                    if (empty || isLastCellSelected(table)) {
+                    if (emptyTableModel || rowSelectionMode || isLastCellSelected(table)) {
                         focusNextComponent(table);
                         e.consume();
                     }
