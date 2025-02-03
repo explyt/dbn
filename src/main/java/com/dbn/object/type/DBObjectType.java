@@ -83,10 +83,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, null, false),
     JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
     JAVA_INNER_CLASS(DatabaseObjectTypeId.JAVA_INNER_CLASS, "inner class", "inner classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
-    JAVA_FIELD(DatabaseObjectTypeId.JAVA_FIELD, "field", "fields", Icons.DBO_JAVA_FIELD, null, Icons.DBO_JAVA_FIELDS, false),
-    JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
-    JAVA_Object(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "java objects", null, null, null, false),
-    JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "parameter", "parameters", null, null, null, false),
+    JAVA_FIELD(DatabaseObjectTypeId.JAVA_FIELD, "java field", "fields", Icons.DBO_JAVA_FIELD, null, Icons.DBO_JAVA_FIELDS, false),
+    JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "java method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
+    JAVA_OBJECT(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "objects", null, null, null, false),
+    JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "java parameter", "parameters", null, null, null, false),
     LIBRARY(DatabaseObjectTypeId.LIBRARY, "library", "libraries", null, null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),
@@ -360,6 +360,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DATABASE_TRIGGER.setInheritedType(TRIGGER);
         XMLTYPE.setInheritedType(TYPE);
         JAVA_METHOD.setInheritedType(METHOD);
+        JAVA_INNER_CLASS.setInheritedType(JAVA_CLASS);
 
         SYSTEM_PRIVILEGE.setInheritedType(PRIVILEGE);
         OBJECT_PRIVILEGE.setInheritedType(PRIVILEGE);

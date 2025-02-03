@@ -16,33 +16,34 @@
 
 package com.dbn.object.impl;
 
-import com.dbn.common.ref.WeakRefCache;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.database.common.metadata.def.DBJavaInnerClassMetadata;
+import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaInnerClass;
-import com.dbn.object.common.DBObject;
-import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.type.DBJavaAccessibility;
-import com.dbn.object.type.DBJavaClassKind;
+import com.dbn.object.common.property.DBObjectProperty;
+import com.dbn.object.lookup.DBJavaClassRef;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
-import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
-import static com.dbn.object.common.property.DBObjectProperty.FINAL;
-import static com.dbn.object.common.property.DBObjectProperty.STATIC;
-
 @Getter
-public class DBJavaInnerClassImpl extends DBObjectImpl<DBJavaInnerClassMetadata> implements DBJavaInnerClass {
-	private DBJavaClassKind kind;
-	private DBJavaAccessibility accessibility;
-	private static final WeakRefCache<DBJavaInnerClass, String> presentableNameCache = WeakRefCache.weakKey();
+public class DBJavaInnerClassImpl extends DBJavaClassImpl implements DBJavaInnerClass {
+	private final DBJavaClassRef outerClass;
 
-	DBJavaInnerClassImpl(DBJavaClass javaClass, DBJavaInnerClassMetadata metadata) throws SQLException {
-		super(javaClass, metadata);
+	DBJavaInnerClassImpl(DBJavaClass outerClass, DBJavaClassMetadata metadata) throws SQLException {
+		super(outerClass, metadata);
+		this.outerClass = new DBJavaClassRef(outerClass.getSchema(), outerClass.getName());
+	}
+
+	public DBJavaClass getOuterClass() {
+		return outerClass.get();
+	}
+
+	@Override
+	public void initProperties() {
+		// not directly editable (edit through owner class)
+		properties.set(DBObjectProperty.EDITABLE, false);
 	}
 
 	@Override
@@ -50,35 +51,4 @@ public class DBJavaInnerClassImpl extends DBObjectImpl<DBJavaInnerClassMetadata>
 		return DBObjectType.JAVA_INNER_CLASS;
 	}
 
-	@Override
-	protected String initObject(ConnectionHandler connection, DBObject parentObject, DBJavaInnerClassMetadata metadata) throws SQLException {
-		this.kind = DBJavaClassKind.get(metadata.getObjectKind());
-		this.accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
-
-		set(FINAL, metadata.isFinal());
-		set(ABSTRACT, metadata.isAbstract());
-		set(STATIC, metadata.isStatic());
-
-		return metadata.getObjectName();
-	}
-
-	@Override
-	public String getPresentableText() {
-		return presentableNameCache.computeIfAbsent(this, o -> o.getName().substring(o.getName().indexOf('$') + 1));
-	}
-
-	@Override
-	public boolean isFinal() {
-		return is(FINAL);
-	}
-
-	@Override
-	public boolean isAbstract() {
-		return is(ABSTRACT);
-	}
-
-	@Override
-	public boolean isStatic() {
-		return is(STATIC);
-	}
 }

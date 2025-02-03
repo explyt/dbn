@@ -16,23 +16,6 @@
 
 package com.dbn.object;
 
-import com.dbn.object.common.DBObject;
-import com.dbn.object.type.DBJavaAccessibility;
-import com.dbn.object.type.DBJavaClassKind;
-import org.jetbrains.annotations.NotNull;
-
-public interface DBJavaInnerClass extends DBObject {
-
-	@NotNull
-	String getName();
-
-	DBJavaClassKind getKind();
-
-	DBJavaAccessibility getAccessibility();
-
-	boolean isFinal();
-
-	boolean isAbstract();
-
-	boolean isStatic();
+public interface DBJavaInnerClass extends DBJavaClass {
+	DBJavaClass getOuterClass();
 }

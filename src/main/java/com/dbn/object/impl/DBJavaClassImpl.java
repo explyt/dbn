@@ -32,6 +32,7 @@ import com.dbn.object.DBJavaInnerClass;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
+import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.DBSchemaObjectImpl;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.status.DBObjectStatus;
@@ -60,8 +61,8 @@ import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
 import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
-import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 
 @Getter
 public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> implements DBJavaClass {
@@ -72,6 +73,10 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	DBJavaClassImpl(DBSchema schema, DBJavaClassMetadata metadata) throws SQLException {
 		super(schema, metadata);
+	}
+
+	public DBJavaClassImpl(DBSchemaObject parent, DBJavaClassMetadata metadata) throws SQLException {
+		super(parent, metadata);
 	}
 
 	@Override

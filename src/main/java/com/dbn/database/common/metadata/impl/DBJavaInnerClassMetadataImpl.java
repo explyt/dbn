@@ -16,60 +16,19 @@
 
 package com.dbn.database.common.metadata.impl;
 
-import com.dbn.database.common.metadata.DBObjectMetadataBase;
 import com.dbn.database.common.metadata.def.DBJavaInnerClassMetadata;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DBJavaInnerClassMetadataImpl extends DBObjectMetadataBase implements DBJavaInnerClassMetadata {
+public class DBJavaInnerClassMetadataImpl extends DBJavaClassMetadataImpl implements DBJavaInnerClassMetadata {
 
 	public DBJavaInnerClassMetadataImpl(ResultSet resultSet) {
 		super(resultSet);
 	}
 
 	@Override
-	public String getClassName() throws SQLException {
-		return getString("CLASS_NAME");
-	}
-
-	@Override
-	public String getObjectName() throws SQLException {
-		return getString("OBJECT_NAME");
-	}
-
-	@Override
-	public String getObjectKind() throws SQLException {
-		return getString("OBJECT_KIND");
-	}
-
-	@Override
-	public String getAccessibility() throws SQLException {
-		return getString("ACCESSIBILITY");
-	}
-
-	@Override
-	public boolean isFinal() throws SQLException {
-		return isYesFlag("IS_FINAL");
-	}
-
-	@Override
-	public boolean isAbstract() throws SQLException {
-		return isYesFlag("IS_ABSTRACT");
-	}
-
-	@Override
-	public boolean isStatic() throws SQLException {
-		return isYesFlag("IS_STATIC");
-	}
-
-	@Override
-	public boolean isValid() throws SQLException {
-		return isYesFlag("IS_VALID");
-	}
-
-	@Override
-	public boolean isDebug() throws SQLException {
-		return isYesFlag("IS_DEBUG");
+	public String getOuterClassName() throws SQLException {
+		return getString("OUTER_CLASS_NAME");
 	}
 }

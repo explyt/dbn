@@ -16,28 +16,8 @@
 
 package com.dbn.database.common.metadata.def;
 
-import com.dbn.database.common.metadata.DBObjectMetadata;
-import com.dbn.database.common.security.ObjectIdentifier;
-
 import java.sql.SQLException;
 
-public interface DBJavaInnerClassMetadata extends DBObjectMetadata {
-	String getClassName() throws SQLException;
-
-	@ObjectIdentifier
-	String getObjectName() throws SQLException;
-
-	String getObjectKind()throws SQLException;
-
-	String getAccessibility()throws SQLException;
-
-	boolean isFinal() throws SQLException;
-
-	boolean isAbstract()throws SQLException;
-
-	boolean isStatic()throws SQLException;
-
-	boolean isValid() throws SQLException;
-
-	boolean isDebug() throws SQLException;
+public interface DBJavaInnerClassMetadata extends DBJavaClassMetadata {
+	String getOuterClassName() throws SQLException;
 }
