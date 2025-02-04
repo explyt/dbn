@@ -25,8 +25,8 @@ import com.dbn.connection.jdbc.DBNPreparedStatement;
 import com.dbn.database.common.execution.JavaExecutionProcessorImpl;
 import com.dbn.execution.java.JavaExecutionInput;
 import com.dbn.execution.java.result.JavaExecutionResult;
-import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.execution.java.wrapper.Wrapper;
+import com.dbn.execution.java.wrapper.WrapperBuilder;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
@@ -72,7 +72,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		}
 
 		buffer.append("declare\n");
-		if(! isProcedure){
+		if(!isProcedure){
 			buffer.append("output_arg ")
 					.append(wrapper.getReturnType().getCorrespondingSqlTypeName())
 					.append(";")

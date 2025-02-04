@@ -80,6 +80,7 @@ import static com.dbn.common.content.DynamicContentProperty.GROUPED;
 import static com.dbn.common.content.DynamicContentProperty.HIDDEN;
 import static com.dbn.common.content.DynamicContentProperty.INTERNAL;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.util.Commons.coalesce;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
@@ -107,6 +108,7 @@ import static com.dbn.object.type.DBObjectType.FUNCTION;
 import static com.dbn.object.type.DBObjectType.INDEX;
 import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
+import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 import static com.dbn.object.type.DBObjectType.JAVA_PARAMETER;
 import static com.dbn.object.type.DBObjectType.MATERIALIZED_VIEW;
@@ -177,6 +179,7 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         childObjects.createObjectList(TYPE_ATTRIBUTE,    this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_FUNCTION,     this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(TYPE_PROCEDURE,    this, INTERNAL, GROUPED, HIDDEN);
+        childObjects.createObjectList(JAVA_INNER_CLASS,  this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_FIELD,        this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_METHOD,       this, INTERNAL, GROUPED, HIDDEN);
         childObjects.createObjectList(JAVA_PARAMETER,    this, INTERNAL, GROUPED, HIDDEN);
@@ -244,6 +247,9 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
         if (type != ANY && !type.isSchemaObject()) return null;
 
         DBObject object = super.getChildObject(type, name, overload, lookupHidden);
+        if (object == null && type == JAVA_CLASS) {
+            object = super.getChildObject(JAVA_INNER_CLASS, name, overload, lookupHidden);
+        }
         if (object == null && type != SYNONYM) {
             DBSynonym synonym = super.getChildObject(SYNONYM, name, overload, lookupHidden);
             if (synonym != null) {
@@ -413,7 +419,9 @@ class DBSchemaImpl extends DBRootObjectImpl<DBSchemaMetadata> implements DBSchem
 
     @Override
     public DBJavaClass getJavaClass(String name) {
-        return getChildObject(JAVA_CLASS, name);
+        return coalesce(
+                () -> getChildObject(JAVA_CLASS, name),
+                () -> getChildObject(JAVA_INNER_CLASS, name));
     }
 
     @Override

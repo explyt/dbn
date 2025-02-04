@@ -30,7 +30,7 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.ObjectListProvider;
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -47,6 +47,7 @@ import static com.dbn.common.icon.Icons.withStaticMarker;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
 @Getter
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
@@ -55,7 +56,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	private String className;
 	private String returnType;
 	private short arrayDepth;
-	private DBJavaClassRef returnClass;
+	private DBObjectRef<DBJavaClass> returnClass;
 	private DBJavaAccessibility accessibility;
 
 	public DBJavaMethodImpl(@NotNull DBJavaClass javaClass, DBJavaMethodMetadata metadata) throws SQLException {
@@ -88,7 +89,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 		String returnClassName = metadata.getReturnClassName();
 		if (returnClassName != null) {
 			DBSchema schema = parentObject.getSchema();
-			returnClass = new DBJavaClassRef(schema, returnClassName, "SYS");
+			returnClass = new DBObjectRef<>(DBObjectRef.of(schema), JAVA_CLASS, returnClassName);
 		}
 
 		set(STATIC, metadata.isStatic());
