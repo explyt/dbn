@@ -33,11 +33,14 @@ import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import com.intellij.psi.*;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.search.GlobalSearchScope;
 import lombok.SneakyThrows;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.options.Configs.fail;
@@ -88,19 +91,18 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
 
     private void handleDestinationClassPath(I input) {
         Project project = input.getProject();
-        String driverClassName = input.getDatabaseContext().getConnection().getSettings().getDatabaseSettings().getDriver();
+        String driverClassName = input.getDatabaseContext().ensureConnection().getSettings().getDatabaseSettings().getDriver();
 
         if (!isDriverOnClassPath(project, driverClassName)) {
             Messages.showInfoDialog(project, "Can't Find JDBC Driver",
-                    "The driver " + driverClassName + " does not appear to be on your compile-time classpath." +
+                    "The driver \"" + driverClassName + "\" does not appear to be on your compile-time classpath." +
                             " This may cause your generated code to have errors and may not run.");
         }
     }
 
     private boolean isDriverOnClassPath(Project project, String driverClassName) {
-        final Module[] modules = ModuleManager.getInstance(project).getModules();
-        boolean wasFound = false;
-        for(final Module module : modules) {
+        Module[] modules = ModuleManager.getInstance(project).getModules();
+        for (Module module : modules) {
             GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
             @Nullable PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(driverClassName, scope);
             if (psiClass != null && psiClass.isValid()) {
