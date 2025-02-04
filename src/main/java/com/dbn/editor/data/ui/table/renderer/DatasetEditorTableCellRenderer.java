@@ -67,7 +67,9 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         SimpleTextAttributes textAttributes = attributes.getPlainData(modified, caretRow);
 
         if (isSelected) {
-            textAttributes = attributes.getSelection();
+            textAttributes = hasFocus ?
+                    attributes.getSelection() :
+                    attributes.getCaretRow();
         } else {
             if (loading || dirty || !connected || updating) {
                 textAttributes = attributes.getLoadingData(caretRow);
