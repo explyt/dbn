@@ -23,6 +23,7 @@ import com.dbn.common.event.ApplicationEvents;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.notification.NotificationSupport;
 import com.dbn.common.thread.Dispatch;
+import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.component.DBNComponentBase;
 import com.dbn.common.ui.dialog.DBNDialog;
 import com.dbn.common.ui.form.field.DBNFormFieldAdapter;
@@ -128,6 +129,7 @@ public abstract class DBNFormBase
 
 
         initValidation();
+        initStatePersistence();
         initFormAccessibility();
 
         JComponent mainComponent = getMainComponent();
@@ -189,6 +191,17 @@ public abstract class DBNFormBase
     @ApiStatus.OverrideOnly
     protected void initAccessibility() {}
 
+    /**
+     * Initializes the persistence mechanisms for the state of the form or component.
+     * This method is intended to be overridden by subclasses to define custom state
+     * persistence logic, such as saving and restoring UI state or settings.
+     * <br>
+     * It does not include any default implementation and should be implemented in
+     * subclasses if state persistence is required.
+     */
+    @ApiStatus.OverrideOnly
+    protected void initStatePersistence () {}
+
     @ApiStatus.OverrideOnly
     protected void lookAndFeelChanged() {}
 
@@ -226,6 +239,20 @@ public abstract class DBNFormBase
         }
         return null;
     }
+
+    @Override
+    public <F extends DBNForm> F getParentFrom(Class<F> formClass) {
+        DBNComponent parent = getParentComponent();
+        if (parent == null) return null;
+        if (formClass.isAssignableFrom(parent.getClass())) return cast(parent);
+
+        if (parent instanceof DBNForm) {
+            DBNForm parentForm = (DBNForm) parent;
+            return parentForm.getParentFrom(formClass);
+        }
+        return null;
+    }
+
 
     @Override
     public void disposeInner() {

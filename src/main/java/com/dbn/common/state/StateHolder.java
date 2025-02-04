@@ -14,9 +14,13 @@
  * limitations under the License.
  */
 
-package com.dbn.execution.java;
+package com.dbn.common.state;
 
-public interface ArgumentValueHolder<T> {
-    T getValue();
-    void setValue(T value);
+import org.jetbrains.annotations.NonNls;
+
+public interface StateHolder {
+
+    String getAttribute(@NonNls String key);
+
+    void setAttribute(@NonNls String key, @NonNls String value);
 }
