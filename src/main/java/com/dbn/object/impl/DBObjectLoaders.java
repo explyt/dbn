@@ -283,7 +283,7 @@ public class DBObjectLoaders {
         DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
                 "JAVA_PRIMITIVES", DBObjectType.SCHEMA, DBObjectType.JAVA_PRIMITIVE, true, true,
                 (content, conn, mdi) -> mdi.loadJavaPrimitives(content.ensureParentEntity().getName(), conn),
-                (content, cache, md) -> new DBJavaPrimitiveImpl(content.getParentEntity(), md));
+                (content, cache, md) -> new DBJavaClassImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
                 "JAVA_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_CLASS, true, true,
@@ -598,7 +598,7 @@ public class DBObjectLoaders {
                 DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
                         "JAVA_INNER_CLASSES", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_INNER_CLASS, false, true,
                         (content, conn, mdi) -> mdi.loadJavaInnerClasses(content.getParentSchemaName(), content.getParentObjectName(), conn),
-                        (content, cache, md) -> new DBJavaClassImpl(valid(content.getParentEntity()), md)));
+                        (content, cache, md) -> new DBJavaClassImpl(valid(content.getSchema()), md)));
 
         DynamicContentResultSetLoader.<DBTypeAttribute, DBTypeAttributeMetadata>create(
                 "PACKAGE_TYPE_ATTRIBUTES", DBObjectType.PACKAGE_TYPE, DBObjectType.TYPE_ATTRIBUTE, true, true,

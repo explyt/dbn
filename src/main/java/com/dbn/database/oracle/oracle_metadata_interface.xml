@@ -321,15 +321,17 @@
         <statement prefixes="DBA, ALL">
             with PRIMITIVES as (select 'boolean,byte,char,double,float,int,long,short,void' as CSV from DUAL)
             select
-                regexp_substr(csv, '[^,]+', 1, LEVEL) as OBJECT_NAME,
+                regexp_substr(CSV, '[^,]+', 1, LEVEL) as OBJECT_NAME,
                 'PRIMITIVE' as OBJECT_KIND,
                 'PUBLIC' as ACCESSIBILITY,
+                null as OUTER_CLASS_NAME,
                 'Y' as IS_FINAL,
                 'N' as IS_ABSTRACT,
                 'N' as IS_INNER,
                 'N' as IS_STATIC,
                 'Y' as IS_VALID,
                 'N' as IS_DEBUG
+                'Y' as IS_PRIMITIVE,
             from PRIMITIVES connect by level &lt;= regexp_count(CSV, ',') + 1
         </statement>
     </statement-execution-processor>
@@ -346,7 +348,8 @@
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
                 decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
-                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG
+                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
+                'N' as IS_PRIMITIVE
             from [PREFIX]_JAVA_CLASSES j
             left join [PREFIX]_OBJECTS ob
                    on ob.OWNER = j.OWNER
@@ -375,7 +378,8 @@
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
                 decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
-                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG
+                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
+                'N' as IS_PRIMITIVE
             from
                 [PREFIX]_JAVA_CLASSES j
             left join
@@ -411,7 +415,8 @@
                 decode(j.IS_INNER,'YES','Y','N') as IS_INNER,
                 decode(j.IS_STATIC,'YES','Y','N') as IS_STATIC,
                 decode(ob.STATUS, 'VALID', 'Y', 'N') as IS_VALID,
-                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG
+                decode(nvl(apo.DEBUGINFO, 'F'), 'T', 'Y', 'N') as IS_DEBUG,
+                'N' as IS_PRIMITIVE
             from
                 [PREFIX]_JAVA_CLASSES j
             left join

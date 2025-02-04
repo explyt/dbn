@@ -17,6 +17,7 @@
 package com.dbn.object.lookup;
 
 import com.dbn.common.collections.ConcurrentStringInternMap;
+import com.dbn.object.DBJavaClass;
 import lombok.experimental.UtilityClass;
 
 import static com.dbn.common.util.Strings.isEmpty;
@@ -42,8 +43,16 @@ public class DBJavaNameCache {
      */
     public static String getSimpleName(String objectName) {
         if (isEmpty(objectName)) return "";
-        return simpleNameCache.computeIfAbsent(objectName, n -> n.substring(n.lastIndexOf("/") + 1));
+        return simpleNameCache.computeIfAbsent(objectName, n -> n.substring(
+                Math.max(
+                        n.lastIndexOf("/"),
+                        n.lastIndexOf("$")) + 1)); // TODO $ is not a reliable indicator for inner class (can be part of the name of a real class)
     }
+
+    public static String getSimpleName(DBObjectRef<DBJavaClass> javaClass) {
+        return getSimpleName(javaClass.getObjectName());
+    }
+
 
     /**
      * Transforms a database representation of a Java class name into its canonical Java class name.
@@ -57,5 +66,9 @@ public class DBJavaNameCache {
     public static String getCanonicalName(String objectName) {
         if (isEmpty(objectName)) return "";
         return canonicalNameCache.computeIfAbsent(objectName, n -> n.replace("/", "."));
+    }
+
+    public static String getCanonicalName(DBObjectRef<DBJavaClass> javaClass) {
+        return getCanonicalName(javaClass.getObjectName());
     }
 }

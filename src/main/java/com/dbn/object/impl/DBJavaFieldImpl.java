@@ -147,7 +147,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 	}
 
 	@Override
-	public DBJavaClassRef getJavaClassRef() {
+	public DBObjectRef<DBJavaClass> getJavaClassRef() {
 		return javaClass;
 	}
 

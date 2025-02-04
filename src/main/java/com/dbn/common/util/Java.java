@@ -113,4 +113,5 @@ public class Java {
     public static boolean isVoid(String className) {
         return Objects.equals(className, "void");
     }
+
 }

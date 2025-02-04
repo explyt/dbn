@@ -91,5 +91,18 @@ public final class DBJavaValueType {
     public static DBJavaValueType forObjectName(String objectName) {
         return objectNameMappings.get(objectName);
     }
+
+    /**
+     * Determines whether the given class name represents a pseudo-primitive type.
+     * A pseudo-primitive type is a value type that is either a standard Java primitive,
+     * its corresponding wrapper class, or commonly used value types such as {@code String},
+     * {@code Number}, {@code BigDecimal}, or atomic value types.
+     *
+     * @return {@code true} if the className corresponds to a pseudo-primitive type;
+     *         {@code false} otherwise.
+     */
+    public static boolean isPseudoPrimitive(String className) {
+        return forObjectName(className) != null;
+    }
 }
 

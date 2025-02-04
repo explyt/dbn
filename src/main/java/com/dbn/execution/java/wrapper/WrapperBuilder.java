@@ -23,7 +23,7 @@ import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBOrderedObject;
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import lombok.Value;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nullable;
@@ -31,10 +31,12 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.dbn.common.util.Java.isVoid;
 import static com.dbn.execution.java.wrapper.TypeMappings.getSqlType;
 import static com.dbn.execution.java.wrapper.TypeMappings.isSupportedType;
 import static com.dbn.execution.java.wrapper.TypeMappings.isUnsupportedType;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
+import static com.dbn.object.type.DBJavaValueType.isPseudoPrimitive;
 
 /**
  * Parses {@link DBJavaMethod} instances into {@link Wrapper} objects,
@@ -157,8 +159,9 @@ public final class WrapperBuilder {
 			DBJavaMethod javaMethod,
 			Wrapper wrapper,
 			WrapperBuilderContext context) {
-		DBJavaClassRef returnClass = javaMethod.getReturnClassRef();
-        if (returnClass.isVoid()) return;
+		DBObjectRef<DBJavaClass> returnClass = javaMethod.getReturnClassRef();
+		String returnClassName = getCanonicalName(returnClass.getObjectName());
+        if (isVoid(returnClassName)) return;
 
         Wrapper.MethodAttribute returnAttr = createMethodAttribute(
                 returnClass,
@@ -174,14 +177,14 @@ public final class WrapperBuilder {
 	 * a simple attribute if primitive/supported, or a complex type otherwise.
 	 */
 	private Wrapper.MethodAttribute createMethodAttribute(
-			DBJavaClassRef javaClass,
+			DBObjectRef<DBJavaClass> javaClass,
 			short arrayDepth,
 			AttributeDirection attributeDirection,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
 
 		// If non-array and we have a direct mapping -> simple attribute
-		String className = javaClass.getCanonicalName();
+		String className = getCanonicalName(javaClass.getObjectName());
 		if (arrayDepth == 0 && isSupportedType(className)) {
 			return buildSimpleMethodAttribute(className);
 		}
@@ -237,11 +240,11 @@ public final class WrapperBuilder {
 	 * or parameter type, populating its fields recursively if needed.
 	 */
 	private JavaComplexType createJavaComplexType(
-			DBJavaClassRef javaClass,
+			DBObjectRef<DBJavaClass> javaClass,
 			AttributeDirection attributeDirection,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
-		String javaClassName = javaClass.getCanonicalName();
+		String javaClassName = getCanonicalName(javaClass);
 
 		ComplexTypeKey key = new ComplexTypeKey(javaClassName, (short) 0);
 		if (addToContextAndDetectCycle(key, context)) return null;
@@ -259,7 +262,7 @@ public final class WrapperBuilder {
 
 
 		// Populate fields if we have a DBJavaClass
-		boolean complexType = !javaClass.isPseudoPrimitive();
+		boolean complexType = !isPseudoPrimitive(javaClassName);
 		if (complexType) {
 			populateComplexTypeFields(
 					javaClass,
@@ -280,12 +283,12 @@ public final class WrapperBuilder {
 	 * populating its contained type recursively if necessary.
 	 */
 	private JavaComplexType createJavaComplexArrayType(
-			DBJavaClassRef javaClass,
+			DBObjectRef<DBJavaClass> javaClass,
 			short arrayDepth,
 			AttributeDirection attributeDirection,
 			WrapperBuilderContext context,
 			Wrapper wrapper) {
-		String javaClassName = javaClass.getCanonicalName();
+		String javaClassName = getCanonicalName(javaClass);
 
 		ComplexTypeKey key = new ComplexTypeKey(javaClassName, arrayDepth);
 		if (addToContextAndDetectCycle(key, context)) return null;
@@ -468,7 +471,7 @@ public final class WrapperBuilder {
 	 * building nested types if necessary.
 	 */
 	private void populateComplexTypeFields(
-			DBJavaClassRef javaClass,
+			DBObjectRef<DBJavaClass> javaClass,
 			AttributeDirection attributeDirection,
 			JavaComplexType javaComplexType,
 			SqlComplexType sqlComplexType,
@@ -494,7 +497,7 @@ public final class WrapperBuilder {
 	/**
 	 * Builds a single {@link JavaComplexType.Field} instance from a {@link DBJavaField}.
 	 */
-	private JavaComplexType.Field buildJavaComplexField(DBJavaField javaField, DBJavaClassRef parentJavaClass, Wrapper wrapper) {
+	private JavaComplexType.Field buildJavaComplexField(DBJavaField javaField, DBObjectRef<DBJavaClass> parentJavaClass, Wrapper wrapper) {
 		JavaComplexType.Field field = new JavaComplexType.Field();
 
 		// Get the raw field type in string form

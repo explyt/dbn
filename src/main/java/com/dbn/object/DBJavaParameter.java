@@ -16,7 +16,7 @@
 
 package com.dbn.object;
 
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaValueType;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.Nullable;
@@ -34,7 +34,7 @@ public interface DBJavaParameter extends DBOrderedObject {
 
     DBJavaClass getJavaClass();
 
-    DBJavaClassRef getJavaClassRef();
+    DBObjectRef<DBJavaClass> getJavaClassRef();
 
     @NonNls
     String getJavaClassName();

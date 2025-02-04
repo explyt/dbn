@@ -16,7 +16,7 @@
 
 package com.dbn.object;
 
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 
 import java.util.List;
@@ -30,7 +30,7 @@ public interface DBJavaMethod extends DBOrderedObject {
 
     DBJavaClass getReturnClass();
 
-	DBJavaClassRef getReturnClassRef();
+	DBObjectRef<DBJavaClass> getReturnClassRef();
 
 	String getReturnClassName();
 

@@ -58,6 +58,7 @@ import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
@@ -97,6 +98,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		set(ABSTRACT, metadata.isAbstract());
 		set(STATIC, metadata.isStatic());
 		set(INNER, metadata.isInner());
+		set(PRIMITIVE, metadata.isPrimitive());
 
 		return metadata.getObjectName();
 	}
@@ -192,7 +194,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	@Override
 	public boolean isPrimitive() {
-		return false;
+		return is(PRIMITIVE);
 	}
 
 	@Override

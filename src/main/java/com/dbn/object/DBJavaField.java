@@ -16,7 +16,7 @@
 
 package com.dbn.object;
 
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaValueType;
 import org.jetbrains.annotations.Nullable;
@@ -43,7 +43,7 @@ public interface DBJavaField extends DBOrderedObject {
 
 	DBJavaClass getJavaClass();
 
-	DBJavaClassRef getJavaClassRef();
+	DBObjectRef<DBJavaClass> getJavaClassRef();
 
 	String getJavaClassName();
 
