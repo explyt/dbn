@@ -67,7 +67,7 @@ public class DatasetEditorTableCellRenderer extends BasicTableCellRenderer {
         SimpleTextAttributes textAttributes = attributes.getPlainData(modified, caretRow);
 
         if (isSelected) {
-            textAttributes = hasFocus ?
+            textAttributes = table.hasFocus() ?
                     attributes.getSelection() :
                     attributes.getCaretRow();
         } else {
