@@ -56,4 +56,10 @@ public interface DBJavaClass extends DBSchemaObject {
 	List<DBJavaField> getFields();
 
 	DBJavaField getField(String name);
+
+	DBJavaClass getOuterClass();
+
+	List<DBJavaClass> getInnerClasses();
+
+	DBJavaClass getInnerClass(String name);
 }

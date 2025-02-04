@@ -76,7 +76,7 @@ public class OracleJavaExecutionProcessor extends JavaExecutionProcessorImpl {
 		}
 
 		buffer.append("declare\n");
-		if(! isProcedure){
+		if(!isProcedure){
 			MethodAttribute returnType = wrapper.getReturnType();
 			buffer.append("output_arg ")
 					.append(returnType.getSqlTypeName())

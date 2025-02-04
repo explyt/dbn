@@ -30,7 +30,7 @@ import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.list.DBObjectNavigationList;
 import com.dbn.object.common.list.ObjectListProvider;
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
@@ -45,18 +45,18 @@ import java.util.List;
 
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.icon.Icons.withStaticMarker;
-import static com.dbn.common.util.Java.isPrimitive;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaAccessibility.PUBLIC;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
 @Getter
 public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> implements DBJavaMethod {
 	private short index;
 	private String signature;
 	private short returnArrayDepth;
-	private DBJavaClassRef returnClass;
+	private DBObjectRef<DBJavaClass> returnClass;
 	private DBJavaAccessibility accessibility;
 
 	public DBJavaMethodImpl(@NotNull DBJavaClass javaClass, DBJavaMethodMetadata metadata) throws SQLException {
@@ -86,9 +86,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 
 		String returnClassName = metadata.getReturnClassName();
 		DBSchema schema = nd(parentObject.getSchema());
-		returnClass = isPrimitive(returnClassName) ?
-				new DBJavaClassRef(schema, returnClassName) :
-				new DBJavaClassRef(schema, returnClassName, "SYS");
+		returnClass = new DBObjectRef<>(DBObjectRef.of(schema), JAVA_CLASS, returnClassName);
 
 		set(STATIC, metadata.isStatic());
 		set(FINAL, metadata.isFinal());
@@ -137,7 +135,7 @@ public class DBJavaMethodImpl extends DBObjectImpl<DBJavaMethodMetadata> impleme
 	}
 
 	@Override
-	public DBJavaClassRef getReturnClassRef() {
+	public DBObjectRef<DBJavaClass> getReturnClassRef() {
 		return returnClass;
 	}
 

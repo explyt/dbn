@@ -25,7 +25,7 @@ import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaValueType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.core.CoreJavaCodeStyleManager;
@@ -49,7 +49,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	private short position;
 	private short arrayDepth;
 
-	private DBJavaClassRef javaClass;
+	private DBObjectRef<DBJavaClass> javaClass;
 
 	public DBJavaParameterImpl(@NotNull DBJavaMethod javaMethod, DBJavaParameterMetadata metadata) throws SQLException {
 		super(javaMethod, metadata);
@@ -76,14 +76,13 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 		set(PRIMITIVE, Java.isPrimitive(argumentClassName));
 
 		DBSchema schema = nd(parentObject.getSchema());
-		javaClass = isPrimitive() ?
-				new DBJavaClassRef(schema, argumentClassName) :
-				new DBJavaClassRef(schema, argumentClassName, "SYS");
+		javaClass = new DBObjectRef<>(DBObjectRef.of(schema), DBObjectType.JAVA_CLASS, argumentClassName);
 
 		return "param" + position;
 	}
 
-	private String createParameterName(Project project, String parameterType) {
+	// TODO consider friendly names
+    private String createParameterName(Project project, String parameterType) {
 		String[] tokens = parameterType.split("[./]");
 		String lastToken = tokens[tokens.length - 1];
 
@@ -125,7 +124,7 @@ public class DBJavaParameterImpl extends DBObjectImpl<DBJavaParameterMetadata> i
 	}
 
 	@Override
-	public DBJavaClassRef getJavaClassRef() {
+	public DBObjectRef<DBJavaClass> getJavaClassRef() {
 		return javaClass;
 	}
 

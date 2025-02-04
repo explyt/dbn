@@ -19,6 +19,7 @@ package com.dbn.object.impl;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
@@ -36,6 +37,7 @@ import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
 import com.dbn.object.lookup.DBJavaNameCache;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaClassKind;
 import com.dbn.object.type.DBObjectType;
@@ -52,28 +54,38 @@ import static com.dbn.common.util.Lists.filter;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
+import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 
 @Getter
 public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> implements DBJavaClass {
+	private DBObjectRef<DBJavaClass> outerClass;
 
 	private DBJavaClassKind kind;
 	private DBJavaAccessibility accessibility;
 
-	DBJavaClassImpl(DBSchema schema, DBJavaClassMetadata metadata) throws SQLException {
+	public DBJavaClassImpl(DBSchema schema, DBJavaClassMetadata metadata) throws SQLException {
 		super(schema, metadata);
+
+		String outerClassName = metadata.getOuterClassName();
+		if (Strings.isNotEmpty(outerClassName)) {
+			outerClass = new DBObjectRef<>(schema.ref(), DBObjectType.JAVA_CLASS, outerClassName);
+			ref.setParent(outerClass);
+		}
 	}
 
 	@Override
 	public @NotNull DBObjectType getObjectType() {
-		return DBObjectType.JAVA_CLASS;
+		return JAVA_CLASS;
 	}
 
 	@Override
@@ -97,6 +109,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		// TODO support inner classes as child objects
 		DBSchema schema = getSchema();
 		DBObjectListContainer childObjects = ensureChildObjects();
+		childObjects.createSubcontentObjectList(JAVA_INNER_CLASS, this, schema);
 		childObjects.createSubcontentObjectList(JAVA_FIELD, this, schema);
 		childObjects.createSubcontentObjectList(JAVA_METHOD, this, schema);
 	}
@@ -106,6 +119,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		properties.set(COMPILABLE, true);
 		properties.set(INVALIDABLE, true);
 		properties.set(DEBUGABLE, true);
+		properties.set(EDITABLE, !isInner());
 	}
 
 	public void initStatus(DBJavaClassMetadata metadata) throws SQLException {
@@ -119,7 +133,10 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	@Override
 	public String getPresentableText() {
-		return getCanonicalName();
+		return isInner() ?
+                getSimpleName() :
+                getCanonicalName();
+
 	}
 
 	@Override
@@ -203,6 +220,21 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		return getChildObject(JAVA_FIELD, name);
 	}
 
+	@Override
+	public List<DBJavaClass> getInnerClasses(){
+		return getChildObjects(JAVA_INNER_CLASS);
+	}
+
+	@Override
+	public DBJavaClass getInnerClass(String name){
+		return getChildObject(JAVA_INNER_CLASS, name);
+	}
+
+	@Nullable
+	public DBJavaClass getOuterClass() {
+		return isInner() ? DBObjectRef.get(outerClass) : null;
+	}
+
 	/*********************************************************
 	 *                  DBEditableCodeObject                 *
 	 ********************************************************/
@@ -234,13 +266,15 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	public List<BrowserTreeNode> buildPossibleTreeChildren() {
 		return DatabaseBrowserUtils.createList(
 				getChildObjectList(JAVA_FIELD),
-				getChildObjectList(JAVA_METHOD));
+				getChildObjectList(JAVA_METHOD),
+				getChildObjectList(JAVA_INNER_CLASS));
 	}
 
 	@Override
 	public boolean hasVisibleTreeChildren() {
 		ObjectTypeFilterSettings settings = getObjectTypeFilterSettings();
 		return settings.isVisible(JAVA_FIELD) ||
-				settings.isVisible(JAVA_METHOD) ;
+				settings.isVisible(JAVA_METHOD) ||
+				settings.isVisible(JAVA_INNER_CLASS);
 	}
 }

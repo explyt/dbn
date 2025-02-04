@@ -27,7 +27,7 @@ import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.DBObjectImpl;
-import com.dbn.object.lookup.DBJavaClassRef;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaValueType;
 import com.dbn.object.type.DBObjectType;
@@ -46,12 +46,13 @@ import static com.dbn.common.util.Strings.capitalize;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
 
 @Getter
 public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implements DBJavaField {
 	private short index;
 	private short arrayDepth;
-	private DBJavaClassRef javaClass;
+	private DBObjectRef<DBJavaClass> javaClass;
 	private DBJavaAccessibility accessibility;
 
 	public DBJavaFieldImpl(@NotNull DBJavaClass javaClass, DBJavaFieldMetadata metadata) throws SQLException {
@@ -72,9 +73,7 @@ public class DBJavaFieldImpl extends DBObjectImpl<DBJavaFieldMetadata> implement
 		set(PRIMITIVE, Java.isPrimitive(fieldClassName));
 
 		DBSchema schema = nd(parentObject.getSchema());
-		javaClass = isPrimitive() ?
-				new DBJavaClassRef(schema, fieldClassName) :
-				new DBJavaClassRef(schema, fieldClassName, "SYS");
+		javaClass = new DBObjectRef<>(DBObjectRef.of(schema), JAVA_CLASS, fieldClassName);
 
 		accessibility =  metadata.getAccessibility() == null ?
 				DBJavaAccessibility.DEFAULT :
