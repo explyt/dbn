@@ -36,6 +36,8 @@ public interface DBJavaClassMetadata extends DBObjectMetadata {
 
     String getAccessibility()throws SQLException;
 
+    boolean isPrimitive() throws SQLException;
+
     boolean isFinal() throws SQLException;
 
     boolean isAbstract()throws SQLException;

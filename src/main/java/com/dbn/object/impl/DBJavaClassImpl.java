@@ -19,7 +19,6 @@ package com.dbn.object.impl;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
@@ -37,6 +36,7 @@ import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
+import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaClassKind;
@@ -58,6 +58,7 @@ import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
@@ -72,7 +73,6 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	private DBJavaClassKind kind;
 	private DBJavaAccessibility accessibility;
-	private static final WeakRefCache<DBJavaClass, String> presentableNameCache = WeakRefCache.weakKey();
 
 	public DBJavaClassImpl(DBSchema schema, DBJavaClassMetadata metadata) throws SQLException {
 		super(schema, metadata);
@@ -98,6 +98,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		set(ABSTRACT, metadata.isAbstract());
 		set(STATIC, metadata.isStatic());
 		set(INNER, metadata.isInner());
+		set(PRIMITIVE, metadata.isPrimitive());
 
 		return metadata.getObjectName();
 	}
@@ -135,8 +136,19 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@Override
 	public String getPresentableText() {
 		return isInner() ?
-				getName().substring(getName().lastIndexOf("$") + 1) :
-				presentableNameCache.computeIfAbsent(this, o -> o.getName().replace("/", "."));
+                getSimpleName() :
+                getCanonicalName();
+
+	}
+
+	@Override
+	public String getCanonicalName() {
+		return DBJavaNameCache.getCanonicalName(getName());
+	}
+
+	@Override
+	public String getSimpleName() {
+		return DBJavaNameCache.getSimpleName(getName());
 	}
 
 	@Override
@@ -178,6 +190,11 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@Override
 	public boolean isInner() {
 		return is(INNER);
+	}
+
+	@Override
+	public boolean isPrimitive() {
+		return is(PRIMITIVE);
 	}
 
 	@Override

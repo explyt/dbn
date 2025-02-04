@@ -82,6 +82,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, null, false),
     JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
+    JAVA_PRIMITIVE(DatabaseObjectTypeId.JAVA_PRIMITIVE, "java primitive", "java primitive", null, null, null, false),
     JAVA_INNER_CLASS(DatabaseObjectTypeId.JAVA_INNER_CLASS, "inner class", "inner classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
     JAVA_FIELD(DatabaseObjectTypeId.JAVA_FIELD, "java field", "fields", Icons.DBO_JAVA_FIELD, null, Icons.DBO_JAVA_FIELDS, false),
     JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "java method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
@@ -360,6 +361,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DATABASE_TRIGGER.setInheritedType(TRIGGER);
         XMLTYPE.setInheritedType(TYPE);
         JAVA_METHOD.setInheritedType(METHOD);
+        JAVA_PRIMITIVE.setInheritedType(JAVA_CLASS);
         JAVA_INNER_CLASS.setInheritedType(JAVA_CLASS);
 
         SYSTEM_PRIVILEGE.setInheritedType(PRIVILEGE);
@@ -428,6 +430,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TYPE_PROCEDURE.addParent(TYPE);
         TYPE_TYPE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
+        JAVA_PRIMITIVE.addParent(SCHEMA);
         JAVA_CLASS.addParent(SCHEMA);
         JAVA_INNER_CLASS.addParent(JAVA_CLASS);
         JAVA_FIELD.addParent(JAVA_CLASS);

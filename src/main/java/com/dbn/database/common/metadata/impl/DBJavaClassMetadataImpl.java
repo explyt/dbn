@@ -49,6 +49,11 @@ public class DBJavaClassMetadataImpl extends DBObjectMetadataBase implements DBJ
 	}
 
 	@Override
+	public boolean isPrimitive() throws SQLException {
+		return isYesFlag("IS_PRIMITIVE");
+	}
+
+	@Override
 	public boolean isFinal() throws SQLException {
 		return isYesFlag("IS_FINAL");
 	}

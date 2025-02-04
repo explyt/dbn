@@ -54,6 +54,7 @@ public enum DatabaseObjectTypeId {
     JAVA_FIELD,
     JAVA_INNER_CLASS,
     JAVA_CLASS,
+    JAVA_PRIMITIVE,
     JAVA_OBJECT,
     LIBRARY,
     LOB,
