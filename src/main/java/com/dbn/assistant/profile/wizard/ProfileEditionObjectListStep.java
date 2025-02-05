@@ -344,6 +344,12 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     });
   }
 
+  @Nullable
+  @Override
+  public JComponent getPreferredFocusedComponent() {
+    return schemaComboBox;
+  }
+
 
   @Override
   public @Nullable String getHelpId() {
