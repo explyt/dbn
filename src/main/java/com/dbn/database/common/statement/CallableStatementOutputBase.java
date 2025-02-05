@@ -16,15 +16,15 @@
 
 package com.dbn.database.common.statement;
 
-import java.sql.CallableStatement;
-import java.sql.SQLException;
+public abstract class CallableStatementOutputBase implements CallableStatementOutput{
+    private int parameterIndexOffset;
 
-public interface CallableStatementOutput {
-    default void shiftParameterIndex(int shift) {
-        if (shift > 0) throw new UnsupportedOperationException();
+    protected int shifted(int parameterIndex) {
+        return parameterIndex + parameterIndexOffset;
     }
 
-    void registerParameters(CallableStatement statement) throws SQLException;
-
-    void read(CallableStatement statement) throws SQLException;
+    @Override
+    public void shiftParameterIndex(int shift) {
+        parameterIndexOffset = shift;
+    }
 }
