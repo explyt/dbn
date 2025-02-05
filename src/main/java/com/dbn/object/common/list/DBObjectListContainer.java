@@ -420,11 +420,12 @@ public final class DBObjectListContainer implements StatefulDisposable, Unlisted
 
     @Nullable
     private <T extends DBObject> DBObjectList<T> objects(DBObjectType objectType) {
-        if (objects != null && objects != DISPOSED_OBJECTS) {
-            int index = objectsIndex(objectType);
-            if (index < objects.length) {
-                return cast(objects[index]);
-            }
+        if (objects == null) return null;
+        if (objects == DISPOSED_OBJECTS) return null;
+
+        int index = objectsIndex(objectType);
+        if (index < objects.length) {
+            return cast(objects[index]);
         }
 
         return null;
