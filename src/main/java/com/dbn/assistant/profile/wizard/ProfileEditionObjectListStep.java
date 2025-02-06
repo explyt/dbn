@@ -158,6 +158,7 @@ public class ProfileEditionObjectListStep extends WizardStep<ProfileEditionWizar
     tablesCheckBox.addActionListener(e -> filterDatasets(DBObjectType.TABLE, tablesCheckBox.isSelected()));
     viewsCheckBox.addActionListener(e -> filterDatasets(DBObjectType.VIEW, viewsCheckBox.isSelected()));
     mviewsCheckBox.addActionListener(e -> filterDatasets(DBObjectType.MATERIALIZED_VIEW, mviewsCheckBox.isSelected()));
+    tablesCheckBox.setSelected(true);
   }
 
   private void filterDatasets(DBObjectType type, boolean selected) {

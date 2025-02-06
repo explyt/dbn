@@ -65,7 +65,7 @@ public class Accessibility {
     }
 
     public static void setAccessibleDescription(@Nullable Object target, @Nls String description) {
-        setAccessibleText(target, description, false);
+        setAccessibleText(target, description, true);
     }
 
     private static void setAccessibleText(@Nullable Object target, @Nullable @Nls String text, boolean descriptor) {
