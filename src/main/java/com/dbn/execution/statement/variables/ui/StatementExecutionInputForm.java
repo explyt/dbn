@@ -61,6 +61,7 @@ import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 
 public class StatementExecutionInputForm extends DBNFormBase implements ComponentAligner.Container {
@@ -149,6 +150,11 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
         } else {
             reuseVariablesCheckBox.setVisible(false);
         }
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleName(variablesScrollPane, "Execution variables");
     }
 
     @Override

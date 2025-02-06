@@ -34,6 +34,8 @@ import javax.swing.JPanel;
 import java.awt.Component;
 import java.awt.Container;
 
+import static com.dbn.common.ui.util.ClientProperty.ACCESSIBLE_DESCRIPTION;
+import static com.dbn.common.ui.util.ClientProperty.ACCESSIBLE_NAME;
 import static com.dbn.common.ui.util.ClientProperty.COMPONENT_GROUP_QUALIFIER;
 import static com.dbn.common.ui.util.UserInterface.getComponentLabel;
 import static com.dbn.common.ui.util.UserInterface.getComponentText;
@@ -79,8 +81,10 @@ public class Accessibility {
             AccessibleContext accessibleContext = component.getAccessibleContext();
             if (descriptor) {
                 accessibleContext.setAccessibleDescription(friendlyName);
+                ACCESSIBLE_DESCRIPTION.set(component, friendlyName);
             } else {
                 accessibleContext.setAccessibleName(friendlyName);
+                ACCESSIBLE_NAME.set(component, friendlyName);
             }
             return;
         }
@@ -113,18 +117,26 @@ public class Accessibility {
 
         AccessibleContext accessibleContext = accessibleComponent.getAccessibleContext();
 
-        String accessibleName = nvl(accessibleContext.getAccessibleName(), "");
-
-        StringBuilder builder = new StringBuilder(accessibleName);
-        builder.append(" (");
-        builder.append(unit);
-        if (qualifiers.length > 0) {
-            builder.append(" - ");
-            builder.append(String.join(", ", qualifiers));
+        String accessibleName = ACCESSIBLE_NAME.get(component);
+        if (accessibleName == null) {
+            accessibleName = nvl(accessibleContext.getAccessibleName(), "");
+            ACCESSIBLE_NAME.set(component, accessibleName);
         }
 
-        builder.append(")");
-        accessibleContext.setAccessibleName(builder.toString());
+        if (unit == null) {
+            accessibleContext.setAccessibleName(accessibleName);
+        } else {
+            StringBuilder builder = new StringBuilder(accessibleName);
+            builder.append(" (");
+            builder.append(unit);
+            if (qualifiers.length > 0) {
+                builder.append(" - ");
+                builder.append(String.join(", ", qualifiers));
+            }
+
+            builder.append(")");
+            accessibleContext.setAccessibleName(builder.toString());
+        }
     }
 
     /**
