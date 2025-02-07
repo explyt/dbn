@@ -92,9 +92,9 @@ public abstract class DBNFormBase
     @Delegate
     protected DBNFormValidator getFormValidator() {
         DBNDialog dialog = getParentDialog();
-        if (dialog == null) throw new IllegalStateException("Parent dialog not available");
-
-        return dialog.getFormValidator();
+        return dialog == null ?
+                DBNFormValidator.SURROGATE :
+                dialog.getFormValidator();
     }
 
     @Nullable

@@ -31,6 +31,7 @@ import java.util.function.Predicate;
  * The validations are used to ensure form inputs adhere to given constraints.
  */
 public interface DBNFormValidator {
+    DBNFormValidator SURROGATE = new DBNFormValidatorSurrogate();
 
     /**
      * Adds a validation rule to a specified Swing component. The validation rule
