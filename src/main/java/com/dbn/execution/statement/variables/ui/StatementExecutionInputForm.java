@@ -201,13 +201,6 @@ public class StatementExecutionInputForm extends DBNFormBase implements Componen
         StatementExecutionVariablesBundle executionVariables = executionProcessor.getExecutionVariables();
         if (executionVariables != null) {
             previewText = executionVariables.prepareStatementText(connection, this.statementText, true);
-
-            for (StatementExecutionVariableValueForm variableValueForm : variableValueForms) {
-                String errorText = executionVariables.getError(variableValueForm.getVariable());
-                if (errorText == null)
-                    variableValueForm.hideErrorLabel(); else
-                    variableValueForm.showErrorLabel(errorText);
-            }
         }
 
 

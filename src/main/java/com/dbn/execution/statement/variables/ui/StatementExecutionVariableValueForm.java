@@ -18,6 +18,7 @@ package com.dbn.execution.statement.variables.ui;
 
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.locale.Formatter;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.listener.ComboBoxSelectionKeyListener;
 import com.dbn.common.ui.misc.DBNComboBox;
@@ -45,6 +46,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -60,7 +62,6 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     private JPanel mainPanel;
     private JLabel variableNameLabel;
     private JPanel valueFieldPanel;
-    private JLabel errorLabel;
     private DBNComboBox<GenericDataType> dataTypeComboBox;
 
     @Getter
@@ -70,8 +71,6 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     StatementExecutionVariableValueForm(StatementExecutionInputForm parent, StatementExecutionVariable variable) {
         super(parent);
         this.variable = variable;
-        errorLabel.setVisible(false);
-        errorLabel.setIcon(Icons.STMT_EXECUTION_ERROR);
 
         variableNameLabel.setText(variable.getName());
         variableNameLabel.setIcon(Icons.DBO_VARIABLE);
@@ -139,6 +138,33 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
     }
 
     @Override
+    protected void initValidation() {
+        addTextValidation(editorComponent.getTextField(), f -> validateDataType());
+    }
+
+    private String validateDataType() {
+        Formatter formatter = Formatter.getInstance(ensureProject());
+        String value = editorComponent.getTextField().getText().trim();
+        if (Strings.isEmpty(value)) return null;
+
+        GenericDataType dataType = dataTypeComboBox.getSelectedValue();
+        if (dataType == GenericDataType.DATE_TIME){
+            try {
+                formatter.parseDateTime(value);
+            } catch (ParseException e) {
+                return "Invalid date";
+            }
+        } else if (dataType == GenericDataType.NUMERIC){
+            try {
+                formatter.parseNumber(value);
+            } catch (ParseException e) {
+                return "Invalid number";
+            }
+        }
+        return null;
+    }
+
+    @Override
     protected void initAccessibility() {
         JTextField textField = editorComponent.getTextField();
         setAccessibleUnit(textField, dataTypeComboBox.getSelectedValueName());
@@ -175,16 +201,6 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
 
     public StatementExecutionInputForm getParentForm() {
         return ensureParentComponent();
-    }
-
-    void showErrorLabel(String errorText) {
-        errorLabel.setVisible(true);
-        errorLabel.setText(errorText);
-    }
-    
-    void hideErrorLabel(){
-        errorLabel.setVisible(false);
-        errorLabel.setText(null);
     }
 
     void saveValue() {
