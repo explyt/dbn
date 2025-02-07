@@ -48,6 +48,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -152,13 +153,17 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
             try {
                 formatter.parseDateTime(value);
             } catch (ParseException e) {
-                return "Invalid date";
+                String pattern = formatter.getDateFormatPattern();
+                String sample = formatter.formatDate(new Date());
+                return "Invalid date. Expected format \"" + pattern + "\" (e.g. \"" + sample + "\")";
             }
         } else if (dataType == GenericDataType.NUMERIC){
             try {
                 formatter.parseNumber(value);
             } catch (ParseException e) {
-                return "Invalid number";
+                String pattern = formatter.getNumberFormatPattern();
+                String sample = formatter.formatNumber(123456.7890);
+                return "Invalid number. Expected format \"" + pattern + "\" (e.g. \"" + sample + "\")";
             }
         }
         return null;
