@@ -16,21 +16,26 @@
 
 package com.dbn.common.ui.util;
 
+import com.dbn.common.compatibility.Compatibility;
+import com.dbn.common.ui.misc.DBNComboBox;
 import com.dbn.common.util.Strings;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.ui.ComponentWithBrowseButton;
 import com.intellij.openapi.ui.popup.ListPopup;
 import com.intellij.ui.ToolbarDecorator;
+import com.intellij.util.ui.accessibility.AccessibleAnnouncerUtil;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.Nullable;
 
+import javax.accessibility.Accessible;
 import javax.accessibility.AccessibleContext;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import java.awt.Component;
 import java.awt.Container;
 
@@ -193,6 +198,19 @@ public class Accessibility {
             return findAccessibilityTitle(parentPanel);
         }
         return null;
+    }
+
+    @Compatibility
+    public static void announceEvent(Accessible component, String eventMessage) {
+        AccessibleAnnouncerUtil.announce(component, eventMessage, true);
+    }
+
+    public static void attachSelectionAnnouncer(DBNComboBox<?> comboBox, String name) {
+        ComboBoxes.onSelectionChange(comboBox, selectedItem -> announceEvent(comboBox, name + " selection changed to " + selectedItem.getAccessibleName()));
+    }
+
+    public static void attachStateAnnouncer(JToggleButton toggle, String name) {
+        toggle.addActionListener(e -> announceEvent(toggle, name + " state changed to " + (toggle.isSelected() ? "checked" : "unchecked")));
     }
 }
 

@@ -53,6 +53,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
+import static com.dbn.common.ui.util.Accessibility.attachSelectionAnnouncer;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
@@ -176,6 +177,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
         setAccessibleDescription(textField, "Press up or down arrow keys to change data type");
         setAccessibleName(dataTypeComboBox, "Data type");
         setAccessibleDescription(dataTypeComboBox, "Data type for " + variableNameLabel.getText() + " variable");
+        attachSelectionAnnouncer(dataTypeComboBox, "Data type");
     }
 
     private static @NotNull ListPopupValuesProvider createValuesProvider(StatementExecutionVariable variable, StatementExecutionProcessor executionProcessor, StatementExecutionVariables variablesCache) {

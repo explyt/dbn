@@ -41,7 +41,9 @@ public class ComboBoxSelectionKeyListener extends KeyAdapter {
         if (e.isConsumed()) return;
 
         int operatorSelectionIndex = comboBox.getSelectedIndex();
-        if ((useControlKey && e.isControlDown()) || (!useControlKey && !e.isControlDown())) {
+        boolean controlled = e.isControlDown() || (e.getModifiersEx() & KeyEvent.META_DOWN_MASK) != 0;
+
+        if ((useControlKey && controlled) || (!useControlKey && !controlled)) {
             if (e.getKeyCode() == 38) {//UP
                 if (operatorSelectionIndex > 0) {
                     comboBox.setSelectedIndex(operatorSelectionIndex - 1);
