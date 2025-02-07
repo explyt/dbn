@@ -178,7 +178,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             }
         }
 
-        String name = buffer.length() > 0 ? buffer.toString() : getConfiguration().getFilterGroup().createFilterName("Filter");
+        String name = buffer.length() > 0 ? buffer.toString() : getConfiguration().getName();
         nameTextField.setText(name);
         nameTextField.setForeground(UIUtil.getInactiveTextColor());
     }
