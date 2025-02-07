@@ -287,11 +287,14 @@ public class UserInterface {
         visitRecursively(component, JPanel.class, p -> updateTitledBorder(p));
     }
 
-    public static void updateScrollPaneBorders(JComponent component) {
+    public static void updateScrollPanes(JComponent component) {
         visitRecursively(component, JScrollPane.class, sp -> {
             sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
             sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
             sp.setBorder(isBorderlessPane(sp) ? null : Borders.COMPONENT_OUTLINE_BORDER);
+
+            sp.setRequestFocusEnabled(false);
+            sp.setFocusable(false);
 
             JViewport viewport = sp.getViewport();
             Component view = viewport.getView();

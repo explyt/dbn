@@ -134,7 +134,7 @@ public abstract class DBNFormBase
 
         JComponent mainComponent = getMainComponent();
         DataProviders.register(mainComponent, this);
-        UserInterface.updateScrollPaneBorders(mainComponent);
+        UserInterface.updateScrollPanes(mainComponent);
         UserInterface.updateTitledBorders(mainComponent);
         UserInterface.updateSplitPanes(mainComponent);
         adjustFormSize(mainComponent);
