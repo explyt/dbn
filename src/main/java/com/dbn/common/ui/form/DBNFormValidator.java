@@ -22,6 +22,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JComponent;
 import javax.swing.text.JTextComponent;
 import java.util.List;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
@@ -44,6 +45,8 @@ public interface DBNFormValidator {
      */
     <C extends JComponent> void addValidation(C component, Predicate<C> validator, String message);
 
+    <C extends JComponent> void addValidation(C component, Function<C, String> validator);
+
     /**
      * Adds a text validation rule to a specified JTextComponent. The validation rule
      * is defined by a predicate that evaluates the validity of the text input, along with
@@ -55,6 +58,8 @@ public interface DBNFormValidator {
      * @param message   the error message to display if the validation fails
      */
     void addTextValidation(JTextComponent textField, Predicate<String> validator, String message);
+
+    void addTextValidation(JTextComponent textField, Function<JTextComponent, String> validator);
 
     /**
      * Validates the specified Swing components based on the registered validation rules
