@@ -41,6 +41,7 @@ import com.intellij.ui.SimpleTextAttributes;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -153,13 +154,6 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
         return Collections.emptyList();
     }
 
-    @Override
-    public void focus() {
-        JTextField valueTextField = editorComponent.getTextField();
-        valueTextField.selectAll();
-        valueTextField.grabFocus();
-    }
-
     public void setBasicFilterPanel(DatasetBasicFilterForm filterForm) {
         this.filterForm = Disposer.replace(this.filterForm, filterForm);
     }
@@ -221,6 +215,12 @@ public class DatasetBasicFilterConditionForm extends ConfigurationEditorForm<Dat
             }
         }
     };
+
+    @Nullable
+    @Override
+    public JComponent getPreferredFocusedComponent() {
+        return editorComponent.getTextField();
+    }
 
     @NotNull
     @Override

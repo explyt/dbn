@@ -235,6 +235,11 @@ public class UserInterface {
         });
     }
 
+    public static void requestFocus(@Nullable JComponent component) {
+        if (component == null) return;
+        Dispatch.run(component, () -> component.requestFocus());
+    }
+
     @Compatibility
     public static void updateActionToolbars(JComponent component) {
         visitRecursively(component, c -> {

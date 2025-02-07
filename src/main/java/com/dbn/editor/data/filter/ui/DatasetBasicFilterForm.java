@@ -89,7 +89,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
 
 
     public DatasetBasicFilterForm(DBDataset dataset, DatasetBasicFilter filter) {
-        super(filter);
+            super(filter);
 
         NO_INDENT.set(mainPanel, true);
 
@@ -139,13 +139,6 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             List<DBColumn> columns = new ArrayList<>(dataset.getColumns());
             Collections.sort(columns);
             return columns;
-        }
-    }
-
-    @Override
-    public void focus() {
-        if (conditionForms.size() > 0) {
-            conditionForms.get(0).focus();
         }
     }
 
@@ -265,7 +258,7 @@ public class DatasetBasicFilterForm extends ConfigurationEditorForm<DatasetBasic
             conditionsPanel.add(conditionForm.getComponent());
 
             UserInterface.repaint(conditionsPanel);
-            conditionForm.focus();
+            conditionForm.focusPreferredComponent();
         }
     }
 
