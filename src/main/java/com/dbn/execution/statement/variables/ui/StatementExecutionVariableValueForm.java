@@ -111,7 +111,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
             textField.setText(value);
         }
 
-        textField.addKeyListener(ComboBoxSelectionKeyListener.create(dataTypeComboBox, false, () -> validateInput(textField)));
+        textField.addKeyListener(ComboBoxSelectionKeyListener.create(dataTypeComboBox, false));
         variableNameLabel.setLabelFor(textField);
 
         variable.setPreviewValueProvider(new VariableValueProvider() {
@@ -132,6 +132,7 @@ public class StatementExecutionVariableValueForm extends DBNFormBase implements 
             editorComponent.setPopupEnabled(TextFieldPopupType.CALENDAR, newValue == GenericDataType.DATE_TIME);
             getParentForm().updatePreview();
             setAccessibleUnit(textField, newValue.getName());
+            validateInput(textField);
         });
 
         textField.setToolTipText("<html>While editing variable value, press <b>Up/Down</b> keys to change data type");

@@ -24,20 +24,14 @@ import java.awt.event.KeyListener;
 public class ComboBoxSelectionKeyListener extends KeyAdapter {
     private final JComboBox comboBox;
     private final boolean useControlKey;
-    private final Runnable callback;
 
     public static KeyListener create(JComboBox comboBox, boolean useControlKey) {
-        return create(comboBox, useControlKey, null);
+        return new ComboBoxSelectionKeyListener(comboBox, useControlKey);
     }
 
-    public static KeyListener create(JComboBox comboBox, boolean useControlKey, Runnable callback) {
-        return new ComboBoxSelectionKeyListener(comboBox, useControlKey, callback);
-    }
-
-    private ComboBoxSelectionKeyListener(JComboBox comboBox, boolean useControlKey, Runnable callback) {
+    private ComboBoxSelectionKeyListener(JComboBox comboBox, boolean useControlKey) {
         this.comboBox = comboBox;
         this.useControlKey = useControlKey;
-        this.callback = callback;
     }
 
     @Override
@@ -66,6 +60,5 @@ public class ComboBoxSelectionKeyListener extends KeyAdapter {
         comboBox.setSelectedIndex(index);
         comboBox.revalidate();
         comboBox.repaint();
-        if (callback != null) callback.run();
     }
 }
