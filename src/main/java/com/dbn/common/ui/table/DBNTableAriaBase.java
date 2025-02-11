@@ -61,7 +61,7 @@ abstract class DBNTableAriaBase<T extends DBNTableModel> extends JTable {
             int column = getAccessibleColumnAtIndex(i);
             int row = getAccessibleRowAtIndex(i);
 
-            String accessibleDescription = "Row " + (row + 1) + ", column " + (column + 1) + ", " + getColumnName(column);
+            String accessibleDescription = getColumnName(column) + ", row " + (row + 1) + ", column " + (column + 1);
 
             AccessibleTableCell cell = new AccessibleTableCell(DBNTableAriaBase.this, row, column, getAccessibleIndexAt(row, column));
             Accessibility.setAccessibleDescription(cell, accessibleDescription);
