@@ -38,6 +38,8 @@ import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 
 import static com.dbn.common.text.HtmlContents.initFonts;
 
@@ -90,6 +92,13 @@ public class DBNHintForm extends DBNFormBase {
                 updateHintContent();
             }
         });
+
+        mainPanel.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                resizeTextPane();
+            }
+        });
     }
 
     private void updateComponentColors() {
@@ -107,7 +116,7 @@ public class DBNHintForm extends DBNFormBase {
 
     @SneakyThrows
     private void resizeTextPane() {
-        Dispatch.run(() -> {
+        Dispatch.run(mainPanel, () -> {
             Dimension preferredSize = hintTextPane.getPreferredSize();
             hintTextPane.revalidate();
 
