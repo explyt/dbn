@@ -63,14 +63,11 @@
             <url type="GUIDE">https://docs.oracle.com/en-us/iaas/autonomous-database-serverless/doc/manage-ai-profiles.html#ADBSB-GUID-9CD3FF6F-E380-4E17-8AB0-8153D80B73FB</url>
         </urls>
         <models>
-            <model id="COHERE_COMMAND"                       api-name="cohere.command"/>
-            <model id="COHERE_COMMAND_LIGHT"                 api-name="cohere.command-light"/>
-            <model id="META_LLAMA_2_70B_CHAT"                api-name="meta.llama-2-70b-chat"/>
-            <model id="COHERE_EMBED_ENGLISH_V3_0"            api-name="cohere.embed-english-v3.0"/>
-            <model id="COHERE_EMBED_MULTILINGUAL_V3_0"       api-name="cohere.embed-multilingual-v3.0"/>
-            <model id="COHERE_EMBED_ENGLISH_LIGHT_V3_0"      api-name="cohere.embed-english-light-v3.0"/>
-            <model id="COHERE_EMBED_MULTILINGUAL_LIGHT_V3_0" api-name="cohere.embed-multilingual-light-v3.0"/>
-            <model id="COHERE_EMBED_ENGLISH_LIGHT_V2_0"      api-name="cohere.embed-english-light-v2.0"/>
+            <model id="META_LLAMA-3_1_70B_INSTRUCT"          api-name="meta.llama-3.1-70b-instruct"/>
+            <model id="META_LLAMA_3_1_405B_INSTRUCT"         api-name="meta.llama-3.1-405b-instruct"/>
+            <model id="META_LLAMA_3_2_90B_VISION_INSTRUCT"   api-name="meta.llama-3.2-90b-vision-instruct"/>
+            <model id="COHERE_COMMAND_R_08_2024"             api-name="cohere.command-r-08-2024"/>
+            <model id="COHERE_COMMAND_R_PLUS_08_2024"        api-name="cohere.command-r-plus-08-2024"/>
         </models>
     </provider>
 
