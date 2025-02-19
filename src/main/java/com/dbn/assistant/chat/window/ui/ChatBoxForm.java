@@ -53,7 +53,9 @@ import java.util.List;
 import static com.dbn.assistant.state.AssistantStatus.INITIALIZING;
 import static com.dbn.assistant.state.AssistantStatus.QUERYING;
 import static com.dbn.assistant.state.AssistantStatus.UNAVAILABLE;
+import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.feature.FeatureAcknowledgement.ENGAGED;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.object.common.DBObjectUtil.refreshUserObjects;
 import static com.dbn.object.type.DBObjectType.AI_PROFILE;
@@ -132,7 +134,8 @@ public class ChatBoxForm extends DBNFormBase {
   }
 
   private void createActionPanels() {
-    ActionToolbar profileActions = Actions.createActionToolbar(profileActionsPanel, "DBNavigator.ActionGroup.AssistantChatBoxProfiles", "", true);
+    ActionToolbar profileActions = Actions.createActionToolbar(profileActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatBoxProfiles");
+    setAccessibleName(profileActions, txt("app.assistant.aria.ChatProfileActions"));
     this.profileActionsPanel.add(profileActions.getComponent(), BorderLayout.CENTER);
 
 /*
@@ -140,10 +143,12 @@ public class ChatBoxForm extends DBNFormBase {
     this.helpActionPanel.add(helpActions.getComponent(), BorderLayout.CENTER);
 */
 
-    ActionToolbar typeActions = Actions.createActionToolbar(typeActionsPanel, "DBNavigator.ActionGroup.AssistantChatBoxTypes", "", true);
+    ActionToolbar typeActions = Actions.createActionToolbar(typeActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatBoxTypes");
+    setAccessibleName(profileActions, txt("app.assistant.aria.ChatTypeActions"));
     this.typeActionsPanel.add(typeActions.getComponent(), BorderLayout.CENTER);
 
-    ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, "DBNavigator.ActionGroup.AssistantChatBoxPrompt", "", true);
+    ActionToolbar chatActions = Actions.createActionToolbar(chatActionsPanel, true, "DBNavigator.ActionGroup.AssistantChatBoxPrompt");
+    setAccessibleName(profileActions, txt("app.assistant.aria.ChatActions"));
     this.chatActionsPanel.add(chatActions.getComponent(), BorderLayout.CENTER);
   }
 
@@ -247,7 +252,8 @@ public class ChatBoxForm extends DBNFormBase {
     if (profile == null) return;
     if (model == null) return;
 
-    question = nvl(question, inputField.getAndClearText());
+    String prompt = getInputField().getAndClearText();
+    question = nvl(question, prompt);
     if (Strings.isEmptyOrSpaces(question)) return;
 
     AssistantState state = getAssistantState();
@@ -321,8 +327,12 @@ public class ChatBoxForm extends DBNFormBase {
       showErrorHeader(e);
     }
 
-    inputField.requestFocus();
+    getInputField().requestFocus();
     updateActionToolbars();
+  }
+
+  public ChatBoxInputField getInputField() {
+    return nd(inputField);
   }
 
   private void showErrorHeader(Throwable cause) {

@@ -23,7 +23,6 @@ import com.dbn.common.dispose.StatefulDisposable;
 import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
 import com.dbn.common.thread.Dispatch;
-import com.dbn.common.ui.FontMetrics;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.util.Borders;
 import com.dbn.common.ui.util.Cursors;
@@ -37,32 +36,27 @@ import com.intellij.util.keyFMap.KeyFMap;
 import com.intellij.util.ui.UIUtil;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.Delegate;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.swing.DefaultListSelectionModel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JViewport;
 import javax.swing.event.EventListenerList;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import javax.swing.table.TableModel;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.PointerInfo;
 import java.awt.Rectangle;
 import java.awt.event.MouseEvent;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineMetrics;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -71,9 +65,10 @@ import java.util.TimerTask;
 import static com.dbn.common.dispose.ComponentDisposer.removeListeners;
 import static com.dbn.common.dispose.Disposer.replace;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.ui.table.Tables.installFocusTraversal;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
-public class DBNTable<T extends DBNTableModel> extends JTable implements StatefulDisposable, UserDataHolder {
+public class DBNTable<T extends DBNTableModel> extends DBNTableAriaBase<T> implements StatefulDisposable, UserDataHolder {
     private static final int MAX_COLUMN_WIDTH = 300;
     private static final int MIN_COLUMN_WIDTH = 10;
 
@@ -85,19 +80,19 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
 
     private Timer scrollTimer;
     private final Latent<DBNTableGutter<?>> tableGutter = Latent.weak(() -> createTableGutter());
-    private final FontMetrics metricsCache = new FontMetrics(this);
+
+    @Getter
+    @Delegate
+    private final DBNTableColumnWidths columnWidths = new DBNTableColumnWidths(this);
 
     public DBNTable(DBNComponent parent, T tableModel, boolean showHeader) {
         super(nd(tableModel));
         this.parentComponent = WeakRef.of(nd(parent));
 
         setGridColor(Colors.getTableGridColor());
-        Font font = getFont();//UIUtil.getListFont();
-        setFont(font);
         setBackground(Colors.getListBackground());
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
-
-        adjustRowHeight(1);
+        adjustRowHeight(3);
 
         JTableHeader tableHeader = getTableHeader();
         if (!showHeader) {
@@ -128,6 +123,7 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
 
         setSelectionBackground(Colors.getTableSelectionBackground(true));
         setSelectionForeground(Colors.getTableSelectionForeground(true));
+        installFocusTraversal(this);
 
         Disposer.register(parent, this);
         Disposer.register(this, tableModel);
@@ -172,16 +168,13 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
 
     protected void adjustRowHeight(int padding) {
         rowVerticalPadding = padding;
-        adjustRowHeight();
+        Tables.adjustTableRowHeight(this, padding);
     }
 
     protected void adjustRowHeight() {
-        Font font = getFont();
-        FontRenderContext fontRenderContext = getFontMetrics(font).getFontRenderContext();
-        LineMetrics lineMetrics = font.getLineMetrics("ABCÄÜÖÂÇĞIİÖŞĀČḎĒËĠḤŌŠṢṬŪŽy", fontRenderContext);
-        int fontHeight = Math.round(lineMetrics.getHeight());
-        setRowHeight(fontHeight + (rowVerticalPadding * 2));
+        adjustRowHeight(rowVerticalPadding);
     }
+
 
     @Override
     @NotNull
@@ -241,13 +234,6 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
     /*********************************************************
      *                    Cell metrics                       *
      *********************************************************/
-    public void accommodateColumnsSize() {
-        int buffer = getColumnWidthBuffer();
-        for (int c = 0; c < getColumnCount(); c++){
-            accommodateColumnSize(c, buffer);
-        }
-    }
-
     public int getColumnWidthBuffer() {
         return 22;
     }
@@ -266,56 +252,6 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
         }
 */
         return super.convertColumnIndexToModel(viewColumnIndex);
-    }
-
-    public void accommodateColumnSize(int columnIndex, int span) {
-        TableColumnModel columnModel = getColumnModel();
-        if (columnIndex < columnModel.getColumnCount()) {
-
-            T model = getModel();
-            TableColumn column = columnModel.getColumn(columnIndex);
-
-            int minWidth = getMinColumnWidth();
-            int maxWidth = getMaxColumnWidth();
-            int preferredWidth = 0;
-
-            // header
-            JTableHeader tableHeader = getTableHeader();
-            if (tableHeader != null) {
-                Object headerValue = column.getHeaderValue();
-                TableCellRenderer renderer = column.getHeaderRenderer();
-                if (renderer == null) renderer = tableHeader.getDefaultRenderer();
-                Component headerComponent = renderer.getTableCellRendererComponent(this, headerValue, false, false, 0, columnIndex);
-                int width = (int) headerComponent.getPreferredSize().getWidth();
-                if (width > preferredWidth)
-                    preferredWidth = width;
-            }
-
-            // rows
-            String columnName = model.getColumnName(columnIndex);
-            int rowCount = model.getRowCount();
-            for (int r = 0; r < rowCount; r++) {
-                if (preferredWidth >= maxWidth) break;
-
-                int c = column.getModelIndex();
-                Object value = model.getValueAt(r, c);
-                if (value == null) continue;
-
-                String displayValue = model.getPresentableValue(value, c);
-                if (displayValue == null || displayValue.length() >= 100) continue;
-
-                int cellWidth = metricsCache.getTextWidth(columnName, displayValue);
-                preferredWidth = Math.max(preferredWidth, cellWidth);
-            }
-
-            preferredWidth = Math.min(preferredWidth, maxWidth);
-            preferredWidth = Math.max(preferredWidth, minWidth);
-            preferredWidth = preferredWidth + span;
-
-            if (column.getPreferredWidth() != preferredWidth)  {
-                column.setPreferredWidth(preferredWidth);
-            }
-        }
     }
 
     protected int getMinColumnWidth() {
@@ -361,7 +297,7 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
             JViewport viewport = getViewport();
             if (viewport == null || scrollDistance == 0) return;
 
-            Dispatch.run(() -> {
+            Dispatch.run(viewport, () -> {
                 Point viewPosition = viewport.getViewPosition();
                 viewport.setViewPosition(new Point((int) (viewPosition.x + scrollDistance), viewPosition.y));
                 calculateScrollDistance();
@@ -456,8 +392,9 @@ public class DBNTable<T extends DBNTableModel> extends JTable implements Statefu
         }
         setColumnModel(columnModel);
     }
+
     /********************************************************
-     *                    Disposable                        *
+     *                    User Data                        *
      ********************************************************/
 
     @Nullable

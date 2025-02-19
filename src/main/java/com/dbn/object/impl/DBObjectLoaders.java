@@ -36,6 +36,7 @@ import com.dbn.database.common.metadata.def.DBGrantedRoleMetadata;
 import com.dbn.database.common.metadata.def.DBIndexColumnMetadata;
 import com.dbn.database.common.metadata.def.DBIndexMetadata;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
+import com.dbn.database.common.metadata.def.DBJavaFieldMetadata;
 import com.dbn.database.common.metadata.def.DBJavaMethodMetadata;
 import com.dbn.database.common.metadata.def.DBJavaParameterMetadata;
 import com.dbn.database.common.metadata.def.DBMaterializedViewMetadata;
@@ -72,6 +73,7 @@ import com.dbn.object.DBGrantedPrivilege;
 import com.dbn.object.DBGrantedRole;
 import com.dbn.object.DBIndex;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBJavaParameter;
 import com.dbn.object.DBMaterializedView;
@@ -279,6 +281,11 @@ public class DBObjectLoaders {
                 (content, cache, md) -> new DBDatabaseTriggerImpl(content.getParentEntity(), md));
 
         DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
+                "JAVA_PRIMITIVES", DBObjectType.SCHEMA, DBObjectType.JAVA_PRIMITIVE, true, true,
+                (content, conn, mdi) -> mdi.loadJavaPrimitives(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> new DBJavaClassImpl(content.getParentEntity(), md));
+
+        DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
                 "JAVA_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_CLASS, true, true,
                 (content, conn, mdi) -> mdi.loadJavaClasses(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> new DBJavaClassImpl(content.getParentEntity(), md));
@@ -353,11 +360,28 @@ public class DBObjectLoaders {
                     return new DBNestedTableImpl(table, md);
                 });
 
+        DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
+                "ALL_JAVA_INNER_CLASSES", DBObjectType.SCHEMA, DBObjectType.JAVA_INNER_CLASS, true, true,
+                (content, conn, mdi) -> mdi.loadAllJavaInnerClasses(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> {
+                    String className = md.getOuterClassName();
+                    return new DBJavaClassImpl(content.getParentEntity(), md);
+                });
+
+        DynamicContentResultSetLoader.<DBJavaField, DBJavaFieldMetadata>create(
+                "ALL_JAVA_FIELDS", DBObjectType.SCHEMA, DBObjectType.JAVA_FIELD, true, true,
+                (content, conn, mdi) -> mdi.loadAllJavaFields(content.ensureParentEntity().getName(), conn),
+                (content, cache, md) -> {
+                    String className = md.getOwnerClassName();
+                    DBJavaClass javaClass = valid(cache.get(className, () -> ((DBSchema) content.ensureParentEntity()).getJavaClass(className)));
+                    return new DBJavaFieldImpl(javaClass, md);
+                });
+
         DynamicContentResultSetLoader.<DBJavaMethod, DBJavaMethodMetadata>create(
                 "ALL_JAVA_METHODS", DBObjectType.SCHEMA, DBObjectType.JAVA_METHOD, true, true,
                 (content, conn, mdi) -> mdi.loadAllJavaMethods(content.ensureParentEntity().getName(), conn),
                 (content, cache, md) -> {
-                    String className = md.getClassName();
+                    String className = md.getOwnerClassName();
                     DBJavaClass javaClass = valid(cache.get(className, () -> ((DBSchema) content.ensureParentEntity()).getJavaClass(className)));
                     return new DBJavaMethodImpl(javaClass, md);
                 });
@@ -540,29 +564,41 @@ public class DBObjectLoaders {
 
     /* Loaders for program child objects (children of DBProgram) */
     static {
-        DynamicSubcontentLoader.create("ALL_PACKAGE_FUNCTIONS", DBObjectType.PACKAGE, DBObjectType.PACKAGE_FUNCTION,
+        DynamicSubcontentLoader.create("PACKAGE_FUNCTIONS", DBObjectType.PACKAGE, DBObjectType.PACKAGE_FUNCTION,
                 DynamicContentResultSetLoader.<DBPackageFunction, DBFunctionMetadata>create(
                         "PACKAGE_FUNCTIONS", DBObjectType.PACKAGE, DBObjectType.PACKAGE_FUNCTION, false, true,
                         (content, conn, mdi) -> mdi.loadPackageFunctions(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBPackageFunctionImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("ALL_PACKAGE_PROCEDURES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_PROCEDURE,
+        DynamicSubcontentLoader.create("PACKAGE_PROCEDURES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_PROCEDURE,
                 DynamicContentResultSetLoader.<DBPackageProcedure, DBProcedureMetadata>create(
                         "PACKAGE_PROCEDURES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_PROCEDURE, false, true,
                         (content, conn, mdi) -> mdi.loadPackageProcedures(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBPackageProcedureImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("ALL_PACKAGE_TYPES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_TYPE,
+        DynamicSubcontentLoader.create("PACKAGE_TYPES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_TYPE,
                 DynamicContentResultSetLoader.<DBPackageType, DBTypeMetadata>create(
                         "PACKAGE_TYPES", DBObjectType.PACKAGE, DBObjectType.PACKAGE_TYPE, false, true,
                         (content, conn, mdi) -> mdi.loadPackageTypes(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBPackageTypeImpl(valid(content.getParentEntity()), md)));
 
-        DynamicSubcontentLoader.create("ALL_JAVA_METHODS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_METHOD,
+        DynamicSubcontentLoader.create("JAVA_METHODS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_METHOD,
                 DynamicContentResultSetLoader.<DBJavaMethod, DBJavaMethodMetadata>create(
                         "JAVA_METHODS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_METHOD, false, true,
                         (content, conn, mdi) -> mdi.loadJavaMethods(content.getParentSchemaName(), content.getParentObjectName(), conn),
                         (content, cache, md) -> new DBJavaMethodImpl(valid(content.getParentEntity()), md)));
+
+        DynamicSubcontentLoader.create("JAVA_FIELDS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_FIELD,
+                DynamicContentResultSetLoader.<DBJavaField, DBJavaFieldMetadata>create(
+                        "JAVA_FIELDS", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_FIELD, false, true,
+                        (content, conn, mdi) -> mdi.loadJavaFields(content.getParentSchemaName(), content.getParentObjectName(), conn),
+                        (content, cache, md) -> new DBJavaFieldImpl(valid(content.getParentEntity()), md)));
+
+        DynamicSubcontentLoader.create("JAVA_INNER_CLASSES", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_INNER_CLASS,
+                DynamicContentResultSetLoader.<DBJavaClass, DBJavaClassMetadata>create(
+                        "JAVA_INNER_CLASSES", DBObjectType.JAVA_CLASS, DBObjectType.JAVA_INNER_CLASS, false, true,
+                        (content, conn, mdi) -> mdi.loadJavaInnerClasses(content.getParentSchemaName(), content.getParentObjectName(), conn),
+                        (content, cache, md) -> new DBJavaClassImpl(valid(content.getSchema()), md)));
 
         DynamicContentResultSetLoader.<DBTypeAttribute, DBTypeAttributeMetadata>create(
                 "PACKAGE_TYPE_ATTRIBUTES", DBObjectType.PACKAGE_TYPE, DBObjectType.TYPE_ATTRIBUTE, true, true,

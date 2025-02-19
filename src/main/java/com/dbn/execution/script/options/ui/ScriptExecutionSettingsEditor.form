@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="4" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="8" left="4" bottom="4" right="4"/>
     <constraints>
-      <xy x="20" y="20" width="708" height="300"/>
+      <xy x="20" y="20" width="708" height="325"/>
     </constraints>
     <properties/>
     <border type="none" title="Script Execution"/>
@@ -15,23 +15,12 @@
           </grid>
         </constraints>
       </vspacer>
-      <grid id="bedeb" binding="cmdLineInterfacesTablePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
-        <constraints>
-          <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
-            <minimum-size width="300" height="180"/>
-            <preferred-size width="-1" height="180"/>
-          </grid>
-        </constraints>
-        <properties/>
-        <border type="none"/>
-        <children/>
-      </grid>
       <component id="d2541" class="javax.swing.JLabel">
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
-          <labelFor value="2e59c"/>
+          <labelFor value="297f2"/>
           <text value="Execution &amp;timeout"/>
         </properties>
       </component>
@@ -43,7 +32,7 @@
           </grid>
         </constraints>
         <properties>
-          <margin top="2" left="6" bottom="2" right="6"/>
+          <margin top="2" left="9" bottom="2" right="6"/>
         </properties>
       </component>
       <component id="d646b" class="javax.swing.JLabel">
@@ -54,7 +43,7 @@
           <text value="seconds (0 = no timeout)"/>
         </properties>
       </component>
-      <component id="cae11" class="javax.swing.JLabel">
+      <component id="cae11" class="javax.swing.JLabel" binding="cmdLineInterfaceLabel">
         <constraints>
           <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
         </constraints>
@@ -67,6 +56,17 @@
           <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
       </hspacer>
+      <grid id="bedeb" binding="cmdLineInterfacesTablePanel" layout-manager="BorderLayout" hgap="0" vgap="0">
+        <constraints>
+          <grid row="2" column="0" row-span="1" col-span="4" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false">
+            <minimum-size width="300" height="180"/>
+            <preferred-size width="-1" height="180"/>
+          </grid>
+        </constraints>
+        <properties/>
+        <border type="none"/>
+        <children/>
+      </grid>
     </children>
   </grid>
 </form>

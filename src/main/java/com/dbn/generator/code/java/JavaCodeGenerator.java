@@ -18,6 +18,7 @@ package com.dbn.generator.code.java;
 
 
 import com.dbn.common.util.Environment;
+import com.dbn.common.util.Messages;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.generator.code.CodeGeneratorType;
 import com.dbn.generator.code.java.action.JavaCodeGenerationAction;
@@ -26,6 +27,24 @@ import com.dbn.generator.code.shared.base.CodeGeneratorBase;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
 import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.application.WriteAction;
+import com.intellij.openapi.command.WriteCommandAction;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.project.Project;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.JavaPsiFacade;
+import com.intellij.psi.PsiClass;
+import com.intellij.psi.PsiDirectory;
+import com.intellij.psi.PsiElement;
+import com.intellij.psi.PsiFile;
+import com.intellij.psi.codeStyle.CodeStyleManager;
+import com.intellij.psi.search.GlobalSearchScope;
+import lombok.SneakyThrows;
+import org.jetbrains.annotations.Nullable;
+
+import static com.dbn.common.options.Configs.fail;
+import static com.dbn.common.util.Strings.isEmpty;
 
 public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R extends JavaCodeGeneratorResult<I>> extends CodeGeneratorBase<I, R> {
     public JavaCodeGenerator(CodeGeneratorType type) {
@@ -45,5 +64,104 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
     @Override
     public AnAction createAction(DatabaseContext context) {
         return new JavaCodeGenerationAction(context, getType());
+    }
+
+    /**
+     * Utility to reformat code for a given java class.
+     * Can be invoked from within code generator logic before releasing the generator result
+     * @param javaClass the java class to be formatted
+     */
+    protected static void reformatClass(PsiElement javaClass) {
+        Project project = javaClass.getProject();
+        WriteCommandAction.runWriteCommandAction(project, () -> {
+            CodeStyleManager codeStyleManager = CodeStyleManager.getInstance(project);
+            codeStyleManager.reformat(javaClass);
+        });
+    }
+
+
+    public boolean prepareDestination(I input) {
+        prepareDestinationFolder(input);
+        boolean overwrite = handleDestinationOverwrite(input);
+        if (overwrite) {
+            handleDestinationClassPath(input);
+        }
+        return overwrite;
+    }
+
+    private void handleDestinationClassPath(I input) {
+        Project project = input.getProject();
+        String driverClassName = input.getDatabaseContext().ensureConnection().getSettings().getDatabaseSettings().getDriver();
+
+        if (!isDriverOnClassPath(project, driverClassName)) {
+            Messages.showInfoDialog(project, "Can't Find JDBC Driver",
+                    "The driver \"" + driverClassName + "\" does not appear to be on your compile-time classpath." +
+                            " This may cause your generated code to have errors and may not run.");
+        }
+    }
+
+    private boolean isDriverOnClassPath(Project project, String driverClassName) {
+        Module[] modules = ModuleManager.getInstance(project).getModules();
+        for (Module module : modules) {
+            GlobalSearchScope scope = GlobalSearchScope.moduleWithDependenciesAndLibrariesScope(module);
+            @Nullable PsiClass psiClass = JavaPsiFacade.getInstance(project).findClass(driverClassName, scope);
+            if (psiClass != null && psiClass.isValid()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Prepares the destination directory structure for a specified input, creating the necessary
+     * package directories if they do not already exist.
+     * (moved from {@link JavaCodeGeneratorInput})
+     *
+     * @param input the input object containing generator destination information, such as the module,
+     *              content root, and package name required to determine and create the target directories
+     */
+    @SneakyThrows
+    private void prepareDestinationFolder(I input) {
+        Module module = input.findModule();
+        VirtualFile file = input.findContentRoot(module);
+        PsiDirectory directory = input.findContentRootDirectory(file);
+
+        String packageName = input.getPackageName();
+        if (isEmpty(packageName)) return;
+
+        String[] packageTokens = packageName.trim().split("\\.");
+        for (String packageToken : packageTokens) {
+            PsiDirectory subdirectory = directory.findSubdirectory(packageToken);
+            if (subdirectory == null)  {
+                directory.createSubdirectory(packageToken);
+                subdirectory = directory.findSubdirectory(packageToken);
+                if (subdirectory == null) fail("Cannot create package directory " + packageToken);
+            }
+            directory = subdirectory;
+        }
+    }
+
+    @SneakyThrows
+    private boolean handleDestinationOverwrite(I input) {
+        String className = input.getClassName();
+        String fileName = className + ".java";
+
+        PsiDirectory directory = input.getTargetDirectory();
+        PsiFile file = directory.findFile(fileName);
+        if (file == null) return true;
+
+        Project project = input.getProject();
+        int overwrite = Messages.showConfirmationDialog(
+                project,
+                "Overwrite Class",
+                "A class named \"" + className + "\" already exists in the target location. Do you want to overwrite it?",
+                Messages.OPTIONS_YES_NO, 0);
+
+        if (overwrite == 0) {
+            WriteAction.run(() -> file.delete());
+            return true;
+        }
+
+        return false;
     }
 }

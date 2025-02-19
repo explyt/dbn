@@ -51,12 +51,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
+import java.awt.DefaultFocusTraversalPolicy;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.util.Arrays;
 
 import static com.dbn.common.ui.util.TextFields.onTextChange;
+import static com.dbn.common.ui.util.UserInterface.focusNextComponent;
+import static com.dbn.common.ui.util.UserInterface.focusPreviousComponent;
 import static com.dbn.common.util.Actions.createActionToolbar;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -78,18 +81,22 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
 
         textEditorScrollPane.setBorder(Borders.COMPONENT_OUTLINE_BORDER);
 
-        ActionToolbar leftActionToolbar = Actions.createActionToolbar(
-                leftActionPanel,
-                "DBNavigator.Place.DataEditor.TextAreaPopup", true);
+        ActionToolbar leftActionToolbar = Actions.createActionToolbar(leftActionPanel, true);
         leftActionPanel.add(leftActionToolbar.getComponent(), BorderLayout.WEST);
 
-        ActionToolbar rightActionToolbar = createActionToolbar(leftActionPanel, "DBNavigator.ActionGroup.TextEditor.Controls", "",true);
+        ActionToolbar rightActionToolbar = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.TextEditor.Controls");
         rightActionPanel.add(rightActionToolbar.getComponent(), BorderLayout.EAST);
 
         Arrays.asList(leftActionToolbar, rightActionToolbar).forEach(tb -> tb.getActions().forEach(a -> registerAction(a)));
 
         updateComponentColors();
         Colors.subscribe(this, () -> updateComponentColors());
+
+        mainPanel.setFocusCycleRoot(true);
+        mainPanel.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        mainPanel.setFocusTraversalPolicyProvider(true);
+        editorTextArea.setFocusable(true);
+        editorTextArea.setRequestFocusEnabled(true);
     }
 
     private void updateComponentColors() {
@@ -171,7 +178,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
     }
 
     @Override
-    public String getDescription() {
+    public String getName() {
         return "Text Editor";
     }
 
@@ -189,9 +196,18 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
     @Override
     public void keyPressed(KeyEvent e) {
         super.keyPressed(e);
-        if (!e.isConsumed()) {
-            if (Keyboard.match(getShortcuts(), e)) {
-                editorTextArea.replaceSelection("\n");
+        if (e.isConsumed()) return;
+
+        if (Keyboard.match(getShortcuts(), e)) {
+            editorTextArea.replaceSelection("\n");
+
+        } else if (e.getKeyCode() == KeyEvent.VK_TAB) {
+            if (e.isShiftDown()) {
+                focusPreviousComponent(editorTextArea);
+                e.consume();
+            } else {
+                focusNextComponent(editorTextArea);
+                e.consume();
             }
         }
     }

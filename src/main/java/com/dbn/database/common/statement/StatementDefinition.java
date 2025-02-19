@@ -17,9 +17,11 @@
 package com.dbn.database.common.statement;
 
 import com.dbn.common.util.TransientId;
+import com.dbn.connection.jdbc.DBNCallableStatement;
 import com.dbn.connection.jdbc.DBNConnection;
 import com.dbn.connection.jdbc.DBNPreparedStatement;
 import lombok.Getter;
+import org.jetbrains.annotations.NonNls;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,6 +30,7 @@ import java.util.regex.Matcher;
 
 import static com.dbn.common.util.Commons.nvl;
 
+@NonNls
 @Getter
 public class StatementDefinition {
     private static final String DBN_PARAM_PLACEHOLDER = "DBN_PARAM_PLACEHOLDER";
@@ -77,6 +80,16 @@ public class StatementDefinition {
                 preparedStatement.setObject(i + 1, argumentValue);
         }
         return preparedStatement;
+    }
+
+    DBNCallableStatement prepareCall(DBNConnection connection, Object[] arguments) throws SQLException {
+        DBNCallableStatement callableStatement = connection.prepareCallCached(statementText);
+        for (int i = 0; i < placeholderIndexes.length; i++) {
+            Integer argumentIndex = placeholderIndexes[i];
+            Object argumentValue = arguments[argumentIndex];
+                callableStatement.setObject(i + 1, argumentValue);
+        }
+        return callableStatement;
     }
 
     String prepareStatementText(Object... arguments) {

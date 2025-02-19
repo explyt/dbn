@@ -21,6 +21,7 @@ import com.dbn.common.database.DatabaseInfo;
 import com.dbn.common.database.DatabaseInfo.Default;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.regex.Matcher;
@@ -49,11 +50,12 @@ import static java.util.regex.Pattern.compile;
 
 @Slf4j
 @Getter
+@NonNls
 public enum DatabaseUrlPattern {
 
     ORACLE_TNS(
-            "jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN=<TNS_FOLDER>",
-            compile("^jdbc:oracle:(thin|oci):@" + profile + "\\?TNS_ADMIN=" + folder + "$", CASE_INSENSITIVE),
+            "jdbc:oracle:thin:@<TNS_PROFILE>?TNS_ADMIN=\"<TNS_FOLDER>\"",
+            compile("^jdbc:oracle:(thin|oci):@" + profile + "\\?TNS_ADMIN=\"" + folder + "\"$", CASE_INSENSITIVE),
             Default.ORACLE, TNS),
 
     ORACLE_SID(

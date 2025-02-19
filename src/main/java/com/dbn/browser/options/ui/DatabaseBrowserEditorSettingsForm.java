@@ -23,13 +23,13 @@ import com.dbn.common.ui.table.DBNColoredTableCellRenderer;
 import com.dbn.common.ui.table.DBNEditableTable;
 import com.dbn.common.ui.table.DBNEditableTableModel;
 import com.dbn.common.ui.table.DBNTable;
-import com.dbn.common.ui.util.Borders;
+import com.dbn.common.ui.table.Tables;
+import com.dbn.common.ui.util.Accessibility;
 import com.dbn.common.ui.util.Cursors;
 import com.dbn.object.common.editor.DefaultEditorOption;
 import com.dbn.object.common.editor.DefaultEditorType;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.openapi.ui.ComboBoxTableRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.components.JBScrollPane;
 import org.jetbrains.annotations.NotNull;
@@ -37,12 +37,12 @@ import org.jetbrains.annotations.NotNull;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
-import javax.swing.table.TableCellEditor;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleDescription;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
 public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<DatabaseBrowserEditorSettings> {
@@ -58,6 +58,10 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
         registerComponent(editorTypeTable);
     }
 
+    @Override
+    protected void initAccessibility() {
+        Accessibility.setAccessibleName(editorTypeTable, "Default editor types");
+    }
 
     @Override
     public void applyFormChanges() throws ConfigurationException {
@@ -81,7 +85,6 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
         EditorTypeTable(DBNForm parent, List<DefaultEditorOption> options) {
             super(parent, new EditorTypeTableModel(options), true);
             setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            adjustRowHeight(3);
             setDefaultRenderer(DBObjectType.class, new DBNColoredTableCellRenderer() {
                 @Override
                 protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
@@ -92,7 +95,6 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                     } else {
                         append("");
                     }
-                    setBorder(SELECTION_BORDER);
                 }
             });
 
@@ -100,32 +102,13 @@ public class DatabaseBrowserEditorSettingsForm extends ConfigurationEditorForm<D
                 @Override
                 protected void customizeCellRenderer(DBNTable table, Object value, boolean selected, boolean hasFocus, int row, int column) {
                     DefaultEditorType editorType = (DefaultEditorType) value;
+
                     append(editorType.getName(), SimpleTextAttributes.REGULAR_ATTRIBUTES);
-                    setBorder(SELECTION_BORDER);
+                    setAccessibleDescription(this, "Press space key to change the default editor type");
                 }
             });
 
-            ComboBoxTableRenderer<DefaultEditorType> editor = new ComboBoxTableRenderer<>(DefaultEditorType.values());
-            editor.setBorder(Borders.TEXT_FIELD_INSETS);
-            setDefaultEditor(DefaultEditorType.class, editor);
-
-            getSelectionModel().addListSelectionListener(e -> {
-                if (!e.getValueIsAdjusting()) {
-                    //editCellAt(getSelectedRows()[0], getSelectedColumns()[0]);
-                }
-            });
-        }
-
-        @Override
-        public TableCellEditor getCellEditor(int row, int column) {
-            if (column == 1) {
-                EditorTypeTableModel model = getModel();
-                DefaultEditorOption editorOption = model.options.get(row);
-                DBObjectType objectType = editorOption.getObjectType();
-                DefaultEditorType[] editorTypes = DefaultEditorType.getEditorTypes(objectType);
-                return new ComboBoxTableRenderer<>(editorTypes);
-            }
-            return null;
+            Tables.attachValueSelector(this, 1, "Editor Type", DefaultEditorType.values());
         }
 
         @Override

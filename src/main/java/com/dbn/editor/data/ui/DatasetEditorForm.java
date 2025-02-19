@@ -59,10 +59,12 @@ import javax.swing.JPanel;
 import javax.swing.table.TableColumn;
 import javax.swing.text.JTextComponent;
 import java.awt.BorderLayout;
+import java.awt.DefaultFocusTraversalPolicy;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
 public class DatasetEditorForm extends DBNFormBase implements SearchableDataComponent {
@@ -102,13 +104,14 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             datasetTableScrollPane.setViewportView(datasetEditorTable);
             datasetEditorTable.initTableGutter();
 
-            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.DataEditor", "", true);
+            ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.DataEditor");
+            setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
 
             actionsPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
             loadingIconPanel.add(new AsyncProcessIcon("Loading"), BorderLayout.CENTER);
             hideLoadingHint();
 
-            ActionToolbar loadingActionToolbar = Actions.createActionToolbar(actionsPanel,"", true, new CancelLoadingAction());
+            ActionToolbar loadingActionToolbar = Actions.createActionToolbar(actionsPanel, true, new CancelLoadingAction());
             loadingActionPanel.add(loadingActionToolbar.getComponent(), BorderLayout.CENTER);
 
             Disposer.register(this, autoCommitLabel);
@@ -124,6 +127,12 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             ConnectionHandler connection = getConnectionHandler();
             autoCommitLabel.init(getProject(), datasetEditor.getFile(), connection, SessionId.MAIN);
         }
+
+        UserInterface.whenShown(mainPanel, () -> datasetEditorTable.requestFocus(), false);
+
+        mainPanel.setFocusCycleRoot(true);
+        mainPanel.setFocusTraversalPolicy(new DefaultFocusTraversalPolicy());
+        mainPanel.setFocusTraversalPolicyProvider(true);
 
         Disposer.register(datasetEditor, this);
     }
@@ -159,17 +168,20 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         return oldEditorTable;
     }
 
-    public void afterRebuild(final DatasetEditorTable oldEditorTable) {
-        if (oldEditorTable != null) {
-            Dispatch.run(() -> {
-                DatasetEditorTable datasetEditorTable = getEditorTable();
-                datasetTableScrollPane.setViewportView(datasetEditorTable);
-                datasetEditorTable.initTableGutter();
-                datasetEditorTable.updateBackground(false);
+    public void afterRebuild(DatasetEditorTable oldEditorTable) {
+        if (isDisposed()) return;
 
-                Disposer.dispose(oldEditorTable);
-            });
-        }
+        // update viewport and co. only if table was rebuilt (a.i. the old table is not null)
+        if (oldEditorTable == null) return;
+        Dispatch.run(() -> {
+            DatasetEditorTable datasetEditorTable = getEditorTable();
+            datasetTableScrollPane.setViewportView(datasetEditorTable);
+            datasetEditorTable.initTableGutter();
+            datasetEditorTable.updateBackground(false);
+
+            Disposer.dispose(oldEditorTable);
+        });
+
     }
 
     @NotNull

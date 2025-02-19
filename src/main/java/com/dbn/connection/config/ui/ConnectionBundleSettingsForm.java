@@ -25,7 +25,6 @@ import com.dbn.common.dispose.Disposer;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
 import com.dbn.common.ui.CardLayouts;
 import com.dbn.common.ui.util.Borders;
-import com.dbn.common.ui.util.Fonts;
 import com.dbn.common.util.Actions;
 import com.dbn.common.util.Messages;
 import com.dbn.common.util.Naming;
@@ -72,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.common.ui.util.Splitters.makeRegular;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.common.util.Strings.isNotEmpty;
@@ -102,14 +102,13 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
         connectionsList = new JBList<>(connectionListModel);
         connectionsList.addListSelectionListener(this);
         connectionsList.setCellRenderer(new ConnectionConfigListCellRenderer());
-        connectionsList.setFont(Fonts.getLabelFont());
         connectionsList.setBackground(Colors.getTextFieldBackground());
         connectionsList.setBorder(Borders.EMPTY_BORDER);
         makeRegular(contentSplitPane);
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, "DBNavigator.ActionGroup.ConnectionSettings", "", true);
-        JComponent component = actionToolbar.getComponent();
-        actionsPanel.add(component, BorderLayout.CENTER);
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.ConnectionSettings");
+        setAccessibleName(actionToolbar, txt("cfg.connections.aria.ConnectionConfigurationActions"));
+        actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
         connectionListScrollPane.setViewportView(connectionsList);
 
         List<ConnectionSettings> connections = configuration.getConnections();
@@ -229,29 +228,32 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
 
     public void duplicateSelectedConnection() {
         ConnectionSettings connectionSettings = connectionsList.getSelectedValue();
-        if (connectionSettings != null) {
-            getConfiguration().setModified(true);
-            ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
-            if (settingsEditor != null) {
-                try {
-                    ConnectionSettings duplicate = settingsEditor.getTemporaryConfig();
-                    duplicate.setNew(true);
-                    duplicate.setSigned(true);
-                    String name = duplicate.getDatabaseSettings().getName();
-                    ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
-                    while (model.getConnectionConfig(name) != null) {
-                        name = Naming.nextNumberedIdentifier(name, true);
-                    }
-                    duplicate.getDatabaseSettings().setName(name);
-                    int selectedIndex = connectionsList.getSelectedIndex() + 1;
-                    model.add(selectedIndex, duplicate);
-                    connectionsList.setSelectedIndex(selectedIndex);
-                } catch (ConfigurationException e) {
-                    conditionallyLog(e);
-                    Messages.showErrorDialog(getProject(), e.getMessage());
-                }
-            }
+        if (connectionSettings == null) return;
 
+        ConnectionSettingsForm settingsEditor = connectionSettings.getSettingsEditor();
+        if (settingsEditor == null) return;
+
+        getConfiguration().setModified(true);
+
+        try {
+            ConnectionSettings duplicate = settingsEditor.getTemporaryConfig();
+            duplicate.setNew(true);
+            duplicate.setSigned(true);
+            ConnectionDatabaseSettings databaseSettings = duplicate.getDatabaseSettings();
+            databaseSettings.getAuthenticationInfo().setTemporary(false);
+
+            String name = databaseSettings.getName();
+            ConnectionListModel model = (ConnectionListModel) connectionsList.getModel();
+            while (model.getConnectionConfig(name) != null) {
+                name = Naming.nextNumberedIdentifier(name, true);
+            }
+            databaseSettings.setName(name);
+            int selectedIndex = connectionsList.getSelectedIndex() + 1;
+            model.add(selectedIndex, duplicate);
+            connectionsList.setSelectedIndex(selectedIndex);
+        } catch (ConfigurationException e) {
+            conditionallyLog(e);
+            Messages.showErrorDialog(getProject(), e.getMessage());
         }
     }
 
@@ -297,7 +299,7 @@ public class ConnectionBundleSettingsForm extends ConfigurationEditorForm<Connec
             conditionallyLog(e);
             Messages.showErrorDialog(project,
                     txt("msg.connection.title.ExportFailed"),
-                    "msg.connection.error.ExportFailed", e);
+                    txt("msg.connection.error.ExportFailed"), e);
         }
     }
 

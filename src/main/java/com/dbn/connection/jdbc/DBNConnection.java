@@ -69,7 +69,6 @@ public class DBNConnection extends DBNConnectionBase {
     private final ProjectRef project;
     private final String name;
     private final ConnectionType type;
-    private final ConnectionId id;
     private final SessionId sessionId;
     private final ConnectionProperties properties;
 
@@ -80,6 +79,7 @@ public class DBNConnection extends DBNConnectionBase {
     private final Set<DBNStatement> activeStatements = ConcurrentHashMap.newKeySet();
     private final Set<DBNResultSet> activeCursors = ConcurrentHashMap.newKeySet();
     private final Map<String, DBNPreparedStatement> cachedStatements = new ConcurrentHashMap<>();
+    private transient DBNStatement enquoteStatement;
 
     private final IncrementalResourceStatusAdapter<DBNConnection> active =
             IncrementalResourceStatusAdapter.create(
@@ -168,11 +168,10 @@ public class DBNConnection extends DBNConnectionBase {
             };
 
     private DBNConnection(Project project, Connection connection, String name, ConnectionType type, ConnectionId id, SessionId sessionId) throws SQLException {
-        super(connection);
+        super(connection, id);
         this.project = ProjectRef.of(project);
         this.name = name;
         this.type = type;
-        this.id = id;
         this.sessionId = sessionId;
         this.properties = new ConnectionProperties(connection);
     }
@@ -185,16 +184,32 @@ public class DBNConnection extends DBNConnectionBase {
     @Exploitable
     public DBNPreparedStatement prepareStatementCached(String sql) {
         return cachedStatements.computeIfAbsent(sql, s -> {
-            DBNPreparedStatement preparedStatement = prepareStatement(s);
-            preparedStatement.setCached(true);
-            preparedStatement.setFetchSize(500);
-            preparedStatement.setSql(s);
-            return preparedStatement;
+            DBNPreparedStatement statement = prepareStatement(s);
+            statement.setCached(true);
+            statement.setFetchSize(500);
+            statement.setSql(s);
+            return statement;
         });
+    }
+
+    @Exploitable
+    public DBNCallableStatement prepareCallCached(String sql) {
+        return cast(cachedStatements.computeIfAbsent(sql, s -> {
+            DBNPreparedStatement statement = prepareCall(s);
+            statement.setCached(true);
+            statement.setFetchSize(500);
+            statement.setSql(s);
+            return statement;
+        }));
     }
 
     @Override
     protected <S extends Statement> S wrap(Statement statement) {
+        return wrap(statement, null);
+    }
+
+    @Override
+    protected <S extends Statement> S wrap(Statement statement, String sql) {
         updateLastAccess();
         if (statement instanceof CallableStatement) {
             CallableStatement callableStatement = (CallableStatement) statement;
@@ -208,7 +223,9 @@ public class DBNConnection extends DBNConnectionBase {
             statement = new DBNStatement<>(statement, this);
         }
 
-        activeStatements.add((DBNStatement) statement);
+        DBNStatement dbnStatement = (DBNStatement) statement;
+        dbnStatement.setSql(sql);
+        activeStatements.add(dbnStatement);
         return cast(statement);
     }
 
@@ -312,6 +329,7 @@ public class DBNConnection extends DBNConnectionBase {
 
     @Nullable
     public ConnectionHandler getConnectionHandler() {
+        ConnectionId id = getConnectionId();
         if (id == null) return null; // not yet initialised
         return ConnectionHandler.get(id);
     }
@@ -332,6 +350,11 @@ public class DBNConnection extends DBNConnectionBase {
     @NotNull
     public Project getProject() {
         return project.ensure();
+    }
+
+    public String enquoteIdentifier(String identifier) throws SQLException {
+        if (enquoteStatement == null) enquoteStatement = createStatement();
+        return enquoteStatement.enquoteIdentifier(identifier, true);
     }
 
     /********************************************************************
@@ -393,10 +416,16 @@ public class DBNConnection extends DBNConnectionBase {
         }
     }
 
+    @NotNull
+    @Override
+    public DBNConnection getConnection() {
+        return this;
+    }
+
     private void notifyStatusChange() {
         ProjectEvents.notify(getProject(),
                 ConnectionStatusListener.TOPIC,
-                l -> l.statusChanged(id, sessionId));
+                l -> l.statusChanged(getConnectionId(), sessionId));
     }
 
     /********************************************************************

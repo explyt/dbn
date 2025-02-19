@@ -34,11 +34,12 @@ import com.dbn.common.action.Selectable;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.exception.Exceptions;
+import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.load.ProgressMonitor;
 import com.dbn.common.message.MessageType;
 import com.dbn.common.thread.Progress;
-import com.dbn.common.ui.util.Popups;
 import com.dbn.common.util.Dialogs;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionHandler;
@@ -53,6 +54,9 @@ import com.dbn.object.common.DBObjectBundle;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -80,12 +84,15 @@ import static com.dbn.common.ui.CardLayouts.isBlankCard;
 import static com.dbn.common.ui.CardLayouts.showBlankCard;
 import static com.dbn.common.ui.CardLayouts.showCard;
 import static com.dbn.common.ui.CardLayouts.visibleCardId;
+import static com.dbn.common.ui.util.Popups.popupBuilder;
 import static com.dbn.common.util.Conditional.when;
+import static com.dbn.common.util.ContextLookup.getConnectionId;
 import static com.dbn.common.util.Lists.convert;
 import static com.dbn.common.util.Lists.first;
 import static com.dbn.common.util.Lists.firstElement;
 import static com.dbn.common.util.Messages.options;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 import static java.util.Collections.emptyList;
 
 /**
@@ -107,6 +114,20 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   private DatabaseAssistantManager(Project project) {
     super(project, COMPONENT_NAME);
+    ProjectEvents.subscribe(project, this,
+            FileEditorManagerListener.FILE_EDITOR_MANAGER,
+            fileEditorManagerListener());
+  }
+
+  private FileEditorManagerListener fileEditorManagerListener() {
+    return new DBNFileEditorManagerListener() {
+      @Override
+      public void whenSelectionChanged(FileEditorManagerEvent event) {
+        FileEditor editor = event.getNewEditor();
+        ConnectionId connectionId = getConnectionId(getProject(), editor);
+        switchToConnection(connectionId);
+      }
+    };
   }
 
   public static DatabaseAssistantManager getInstance(@NotNull Project project) {
@@ -119,6 +140,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     toolWindow.show(null);
     switchToConnection(connectionId);
   }
+
+
 
   public String getAssistantName(@Nullable ConnectionId connectionId) {
     String defaultName = txt("app.assistant.title.DatabaseAssistantName_GENERIC");
@@ -159,17 +182,20 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   public void promptMissingProfiles(ConnectionId connectionId) {
     ConnectionHandler connection = ConnectionHandler.ensure(connectionId);
     Project project = getProject();
-    Progress.modal(project, connection, true, "Initializing DB Assistant", "Initializing database assistant", progress -> {
-      List<DBAIProfile> profiles = getProfiles(connectionId);
-      // no profiles created yet -> prompt profile creation
-      if (profiles.isEmpty()) {
-        Messages.showQuestionDialog(project,
-                getAssistantName(connectionId),
-                txt("msg.assistant.question.AcknowledgeAndCreateProfile"),
-                options("Create Profile", "Cancel"), 0,
-                option -> when(option == 0, () -> ProfileEditionWizard.showWizard(connection, null, Collections.emptySet(), null)));
-      }
-    });
+    Progress.modal(project, connection, true,
+            txt("prc.assistant.title.InitializingAssistant"),
+            txt("prc.assistant.text.InitializingDatabaseAssistant"),
+            progress -> {
+              List<DBAIProfile> profiles = getProfiles(connectionId);
+              // no profiles created yet -> prompt profile creation
+              if (profiles.isEmpty()) {
+                Messages.showQuestionDialog(project,
+                        getAssistantName(connectionId),
+                        txt("msg.assistant.question.AcknowledgeAndCreateProfile"),
+                        options("Create Profile", "Cancel"), 0,
+                        option -> when(option == 0, () -> ProfileEditionWizard.showWizard(connection, null, Collections.emptySet(), null)));
+              }
+            });
   }
 
   private void promptAcknowledgement(ConnectionId connectionId) {
@@ -188,6 +214,8 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
    */
   public void switchToConnection(@Nullable ConnectionId connectionId) {
     JPanel toolWindowPanel = getToolWindowPanel();
+    if (toolWindowPanel == null) return;
+
     String id = visibleCardId(toolWindowPanel);
     ConnectionId selectedConnectionId = isBlankCard(id) ? null : ConnectionId.get(id);
 
@@ -199,6 +227,9 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
   private ChatBoxForm getChatBox(@Nullable ConnectionId connectionId) {
     if (connectionId == null) return null;
 
+    JPanel toolWindowPanel = getToolWindowPanel();
+    if (toolWindowPanel == null) return null;
+
     ConnectionHandler connection = ConnectionHandler.get(connectionId);
     if (connection == null) return null;
     // TODO clarify - present assistant for unsupported databases?
@@ -206,7 +237,7 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
     return chatBoxes.computeIfAbsent(connectionId, id -> {
       ChatBoxForm chatBox = new ChatBoxForm(connection);
-      addCard(getToolWindowPanel(), chatBox, connectionId);
+      addCard(toolWindowPanel, chatBox, connectionId);
       return chatBox;
     });
   }
@@ -215,19 +246,27 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     return assistantStates.computeIfAbsent(connectionId, c -> new AssistantStateDelegate(getProject(), c));
   }
 
+  @Nullable
   public ToolWindow getToolWindow() {
     ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(getProject());
     return toolWindowManager.getToolWindow(TOOL_WINDOW_ID);
   }
 
+  @Nullable
   private JPanel getToolWindowPanel() {
-    Content content = getToolWindow().getContentManager().getContent(0);
-    return (JPanel) content.getComponent();
+    ToolWindow toolWindow = getToolWindow();
+    if (toolWindow == null) return null;
+
+    Content content = toolWindow.getContentManager().getContent(0);
+    return content == null ? null : (JPanel) content.getComponent();
   }
 
   private void initToolWindow(ConnectionId connectionId) {
     ToolWindow toolWindow = getToolWindow();
+    if (toolWindow == null) return;
+
     JPanel toolWindowPanel = getToolWindowPanel();
+    if (toolWindowPanel == null) return;
 
     ChatBoxForm chatBox = getChatBox(connectionId);
     if (chatBox == null) {
@@ -311,12 +350,12 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
 
   private String getPromptText(PromptAction action, String prompt) {
     switch (action) {
-      case SHOW_SQL: return txt("prc.assistant.message.PromptAction_SHOW_SQL", prompt);
-      case EXPLAIN_SQL: return txt("prc.assistant.message.PromptAction_EXPLAIN_SQL", prompt);
-      case EXECUTE_SQL: return txt("prc.assistant.message.PromptAction_EXECUTE_SQL", prompt);
-      case NARRATE: return txt("prc.assistant.message.PromptAction_NARRATE", prompt);
-      case CHAT: return txt("prc.assistant.message.PromptAction_CHAT", prompt);
-      default: return txt("prc.assistant.message.PromptAction_ANY", prompt);
+      case SHOW_SQL: return txt("prc.assistant.text.PromptAction_SHOW_SQL", prompt);
+      case EXPLAIN_SQL: return txt("prc.assistant.text.PromptAction_EXPLAIN_SQL", prompt);
+      case EXECUTE_SQL: return txt("prc.assistant.text.PromptAction_EXECUTE_SQL", prompt);
+      case NARRATE: return txt("prc.assistant.text.PromptAction_NARRATE", prompt);
+      case CHAT: return txt("prc.assistant.text.PromptAction_CHAT", prompt);
+      default: return txt("prc.assistant.text.PromptAction_ANY", prompt);
     }
   }
 
@@ -329,7 +368,11 @@ public class DatabaseAssistantManager extends ProjectComponentBase implements Pe
     DBAIProfile defaultProfile = getDefaultProfile(connectionId);
     List<ProfileSelectAction> actions = convert(getProfiles(connectionId), p -> new ProfileSelectAction(connectionId, p, defaultProfile));
 
-    Popups.showActionsPopup("Select Profile", editor, actions, Selectable.selector());
+    popupBuilder(actions, editor).
+            withTitle("Select AI Profile").
+            withPreselectCondition(Selectable.selector()).
+            withSpeedSearch().
+            buildAndShow();
   }
 
   public void setDefaultProfile(ConnectionId connectionId, @Nullable DBAIProfile profile) {

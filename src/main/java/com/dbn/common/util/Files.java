@@ -27,11 +27,13 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiFile;
 import com.intellij.testFramework.LightVirtualFile;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.Objects;
 
+@NonNls
 @UtilityClass
 public final class Files {
     // keep in sync with file type definitions in  plugin.xml
@@ -146,5 +148,18 @@ public final class Files {
         int index = name.lastIndexOf(".");
         if (index == -1) return name;
         return name.substring(0, index);
+    }
+
+    /**
+     * Normalizes a file system path by replacing all occurrences of backslashes ("\\")
+     * and forward slashes ("/") with the platform-specific file separator.
+     *
+     * @param path the file path to normalize; must not be null
+     * @return the normalized file path with platform-specific separators
+     */
+    public static String normalizePath(String path) {
+        return path.
+            replace("\\", File.separator).
+            replace("/", File.separator);
     }
 }

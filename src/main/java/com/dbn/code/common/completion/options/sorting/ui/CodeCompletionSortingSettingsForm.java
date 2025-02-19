@@ -22,12 +22,11 @@ import com.dbn.code.common.completion.options.sorting.action.MoveDownAction;
 import com.dbn.code.common.completion.options.sorting.action.MoveUpAction;
 import com.dbn.common.color.Colors;
 import com.dbn.common.options.ui.ConfigurationEditorForm;
-import com.dbn.common.ui.util.Fonts;
+import com.dbn.common.ui.list.ColoredListCellRenderer;
 import com.dbn.common.util.Actions;
 import com.dbn.object.type.DBObjectType;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.options.ConfigurationException;
-import com.intellij.ui.ColoredListCellRenderer;
 import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +41,8 @@ import java.awt.BorderLayout;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.UserInterface.enableSelectOnFocus;
 import static com.dbn.common.util.Strings.cachedUpperCase;
 
 public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<CodeCompletionSortingSettings> {
@@ -54,13 +55,15 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
         super(settings);
         resetFormChanges();
         sortingItemsList.setCellRenderer(LIST_CELL_RENDERER);
-        sortingItemsList.setFont(Fonts.getLabelFont());
         ActionToolbar actionToolbar = Actions.createActionToolbar(
                 actionPanel,
-                "", true,
+                true,
                 new MoveUpAction(sortingItemsList, settings),
                 new MoveDownAction(sortingItemsList, settings));
         actionPanel.add(actionToolbar.getComponent(), BorderLayout.WEST);
+        setAccessibleName(sortingItemsList, "Code completion sorting elements");
+        enableSelectOnFocus(sortingItemsList);
+
         registerComponent(mainPanel);
     }
 
@@ -112,7 +115,7 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
 
     public static ListCellRenderer LIST_CELL_RENDERER = new ColoredListCellRenderer() {
         @Override
-        protected void customizeCellRenderer(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
+        protected void customize(@NotNull JList list, Object value, int index, boolean selected, boolean hasFocus) {
             CodeCompletionSortingItem sortingItem = (CodeCompletionSortingItem) value;
             DBObjectType objectType = sortingItem.getObjectType();
             if (objectType == null) {
@@ -121,7 +124,6 @@ public class CodeCompletionSortingSettingsForm extends ConfigurationEditorForm<C
                 append(cachedUpperCase(objectType.getName()), SimpleTextAttributes.REGULAR_ATTRIBUTES);
                 setIcon(objectType.getIcon());
             }
-
         }
     };
 }

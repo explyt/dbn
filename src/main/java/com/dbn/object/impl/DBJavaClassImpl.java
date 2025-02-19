@@ -19,13 +19,15 @@ package com.dbn.object.impl;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.ref.WeakRefCache;
+import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
+import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
 import com.dbn.object.DBJavaClass;
+import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
 import com.dbn.object.DBSchema;
 import com.dbn.object.common.DBObject;
@@ -34,6 +36,8 @@ import com.dbn.object.common.list.DBObjectListContainer;
 import com.dbn.object.common.status.DBObjectStatus;
 import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.object.filter.type.ObjectTypeFilterSettings;
+import com.dbn.object.lookup.DBJavaNameCache;
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaClassKind;
 import com.dbn.object.type.DBObjectType;
@@ -46,31 +50,44 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static com.dbn.common.Priority.HIGHEST;
+import static com.dbn.common.util.Lists.filter;
 import static com.dbn.object.common.property.DBObjectProperty.ABSTRACT;
 import static com.dbn.object.common.property.DBObjectProperty.COMPILABLE;
 import static com.dbn.object.common.property.DBObjectProperty.DEBUGABLE;
+import static com.dbn.object.common.property.DBObjectProperty.EDITABLE;
 import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
+import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
+import static com.dbn.object.type.DBObjectType.JAVA_CLASS;
+import static com.dbn.object.type.DBObjectType.JAVA_FIELD;
+import static com.dbn.object.type.DBObjectType.JAVA_INNER_CLASS;
 import static com.dbn.object.type.DBObjectType.JAVA_METHOD;
 
 @Getter
 public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> implements DBJavaClass {
+	private DBObjectRef<DBJavaClass> outerClass;
 
 	private DBJavaClassKind kind;
 	private DBJavaAccessibility accessibility;
-	private static final WeakRefCache<DBJavaClass, String> presentableNameCache = WeakRefCache.weakKey();
 
-	DBJavaClassImpl(DBSchema schema, DBJavaClassMetadata metadata) throws SQLException {
+	public DBJavaClassImpl(DBSchema schema, DBJavaClassMetadata metadata) throws SQLException {
 		super(schema, metadata);
+
+		String outerClassName = metadata.getOuterClassName();
+		if (Strings.isNotEmpty(outerClassName)) {
+			outerClass = new DBObjectRef<>(schema.ref(), DBObjectType.JAVA_CLASS, outerClassName);
+			ref.clearReference();
+			ref.setParent(outerClass);
+		}
 	}
 
 	@Override
 	public @NotNull DBObjectType getObjectType() {
-		return DBObjectType.JAVA_CLASS;
+		return JAVA_CLASS;
 	}
 
 	@Override
@@ -82,6 +99,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		set(ABSTRACT, metadata.isAbstract());
 		set(STATIC, metadata.isStatic());
 		set(INNER, metadata.isInner());
+		set(PRIMITIVE, metadata.isPrimitive());
 
 		return metadata.getObjectName();
 	}
@@ -94,6 +112,8 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		// TODO support inner classes as child objects
 		DBSchema schema = getSchema();
 		DBObjectListContainer childObjects = ensureChildObjects();
+		childObjects.createSubcontentObjectList(JAVA_INNER_CLASS, this, schema);
+		childObjects.createSubcontentObjectList(JAVA_FIELD, this, schema);
 		childObjects.createSubcontentObjectList(JAVA_METHOD, this, schema);
 	}
 
@@ -102,6 +122,7 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		properties.set(COMPILABLE, true);
 		properties.set(INVALIDABLE, true);
 		properties.set(DEBUGABLE, true);
+		properties.set(EDITABLE, !isInner());
 	}
 
 	public void initStatus(DBJavaClassMetadata metadata) throws SQLException {
@@ -110,11 +131,25 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		DBObjectStatusHolder objectStatus = getStatus();
 		objectStatus.set(DBObjectStatus.VALID, isValid);
 		objectStatus.set(DBObjectStatus.DEBUG, isDebug);
+		objectStatus.set(DBContentType.CODE, DBObjectStatus.PRESENT, true);
 	}
 
 	@Override
 	public String getPresentableText() {
-		return presentableNameCache.computeIfAbsent(this, o -> o.getName().replace("/", "."));
+		return isInner() ?
+                getSimpleName() :
+                getCanonicalName();
+
+	}
+
+	@Override
+	public String getCanonicalName() {
+		return DBJavaNameCache.getCanonicalName(getName());
+	}
+
+	@Override
+	public String getSimpleName() {
+		return DBJavaNameCache.getSimpleName(getName());
 	}
 
 	@Override
@@ -159,13 +194,48 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	}
 
 	@Override
+	public boolean isPrimitive() {
+		return is(PRIMITIVE);
+	}
+
+	@Override
 	public List<DBJavaMethod> getMethods() {
 		return getChildObjects(JAVA_METHOD);
 	}
 
 	@Override
+	public List<DBJavaMethod> getStaticMethods() {
+		return filter(getMethods(), m -> m.isStatic());
+	}
+
+	@Override
 	public DBJavaMethod getMethod(String name) {
 		return getChildObject(JAVA_METHOD, name);
+	}
+
+	@Override
+	public List<DBJavaField> getFields() {
+		return getChildObjects(JAVA_FIELD);
+	}
+
+	@Override
+	public DBJavaField getField(String name) {
+		return getChildObject(JAVA_FIELD, name);
+	}
+
+	@Override
+	public List<DBJavaClass> getInnerClasses(){
+		return getChildObjects(JAVA_INNER_CLASS);
+	}
+
+	@Override
+	public DBJavaClass getInnerClass(String name){
+		return getChildObject(JAVA_INNER_CLASS, name);
+	}
+
+	@Nullable
+	public DBJavaClass getOuterClass() {
+		return isInner() ? DBObjectRef.get(outerClass) : null;
 	}
 
 	/*********************************************************
@@ -183,8 +253,11 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 				getSchemaId(),
 				conn -> {
 					ConnectionHandler connection = getConnection();
-					DatabaseDataDefinitionInterface dataDefinition = connection.getDataDefinitionInterface();
-					dataDefinition.updateJavaClass(getName(), newCode, conn);
+					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
+					dataDefinitionInterface.updateJavaClass(getName(true), newCode, conn);
+
+					DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
+					metadataInterface.compileJavaClass(getSchemaName(true), getName(true), conn);
 				});
 	}
 
@@ -195,12 +268,16 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@NotNull
 	public List<BrowserTreeNode> buildPossibleTreeChildren() {
 		return DatabaseBrowserUtils.createList(
-				getChildObjectList(JAVA_METHOD));
+				getChildObjectList(JAVA_FIELD),
+				getChildObjectList(JAVA_METHOD),
+				getChildObjectList(JAVA_INNER_CLASS));
 	}
 
 	@Override
 	public boolean hasVisibleTreeChildren() {
 		ObjectTypeFilterSettings settings = getObjectTypeFilterSettings();
-		return settings.isVisible(JAVA_METHOD);
+		return settings.isVisible(JAVA_FIELD) ||
+				settings.isVisible(JAVA_METHOD) ||
+				settings.isVisible(JAVA_INNER_CLASS);
 	}
 }

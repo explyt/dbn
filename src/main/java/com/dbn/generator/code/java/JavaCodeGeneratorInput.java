@@ -28,22 +28,20 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiManager;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
-import java.util.regex.Pattern;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.options.Configs.fail;
+import static com.dbn.common.util.Java.isValidClassName;
+import static com.dbn.common.util.Java.isValidPackageName;
 import static com.dbn.common.util.Strings.isEmpty;
 
 @Getter
 @Setter
 public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
-    private static final Pattern PACKAGE_NAME_PATTERN = Pattern.compile("^[a-zA-Z_]([a-zA-Z0-9_]*)(\\.[a-zA-Z_]([a-zA-Z0-9_]*))*$");
-    private static final Pattern CLASS_NAME_PATTERN = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9_]*$");
-
     private String moduleName;
     private String contentRoot;
     private String packageName;
@@ -65,7 +63,8 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         return className;
     }
 
-    private @NotNull Module findModule() throws ConfigurationException {
+    @NotNull
+    Module findModule() throws ConfigurationException {
         if (isEmpty(moduleName)) fail("Target module not specified");
 
         Module module = Modules.getModule(getProject(), moduleName);
@@ -74,7 +73,8 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         return nd(module);
     }
 
-    private @NotNull VirtualFile findContentRoot(Module module) throws ConfigurationException {
+    @NotNull
+    VirtualFile findContentRoot(Module module) throws ConfigurationException {
         if (isEmpty(contentRoot)) fail("Content root is not specified");
 
         ModuleRootManager moduleRootManager = ModuleRootManager.getInstance(module);
@@ -85,24 +85,26 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         return nd(contentRootFile);
     }
 
-    private PsiDirectory findPackageDirectory(VirtualFile contentRoot) throws ConfigurationException {
-        PsiDirectory contentRootDirectory = getContentRootDirectory(contentRoot);
+    @NotNull
+    PsiDirectory findPackageDirectory(VirtualFile contentRoot) throws ConfigurationException {
+        PsiDirectory contentRootDirectory = findContentRootDirectory(contentRoot);
         return findPackageDirectory(contentRootDirectory);
     }
 
     @Nullable
-    private PsiDirectory getContentRootDirectory(VirtualFile contentRootFile) throws ConfigurationException {
+    PsiDirectory findContentRootDirectory(VirtualFile contentRootFile) throws ConfigurationException {
         PsiManager psiManager = PsiManager.getInstance(getProject());
         PsiDirectory contentRootDirectory = Read.call(() -> psiManager.findDirectory(contentRootFile));
         if (contentRootDirectory == null) fail("Cannot find content root for " + contentRootFile.getPresentableUrl());
         return contentRootDirectory;
     }
 
-    private PsiDirectory findPackageDirectory(PsiDirectory directory) throws ConfigurationException {
-        if (packageName == null) return directory;
+    @NotNull
+    PsiDirectory findPackageDirectory(PsiDirectory directory) throws ConfigurationException {
+        if (isEmpty(packageName)) return directory;
         if (!isValidPackageName(packageName)) fail("Package name is invalid");
 
-        String[] packageTokens = packageName.split("\\.");
+        String[] packageTokens = packageName.trim().split("\\.");
         for (String packageToken : packageTokens) {
             PsiDirectory dir = directory;
             directory = Read.call(() -> dir.findSubdirectory(packageToken));
@@ -110,31 +112,5 @@ public abstract class JavaCodeGeneratorInput extends CodeGeneratorInputBase {
         return nd(directory);
     }
 
-    @SneakyThrows
-    public void prepareDestination() {
-        Module module = findModule();
-        VirtualFile file = findContentRoot(module);
-        PsiDirectory directory = getContentRootDirectory(file);
-        if (packageName == null) return;
-
-        String[] packageTokens = packageName.split("\\.");
-        for (String packageToken : packageTokens) {
-            PsiDirectory subdirectory = directory.findSubdirectory(packageToken);
-            if (subdirectory == null)  {
-                directory.createSubdirectory(packageToken);
-                subdirectory = directory.findSubdirectory(packageToken);
-                if (subdirectory == null) fail("Cannot create package directory " + packageToken);
-            }
-            directory = subdirectory;
-        }
-    }
-
-    private static boolean isValidPackageName(String packageName) {
-        return PACKAGE_NAME_PATTERN.matcher(packageName).matches();
-    }
-
-    private static boolean isValidClassName(String className) {
-        return CLASS_NAME_PATTERN.matcher(className).matches();
-    }
-
 }
+

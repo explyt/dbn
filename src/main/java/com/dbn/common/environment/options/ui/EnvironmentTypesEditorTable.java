@@ -16,6 +16,7 @@
 
 package com.dbn.common.environment.options.ui;
 
+import com.dbn.common.color.Colors;
 import com.dbn.common.environment.EnvironmentTypeBundle;
 import com.dbn.common.ui.component.DBNComponent;
 import com.dbn.common.ui.table.DBNEditableTable;
@@ -24,16 +25,20 @@ import com.dbn.common.ui.util.Mouse;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.BooleanTableCellEditor;
 import com.intellij.ui.BooleanTableCellRenderer;
-import com.intellij.ui.ColorChooser;
 import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.ListSelectionModel;
-import javax.swing.table.TableColumn;
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+
+import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
+import static com.dbn.common.ui.util.Mouse.isMainSingleClick;
 
 public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTypesTableModel> {
 
@@ -47,13 +52,30 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
         setDefaultRenderer(Color.class, new EnvironmentTypesTableCellRenderer());
         setDefaultRenderer(Boolean.class, new BooleanTableCellRenderer());
         setDefaultEditor(Boolean.class, new BooleanTableCellEditor());
-        adjustRowHeight(3);
 
-        setFixedWidth(columnModel.getColumn(2), 100);
-        setFixedWidth(columnModel.getColumn(3), 100);
-        setFixedWidth(columnModel.getColumn(4), 60);
+        setFixedColumnWidths(-1, -1, 120, 120, 60);
+        setProportionalColumnWidths(25, 40);
+        addMouseListener(createMouseListener());
+        addKeyListener(createKeyListener());
 
-        addMouseListener(mouseListener);
+        setAccessibleName(this, "Environment Types");
+    }
+
+    private KeyListener createKeyListener() {
+        return new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() != KeyEvent.VK_SPACE) return;
+
+                int columnIndex = getSelectedColumn();
+                if (columnIndex != 4) return;
+
+                int rowIndex = getSelectedRow();
+                if (rowIndex == -1) return;
+
+                chooseColor(rowIndex, columnIndex);
+            }
+        };
     }
 
     @NotNull
@@ -63,31 +85,30 @@ public class EnvironmentTypesEditorTable extends DBNEditableTable<EnvironmentTyp
 
     void setEnvironmentTypes(EnvironmentTypeBundle environmentTypes) {
         super.setModel(createModel(getProject(), environmentTypes));
-        setFixedWidth(columnModel.getColumn(2), 100);
-        setFixedWidth(columnModel.getColumn(3), 100);
-        setFixedWidth(columnModel.getColumn(4), 60);
     }
 
-    private void setFixedWidth(TableColumn tableColumn, int width) {
-        tableColumn.setMaxWidth(width);
-        tableColumn.setMinWidth(width);
-    }
+    MouseListener createMouseListener() {
+        return Mouse.listener().onClick(e -> {
+            if (!isMainSingleClick(e)) return;
 
-    private final MouseListener mouseListener = Mouse.listener().onClick(e -> {
-        if (e.getButton() == MouseEvent.BUTTON1 && e.getClickCount() == 1) {
             Point point = e.getPoint();
             int columnIndex = columnAtPoint(point);
-            if (columnIndex == 4) {
-                int rowIndex = rowAtPoint(point);
-                Color color = (Color) getValueAt(rowIndex, columnIndex);
-                color = ColorChooser.chooseColor(EnvironmentTypesEditorTable.this, "Select Environment Color", color);
-                if (color != null) {
-                    setValueAt(color, rowIndex, columnIndex);
-                }
-            }
-        }
-    });
-    
+            if (columnIndex != 4) return;
+
+            int rowIndex = rowAtPoint(point);
+            chooseColor(rowIndex, columnIndex);
+        });
+    }
+
+    private void chooseColor(int rowIndex, int columnIndex) {
+        Color color = (Color) getValueAt(rowIndex, columnIndex);
+        color = Colors.chooseColor(getProject(), this, color, "Select Environment Color");
+        if (color == null) return;
+
+        setValueAt(color, rowIndex, columnIndex);
+    }
+
+
     @Override
     protected void processMouseMotionEvent(MouseEvent e) {
         Object value = getValueAtMouseLocation();

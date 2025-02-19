@@ -3,7 +3,7 @@
   <grid id="27dc6" binding="mainPanel" layout-manager="GridLayoutManager" row-count="1" column-count="1" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
     <margin top="0" left="0" bottom="0" right="0"/>
     <constraints>
-      <xy x="20" y="20" width="500" height="190"/>
+      <xy x="20" y="20" width="500" height="194"/>
     </constraints>
     <properties/>
     <border type="none" title="Basic Text Editor"/>
@@ -16,46 +16,16 @@
         <properties/>
         <border type="none"/>
         <children>
-          <component id="78398" class="javax.swing.JLabel">
+          <hspacer id="cc36c">
             <constraints>
-              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties>
-              <labelFor value="e86a1"/>
-              <text value="Length &amp;threshold to pop up"/>
-            </properties>
-          </component>
-          <component id="105e4" class="javax.swing.JTextField" binding="lengthThresholdTextField">
+          </hspacer>
+          <vspacer id="740b5">
             <constraints>
-              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="80" height="-1"/>
-                <maximum-size width="80" height="-1"/>
-              </grid>
+              <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
             </constraints>
-            <properties>
-              <margin top="2" left="6" bottom="2" right="6"/>
-            </properties>
-          </component>
-          <component id="18a1d" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <labelFor value="85623"/>
-              <text value="Pop-up &amp;delay"/>
-            </properties>
-          </component>
-          <component id="e1502" class="javax.swing.JTextField" binding="delayTextField">
-            <constraints>
-              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
-                <preferred-size width="80" height="-1"/>
-                <maximum-size width="80" height="-1"/>
-              </grid>
-            </constraints>
-            <properties>
-              <margin top="2" left="6" bottom="2" right="6"/>
-            </properties>
-          </component>
+          </vspacer>
           <component id="dbb17" class="javax.swing.JCheckBox" binding="activeCheckBox" default-binding="true">
             <constraints>
               <grid row="0" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
@@ -74,17 +44,24 @@
               <text value="Pop up for &amp;empty value"/>
             </properties>
           </component>
-          <hspacer id="cc36c">
+          <component id="78398" class="javax.swing.JLabel">
             <constraints>
-              <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-            </constraints>
-          </hspacer>
-          <component id="c5dfb" class="javax.swing.JLabel">
-            <constraints>
-              <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="4" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text value="ms"/>
+              <labelFor value="105e4"/>
+              <text value="Length &amp;threshold to pop up"/>
+            </properties>
+          </component>
+          <component id="105e4" class="javax.swing.JTextField" binding="lengthThresholdTextField">
+            <constraints>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="80" height="-1"/>
+                <maximum-size width="80" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <margin top="2" left="9" bottom="2" right="6"/>
             </properties>
           </component>
           <component id="fe3ed" class="javax.swing.JLabel">
@@ -95,11 +72,34 @@
               <text value="characters"/>
             </properties>
           </component>
-          <vspacer id="740b5">
+          <component id="18a1d" class="javax.swing.JLabel">
             <constraints>
-              <grid row="4" column="2" row-span="1" col-span="1" vsize-policy="6" hsize-policy="1" anchor="0" fill="2" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="0" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
             </constraints>
-          </vspacer>
+            <properties>
+              <labelFor value="e1502"/>
+              <text value="Pop-up &amp;delay"/>
+            </properties>
+          </component>
+          <component id="e1502" class="javax.swing.JTextField" binding="delayTextField">
+            <constraints>
+              <grid row="3" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="2" anchor="8" fill="1" indent="0" use-parent-layout="false">
+                <preferred-size width="80" height="-1"/>
+                <maximum-size width="80" height="-1"/>
+              </grid>
+            </constraints>
+            <properties>
+              <margin top="2" left="9" bottom="2" right="6"/>
+            </properties>
+          </component>
+          <component id="c5dfb" class="javax.swing.JLabel">
+            <constraints>
+              <grid row="3" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="4" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+            </constraints>
+            <properties>
+              <text value="ms"/>
+            </properties>
+          </component>
         </children>
       </grid>
     </children>

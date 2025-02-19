@@ -24,20 +24,19 @@ import com.intellij.ui.SimpleTextAttributes;
 import com.intellij.ui.TableUtil;
 
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
 import javax.swing.table.TableCellEditor;
 import java.awt.Component;
+import java.awt.event.KeyEvent;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 
 public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableWithGutter<T> {
-    public static final LineBorder SELECTION_BORDER = new LineBorder(Colors.getTableBackground());
-
     public DBNEditableTable(DBNComponent parent, T model, boolean showHeader) {
         super(parent, model, showHeader);
         setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -106,16 +105,47 @@ public class DBNEditableTable<T extends DBNEditableTableModel> extends DBNTableW
         Component component = super.prepareEditor(editor, rowIndex, columnIndex);
         if (component instanceof JTextField) {
             JTextField textField = (JTextField) component;
-            textField.setBorder(Borders.EMPTY_BORDER);
+            textField.setBorder(Borders.TEXT_FIELD_INSETS);
 
             //selectCell(rowIndex, columnIndex);
 
             Dispatch.run(() -> {
-                component.requestFocus();
+                if (getSelectedRow() != rowIndex) return;
+                if (getSelectedColumn() != columnIndex) return;
+
+                textField.requestFocus();
                 textField.selectAll();
             });
         }
         return component;
+    }
+
+    @Override
+    protected boolean processKeyBinding(KeyStroke ks, KeyEvent e, int condition, boolean pressed) {
+        if (processTabKeyEvent(e)) return true;
+        return super.processKeyBinding(ks, e, condition, pressed);
+    }
+
+    private boolean processTabKeyEvent(KeyEvent e) {
+        // tab navigation on first and last cells should cancel editing to allow
+        // focus handover to previous respectively next focusable component
+        if (!isEditing()) return false;
+
+        if (e.getID() != KeyEvent.KEY_PRESSED) return false;
+        if (e.getKeyCode() != KeyEvent.VK_TAB) return false;
+
+        if (e.isShiftDown()) {
+            if (Tables.isFirstCellSelected(this)) {
+                removeEditor();
+                return true;
+            }
+        } else {
+            if (Tables.isLastCellSelected(this)) {
+                removeEditor();
+                return true;
+            }
+        }
+        return false;
     }
 
     public void insertRow() {

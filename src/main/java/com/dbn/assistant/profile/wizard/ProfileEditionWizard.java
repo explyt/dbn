@@ -33,12 +33,14 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.wizard.WizardDialog;
+import com.intellij.ui.wizard.WizardStep;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import javax.accessibility.AccessibleContext;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
@@ -66,6 +68,7 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
   private JButton finishButton;
 
   private final ConnectionRef connection;
+  private String currentStepTitle;
 
   /**
    * Creates a new wizard
@@ -80,12 +83,30 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
    */
   public ProfileEditionWizard(@NotNull ConnectionHandler connection, DBAIProfile profile, Set<String> existingProfileNames, boolean isUpdate, Class<ProfileEditionObjectListStep> firstStep) {
     super(false, new ProfileEditionWizardModel(
-            connection, txt("profiles.settings.window.title"), new ProfileData(profile), existingProfileNames, isUpdate,firstStep));
+            connection, txt("cfg.assistant.title.ProfileConfiguration"), new ProfileData(profile), existingProfileNames, isUpdate,firstStep));
     this.connection = ConnectionRef.of(connection);
     this.initialProfile = new ProfileData(profile);
     this.existingProfileNames = existingProfileNames;
     this.isUpdate = isUpdate;
-    finishButton.setText(txt(isUpdate ? "ai.messages.button.update" : "ai.messages.button.create"));
+    finishButton.setText(txt(isUpdate ? "msg.shared.button.Update" : "msg.shared.button.Create"));
+    currentStepTitle = resolveCurrentStepTitle();
+  }
+
+  private String resolveCurrentStepTitle() {
+    WizardStep currentStep = myModel.getCurrentStep();
+    return currentStep == null ? null : currentStep.getTitle();
+  }
+
+  @Override
+  public void onStepChanged() {
+    super.onStepChanged();
+
+    String oldTitle = currentStepTitle;
+    String newTitle = resolveCurrentStepTitle();
+    currentStepTitle = newTitle;
+
+    AccessibleContext accessibleContext = getWindow().getAccessibleContext();
+    accessibleContext.firePropertyChange(AccessibleContext.ACCESSIBLE_VISIBLE_DATA_PROPERTY, oldTitle, newTitle);
   }
 
   @Override
@@ -104,16 +125,16 @@ public class ProfileEditionWizard extends WizardDialog<ProfileEditionWizardModel
 
     ProfileData editedProfile = getEditedProfile();
     if (editedProfile.getName().isEmpty()) {
-      Messages.showErrorDialog(project, txt("profile.mgmt.general_step.profile_name.validation.empty"));
+      Messages.showErrorDialog(project, txt("cfg.assistant.error.ProfileNameEmpty"));
     } else if (!this.isUpdate &&
             existingProfileNames.contains(editedProfile.getName().trim().toUpperCase())) {
-      Messages.showErrorDialog(project, txt("profile.mgmt.general_step.profile_name.validation.exists"));
+      Messages.showErrorDialog(project, txt("cfg.assistant.error.ProfileNameExists"));
     } else if (editedProfile.getCredentialName().isEmpty()) {
-      Messages.showErrorDialog(project, txt("profile.mgmt.general_step.credential_name.validation"));
+      Messages.showErrorDialog(project, txt("cfg.assistant.error.CredentialNameEmpty"));
     } else if (editedProfile.getObjectList().isEmpty()) {
-      Messages.showErrorDialog(project, txt("profile.mgmt.object_list_step.validation"));
+      Messages.showErrorDialog(project, txt("cfg.assistant.error.ObjectInfoEmpty"));
     } else if (initialProfile.equals(editedProfile)) {
-      Messages.showErrorDialog(project, txt("profile.mgmt.update.validation"));
+      Messages.showErrorDialog(project, txt("cfg.assistant.error.NoFieldChanges"));
     } else {
       commitWizardView();
     }

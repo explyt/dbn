@@ -1,8 +1,10 @@
-**3.5.0 - November 2024**
-- Oracle "Select-AI" integration (Database Assistant)
+**3.5.0 - February 2025**
+- Oracle "Select-AI" integration (Database Assistant - experimental)
 - Oracle token authentication ("OCI API Key" and "OCI Interactive")
 - Oracle OJVM support (early preview)
-- Support for latest IDE versions (2024.3.x)
+- Password storage in native keychain
+- Tool accessibility enhancements
+- Support for latest IDE versions (2024.3.x and 2025.1.x)
 - Bug fixes
 
  **3.4.4425 - August 2024**

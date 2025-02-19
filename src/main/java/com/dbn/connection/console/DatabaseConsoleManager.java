@@ -55,7 +55,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileWrapper;
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent;
-import org.jdom.CDATA;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -74,8 +73,10 @@ import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
 import static com.dbn.common.options.setting.Settings.readCdata;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
+import static com.dbn.common.options.setting.Settings.writeCdata;
 import static com.dbn.common.util.Conditional.when;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
+import static com.dbn.nls.NlsResources.txt;
 
 @State(
     name = DatabaseConsoleManager.COMPONENT_NAME,
@@ -115,8 +116,8 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
     public void createConsole(ConnectionHandler connection, String name, DBConsoleType type) {
         Project project = connection.getProject();
         Progress.background(project, connection, true,
-                txt("msg.consoles.title.CreatingConsole"),
-                txt("msg.consoles.info.CreatingConsole", type.getName(), name),
+                txt("prc.consoles.title.CreatingConsole"),
+                txt("prc.consoles.text.CreatingConsole", type.getName(), name),
                 indicator -> {
                     DBConsole console = connection.getConsoleBundle().createConsole(name, type);
                     DBConsoleVirtualFile consoleFile = console.getVirtualFile();
@@ -256,7 +257,7 @@ public class DatabaseConsoleManager extends ProjectComponentBase implements Pers
                 consoleElement.setAttribute("type", console.getConsoleType().name());
                 consoleElement.setAttribute("schema", Commons.nvl(virtualFile.getDatabaseSchemaName(), ""));
                 consoleElement.setAttribute("session", databaseSession.getName());
-                consoleElement.addContent(new CDATA(virtualFile.getContent().exportContent()));
+                writeCdata(consoleElement, virtualFile.getContent().exportContent());
             }
         }
         return element;

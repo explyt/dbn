@@ -38,6 +38,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import java.awt.BorderLayout;
 
+import static com.dbn.common.ui.util.Accessibility.setAccessibleUnit;
 import static com.dbn.common.ui.util.TextFields.onTextChange;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -67,12 +68,14 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
 
         onTextChange(executionTimeoutTextField, e -> updateErrorMessage());
 
-        ActionToolbar actionToolbar = Actions.createActionToolbar(
-                actionsPanel,
-                "DBNavigator.Place.ExecutionTimeoutForm.Settings", true,
-                new SettingsAction());
+        ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, new SettingsAction());
 
         actionsPanel.add(actionToolbar.getComponent(), BorderLayout.CENTER);
+    }
+
+    @Override
+    protected void initAccessibility() {
+        setAccessibleUnit(executionTimeoutTextField, txt("app.shared.unit.Seconds"), txt("app.shared.hint.ZeroForNoTimeout"));
     }
 
     private void updateErrorMessage() {
@@ -144,7 +147,7 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
 
     class SaveToSettingsAction extends BasicAction {
         SaveToSettingsAction() {
-            super("Save to Settings");
+            super(txt("app.execution.action.SaveToSettings"));
         }
 
         @Override
@@ -156,6 +159,8 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
             if (debuggerType.isDebug())
                 timeoutSettings.setDebugExecutionTimeout(timeout); else
                 timeoutSettings.setExecutionTimeout(timeout);
+
+            executionTimeoutTextField.requestFocus();
         }
 
         @Override
@@ -168,13 +173,14 @@ public abstract class ExecutionTimeoutForm extends DBNFormBase {
     class ReloadDefaultAction extends BasicAction {
 
         ReloadDefaultAction() {
-            super("Reload from Settings");
+            super(txt("app.execution.action.ReloadFromSettings"));
         }
 
         @Override
         public void actionPerformed(@NotNull AnActionEvent e) {
             int timeout = getSettingsTimeout();
             executionTimeoutTextField.setText(String.valueOf(timeout));
+            executionTimeoutTextField.requestFocus();
         }
 
         @Override

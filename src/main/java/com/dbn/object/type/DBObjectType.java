@@ -21,6 +21,7 @@ import com.dbn.common.icon.Icons;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.util.Characters;
 import com.dbn.common.util.Lists;
+import com.dbn.common.util.Naming;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.context.DatabaseContext;
 import com.dbn.database.DatabaseObjectTypeId;
@@ -81,9 +82,12 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
     INDEX(DatabaseObjectTypeId.INDEX, "index", "indexes", Icons.DBO_INDEX, Icons.DBO_INDEX_DISABLED, Icons.DBO_INDEXES, false),
     INDEXTYPE(DatabaseObjectTypeId.INDEXTYPE, "indextype", "indextypes", null, null, null, false),
     JAVA_CLASS(DatabaseObjectTypeId.JAVA_CLASS, "java class", "java classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
-    JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
-    JAVA_Object(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "java objects", null, null, null, false),
-    JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "parameter", "parameters", null, null, null, false),
+    JAVA_PRIMITIVE(DatabaseObjectTypeId.JAVA_PRIMITIVE, "java primitive", "java primitive", null, null, null, false),
+    JAVA_INNER_CLASS(DatabaseObjectTypeId.JAVA_INNER_CLASS, "inner class", "inner classes", Icons.DBO_JAVA_CLASS, null, Icons.DBO_JAVA_CLASSES, false),
+    JAVA_FIELD(DatabaseObjectTypeId.JAVA_FIELD, "java field", "fields", Icons.DBO_JAVA_FIELD, null, Icons.DBO_JAVA_FIELDS, false),
+    JAVA_METHOD(DatabaseObjectTypeId.JAVA_METHOD, "java method", "methods", Icons.DBO_JAVA_METHOD, null, Icons.DBO_JAVA_METHODS, false),
+    JAVA_OBJECT(DatabaseObjectTypeId.JAVA_OBJECT, "java object", "objects", null, null, null, false),
+    JAVA_PARAMETER(DatabaseObjectTypeId.JAVA_PARAMETER, "java parameter", "parameters", null, null, null, false),
     LIBRARY(DatabaseObjectTypeId.LIBRARY, "library", "libraries", null, null, null, false),
     LOB(DatabaseObjectTypeId.LOB, "lob", "lobs", null, null, null, false),
     MATERIALIZED_VIEW(DatabaseObjectTypeId.MATERIALIZED_VIEW, "materialized view", "materialized views", Icons.DBO_MATERIALIZED_VIEW, null, Icons.DBO_MATERIALIZED_VIEWS, false),
@@ -229,6 +233,14 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         return nvl(disabledIcon, icon);
     }
 
+    public String getCapitalizedName() {
+        return Naming.capitalizeWords(name);
+    }
+
+    public String getCapitalizedListName() {
+        return Naming.capitalizeWords(listName);
+    }
+
     public boolean isLeaf() {
         return children.isEmpty();
     }
@@ -349,6 +361,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         DATABASE_TRIGGER.setInheritedType(TRIGGER);
         XMLTYPE.setInheritedType(TYPE);
         JAVA_METHOD.setInheritedType(METHOD);
+        JAVA_PRIMITIVE.setInheritedType(JAVA_CLASS);
+        JAVA_INNER_CLASS.setInheritedType(JAVA_CLASS);
 
         SYSTEM_PRIVILEGE.setInheritedType(PRIVILEGE);
         OBJECT_PRIVILEGE.setInheritedType(PRIVILEGE);
@@ -356,6 +370,7 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         GRANTED_ROLE.setInheritedType(ROLE);
 
         // Parent relations
+        AI_PROFILE.addParent(SCHEMA);
         ARGUMENT.addParent(FUNCTION);
         ARGUMENT.addParent(PROCEDURE);
         ARGUMENT.addParent(METHOD);
@@ -416,7 +431,10 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         TYPE_PROCEDURE.addParent(TYPE);
         TYPE_TYPE.addParent(TYPE);
         VIEW.addParent(SCHEMA);
+        JAVA_PRIMITIVE.addParent(SCHEMA);
         JAVA_CLASS.addParent(SCHEMA);
+        JAVA_INNER_CLASS.addParent(JAVA_CLASS);
+        JAVA_FIELD.addParent(JAVA_CLASS);
         JAVA_METHOD.addParent(JAVA_CLASS);
         JAVA_PARAMETER.addParent(JAVA_METHOD);
 
@@ -459,6 +477,8 @@ public enum DBObjectType implements DynamicContentType<DBObjectType>, Presentabl
         PACKAGE.addDdlFileType(DBContentType.CODE_SPEC_AND_BODY, DDLFileTypeId.PACKAGE);
         PACKAGE.addDdlFileType(DBContentType.CODE_SPEC, DDLFileTypeId.PACKAGE_SPEC);
         PACKAGE.addDdlFileType(DBContentType.CODE_BODY, DDLFileTypeId.PACKAGE_BODY);
+
+        JAVA_CLASS.addDdlFileType(DBContentType.CODE, DDLFileTypeId.JAVA_SOURCE);
 
     }
 

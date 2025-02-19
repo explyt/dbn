@@ -29,6 +29,10 @@ public interface DBJavaClass extends DBSchemaObject {
 	@NotNull
 	String getName();
 
+	String getSimpleName();
+
+	String getCanonicalName();
+
 	DBJavaClassKind getKind();
 
 	DBJavaAccessibility getAccessibility();
@@ -41,7 +45,21 @@ public interface DBJavaClass extends DBSchemaObject {
 
 	boolean isInner();
 
+	boolean isPrimitive();
+
     List<DBJavaMethod> getMethods();
 
+	List<DBJavaMethod> getStaticMethods();
+
     DBJavaMethod getMethod(String name);
+
+	List<DBJavaField> getFields();
+
+	DBJavaField getField(String name);
+
+	DBJavaClass getOuterClass();
+
+	List<DBJavaClass> getInnerClasses();
+
+	DBJavaClass getInnerClass(String name);
 }

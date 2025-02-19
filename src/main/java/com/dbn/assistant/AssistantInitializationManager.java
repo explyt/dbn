@@ -23,16 +23,19 @@ import com.dbn.common.component.ProjectComponentBase;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.feature.FeatureAvailability;
 import com.dbn.common.feature.FeatureAvailabilityInfo;
+import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.thread.Progress;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
-import com.dbn.connection.ConsoleChangeListener;
 import com.dbn.connection.mapping.FileConnectionContextListener;
 import com.dbn.database.DatabaseFeature;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
 import com.dbn.diagnostics.Diagnostics;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
+import com.intellij.openapi.fileEditor.FileEditor;
+import com.intellij.openapi.fileEditor.FileEditorManagerEvent;
+import com.intellij.openapi.fileEditor.FileEditorManagerListener;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import lombok.extern.slf4j.Slf4j;
@@ -46,6 +49,8 @@ import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.feature.FeatureAvailability.AVAILABLE;
 import static com.dbn.common.feature.FeatureAvailability.UNAVAILABLE;
 import static com.dbn.common.feature.FeatureAvailability.UNCERTAIN;
+import static com.dbn.common.util.ContextLookup.getConnectionId;
+import static com.dbn.nls.NlsResources.txt;
 
 @Slf4j
 @State(
@@ -58,8 +63,8 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
         super(project, COMPONENT_NAME);
 
         ProjectEvents.subscribe(project, this,
-                ConsoleChangeListener.TOPIC,
-                connectionId -> initialize(connectionId));
+                FileEditorManagerListener.FILE_EDITOR_MANAGER,
+                fileEditorManagerListener());
 
         ProjectEvents.subscribe(project, this,
                 FileConnectionContextListener.TOPIC,
@@ -80,6 +85,19 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
         };
     }
 
+    private FileEditorManagerListener fileEditorManagerListener() {
+        return new DBNFileEditorManagerListener() {
+            @Override
+            public void whenSelectionChanged(FileEditorManagerEvent event) {
+                FileEditor editor = event.getNewEditor();
+                ConnectionId connectionId = getConnectionId(getProject(), editor);
+                if (connectionId == null) return;
+
+                initialize(connectionId);
+            }
+        };
+    }
+
     private AssistantState getAssistantState(ConnectionId connectionId) {
         Project project = getProject();
         DatabaseAssistantManager assistantManager = DatabaseAssistantManager.getInstance(project);
@@ -94,8 +112,8 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
         ConnectionHandler connection = ConnectionHandler.get(connectionId);
 
         Progress.background(project, connection, false,
-                "Checking Feature Availability",
-                "Verifying database assistance feature availability",
+                txt("prc.assistant.title.CheckingFeatureAvailability"),
+                txt("prc.assistant.text.CheckingFeatureAvailability"),
                 p -> verifyAssistantAvailability(connectionId));
     }
 
@@ -154,8 +172,8 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
 
     private static boolean checkAvailability(ConnectionHandler connection) throws SQLException {
         return DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading metadata",
-                "Verifying database assistant feature support",
+                txt("prc.assistant.title.LoadingMetadata"),
+                txt("prc.assistant.text.CheckingFeatureSupport"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> connection.getAssistantInterface().isAssistantFeatureSupported(conn));
@@ -163,8 +181,8 @@ public class AssistantInitializationManager extends ProjectComponentBase impleme
 
     private static DatabaseAssistantType resolveAssistantType(ConnectionHandler connection) throws SQLException {
         return DatabaseInterfaceInvoker.load(HIGHEST,
-                "Loading metadata",
-                "Resolving database assistant type",
+                txt("prc.assistant.title.LoadingMetadata"),
+                txt("prc.assistant.text.ResolvingAssistantType"),
                 connection.getProject(),
                 connection.getConnectionId(),
                 conn -> connection.getAssistantInterface().getAssistantType(conn));

@@ -49,6 +49,7 @@ import com.intellij.openapi.editor.ex.EditorEx;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.PsiFile;
 import lombok.SneakyThrows;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.Icon;
@@ -108,9 +109,10 @@ public class ObjectFilterDetailsForm extends DBNFormBase {
         hintPanel.add(disclaimerForm.getComponent());
     }
 
+    @NonNls
     @SneakyThrows
     private static TextContent loadHintText() {
-        String content = Commons.readInputStream(ObjectFilterDetailsForm.class.getResourceAsStream("object_filter_expression_guide.html"));
+        String content = Commons.readInputStream(ObjectFilterDetailsForm.class.getResourceAsStream("object_filter_expression_guide.html.ft"));
         return TextContent.html(content);
     }
 

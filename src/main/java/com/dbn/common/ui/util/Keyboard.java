@@ -28,9 +28,14 @@ import com.intellij.openapi.keymap.KeymapUtil;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.JComponent;
 import javax.swing.KeyStroke;
 import java.awt.event.InputEvent;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Arrays;
+import java.util.function.Consumer;
 
 @UtilityClass
 public class Keyboard {
@@ -83,5 +88,37 @@ public class Keyboard {
 
     public static boolean isEmacsKeymap(@Nullable Keymap keymap) {
         return KeymapUtil.isEmacsKeymap(keymap);
+    }
+
+    /**
+     * Adds a key press listener to the specified component. When the specified key is pressed,
+     * the provided consumer is invoked with the key event.
+     *
+     * @param component   the JComponent to which the key press listener is added
+     * @param keyCode     the key code of the key to listen for
+     * @param keyConsumer the consumer that processes the key event when the specified key is pressed
+     */
+    public static void onKeyPress(JComponent component, int keyCode, Consumer<KeyEvent> keyConsumer) {
+        component.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyCode() == keyCode) {
+                    keyConsumer.accept(e);
+                }
+            }
+        });
+    }
+
+    /**
+     * Add the given key listener as first in the sequence for the component
+     *
+     * @param component the JComponent to which the key listener is added
+     * @param listener the KeyListener to be added to the component
+     */
+    public static void insertKeyListener(JComponent component, KeyListener listener) {
+        KeyListener[] keyListeners = component.getKeyListeners();
+        Arrays.stream(keyListeners).forEach(l -> component.removeKeyListener(l));
+        component.addKeyListener(listener);
+        Arrays.stream(keyListeners).forEach(l -> component.addKeyListener(l));
     }
 }

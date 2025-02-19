@@ -34,6 +34,10 @@ public interface Presentable extends Named {
     @NotNull
     String getName();
 
+    default String getAccessibleName() {
+        return getName();
+    }
+
     @Nullable
     default String getDescription() {
         return null;
@@ -47,10 +51,6 @@ public interface Presentable extends Named {
     @Nullable
     default Icon getIcon() {
         return null;
-    }
-
-    default boolean isSecondary() {
-        return false;
     }
 
     Presentable UNKNOWN = new Presentable() {

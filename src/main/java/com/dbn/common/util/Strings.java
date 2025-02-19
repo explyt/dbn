@@ -18,6 +18,7 @@ package com.dbn.common.util;
 
 import com.intellij.openapi.util.text.StringUtil;
 import lombok.experimental.UtilityClass;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 
 import static java.lang.Character.isWhitespace;
 
+@NonNls
 @UtilityClass
 public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
 
@@ -255,7 +257,7 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return maxLength;
     }
 
-    public static int indexOfIgnoreCase(@NotNull CharSequence where, @NotNull CharSequence what, int fromIndex) {
+    public static int indexOfIgnoreCase(@NotNull @NonNls CharSequence where, @NotNull @NonNls CharSequence what, int fromIndex) {
         int targetCount = what.length();
         int sourceCount = where.length();
 
@@ -394,7 +396,7 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return LOWER_CASE_STRINGS.computeIfAbsent(string, k -> toLowerCase(k).intern());
     }
 
-    public static boolean containsIgnoreCase(String name, String option) {
+    public static boolean containsIgnoreCase(String name, @NonNls String option) {
         return StringUtil.containsIgnoreCase(name, option);
     }
 

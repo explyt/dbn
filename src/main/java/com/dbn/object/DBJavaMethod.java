@@ -16,6 +16,7 @@
 
 package com.dbn.object;
 
+import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 
 import java.util.List;
@@ -25,9 +26,15 @@ public interface DBJavaMethod extends DBOrderedObject {
 
 	DBJavaClass getOwnerClass();
 
-	String getReturnType();
+	String getOwnerClassName();
 
     DBJavaClass getReturnClass();
+
+	DBObjectRef<DBJavaClass> getReturnClassRef();
+
+	String getReturnClassName();
+
+	short getReturnArrayDepth();
 
 	DBJavaAccessibility getAccessibility();
 
@@ -35,13 +42,17 @@ public interface DBJavaMethod extends DBOrderedObject {
 
 	boolean isStatic();
 
+	boolean isExecutable();
+
 	boolean isAbstract();
 
 	String getSignature();
 
-	String getClassName();
-
 	short getIndex();
 
 	List<DBJavaParameter> getParameters();
+
+	DBJavaParameter getParameter(String name);
+
+	String getSimpleName();
 }

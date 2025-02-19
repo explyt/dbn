@@ -26,12 +26,10 @@ import com.dbn.common.environment.options.listener.EnvironmentManagerListener;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.listener.DBNFileEditorManagerListener;
 import com.dbn.common.util.Editors;
-import com.dbn.connection.ConnectionHandler;
-import com.dbn.connection.ConsoleChangeListener;
-import com.dbn.connection.mapping.FileConnectionContextManager;
 import com.dbn.editor.code.SourceCodeEditor;
 import com.dbn.editor.code.SourceCodeManagerListener;
 import com.dbn.editor.data.DatasetEditor;
+import com.dbn.execution.compiler.CompileManagerListener;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.editor.DefaultEditorOption;
 import com.dbn.object.type.DBObjectType;
@@ -59,6 +57,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.options.setting.Settings.enumAttribute;
 import static com.dbn.common.options.setting.Settings.newElement;
+import static com.dbn.common.options.setting.Settings.newStateElement;
 import static com.dbn.common.options.setting.Settings.setEnumAttribute;
 import static com.dbn.common.options.setting.Settings.stringAttribute;
 import static com.dbn.editor.DatabaseEditorStateManager.COMPONENT_NAME;
@@ -78,6 +77,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
         ProjectEvents.subscribe(project, this, SourceCodeManagerListener.TOPIC, sourceCodeManagerListener());
         ProjectEvents.subscribe(project, this, FileEditorManagerListener.FILE_EDITOR_MANAGER, fileEditorManagerListener());
         ProjectEvents.subscribe(project, this, EnvironmentManagerListener.TOPIC, environmentManagerListener());
+        ProjectEvents.subscribe(project, this, CompileManagerListener.TOPIC, compileManagerListener());
     }
 
     public static DatabaseEditorStateManager getInstance(@NotNull Project project) {
@@ -93,6 +93,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
                 EnvironmentManager environmentManager = EnvironmentManager.getInstance(project);
                 boolean readonly = environmentManager.isReadonly(sourceCodeFile);
                 Editors.setEditorsReadonly(sourceCodeFile, readonly);
+                Editors.updateEditorPresentations(project, sourceCodeFile.getMainDatabaseFile());
             }
         };
     }
@@ -117,15 +118,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
                 }
 
                 FileEditor newEditor = event.getNewEditor();
-                if(newEditor != null){
-                FileConnectionContextManager contextManager = FileConnectionContextManager.getInstance(getProject());
-                ConnectionHandler connectionHandler = contextManager.getConnection(newEditor.getFile());
-                if(connectionHandler != null) {
-                    ProjectEvents.notify(ensureProject(), ConsoleChangeListener.TOPIC, (listener) -> {
-                        listener.consoleChanged(connectionHandler.getConnectionId());
-                    });
-                }
-                }
+
                 if (newEditor instanceof SourceCodeEditor) {
                     SourceCodeEditor sourceCodeEditor = (SourceCodeEditor) newEditor;
                     editorProviderId = sourceCodeEditor.getEditorProviderId();
@@ -168,6 +161,13 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
         };
     }
 
+    private CompileManagerListener compileManagerListener() {
+        return (connection, object) -> {
+            if (object == null) return;
+            Editors.updateEditorPresentations(getProject(), object.getVirtualFile());
+        };
+    }
+
     @Nullable
     public EditorProviderId getEditorProvider(DBObjectType objectType) {
         DatabaseBrowserSettings browserSettings = ProjectSettings.get(getProject()).getBrowserSettings();
@@ -192,7 +192,7 @@ public class DatabaseEditorStateManager extends ProjectComponentBase implements 
     @Nullable
     @Override
     public Element getComponentState() {
-        Element element = new Element("state");
+        Element element = newStateElement();
         Element editorProvidersElement = newElement(element, "last-used-providers");
         for (val entry : lastUsedEditorProviders.entrySet()) {
             DBObjectType objectType = entry.getKey();
