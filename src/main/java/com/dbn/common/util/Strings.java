@@ -33,6 +33,7 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 import static java.lang.Character.isWhitespace;
 
 @NonNls
@@ -107,6 +108,18 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
         return StringUtil.isEmptyOrSpaces(string);
     }
 
+    public static boolean isAlphanumericWithUnderscore(@Nullable String string) {
+        if (isEmptyOrSpaces(string)) return false;
+
+        for (int i = 0; i < string.length(); i++) {
+            char chr = string.charAt(i);
+            if (!Character.isLetterOrDigit(chr) && chr != '_') {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean isOneOf(String string, String ... values) {
         for (String value : values) {
             if (Objects.equals(value, string)) return true;
@@ -150,7 +163,9 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
                 Integer.parseInt(string);
                 return true;
             }
-        } catch (NumberFormatException ignore) {}
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+        }
 
         return false;
 
@@ -171,7 +186,9 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
                 Double.parseDouble(string);
                 return true;
             }
-        } catch (NumberFormatException ignore) {}
+        } catch (NumberFormatException e) {
+            conditionallyLog(e);
+        }
         return false;
     }
 
@@ -435,5 +452,30 @@ public class Strings/* extends com.intellij.openapi.util.text.StringUtil*/ {
     public interface CharPredicate {
         boolean test(char chr);
     }
+
+    public static Character firstCharacter(String string) {
+        if (string != null && !string.isEmpty()) {
+            return string.charAt(0);
+        }
+        return null;
+    }
+
+    /**
+     * Removes all occurrences of the specified trailing content from the provided string.
+     * The method iteratively removes the trailing content until the string no longer ends with it.
+     *
+     * @param text the input text from which the trailing content is to be removed
+     * @param toRemove the trailing content to be removed, which is matched iteratively from the end
+     * @return the modified string with the specified trailing content removed
+     */
+    public static String removeTrailingContent(String text, String toRemove) {
+        if (isEmpty(toRemove)) return text;
+
+        while (text.endsWith(toRemove)) {
+            text = text.substring(0, text.length() - toRemove.length());
+        }
+        return text;
+    }
+
 }
 

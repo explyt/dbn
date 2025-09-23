@@ -29,6 +29,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.ColorChooserService;
+import com.intellij.ui.ColorUtil;
 import com.intellij.ui.Gray;
 import com.intellij.ui.JBColor;
 import com.intellij.util.ui.UIUtil;
@@ -48,16 +49,17 @@ import static com.dbn.common.color.ColorCache.cached;
 import static com.dbn.common.color.ColorSchemes.background;
 import static com.dbn.common.color.ColorSchemes.foreground;
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.intellij.ui.ColorUtil.withAlpha;
 
 @UtilityClass
 public final class Colors {
-    public static Color LIGHT_BLUE = new JBColor(new Color(235, 244, 254), new Color(0x2D3548));
-    public static Color HINT_COLOR = new JBColor(new Color(-12029286), new Color(-10058060));
+    public static final Color LIGHT_BLUE = new JBColor(new Color(235, 244, 254), new Color(0x2D3548));
+    public static final Color HINT_COLOR = new JBColor(new Color(-12029286), new Color(-10058060));
 
-    public static Color FAILURE_COLOR = new JBColor(new Color(0xFF0000), new Color(0xBC3F3C));
-    public static Color SUCCESS_COLOR = new JBColor(new Color(0x009600), new Color(0x629755));
+    public static final Color FAILURE_COLOR = new JBColor(new Color(0xFF0000), new Color(0xBC3F3C));
+    public static final Color SUCCESS_COLOR = new JBColor(new Color(0x009600), new Color(0x629755));
 
-    public static Color SEPARATOR_COLOR = JBColor.namedColor("Separator.separatorColor", new JBColor(0xcdcdcd, 0x515151));
+    public static final Color SEPARATOR_COLOR = JBColor.namedColor("Separator.separatorColor", new JBColor(0xcdcdcd, 0x515151));
 
     public static Color getPanelBackground() {
         return cached(0, () -> UIUtil.getPanelBackground());
@@ -265,6 +267,16 @@ public final class Colors {
     public static Color stronger(Color color, int tones) {
         return ColorAdjustmentCache.adjusted(color, ColorAdjustment.STRONGER, tones);
     }
+
+    @Compatibility
+    public static Color faded(Color color) {
+        return withAlpha(color, (double)0.45F);
+    }
+
+    public static Color dimmer(Color color) {
+        return ColorUtil.dimmer(color);
+    }
+
 
     public static Color delegate(Supplier<Color> supplier) {
         return new ColorDelegate(supplier);

@@ -21,7 +21,6 @@ import com.dbn.assistant.credential.local.LocalCredentialSettings;
 import com.dbn.assistant.settings.AssistantSettings;
 import com.dbn.browser.options.DatabaseBrowserSettings;
 import com.dbn.code.common.completion.options.CodeCompletionSettings;
-import com.dbn.common.action.UserDataKeys;
 import com.dbn.common.component.Components;
 import com.dbn.common.component.PersistentState;
 import com.dbn.common.component.ProjectComponentBase;
@@ -30,6 +29,7 @@ import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.options.ConfigMonitor;
 import com.dbn.common.project.Projects;
 import com.dbn.common.util.Dialogs;
+import com.dbn.common.util.Dialogs.DialogCallback;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.DatabaseType;
@@ -45,6 +45,7 @@ import com.dbn.ddl.options.DDLFileSettings;
 import com.dbn.editor.data.options.DataEditorSettings;
 import com.dbn.execution.common.options.ExecutionEngineSettings;
 import com.dbn.navigation.options.NavigationSettings;
+import com.dbn.oci.OciConnectionData;
 import com.dbn.options.general.GeneralProjectSettings;
 import com.dbn.options.ui.ProjectSettingsDialog;
 import com.intellij.openapi.components.State;
@@ -56,6 +57,9 @@ import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import static com.dbn.common.action.UserDataKeys.PROJECT_SETTINGS_LOADED;
+import static com.dbn.common.action.UserDataKeys.isUserData;
+import static com.dbn.common.action.UserDataKeys.setUserData;
 import static com.dbn.common.dispose.Failsafe.nd;
 import static com.dbn.common.options.ConfigActivity.INITIALIZING;
 import static com.dbn.common.options.setting.Settings.newStateElement;
@@ -153,6 +157,16 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
         Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData));
     }
 
+    // opened from oci-toolkit
+    public void createConnection(DatabaseType databaseType, ConnectionConfigType connectionConfigType, OciConnectionData connectionData, DialogCallback<ProjectSettingsDialog> callback) {
+        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), databaseType, connectionConfigType, connectionData), callback);
+    }
+
+    // opened from oci-toolkit
+    public void createConnection(TnsImportData importData, OciConnectionData connectionData, DialogCallback<ProjectSettingsDialog> callback) {
+        Dialogs.show(() -> new ProjectSettingsDialog(getProject(), importData, connectionData), callback);
+    }
+
     @Override
     public void initializeComponent() {
         restoreKeychainSecrets();
@@ -192,15 +206,28 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     }
 
     @Override
-    public void loadComponentState(@NotNull Element element) {
+    public synchronized void loadComponentState(@NotNull Element element) {
+        if (areSettingsLoaded()) return;
         try {
             ConfigMonitor.set(INITIALIZING, true);
             projectSettings.readConfiguration(element);
-            getProject().putUserData(UserDataKeys.PROJECT_SETTINGS_LOADED, true);
+            markSettingsLoaded();
         } finally {
             ConfigMonitor.set(INITIALIZING, false);
         }
     }
+
+    private boolean areSettingsLoaded() {
+        Project project = getProject();
+        return isUserData(project, PROJECT_SETTINGS_LOADED);
+    }
+
+    private void markSettingsLoaded() {
+        Project project = getProject();
+        setUserData(project, PROJECT_SETTINGS_LOADED, true);
+    }
+
+
 
     public void exportToDefaultSettings() {
         Project project = getProject();
@@ -226,38 +253,40 @@ public class ProjectSettingsManager extends ProjectComponentBase implements Pers
     }
 
     public void importDefaultSettings(final boolean newProject) {
+        boolean settingsLoaded = areSettingsLoaded();
+        if (newProject && settingsLoaded) return;
+
         Project project = getProject();
-        Boolean settingsLoaded = project.getUserData(UserDataKeys.PROJECT_SETTINGS_LOADED);
-        if (settingsLoaded == null || !settingsLoaded || !newProject) {
-            String projectName = project.getName();
-            Messages.showQuestionDialog(
-                    project, txt("msg.settings.title.DefaultProjectSettings"),
-                    newProject ?
-                            txt("msg.settings.message.ImportDefaultProjectSettings", projectName) :
-                            txt("msg.settings.message.ImportDefaultProjectSettingsOverride", projectName),
-                    Messages.OPTIONS_YES_NO, 0,
-                    option -> when(option == 0, () -> {
-                        try {
-                            Element element = newStateElement();
-                            ProjectSettings defaultProjectSettings = ProjectSettings.getDefault();
-                            defaultProjectSettings.writeConfiguration(element);
+        String projectName = project.getName();
+        Messages.showQuestionDialog(
+                project, txt("msg.settings.title.DefaultProjectSettings"),
+                newProject ?
+                        txt("msg.settings.message.ImportDefaultProjectSettings", projectName) :
+                        txt("msg.settings.message.ImportDefaultProjectSettingsOverride", projectName),
+                Messages.OPTIONS_YES_NO, 0,
+                option -> when(option == 0, () -> {
+                    try {
+                        Element element = newStateElement();
+                        ProjectSettings defaultProjectSettings = ProjectSettings.getDefault();
+                        defaultProjectSettings.writeConfiguration(element);
 
-                            ConnectionBundleSettings.IS_IMPORT_EXPORT_ACTION.set(true);
-                            getProjectSettings().readConfiguration(element);
+                        ConnectionBundleSettings.IS_IMPORT_EXPORT_ACTION.set(true);
+                        getProjectSettings().readConfiguration(element);
 
-                            ProjectEvents.notify(project,
-                                    ConnectionConfigListener.TOPIC,
-                                    (listener) -> listener.connectionsChanged());
+                        ProjectEvents.notify(project,
+                                ConnectionConfigListener.TOPIC,
+                                (listener) -> listener.connectionsChanged());
 
-                            if (!newProject) {
-                                Messages.showInfoDialog(project,
-                                        txt("msg.settings.title.ProjectSettings"),
-                                        txt("msg.settings.message.DefaultProjectSettingsLoaded", projectName));
-                            }
-                        } finally {
-                            ConnectionBundleSettings.IS_IMPORT_EXPORT_ACTION.set(false);
+                        if (!newProject) {
+                            Messages.showInfoDialog(project,
+                                    txt("msg.settings.title.ProjectSettings"),
+                                    txt("msg.settings.message.DefaultProjectSettingsLoaded", projectName));
                         }
-                    }));
-        }
+                    } finally {
+                        ConnectionBundleSettings.IS_IMPORT_EXPORT_ACTION.set(false);
+                    }
+                }));
     }
+
+
 }

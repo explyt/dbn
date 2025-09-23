@@ -16,6 +16,7 @@
 
 package com.dbn.common.editor;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.util.Editors;
 import com.dbn.editor.EditorProviderId;
@@ -56,7 +57,7 @@ public abstract class BasicTextEditorProvider implements FileEditorProvider, Nam
 
     protected void updateTabIcon(final DBEditableObjectVirtualFile databaseFile, final BasicTextEditor textEditor, final Icon icon) {
         Project project = databaseFile.getProject();
-        Dispatch.run(() -> Editors.setEditorProviderIcon(project, databaseFile, textEditor, icon));
+        Dispatch.run(textEditor.getComponent(), () -> Editors.setEditorProviderIcon(project, databaseFile, textEditor, icon));
     }
 
     @NotNull
@@ -68,4 +69,9 @@ public abstract class BasicTextEditorProvider implements FileEditorProvider, Nam
     @NotNull
     public abstract EditorProviderId getEditorProviderId();
 
+    //@Override
+    @Compatibility
+    public boolean acceptRequiresReadAction() {
+        return false;
+    }
 }

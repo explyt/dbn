@@ -35,6 +35,7 @@ import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.project.Project;
 import com.intellij.util.containers.ContainerUtil;
+import lombok.Getter;
 import lombok.experimental.Delegate;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -63,7 +64,9 @@ public abstract class DBNFormBase
         extends DBNComponentBase
         implements DBNForm, NotificationSupport {
 
+    @Getter
     private boolean initialized;
+
     private final Set<JComponent> enabled = ContainerUtil.createWeakSet();
     private final Latent<DBNFormFieldAdapter> fieldAdapter = Latent.basic(() -> DBNFormFieldAdapter.create(this));
     private final Latent<Boolean> hasScrollBars = Latent.basic(() -> hasChildComponent(getMainComponent(), c -> c instanceof JScrollPane));
@@ -109,11 +112,11 @@ public abstract class DBNFormBase
     }
 
     /**
-     * Passes on the runnable to the dispatch thread (Application.invokeLater) under full awareness of the component modality state
+     * Passes on the runnable to the dispatch thread (Application.invokeAndWait) under full awareness of the component modality state
      * @param runnable the runnable to be sent to dispatch thread
      */
     protected void dispatch(Runnable runnable) {
-        Dispatch.run(getMainComponent(), runnable);
+        Dispatch.execute(getMainComponent(), runnable);
     }
 
     /**
@@ -239,7 +242,7 @@ public abstract class DBNFormBase
     }
 
     @Override
-    public <F extends DBNForm> F getParentFrom(Class<F> formClass) {
+    public final <F extends DBNForm> F getParentFrom(Class<F> formClass) {
         DBNComponent parent = getParentComponent();
         if (parent == null) return null;
         if (formClass.isAssignableFrom(parent.getClass())) return cast(parent);

@@ -31,6 +31,9 @@ import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+import java.util.List;
+
 import static com.dbn.common.util.Strings.containsOneOf;
 import static com.dbn.common.util.Strings.isNotEmpty;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -131,6 +134,11 @@ public final class Settings {
     public static boolean booleanAttribute(Element element, @NonNls String attributeName, boolean defaultValue) {
         String attributeValue = stringAttribute(element, attributeName);
         return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Boolean.parseBoolean(attributeValue);
+    }
+
+    public static double doubleAttribute(Element element, @NonNls String attributeName, double defaultValue) {
+        String attributeValue = stringAttribute(element, attributeName);
+        return Strings.isEmptyOrSpaces(attributeValue) ? defaultValue : Double.parseDouble(attributeValue);
     }
 
     public static short shortAttribute(Element element, @NonNls String attributeName, short defaultValue) {
@@ -309,6 +317,18 @@ public final class Settings {
         Element child = new Element(name);
         if (parent != null) parent.addContent(child);
         return child;
+    }
+
+    /**
+     * Retrieves the child elements of the given {@code Element}.
+     *
+     * @param element the parent {@code Element} from which to retrieve child elements; may be {@code null}
+     * @return a list of child {@code Element} objects if the given element is not null,
+     *         or an empty list if the given element is null
+     */
+    @NotNull
+    public static List<Element> childrenOf(@Nullable Element element) {
+        return element == null ? Collections.emptyList(): element.getChildren();
     }
 
     /**

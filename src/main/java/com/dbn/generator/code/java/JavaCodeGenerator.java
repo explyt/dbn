@@ -17,6 +17,7 @@
 package com.dbn.generator.code.java;
 
 
+import com.dbn.common.thread.Write;
 import com.dbn.common.util.Environment;
 import com.dbn.common.util.Messages;
 import com.dbn.connection.context.DatabaseContext;
@@ -27,7 +28,6 @@ import com.dbn.generator.code.shared.base.CodeGeneratorBase;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputDialog;
 import com.dbn.generator.code.shared.ui.CodeGeneratorInputForm;
 import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.application.WriteAction;
 import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
@@ -133,12 +133,16 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
         for (String packageToken : packageTokens) {
             PsiDirectory subdirectory = directory.findSubdirectory(packageToken);
             if (subdirectory == null)  {
-                directory.createSubdirectory(packageToken);
-                subdirectory = directory.findSubdirectory(packageToken);
+                subdirectory = createSubdirectory(directory, packageToken);
                 if (subdirectory == null) fail("Cannot create package directory " + packageToken);
             }
             directory = subdirectory;
         }
+    }
+
+    @Nullable
+    private static PsiDirectory createSubdirectory(PsiDirectory directory, String packageToken) {
+        return Write.compute(() -> directory.createSubdirectory(packageToken));
     }
 
     @SneakyThrows
@@ -158,7 +162,7 @@ public abstract class JavaCodeGenerator<I extends JavaCodeGeneratorInput, R exte
                 Messages.OPTIONS_YES_NO, 0);
 
         if (overwrite == 0) {
-            WriteAction.run(() -> file.delete());
+            Write.run(() -> file.delete());
             return true;
         }
 

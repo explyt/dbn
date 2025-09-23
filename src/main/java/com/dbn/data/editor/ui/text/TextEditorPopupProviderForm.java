@@ -87,7 +87,7 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
         ActionToolbar rightActionToolbar = createActionToolbar(leftActionPanel, true, "DBNavigator.ActionGroup.TextEditor.Controls");
         rightActionPanel.add(rightActionToolbar.getComponent(), BorderLayout.EAST);
 
-        Arrays.asList(leftActionToolbar, rightActionToolbar).forEach(tb -> tb.getActions().forEach(a -> registerAction(a)));
+        Arrays.asList(leftActionToolbar, rightActionToolbar).forEach(tb -> Actions.getActions(tb).forEach(a -> registerAction(a)));
 
         updateComponentColors();
         Colors.subscribe(this, () -> updateComponentColors());
@@ -168,6 +168,11 @@ public class TextEditorPopupProviderForm extends TextFieldPopupProviderForm {
         ComponentPopupBuilder popupBuilder = JBPopupFactory.getInstance().createComponentPopupBuilder(component, editorTextArea);
         popupBuilder.setRequestFocus(true);
         popupBuilder.setResizable(true);
+
+        // TODO enable sticky popups
+        //popupBuilder.setCancelOnClickOutside(false);
+        //popupBuilder.setCancelOnWindowDeactivation(false);
+
         popupBuilder.setDimensionServiceKey(getProject(), "TextEditor." + userValueHolder.getName(), false);
         return popupBuilder.createPopup();
     }

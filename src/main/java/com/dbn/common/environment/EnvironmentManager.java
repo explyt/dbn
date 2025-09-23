@@ -28,7 +28,6 @@ import com.dbn.object.common.status.DBObjectStatusHolder;
 import com.dbn.vfs.file.DBContentVirtualFile;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
-import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import org.jdom.Element;
@@ -37,6 +36,13 @@ import org.jetbrains.annotations.Nullable;
 
 import static com.dbn.common.component.Components.projectService;
 import static com.dbn.common.dispose.Checks.isNotValid;
+import static com.dbn.common.util.Editors.getOpenFiles;
+import static com.dbn.common.util.Editors.updateEditorPresentations;
+import static com.dbn.editor.DBContentType.CODE;
+import static com.dbn.editor.DBContentType.CODE_BODY;
+import static com.dbn.editor.DBContentType.CODE_SPEC;
+import static com.dbn.editor.DBContentType.DATA;
+import static com.dbn.editor.DBContentType.JSON;
 import static com.dbn.object.common.status.DBObjectStatus.EDITABLE;
 
 @State(
@@ -61,9 +67,8 @@ public class EnvironmentManager extends ProjectComponentBase implements Persiste
         return new EnvironmentManagerListener() {
             @Override
             public void configurationChanged(Project project) {
-                FileEditorManager fileEditorManager = FileEditorManager.getInstance(project);
-                VirtualFile[] openFiles = fileEditorManager.getOpenFiles();
-                Editors.updateEditorPresentations(project, openFiles);
+                VirtualFile[] openFiles = getOpenFiles(project);
+                updateEditorPresentations(project, openFiles);
             }
         };
     }
@@ -72,14 +77,31 @@ public class EnvironmentManager extends ProjectComponentBase implements Persiste
         return isReadonly(contentFile.getObject(), contentFile.getContentType());
     }
 
-    public boolean isReadonly(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
+    public boolean isEnvironmentReadonly(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
         EnvironmentType environmentType = schemaObject.getEnvironmentType();
-        DBObjectStatusHolder objectStatus = schemaObject.getStatus();
-        if (contentType == DBContentType.DATA) {
-            return environmentType.isReadonlyData() && objectStatus.isNot(contentType, EDITABLE);
-        } else {
-            return environmentType.isReadonlyCode() && objectStatus.isNot(contentType, EDITABLE);
+
+        if (contentType.isOneOf(DATA, JSON)) {
+            return environmentType.isReadonlyData();
         }
+
+        if (contentType.isOneOf(CODE, CODE_SPEC, CODE_BODY)) {
+            return environmentType.isReadonlyCode();
+        }
+
+        return false;
+    }
+
+    public boolean isReadonly(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
+        // content transiently marked as editable
+        boolean transientlyEditable = isTransientlyEditable(schemaObject, contentType);
+        if (transientlyEditable) return false;
+
+        return isEnvironmentReadonly(schemaObject, contentType);
+    }
+
+    public static boolean isTransientlyEditable(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {
+        DBObjectStatusHolder objectStatus = schemaObject.getStatus();
+        return objectStatus.is(contentType, EDITABLE);
     }
 
     public void enableEditing(@NotNull DBSchemaObject schemaObject, @NotNull DBContentType contentType) {

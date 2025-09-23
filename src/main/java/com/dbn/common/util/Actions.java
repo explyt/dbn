@@ -16,6 +16,7 @@
 
 package com.dbn.common.util;
 
+import com.dbn.common.compatibility.Compatibility;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionPopupMenu;
@@ -29,6 +30,9 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.JComponent;
 import java.awt.event.InputEvent;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.dbn.common.ui.util.ClientProperty.ACTION_TOOLBAR;
 import static com.intellij.openapi.actionSystem.ActionPlaces.POPUP;
@@ -95,4 +99,24 @@ public class Actions {
         inputEvent.consume();
     }
 
+    @Compatibility
+    public static List<AnAction> getActions(ActionToolbar actionToolbar) {
+        ActionGroup actionGroup = actionToolbar.getActionGroup();
+        if (actionGroup instanceof DefaultActionGroup) {
+            DefaultActionGroup defaultActionGroup = (DefaultActionGroup) actionGroup;
+            AnAction[] actions = defaultActionGroup.getChildActionsOrStubs();
+            return Arrays
+                    .stream(actions)
+                    .filter(a -> !isSeparator(a))
+                    .collect(Collectors.toList());
+        }
+        return actionToolbar.getActions()
+                .stream()
+                .filter(a -> !isSeparator(a))
+                .collect(Collectors.toList());
+    }
+
+    public static boolean isSeparator(AnAction action) {
+        return action instanceof Separator;
+    }
 }

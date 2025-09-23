@@ -42,23 +42,23 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
     private static final Key<DatasetEditorNotificationPanel> KEY = Key.create("DBNavigator.DatasetEditorNotificationPanel");
 
     public DatasetEditorNotificationProvider() {
-        ProjectEvents.subscribe(DatasetLoadListener.TOPIC, datasetLoadListener());
+        ProjectEvents.subscribe(DataLoadListener.TOPIC, datasetLoadListener());
         ProjectEvents.subscribe(EnvironmentManagerListener.TOPIC, environmentManagerListener());
     }
 
     @NotNull
-    private static DatasetLoadListener datasetLoadListener() {
-        return new DatasetLoadListener() {
+    private static DataLoadListener datasetLoadListener() {
+        return new DataLoadListener() {
             @Override
-            public void datasetLoaded(@NotNull DBVirtualFile virtualFile) {
+            public void dataLoaded(@NotNull DBVirtualFile virtualFile) {
                 Project project = virtualFile.getProject();
                 EditorNotifications notifications = Editors.getNotifications(project);
                 notifications.updateNotifications((VirtualFile) virtualFile);
             }
 
             @Override
-            public void datasetLoading(@NotNull DBVirtualFile virtualFile) {
-                datasetLoaded(virtualFile);
+            public void dataLoading(@NotNull DBVirtualFile virtualFile) {
+                dataLoaded(virtualFile);
             }
         };
     }
@@ -88,11 +88,11 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
 
     @Nullable
     @Override
-    public DatasetEditorNotificationPanel createComponent(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
-        if (!(virtualFile instanceof DBEditableObjectVirtualFile)) return null;
+    public DatasetEditorNotificationPanel createComponent(@NotNull VirtualFile file, @NotNull FileEditor fileEditor, @NotNull Project project) {
+        if (!(file instanceof DBEditableObjectVirtualFile)) return null;
         if (!(fileEditor instanceof DatasetEditor)) return null;
 
-        DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) virtualFile;
+        DBEditableObjectVirtualFile editableObjectFile = (DBEditableObjectVirtualFile) file;
         DatasetEditor datasetEditor = (DatasetEditor) fileEditor;
 
         DBSchemaObject editableObject = editableObjectFile.getObject();
@@ -100,11 +100,11 @@ public class DatasetEditorNotificationProvider extends EditorNotificationProvide
 
         String sourceLoadError = datasetEditor.getDataLoadError();
         if (Strings.isNotEmpty(sourceLoadError)) {
-            return new DatasetEditorLoadErrorNotificationPanel(editableObject, sourceLoadError);
+            return new DatasetEditorLoadErrorNotificationPanel(editableObject, fileEditor, sourceLoadError);
         }
 
         if (editableObject instanceof DBTable && editableObjectFile.getEnvironmentType().isReadonlyData()) {
-            return new DatasetEditorReadonlyNotificationPanel(editableObject);
+            return new DatasetEditorReadonlyNotificationPanel(editableObject, fileEditor);
         }
 
         return null;

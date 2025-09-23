@@ -18,7 +18,6 @@ package com.dbn.common.util;
 
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.common.routine.ThrowableRunnable;
-import lombok.SneakyThrows;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NonNls;
@@ -27,8 +26,7 @@ import org.jetbrains.annotations.NonNls;
 @UtilityClass
 public final class Measured {
 
-    @SneakyThrows
-    public static void run(@NonNls String identifier, ThrowableRunnable<Throwable> runnable) {
+    public static <E extends Throwable> void run(@NonNls String identifier, ThrowableRunnable<E> runnable) throws E{
         logStart(identifier);
         long start = System.currentTimeMillis();
         try {
@@ -38,8 +36,7 @@ public final class Measured {
         }
     }
 
-    @SneakyThrows
-    public static <T> T call(@NonNls String identifier, ThrowableCallable<T, Throwable> callable) {
+    public static <T, E extends Throwable> T call(@NonNls String identifier, ThrowableCallable<T, E> callable) throws E {
         logStart(identifier);
         long start = System.currentTimeMillis();
         try {
@@ -50,10 +47,10 @@ public final class Measured {
     }
 
     private static void logStart(String identifier) {
-        log.info("[DBN] Started " + identifier);
+        log.info("[DBN] Started {}", identifier);
     }
 
     private static void logEnd(String identifier, long start) {
-        log.info("[DBN] Done " + identifier + " - " + (System.currentTimeMillis() - start) + "ms");
+        log.info("[DBN] Done {} - {}ms", identifier, System.currentTimeMillis() - start);
     }
 }

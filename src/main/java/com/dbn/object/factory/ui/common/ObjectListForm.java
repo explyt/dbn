@@ -17,6 +17,7 @@
 package com.dbn.object.factory.ui.common;
 
 import com.dbn.common.dispose.DisposableContainers;
+import com.dbn.common.dispose.Disposer;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.ui.Presentable;
 import com.dbn.common.ui.PresentableFactory;
@@ -38,6 +39,8 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFormBase {
     private JPanel mainPanel;
@@ -90,25 +93,37 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         }
     }
 
-    public void createObjectPanel(ObjectDetail detail) {
+    public ObjectFactoryInputForm createObjectPanel(ObjectDetail detail) {
         ObjectFactoryInputForm<T> inputForm = createObjectDetailsPanel(inputForms.size(), detail);
-        inputForms.add(inputForm);
         ObjectListItemForm listItemForm = new ObjectListItemForm(this, inputForm);
+
+        inputForms.add(inputForm);
         listPanel.add(listItemForm.getComponent());
 
-        UserInterface.repaint(mainPanel);
-        inputForm.focus();
+        if (isInitialized()) {
+            UserInterface.repaint(mainPanel);
+            inputForm.focus();
+        }
+        return inputForm;
+    }
+
+    public void removeObjectPanel(int index) {
+        ObjectFactoryInputForm<T> inputForm = inputForms.remove(index);
+        Disposer.dispose(inputForm);
+        listPanel.remove(index);
     }
 
     public void removeObjectPanel(ObjectListItemForm child) {
         inputForms.remove(child.getObjectDetailsPanel());
         listPanel.remove(child.getComponent());
 
-        UserInterface.repaint(mainPanel);
         // rebuild indexes
         for (int i=0; i< inputForms.size(); i++) {
             inputForms.get(i).setIndex(i);
         }
+
+        UserInterface.repaint(mainPanel);
+        validateInput();  // clear validation errors produced by this form
     }
 
     public List<T> createFactoryInputs(ObjectFactoryInput parent) {
@@ -127,5 +142,13 @@ public abstract class ObjectListForm<T extends ObjectFactoryInput> extends DBNFo
         public ObjectDetail(String name) {
             this.name = name;
         }
+    }
+
+    public Set<String> getObjectNames(ObjectFactoryInputForm excludedForm) {
+        return inputForms.
+                stream().
+                filter(f -> f != excludedForm).
+                map(f -> f.getObjectName()).
+                collect(Collectors.toSet());
     }
 }

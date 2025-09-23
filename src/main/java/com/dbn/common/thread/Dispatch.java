@@ -16,20 +16,24 @@
 
 package com.dbn.common.thread;
 
-import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.action.Lookups;
 import com.dbn.common.routine.Consumer;
 import com.dbn.common.routine.ThrowableCallable;
 import com.dbn.diagnostics.Diagnostics;
-import com.intellij.openapi.Disposable;
+import com.intellij.openapi.actionSystem.DataContext;
+import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ModalityState;
-import com.intellij.util.Alarm;
 import lombok.experimental.UtilityClass;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.JComponent;
+import java.awt.Component;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
+import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.thread.ThreadMonitor.isDispatchThread;
 import static com.dbn.common.ui.util.UserInterface.whenFirstShown;
 import static com.dbn.common.util.Commons.nvl;
 import static com.intellij.openapi.application.ApplicationManager.getApplication;
@@ -37,31 +41,63 @@ import static com.intellij.openapi.application.ApplicationManager.getApplication
 @UtilityClass
 public final class Dispatch {
 
+    /**
+     * @deprecated use {@link #run(Component, Runnable)} or {@link #run(DataContext, boolean, Runnable)} or provide correct modality state
+     */
     public static void run(Runnable runnable) {
         run((ModalityState) null, runnable);
     }
 
     public static void run(boolean conditional, Runnable runnable) {
-        if (conditional && ThreadMonitor.isDispatchThread()) {
-            Failsafe.guarded(runnable, r -> r.run());
+        if (conditional && isDispatchThread()) {
+            guarded(runnable, r -> r.run());
         } else {
             run((ModalityState) null, runnable);
         }
     }
 
-    public static void run(JComponent component, Runnable runnable) {
+    public static void run(DataContext dataContext, boolean conditional, Runnable runnable) {
+        if (conditional && isDispatchThread()) {
+            guarded(runnable, r -> r.run());
+        } else {
+            Component component = Lookups.getComponent(dataContext);
+            run(component, runnable);
+        }
+    }
+
+    public static void run(Component component, Runnable runnable) {
         ModalityState modalityState = ModalityState.stateForComponent(component);
         run(modalityState, runnable);
     }
 
-    public static void run(ModalityState modalityState, Runnable runnable) {
+    // fire and forget
+    public static void run(@Nullable ModalityState modalityState, Runnable runnable) {
         ThreadInfo invoker = ThreadInfo.copy();
         modalityState = nvl(modalityState, () -> ModalityState.defaultModalityState());
-        getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> Failsafe.guarded(() -> runnable.run())), modalityState);
+        getApplication().invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
+    }
+
+    public static void execute(@NotNull Component component, Runnable runnable) {
+        ModalityState modalityState = ModalityState.stateForComponent(component);
+        execute(modalityState, runnable);
+    }
+
+    // fire and wait (unless inside progress dialog)
+    public static void execute(@Nullable ModalityState modalityState, Runnable runnable) {
+        ThreadInfo invoker = ThreadInfo.copy();
+        Application application = getApplication();
+        if (ThreadMonitor.isProgressProcess()) {
+            // release the progress
+            application.invokeLater(() -> ThreadMonitor.surround(invoker, null, () -> execute((ModalityState) null, runnable)));
+        } else {
+            modalityState = nvl(modalityState, () -> getCurrentModalityState());
+            application.invokeAndWait(() -> ThreadMonitor.surround(invoker, null, () -> guarded(runnable, r -> r.run())), modalityState);
+        }
+
     }
 
     public static <T, E extends Throwable> T call(boolean conditional, ThrowableCallable<T, E> callable) throws E{
-        if (conditional && ThreadMonitor.isDispatchThread()) {
+        if (conditional && isDispatchThread()) {
             return callable.call();
         } else {
             return call(callable);
@@ -92,8 +128,7 @@ public final class Dispatch {
     }
 
     public static <T, E extends Throwable> T call(ThrowableCallable<T, E> callable) throws E{
-        ThreadInfo invoker = ThreadInfo.copy();
-        ModalityState modalityState = ModalityState.defaultModalityState();
+        ModalityState modalityState = getCurrentModalityState();
         AtomicReference<T> resultRef = new AtomicReference<>();
         AtomicReference<E> exceptionRef = new AtomicReference<>();
         getApplication().invokeAndWait(() -> {
@@ -114,28 +149,16 @@ public final class Dispatch {
     }
 
 
-    public static Alarm alarm(Disposable parentDisposable) {
-        Failsafe.nd(parentDisposable);
-        return new Alarm(parentDisposable);
+    public static ModalityState getCurrentModalityState() {
+        if (isDispatchThread()) {
+            return ModalityState.current();
+        }
+
+        // invoke and wait in "any" ModalityState
+        AtomicReference<ModalityState> atomicReference = new AtomicReference<>();
+        getApplication().invokeAndWait(() -> atomicReference.set(ModalityState.current()), ModalityState.any());
+        return atomicReference.get();
     }
 
-    public static void delayed(int delayMillis, @NotNull Runnable runnable) {
-        alarmRequest(new Alarm(), delayMillis, false, runnable);
-    }
-
-    public static void alarmRequest(@NotNull Alarm alarm, long delayMillis, boolean cancelRequests, @NotNull Runnable runnable) {
-        run(true, () -> {
-            if (alarm.isDisposed()) return;
-            if (cancelRequests) alarm.cancelAllRequests();
-            if (alarm.isDisposed()) return;
-
-            alarm.addRequest(runnable, delayMillis);
-        });
-    }
-
-
-    public static boolean isModalState() {
-        // return ModalityState.defaultModalityState().dominates(ModalityState.nonModal());
-        return ModalityState.defaultModalityState().dominates(ModalityState.NON_MODAL);
-    }
 }
+

@@ -17,36 +17,43 @@
 package com.dbn.object.common.status;
 
 import com.dbn.common.property.Property;
+import lombok.Getter;
 
-public enum DBObjectStatus implements Property.IntBase {
-    PRESENT(false, true),
-    ENABLED(true, true),
-    EDITABLE(false, false),
-    VALID(true, true),
-    DEBUG(true, true),
-    COMPILING(false, false);
+@Getter
+public enum DBObjectStatus implements Property.ShortBase {
+    PRESENT(Propagation.NONE, true),
+    ENABLED(Propagation.NONE, true),
+    EDITABLE(Propagation.NONE, false),
+    VALID(Propagation.ALL, true),
+    DEBUG(Propagation.ANY, false),
+    COMPILING(Propagation.ANY, false);
 
     public static final DBObjectStatus[] VALUES = values();
 
-    private final IntMasks masks = new IntMasks(this);
-    private final boolean propagable;
+    private final ShortMasks masks = new ShortMasks(this);
+    private final Propagation propagation;
     private final boolean defaultValue;
 
-    DBObjectStatus(boolean propagable, boolean defaultValue) {
-        this.propagable = propagable;
+    DBObjectStatus(Propagation propagation, boolean defaultValue) {
+        this.propagation = propagation;
         this.defaultValue = defaultValue;
     }
 
     @Override
-    public IntMasks masks() {
+    public ShortMasks masks() {
         return masks;
-    }
-
-    public boolean isPropagable() {
-        return propagable;
     }
 
     public boolean getDefaultValue() {
         return defaultValue;
+    }
+
+    /**
+     * Status propagation policy from sub-content-type to main-content-type
+     */
+    public enum Propagation {
+        NONE, // status does not propagate up
+        ANY,  // status propagates up if any of the sub-contents matches the given status
+        ALL   // status propagates up if all sub-contents match the given status
     }
 }

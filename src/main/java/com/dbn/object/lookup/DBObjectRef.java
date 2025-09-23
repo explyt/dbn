@@ -117,6 +117,15 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
         this.objectName = objectName.intern();
     }
 
+    public String getObjectName(boolean quoted) {
+        if (!quoted) return objectName;
+
+        ConnectionHandler connection = getConnection();
+        if (connection == null) return objectName;
+
+        return connection.getIdentifierCache().getQuotedIdentifier(objectName);
+    }
+
     public void setParent(Object parent) {
         if (parent == null) return;
 
@@ -272,7 +281,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
     @NotNull
     public String serialize() {
         StringDeBuilder builder = new StringDeBuilder();
-        builder.append(objectType.getListName());
+        builder.append(objectType.getPathListName());
         builder.append(PS);
         builder.append(quotePathElement(objectName));
 
@@ -281,7 +290,7 @@ public class DBObjectRef<T extends DBObject> implements Comparable<DBObjectRef<?
             builder.prepend(PS);
             builder.prepend(quotePathElement(parent.objectName));
             builder.prepend(PS);
-            builder.prepend(parent.objectType.getListName());
+            builder.prepend(parent.objectType.getPathListName());
             parent = parent.getParentRef();
         }
 

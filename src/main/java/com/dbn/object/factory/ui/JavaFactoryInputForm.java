@@ -98,11 +98,16 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
     @NotNull
     private String getHeaderTitle() {
         String packageName = packageTextField.getText().trim();
-        String className = classNameTextField.getText().trim();
+        String className = getObjectName();
         if (isEmpty(className)) className = "[unnamed]";
 
         String schemaName = schema.getObjectName();
         return schemaName + (isEmpty(packageName) ? "" : "." + packageName) + "." + className;
+    }
+
+    @Override
+    public String getObjectName() {
+        return classNameTextField.getText().trim();
     }
 
     private DBNHeaderForm createHeaderForm(DBSchema schema) {
@@ -140,6 +145,15 @@ public class JavaFactoryInputForm extends ObjectFactoryInputForm<JavaFactoryInpu
                 packageTextField.getText(),
                 classNameTextField.getText(),
                 classTypeComboBox.getSelectedValue());
+    }
+
+    @Override
+    public void restoreUserInput(@Nullable JavaFactoryInput input) {
+        if (input == null) return;
+
+        packageTextField.setText(input.getPackageName());
+        classNameTextField.setText(input.getClassName());
+        classTypeComboBox.setSelectedValue(input.getClassType());
     }
 
     @Override

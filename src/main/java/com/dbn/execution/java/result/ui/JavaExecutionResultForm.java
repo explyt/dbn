@@ -19,7 +19,6 @@ package com.dbn.execution.java.result.ui;
 import com.dbn.common.action.DataKeys;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.form.DBNForm;
 import com.dbn.common.ui.tab.DBNTabbedPane;
 import com.dbn.common.ui.tab.DBNTabs;
@@ -73,7 +72,9 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     public JavaExecutionResultForm(@NotNull JavaExecutionResult executionResult) {
         super(executionResult);
         List<ExecutionValue> fieldValues = getInputValues();
-        argumentValuesTree = new ArgumentValuesTree(this, fieldValues);
+        List<ExecutionValue> outputValues = executionResult.getFieldValues();
+
+        argumentValuesTree = new ArgumentValuesTree(this, fieldValues, outputValues);
         argumentValuesScrollPane.setViewportView(argumentValuesTree);
 
 
@@ -99,7 +100,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     }
 
     public void rebuildForm() {
-        Dispatch.run(() -> {
+        dispatch(() -> {
             updateArgumentValueTree();
             updateOutputTabs();
             updateStatusBarLabels();
@@ -112,7 +113,7 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
         List<ExecutionValue> outputFieldValues = executionResult.getFieldValues();
 
         DBJavaMethod method = executionResult.getMethod();
-        ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputFieldValues);
+        ArgumentValuesTreeModel treeModel = new ArgumentValuesTreeModel(method, inputFieldValues, outputFieldValues);
         argumentValuesTree.setModel(treeModel);
         TreeUtil.expand(argumentValuesTree, 2);
     }
@@ -152,43 +153,43 @@ public class JavaExecutionResultForm extends ExecutionResultFormBase<JavaExecuti
     private void addOutputArgumentTabs(JavaExecutionResult executionResult) {
         List<ExecutionValue> fieldValues = executionResult.getFieldValues();
         for (ExecutionValue fieldValue : fieldValues) {
-            DBJavaParameter argument = null;  // TODO inputValue.getArgument();
-            if (argument == null) continue;
+            DBJavaParameter parameter = null;  // TODO inputValue.getArgument();
+            if (parameter == null) continue;
 
             if (fieldValue.isCursor()) {
-                DBNForm argumentForm = new JavaExecutionCursorResultForm(this, executionResult, argument);
-                addOutputTab(argument, argumentForm);
+                DBNForm argumentForm = new JavaExecutionCursorResultForm(this, executionResult, parameter);
+                addOutputTab(parameter, argumentForm);
 
             } else if (fieldValue.isLargeObject() || fieldValue.isLargeValue()) {
-                DBNForm argumentForm = new JavaExecutionLargeValueResultForm(this, argument, fieldValue);
-                addOutputTab(argument, argumentForm);
+                DBNForm argumentForm = new JavaExecutionLargeValueResultForm(this, parameter, fieldValue);
+                addOutputTab(parameter, argumentForm);
             }
         }
     }
 
-    private void addOutputTab(DBJavaParameter argument, DBNForm form) {
+    private void addOutputTab(DBJavaParameter parameter, DBNForm form) {
         boolean select = outputTabs.getTabCount() == 0;
-        String title = argument.getName();
+        String title = parameter.getName();
         JComponent component = form.getComponent();
-        DBNTabs.initTabComponent(component, argument.getIcon(), null, form);
+        DBNTabs.initTabComponent(component, parameter.getIcon(), null, form);
 
         outputTabs.addTab(title, component);
         if (select) outputTabs.setSelectedIndex(0);
     }
 
-    void selectArgumentOutputTab(DBJavaParameter argument) {
+    void selectArgumentOutputTab(DBJavaParameter parameter) {
         for (int index = 0; index < outputTabs.getTabCount(); index++) {
             DBNForm content = outputTabs.getContentAt(index);
 
             if (content instanceof JavaExecutionCursorResultForm) {
                 JavaExecutionCursorResultForm cursorResultForm = (JavaExecutionCursorResultForm) content;
-                if (cursorResultForm.getArgument().equals(argument)) {
+                if (cursorResultForm.getParameter().equals(parameter)) {
                     outputTabs.setSelectedIndex(index);
                     break;
                 }
             } else if (content instanceof JavaExecutionLargeValueResultForm) {
                 JavaExecutionLargeValueResultForm largeValueResultForm = (JavaExecutionLargeValueResultForm) content;
-                if (largeValueResultForm.getArgument().equals(argument)) {
+                if (largeValueResultForm.getParameter().equals(parameter)) {
                     outputTabs.setSelectedIndex(index);
                     break;
                 }

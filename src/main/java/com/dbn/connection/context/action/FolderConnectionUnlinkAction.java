@@ -64,6 +64,6 @@ public class FolderConnectionUnlinkAction extends AbstractFolderContextAction {
 
         }
 
-        presentation.setText(text);
+        presentation.setText(text, false);
     }
 }

@@ -24,7 +24,7 @@ import com.dbn.browser.model.BrowserTreeModel;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.browser.model.ConnectionBrowserTreeModel;
 import com.dbn.browser.model.ConnectionBundleBrowserTreeModel;
-import com.dbn.common.color.Colors;
+import com.dbn.common.dispose.Checks;
 import com.dbn.common.dispose.Disposer;
 import com.dbn.common.event.ProjectEvents;
 import com.dbn.common.filter.Filter;
@@ -50,17 +50,13 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.common.list.action.ObjectListActionGroup;
 import com.dbn.object.common.property.DBObjectProperty;
-import com.intellij.ide.IdeTooltip;
-import com.intellij.ide.IdeTooltipManager;
 import com.intellij.openapi.actionSystem.ActionGroup;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.util.ActionCallback;
 import com.intellij.util.ui.tree.TreeUtil;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import javax.swing.JLabel;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.TreePath;
@@ -151,13 +147,12 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
             if (treePath == null) return;
 
             for (Object object : treePath.getPath()) {
-                BrowserTreeNode treeNode = (BrowserTreeNode) object;
-                if (isNotValid(treeNode)) {
+                if (!isValidTreeNode(object)) {
                     this.targetSelection = null;
                     return;
                 }
 
-
+                BrowserTreeNode treeNode = (BrowserTreeNode) object;
                 if (treeNode.equals(targetSelection)) {
                     break;
                 }
@@ -174,27 +169,19 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
         });
     }
 
-
-
+    @Nullable
     public BrowserTreeNode getSelectedNode() {
         TreePath selectionPath = getSelectionPath();
-        return selectionPath == null ? null : (BrowserTreeNode) selectionPath.getLastPathComponent();
+        if (selectionPath == null) return null;
+
+        Object object = selectionPath.getLastPathComponent();
+        if (!isValidTreeNode(object)) return null;
+
+        return (BrowserTreeNode) object;
     }
 
     private void selectPath(TreePath treePath) {
-        Dispatch.run(() -> {
-            DatabaseBrowserTree tree = DatabaseBrowserTree.this;
-            ActionCallback callback = TreeUtil.selectPath(tree, treePath, true);
-            if (callback == ActionCallback.REJECTED) {
-                Object target = treePath.getLastPathComponent();
-                if (target instanceof DBObject) {
-                    DBObject object = (DBObject) target;
-                    IdeTooltip tooltip = new IdeTooltip(tree, tree.getMousePosition(), new JLabel("Cannot navigate to " + object.getQualifiedNameWithType() + ". "));
-                    tooltip.setTextBackground(Colors.getWarningHintColor());
-                    IdeTooltipManager.getInstance().show(tooltip, true);
-                }
-            }
-        });
+        Dispatch.run(this, () -> TreeUtil.selectPath(this, treePath, true));
     }
 
 
@@ -318,13 +305,11 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                 if (!listenersEnabled) return;
 
                 Object object = e.getPath().getLastPathComponent();
-                if (isNotValid(object)) return;
+                if (!isValidTreeNode(object)) return;
 
-                if (object instanceof BrowserTreeNode) {
-                    BrowserTreeNode treeNode = (BrowserTreeNode) object;
-                    if (targetSelection == null || treeNode.equals(targetSelection)) {
-                        navigationHistory.add(treeNode);
-                    }
+                BrowserTreeNode treeNode = (BrowserTreeNode) object;
+                if (targetSelection == null || treeNode.equals(targetSelection)) {
+                    navigationHistory.add(treeNode);
                 }
 
                 ProjectEvents.notify(ensureProject(),
@@ -353,7 +338,10 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
     @Nullable
     @Override
     protected ActionGroup createContextActions(TreePath path) {
-        BrowserTreeNode pathNode = (BrowserTreeNode) path.getLastPathComponent();
+        Object node = path.getLastPathComponent();
+        if (!isValidTreeNode(node)) return null;
+
+        BrowserTreeNode pathNode = (BrowserTreeNode) node;
         if (isNotValid(pathNode)) return null;
 
         if (pathNode instanceof DBObjectList) {
@@ -402,5 +390,9 @@ public final class DatabaseBrowserTree extends DBNTree implements Borderless {
                 }
             }
         };
+    }
+
+    private static boolean isValidTreeNode(Object object) {
+        return object instanceof BrowserTreeNode && Checks.isValid(object);
     }
 }

@@ -17,10 +17,15 @@
 package com.dbn.common.util;
 
 import com.dbn.common.icon.Icons;
+import com.dbn.common.message.InteractiveMessage;
 import com.dbn.common.message.Message;
 import com.dbn.common.message.MessageBundle;
 import com.dbn.common.message.MessageCallback;
+import com.dbn.common.message.MessageType;
 import com.dbn.common.message.TitledMessage;
+import com.dbn.common.message.TitledMessageBundle;
+import com.dbn.common.message.ui.MessageBundleDialog;
+import com.dbn.common.message.ui.MessageBundleDialogConfig;
 import com.dbn.common.option.DoNotAskOption;
 import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.messages.DBNMessageDialog;
@@ -38,6 +43,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.Icon;
 
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.thread.Dispatch.getCurrentModalityState;
 import static com.dbn.common.ui.progress.ProgressDialogHandler.closeProgressDialogs;
 import static com.dbn.common.util.Commons.nvl;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
@@ -54,6 +60,12 @@ public class Messages {
     public static final String[] OPTIONS_RETRY_CANCEL = options(txt("msg.shared.button.Retry"), txt("msg.shared.button.Cancel"));
     public static final String[] OPTIONS_CONTINUE_CANCEL = options(txt("msg.shared.button.Continue"), txt("msg.shared.button.Cancel"));
 
+    public static void showMessagesDialog(@Nullable Project project, TitledMessageBundle messages) {
+        MessageBundleDialogConfig config = MessageBundleDialogConfig.create(project, messages.getTitle());
+        Dialogs.show(() -> new MessageBundleDialog(config, messages));
+    }
+
+    @Deprecated // use showMessageBundleDialog(Project project, TitledMessageBundle messages)
     public static void showErrorDialog(@Nullable Project project,  @DialogTitle String title, MessageBundle messages) {
         StringBuilder buffer = new StringBuilder();
         for (Message message : messages.getErrorMessages()) {
@@ -65,6 +77,21 @@ public class Messages {
 
     public static void showMessageDialog(@Nullable Project project, Message message) {
         String title = null;
+        if (message instanceof InteractiveMessage) {
+            InteractiveMessage interactiveMessage = (InteractiveMessage) message;
+
+            showDialog(project,
+                    interactiveMessage.getText(),
+                    interactiveMessage.getTitle(),
+                    interactiveMessage.getOptions(),
+                    interactiveMessage.getDefaultOptionIndex(),
+                    getDialogIcon(interactiveMessage.getType()),
+                    interactiveMessage.getCallback(),
+                    interactiveMessage.getDoNotAskOption());
+            return;
+
+        }
+
         if (message instanceof TitledMessage) {
             TitledMessage titledMessage = (TitledMessage) message;
             title = titledMessage.getTitle();
@@ -75,6 +102,18 @@ public class Messages {
             case ERROR: showErrorDialog(project, nvl(title, txt("msg.shared.title.Error")), message.getText()); break;
             case WARNING: showWarningDialog(project, nvl(title, txt("msg.shared.title.Warning")), message.getText()); break;
             default:
+        }
+    }
+
+
+    private static Icon getDialogIcon(MessageType messageType) {
+        switch (messageType) {
+            case INFO: return Icons.DIALOG_INFORMATION;
+            case ERROR: return Icons.DIALOG_ERROR;
+            case WARNING: return Icons.DIALOG_WARNING;
+            case QUESTION: return Icons.DIALOG_QUESTION;
+            case SUCCESS: return Icons.DIALOG_SUCCESS;
+            default: return null;
         }
     }
 
@@ -156,7 +195,7 @@ public class Messages {
             @Nullable MessageCallback callback,
             @Nullable DoNotAskOption doNotAskOption) {
 
-        Dispatch.run(getModalityState(), () -> {
+        Dispatch.execute(getCurrentModalityState(), () -> {
             if (project != null) nd(project);
             int option = showDialog(project, message, title, options, defaultOptionIndex, icon, doNotAskOption);
             //int option = com.intellij.openapi.ui.Messages.showDialog(project, message, Titles.signed(title), options, defaultOptionIndex, icon, doNotAskOption);

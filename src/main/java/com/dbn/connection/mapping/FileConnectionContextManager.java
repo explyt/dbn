@@ -129,7 +129,11 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
     }
 
     public void openFileConnectionMappings() {
-        Dialogs.show(() -> new FileConnectionMappingDialog(getProject()));
+        openFileConnectionMappings(null);
+    }
+
+    public void openFileConnectionMappings(FileConnectionContext selectedContext) {
+        Dialogs.show(() -> new FileConnectionMappingDialog(getProject(), selectedContext));
     }
 
 
@@ -467,6 +471,7 @@ public class FileConnectionContextManager extends ProjectComponentBase implement
         FileConnectionContextRegistry registry = this.registry;
         if (registry == null) return;
 
+        indicator.setIndeterminate(false);
         FileMappings<FileConnectionContext> mappings = registry.getMappings();
         List<Element> mappingElements = element.getChildren();
         int size = mappingElements.size();

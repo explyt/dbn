@@ -18,11 +18,7 @@ package com.dbn.common.latent;
 
 
 import com.dbn.common.color.Colors;
-import com.dbn.common.latent.impl.BasicLatent;
-import com.dbn.common.latent.impl.MutableLatent;
-import com.dbn.common.latent.impl.ReloadableLatent;
-import com.dbn.common.latent.impl.ThreadLocalLatent;
-import com.dbn.common.latent.impl.WeakRefLatent;
+import com.dbn.common.latent.impl.LatentFactory;
 import com.dbn.common.routine.ParametricCallable;
 import org.jetbrains.annotations.NotNull;
 
@@ -43,30 +39,36 @@ public interface Latent<T> extends Supplier<T> {
     }
 
     static <T> Latent<T> basic(Loader<T> loader) {
-        return new BasicLatent<>(loader);
+        return LatentFactory.basic(loader);
     }
 
-    static <T, M> Latent<T> mutable(Loader<M> mutableLoader, Loader<T> loader) {
-        return new MutableLatent<>(mutableLoader, loader);
+    static <T, S> Latent<T> mutable(Loader<S> signatureLoader, Loader<T> valueLoader) {
+        return LatentFactory.mutable(signatureLoader, valueLoader);
     }
 
-    static <P, T> Latent<T> reloadable(long interval, TimeUnit intervalUnit, P param, ParametricCallable<P, T, RuntimeException> callable) {
-        return new ReloadableLatent<>(interval, intervalUnit, () -> callable.call(param));
+    static <T> Latent<T> recursive(Loader<T> loader) {
+        return LatentFactory.recursive(loader);
     }
 
-    static <T> WeakRefLatent<T> weak(Loader<T> loader) {
-        return new WeakRefLatent<>(loader);
+    static <P, T> Latent<T> reloadable(long interval, TimeUnit intervalUnit, P param, ParametricCallable<P, T, RuntimeException> loader) {
+        return LatentFactory.reloadable(interval, intervalUnit, param, loader);
     }
 
+    static <T> Latent<T> weak(Loader<T> loader) {
+        return LatentFactory.weak(loader);
+    }
+
+    static <T> Latent<T> thread(Loader<T> loader) {
+        return LatentFactory.thread(loader);
+    }
+
+    /**
+     * Latent listening to color-scheme changes.
+     * @deprecated use dual-color JBColor everywhere and decommission this
+     */
     static <T> Latent<T> laf(Loader<T> loader) {
         Latent<T> latent = basic(loader);
         Colors.subscribe(null, () -> latent.reset());
         return latent;
     }
-
-
-    static <T> ThreadLocalLatent<T> thread(Loader<T> loader) {
-        return new ThreadLocalLatent<>(loader);
-    }
-
 }

@@ -20,12 +20,14 @@ import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.compatibility.Compatibility;
 import com.dbn.common.compatibility.Workaround;
 import com.dbn.common.dispose.Failsafe;
+import com.dbn.common.icon.DBObjectIcon;
 import com.dbn.common.ref.WeakRefCache;
 import com.dbn.common.util.SlowOps;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.connection.ConnectionId;
 import com.dbn.connection.SchemaId;
 import com.dbn.connection.session.DatabaseSession;
+import com.dbn.object.DBJavaClass;
 import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectList;
 import com.dbn.object.lookup.DBObjectRef;
@@ -36,6 +38,7 @@ import com.intellij.openapi.fileTypes.UnknownFileType;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.PsiDirectory;
+import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,15 +47,19 @@ import java.io.File;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
 import static com.dbn.common.dispose.Failsafe.nd;
+import static com.dbn.common.util.Unsafe.cast;
 import static com.dbn.object.lookup.DBJavaNameCache.getCanonicalName;
 
+@Getter
 public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
     private static final WeakRefCache<DBObjectRef, DBObjectVirtualFile> virtualFileCache = WeakRefCache.weakKey();
     protected final DBObjectRef<T> object;
+    private final Icon icon;
 
     public DBObjectVirtualFile(@NotNull Project project, @NotNull DBObjectRef<T> object) {
         super(project, object.getFileName());
         this.object = object;
+        this.icon = new DBObjectIcon(object);
     }
 
     public static DBObjectVirtualFile<?> of(DBObject object) {
@@ -63,6 +70,7 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
         return virtualFileCache.get(objectRef, o -> new DBObjectVirtualFile(o.getProject(), o));
     }
 
+    @NotNull
     public DBObjectType getObjectType() {
         return object.getObjectType();
     }
@@ -122,7 +130,8 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
     @Override
     public @NotNull String getPresentableName() {
         if (getObjectType() == DBObjectType.JAVA_CLASS) {
-            return getCanonicalName(getName());
+            DBObjectRef<DBJavaClass> objectRef = cast(getObjectRef());
+            return getCanonicalName(objectRef);
         }
         return super.getPresentableName();
     }
@@ -176,13 +185,6 @@ public class DBObjectVirtualFile<T extends DBObject> extends DBVirtualFileBase {
             return psiDirectory.getVirtualFile();
         }
         return null;
-    }
-
-
-    @Override
-    public Icon getIcon() {
-        T object = guarded(null, () -> getObject());
-        return object == null ? getObjectType().getIcon() : object.getIcon();
     }
 
     @Override

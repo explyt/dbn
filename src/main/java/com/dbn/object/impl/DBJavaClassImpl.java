@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@ package com.dbn.object.impl;
 import com.dbn.browser.DatabaseBrowserUtils;
 import com.dbn.browser.model.BrowserTreeNode;
 import com.dbn.common.icon.Icons;
+import com.dbn.common.util.Java;
 import com.dbn.common.util.Strings;
 import com.dbn.connection.ConnectionHandler;
 import com.dbn.database.common.metadata.def.DBJavaClassMetadata;
 import com.dbn.database.interfaces.DatabaseDataDefinitionInterface;
 import com.dbn.database.interfaces.DatabaseInterfaceInvoker;
-import com.dbn.database.interfaces.DatabaseMetadataInterface;
 import com.dbn.editor.DBContentType;
+import com.dbn.nls.NlsResources;
 import com.dbn.object.DBJavaClass;
 import com.dbn.object.DBJavaField;
 import com.dbn.object.DBJavaMethod;
@@ -40,6 +41,7 @@ import com.dbn.object.lookup.DBJavaNameCache;
 import com.dbn.object.lookup.DBObjectRef;
 import com.dbn.object.type.DBJavaAccessibility;
 import com.dbn.object.type.DBJavaClassKind;
+import com.dbn.object.type.DBJavaScalarType;
 import com.dbn.object.type.DBObjectType;
 import lombok.Getter;
 import org.jetbrains.annotations.NotNull;
@@ -59,6 +61,8 @@ import static com.dbn.object.common.property.DBObjectProperty.FINAL;
 import static com.dbn.object.common.property.DBObjectProperty.INNER;
 import static com.dbn.object.common.property.DBObjectProperty.INVALIDABLE;
 import static com.dbn.object.common.property.DBObjectProperty.PRIMITIVE;
+import static com.dbn.object.common.property.DBObjectProperty.SCALAR;
+import static com.dbn.object.common.property.DBObjectProperty.SOURCE;
 import static com.dbn.object.common.property.DBObjectProperty.STATIC;
 import static com.dbn.object.type.DBJavaClassKind.ENUM;
 import static com.dbn.object.type.DBJavaClassKind.INTERFACE;
@@ -95,13 +99,18 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 		this.kind = DBJavaClassKind.get(metadata.getObjectKind());
 		this.accessibility = DBJavaAccessibility.get(metadata.getAccessibility());
 
+		String className = metadata.getObjectName();
+
 		set(FINAL, metadata.isFinal());
 		set(ABSTRACT, metadata.isAbstract());
 		set(STATIC, metadata.isStatic());
 		set(INNER, metadata.isInner());
 		set(PRIMITIVE, metadata.isPrimitive());
+		set(SOURCE, metadata.isSource());
+		set(SCALAR, isPrimitive() || DBJavaScalarType.isScalar(className));
 
-		return metadata.getObjectName();
+
+		return className;
 	}
 
 
@@ -144,12 +153,27 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 
 	@Override
 	public String getCanonicalName() {
-		return DBJavaNameCache.getCanonicalName(getName());
+		return DBJavaNameCache.getCanonicalName(ref());
 	}
 
 	@Override
 	public String getSimpleName() {
-		return DBJavaNameCache.getSimpleName(getName());
+		return DBJavaNameCache.getSimpleName(ref());
+	}
+
+	@Override
+	public String getPackageName() {
+		return Java.getPackageName(getCanonicalName());
+	}
+
+	@Override
+	public String getQualifiedName() {
+		return getSchemaName() + "." + getCanonicalName();
+	}
+
+	@Override
+	public String getQualifiedNameWithType() {
+		return NlsResources.txt("app.object.label.QualifiedNameWithType", JAVA_CLASS.getName(), getQualifiedName());
 	}
 
 	@Override
@@ -196,6 +220,16 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 	@Override
 	public boolean isPrimitive() {
 		return is(PRIMITIVE);
+	}
+
+	@Override
+	public boolean isScalar() {
+		return is(SCALAR);
+	}
+
+	@Override
+	public boolean isSource() {
+		return is(SOURCE);
 	}
 
 	@Override
@@ -250,14 +284,22 @@ public class DBJavaClassImpl extends DBSchemaObjectImpl<DBJavaClassMetadata> imp
 				"Updating sources of " + getQualifiedNameWithType(),
 				getProject(),
 				getConnectionId(),
-				getSchemaId(),
 				conn -> {
 					ConnectionHandler connection = getConnection();
 					DatabaseDataDefinitionInterface dataDefinitionInterface = connection.getDataDefinitionInterface();
-					dataDefinitionInterface.updateJavaClass(getName(true), newCode, conn);
+					String schemaName = getSchemaName(true);
+					String name = getName(true);
 
-					DatabaseMetadataInterface metadataInterface = connection.getMetadataInterface();
-					metadataInterface.compileJavaClass(getSchemaName(true), getName(true), conn);
+					dataDefinitionInterface.updateJavaSource(
+							schemaName,
+							name,
+							newCode.getBytes(),
+							conn);
+
+					dataDefinitionInterface.compileJavaClass(
+							schemaName,
+							name,
+							conn);
 				});
 	}
 

@@ -32,15 +32,17 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.JComponent;
 
 import static com.dbn.common.dispose.Failsafe.guarded;
+import static com.dbn.common.util.Modality.nonModal;
 
 public abstract class EditorNotificationProvider<T extends JComponent>
         extends EditorNotifications.Provider<T>
         implements NonProjectFileWritingAccessExtension, Disposable {
 
     public void updateEditorNotification(@NotNull Project project, @Nullable DBContentVirtualFile databaseContentFile) {
-        Dispatch.run(() -> Editors.updateNotifications(project, DBEditableObjectVirtualFile.of(databaseContentFile)));
+        Dispatch.run(nonModal(), () -> Editors.updateNotifications(project, DBEditableObjectVirtualFile.of(databaseContentFile)));
     }
 
+    @Override
     public final T createNotificationPanel(@NotNull VirtualFile virtualFile, @NotNull FileEditor fileEditor, @NotNull Project project) {
         return guarded(null, () -> createComponent(virtualFile, fileEditor, project));
     }

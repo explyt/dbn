@@ -18,13 +18,9 @@ package com.dbn.editor.data.ui;
 
 import com.dbn.common.action.BasicAction;
 import com.dbn.common.action.DataKeys;
-import com.dbn.common.action.DataProviders;
 import com.dbn.common.dispose.Disposer;
-import com.dbn.common.dispose.Failsafe;
 import com.dbn.common.icon.Icons;
-import com.dbn.common.latent.Latent;
 import com.dbn.common.ref.WeakRef;
-import com.dbn.common.thread.Dispatch;
 import com.dbn.common.ui.AutoCommitLabel;
 import com.dbn.common.ui.form.DBNFormBase;
 import com.dbn.common.ui.misc.DBNTableScrollPane;
@@ -64,6 +60,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.dbn.common.dispose.Failsafe.nn;
 import static com.dbn.common.ui.util.Accessibility.setAccessibleName;
 import static com.dbn.diagnostics.Diagnostics.conditionallyLog;
 
@@ -83,14 +80,6 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     private DatasetEditorTable datasetEditorTable;
     private final WeakRef<DatasetEditor> datasetEditor;
 
-    private final Latent<DataSearchComponent> dataSearchComponent = Latent.basic(() -> {
-        DataSearchComponent dataSearchComponent = new DataSearchComponent(DatasetEditorForm.this);
-        searchPanel.add(dataSearchComponent.getComponent(), BorderLayout.CENTER);
-        DataProviders.register(dataSearchComponent.getSearchField(), this);
-        return dataSearchComponent;
-    });
-
-
     public DatasetEditorForm(DatasetEditor datasetEditor) {
         super(datasetEditor, datasetEditor.getProject());
         this.datasetEditor = WeakRef.of(datasetEditor);
@@ -102,7 +91,6 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
             datasetTablePanel.setBorder(Borders.tableBorder(1, 0, 0, 0));
             datasetEditorTable = new DatasetEditorTable(this, datasetEditor);
             datasetTableScrollPane.setViewportView(datasetEditorTable);
-            datasetEditorTable.initTableGutter();
 
             ActionToolbar actionToolbar = Actions.createActionToolbar(actionsPanel, true, "DBNavigator.ActionGroup.DataEditor");
             setAccessibleName(actionToolbar, txt("app.dataEditor.aria.DatasetEditorActions"));
@@ -173,10 +161,9 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
 
         // update viewport and co. only if table was rebuilt (a.i. the old table is not null)
         if (oldEditorTable == null) return;
-        Dispatch.run(() -> {
+        dispatch(() -> {
             DatasetEditorTable datasetEditorTable = getEditorTable();
             datasetTableScrollPane.setViewportView(datasetEditorTable);
-            datasetEditorTable.initTableGutter();
             datasetEditorTable.updateBackground(false);
 
             Disposer.dispose(oldEditorTable);
@@ -201,16 +188,16 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     }
 
     public void showLoadingHint() {
-        Dispatch.run(() -> Failsafe.nn(loadingDataPanel).setVisible(true));
+        dispatch(() -> nn(loadingDataPanel).setVisible(true));
     }
 
     public void hideLoadingHint() {
-        Dispatch.run(() -> Failsafe.nn(loadingDataPanel).setVisible(false));
+        dispatch(() -> nn(loadingDataPanel).setVisible(false));
     }
 
     @NotNull
     public DatasetEditorTable getEditorTable() {
-        return Failsafe.nn(datasetEditorTable);
+        return nn(datasetEditorTable);
     }
 
     private ConnectionHandler getConnectionHandler() {
@@ -225,6 +212,12 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
     /*********************************************************
      *              SearchableDataComponent                  *
      *********************************************************/
+    @NotNull
+    @Override
+    public JPanel getSearchPanel() {
+        return searchPanel;
+    }
+
     @Override
     public void showSearchHeader() {
         DatasetEditorTable editorTable = getEditorTable();
@@ -240,11 +233,7 @@ public class DatasetEditorForm extends DBNFormBase implements SearchableDataComp
         } else {
             searchPanel.setVisible(true);    
         }
-        Dispatch.run(() -> searchField.requestFocus());
-    }
-
-    private DataSearchComponent getSearchComponent() {
-        return dataSearchComponent.get();
+        dispatch(() -> searchField.requestFocus());
     }
 
     @Override

@@ -80,8 +80,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
         setTransferHandler(DBNTableTransferHandler.INSTANCE);
         initTableSorter();
         setCellSelectionEnabled(true);
-        getRowSorter().toggleSortOrder(2);
-        adjustColumnWidths();
+        getRowSorter().toggleSortOrder(0);
 
         Keyboard.onKeyPress(this, KeyEvent.VK_SPACE, e -> showSelector());
         Mouse.onMouseClick(this, MouseEvent.BUTTON1, 1, e -> showSelector());
@@ -100,6 +99,20 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
     public void setModel(@NotNull TableModel dataModel) {
         super.setModel(dataModel);
         initTableSorter();
+    }
+
+    public void selectMapping(@Nullable FileConnectionContext context) {
+        if (context == null) return;
+
+        VirtualFile file = context.getFile();
+        if (file == null) return;
+
+        int rowIndex = getModel().indexOf(context.getFile());
+        if (rowIndex < 0) return;
+
+        rowIndex = convertRowIndexToView(rowIndex);
+
+        changeSelection(rowIndex, 0, false, false);
     }
 
     private static class CellRenderer extends DBNColoredTableCellRenderer {
@@ -123,7 +136,7 @@ public class FileConnectionMappingTable extends DBNTable<FileConnectionMappingTa
                 setIcon(virtualFile.getFileType().getIcon());
             }
 
-            if (!selected) {
+            if (!selected && column == 4) {
                 ConnectionHandler connection = entry.getConnection();
                 if (connection != null) {
                     Color color = connection.getEnvironmentType().getColor();

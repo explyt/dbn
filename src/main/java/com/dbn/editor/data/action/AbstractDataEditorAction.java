@@ -1,5 +1,5 @@
 /*
- * Copyright 2024 Oracle and/or its affiliates
+ * Copyright 2025 Oracle and/or its affiliates
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,14 @@
 
 package com.dbn.editor.data.action;
 
+import com.dbn.common.action.BackgroundUpdate;
 import com.dbn.common.action.ContextAction;
 import com.dbn.editor.data.DatasetEditor;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractDataEditorAction extends ContextAction<DatasetEditor> {
+@BackgroundUpdate
+abstract class AbstractDataEditorAction extends ContextAction<DatasetEditor> {
 
     @Override
     protected DatasetEditor getContext(@NotNull AnActionEvent e) {

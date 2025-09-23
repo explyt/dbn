@@ -18,6 +18,7 @@ package com.dbn.object.impl;
 
 import com.dbn.object.DBColumn;
 import com.dbn.object.DBConstraint;
+import com.dbn.object.common.DBObject;
 import com.dbn.object.common.list.DBObjectRelationImpl;
 import com.dbn.object.type.DBObjectRelationType;
 import lombok.Getter;
@@ -29,6 +30,13 @@ class DBConstraintColumnRelation extends DBObjectRelationImpl<DBConstraint, DBCo
     DBConstraintColumnRelation(DBConstraint constraint, DBColumn column, short position) {
         super(DBObjectRelationType.CONSTRAINT_COLUMN, constraint, column);
         this.position = position;
+    }
+
+    @Override
+    public DBObject getRelationHolder() {
+        DBColumn column = getColumn();
+        DBObject parentObject = column.getParentObject();
+        return parentObject == null ? column : parentObject;
     }
 
     public DBConstraint getConstraint() {

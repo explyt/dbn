@@ -102,7 +102,7 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
         }
 
         getConnectionCache().visit(
-                c -> c.getType().matches(connectionTypes),
+                c -> c.getConnectionType().matches(connectionTypes),
                 c -> connections.add(c));
         return connections;
     }
@@ -143,7 +143,7 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
         if (connection.isPoolConnection()) {
             getConnectionPool().release(connection);
         } else {
-            log.error("Trying to release non-POOL connection: " + connection.getType(), new IllegalArgumentException("No POOL connection"));
+            log.error("Trying to release non-POOL connection: " + connection.getConnectionType(), new IllegalArgumentException("No POOL connection"));
         }
 
     }
@@ -180,7 +180,7 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
     public boolean isConnected(SessionId sessionId) {
 
         if (sessionId == SessionId.POOL) {
-            return getConnectionPool().size() > 0;
+            return !getConnectionPool().isEmpty();
         }
 
         if (sessionId != null) {
@@ -188,6 +188,14 @@ public final class ConnectionPool extends ConnectionComponentBase implements Not
             return connection != null && !connection.isClosed() && connection.isValid();
         }
         return false;
+    }
+
+    public void release(DBNConnection connection) {
+        if (connection.isPoolConnection()) {
+            getConnectionPool().release(connection);
+        } else {
+            getConnectionCache().release(connection.getSessionId());
+        }
     }
 
     void clean() {

@@ -117,7 +117,7 @@ public class CredentialManagementForm extends DBNFormBase {
     whenShown(() -> loadCredentials());
   }
   private void initChangeListener() {
-    ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType) -> {
+    ProjectEvents.subscribe(ensureProject(), this, ObjectChangeListener.TOPIC, (connectionId, ownerId, objectType, operation) -> {
       if (connectionId != getConnectionId()) return;
       if (objectType == CREDENTIAL) reloadCredentials();
       if (objectType == AI_PROFILE) evaluateCredentialUsage();
@@ -195,7 +195,7 @@ public class CredentialManagementForm extends DBNFormBase {
     Messages.showQuestionDialog(getProject(),
             txt("msg.assistant.title.DeleteCredential"),
             detailedMessage.toString(),
-            Messages.OPTIONS_YES_NO, 1,
+            Messages.OPTIONS_YES_NO, 0,
             option -> when(option == 0, () -> removeCredential(credential)));
   }
 

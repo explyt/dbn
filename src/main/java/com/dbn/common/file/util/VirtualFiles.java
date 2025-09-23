@@ -23,9 +23,11 @@ import com.dbn.object.common.DBSchemaObject;
 import com.dbn.vfs.DBVirtualFileBase;
 import com.dbn.vfs.DatabaseFileSystem;
 import com.dbn.vfs.file.DBEditableObjectVirtualFile;
+import com.intellij.ide.highlighter.ArchiveFileType;
 import com.intellij.injected.editor.VirtualFileWindow;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.JarFileSystem;
 import com.intellij.openapi.vfs.LocalFileSystem;
 import com.intellij.openapi.vfs.StandardFileSystems;
 import com.intellij.openapi.vfs.VfsUtilCore;
@@ -82,8 +84,16 @@ public final class VirtualFiles {
         return file != null;
     }
 
+    public static boolean isArchive(@NotNull VirtualFile file) {
+        return file.getFileType() == ArchiveFileType.INSTANCE;
+    }
+
     public static boolean isDatabaseFileSystem(@NotNull VirtualFile file) {
         return file.getFileSystem() instanceof DatabaseFileSystem;
+    }
+
+    public static boolean isJarFileSystem(@NotNull VirtualFile file) {
+        return file.getFileSystem() instanceof JarFileSystem;
     }
 
     public static boolean isLocalFileSystem(@NotNull VirtualFile file) {
@@ -92,6 +102,13 @@ public final class VirtualFiles {
 
     public static boolean isVirtualFileSystem(@NotNull VirtualFile file) {
         return !isDatabaseFileSystem(file) && !isLocalFileSystem(file);
+    }
+
+    public static VirtualFile getJarFileRoot(@NotNull VirtualFile file) {
+        if (isJarFileSystem(file)) return file;
+
+        JarFileSystem jarFileSystem = JarFileSystem.getInstance();
+        return jarFileSystem.getJarRootForLocalFile(file);
     }
 
     public static VirtualFile ioFileToVirtualFile(File file) {
